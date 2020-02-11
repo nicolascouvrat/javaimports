@@ -64,7 +64,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.nikodoko.importer.Main</mainClass>
+              <mainClass>com.nikodoko.importer.CLI</mainClass>
             </manifest>
           </archive>
         </configuration>

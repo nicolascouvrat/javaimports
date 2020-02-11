@@ -3,11 +3,11 @@ package com.nikodoko.importer;
 import java.util.Arrays;
 
 /** The main class for the CLI */
-public final class Main {
-  private Main() {}
+public final class CLI {
+  private CLI() {}
 
   public static void main(String[] args) {
-    Main parser = new Main();
+    CLI parser = new CLI();
     int result = parser.parse(args);
 
     System.exit(result);
