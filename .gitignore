@@ -3,3 +3,6 @@
 
 # Maven
 target/
+
+# Ctags
+tags
