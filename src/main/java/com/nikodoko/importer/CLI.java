@@ -36,15 +36,23 @@ public final class CLI {
 
   public int parse(String... args) {
     CLIOptions params = CLIOptionsParser.parse(Arrays.asList(args));
-    System.out.println(params.file());
 
     Path path = Paths.get(params.file());
     String input;
     try {
       input = new String(Files.readAllBytes(path), UTF_8);
-      System.out.println(input);
     } catch (IOException e) {
       errWriter.println(params.file() + ": could not read file: " + e.getMessage());
+      return 1;
+    }
+
+    try {
+      ImportFixer.addUsedImports(input);
+    } catch (ImporterException e) {
+      for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
+        errWriter.println(d);
+      }
+
       return 1;
     }
 
