@@ -1,0 +1,11 @@
+package com.nikodoko.example;
+
+import static com.google.truth.Truth.assertThat;
+
+public class SomeClass {
+  void someFunction() {
+    List<String> xs = null;
+
+    assertThat(xs).isNull()
+  }
+}
