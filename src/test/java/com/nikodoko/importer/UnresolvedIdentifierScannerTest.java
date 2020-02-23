@@ -18,16 +18,19 @@ public class UnresolvedIdentifierScannerTest {
   public static Collection<Object[]> parameters() {
     String[][][] inputOutputs = {
       {
+        // Test that we handle scoping correctly in methods
         {
           "class Test {",
-          "  public static void main(String[] args) {",
-          "    A.staticFunction(args);",
+          "  public void g() {",
+          "    int c = f(b);",
+          "  }",
+          "  public int f(int a) {",
+          "    int b = 2;",
+          "    return a + b;",
           "  }",
           "}",
         },
-        // String will pop up as it is in the universe scope, which UnresolvedIdentifierScanner does
-        // not know about
-        {"A", "String"},
+        {"b"},
       },
     };
     ImmutableList.Builder<Object[]> builder = ImmutableList.builder();
@@ -52,6 +55,6 @@ public class UnresolvedIdentifierScannerTest {
   public void scanTest() throws Exception {
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
     scanner.scan(ImportFixer.parse(new Context(), input), null);
-    assertThat(scanner.unresolved()).isEqualTo(expected);
+    assertThat(scanner.unresolved()).containsExactlyElementsIn(expected);
   }
 }
