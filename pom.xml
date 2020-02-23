@@ -14,10 +14,17 @@
   <properties>
     <junit.version>4.12</junit.version>
     <java.version>1.8</java.version>
+    <guava.version>28.2-jre</guava.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
+      <!-- Google Guava -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
       <!-- Test dependencies -->
       <dependency>
         <groupId>junit</groupId>
@@ -29,6 +36,11 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- Google Guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
     <!-- Test dependencies -->
     <dependency>
       <groupId>junit</groupId>
