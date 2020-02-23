@@ -15,6 +15,7 @@
     <junit.version>4.12</junit.version>
     <java.version>1.8</java.version>
     <guava.version>28.1-jre</guava.version>
+    <truth.version>1.0.1</truth.version>
   </properties>
 
   <dependencyManagement>
@@ -32,6 +33,12 @@
         <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>com.google.truth</groupId>
+        <artifactId>truth</artifactId>
+        <version>${truth.version}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -45,6 +52,11 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

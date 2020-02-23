@@ -2,6 +2,7 @@ package com.nikodoko.importer;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.parser.ParserFactory;
@@ -54,8 +55,8 @@ public final class ImportFixer {
   }
 
   /** Parse the input as java code */
-  private static JCCompilationUnit parse(Context ctx, final String javaCode)
-      throws ImporterException {
+  @VisibleForTesting
+  static JCCompilationUnit parse(Context ctx, final String javaCode) throws ImporterException {
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     ctx.put(DiagnosticListener.class, diagnostics);
     JCCompilationUnit unit;

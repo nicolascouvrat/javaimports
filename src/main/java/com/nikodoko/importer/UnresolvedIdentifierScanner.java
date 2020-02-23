@@ -26,10 +26,10 @@ import javax.lang.model.element.Name;
  * unresolved set.
  *
  * <p>Note that this will not consider any imports already present in the AST, meaning that all
- * identifiers referring to imported packages will be marked as unresolved. This is because {@link
- * com.sun.source.tree.ImportTree} does not contain the imported name. Similarly, it will also
- * contained a "trash" identifier that is in fact the package root ({@code package com.example;}
- * will produce {@code "com"}).
+ * identifiers referring to imported packages will be marked as unresolved (this is because {@link
+ * com.sun.source.tree.ImportTree} does not contain the imported name). Similarly, it will also
+ * contain a "trash" identifier that is in fact the package root ({@code package com.example;} will
+ * produce {@code "com"}).
  */
 public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private final Set<String> unresolved = new HashSet<>();
