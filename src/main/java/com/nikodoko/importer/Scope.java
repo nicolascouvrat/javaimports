@@ -3,16 +3,26 @@ package com.nikodoko.importer;
 import com.google.common.base.MoreObjects;
 import java.util.HashSet;
 import java.util.Set;
+import javax.lang.model.element.Name;
 
 /**
  * Maintains the set of named language entities delared in the scope, as well as a link to the
  * immediately surrounding (parent) scope.
+ *
+ * <p>The top level scope should have {@code parent==null}.
  */
 public class Scope {
-  private Set<String> entities = new HashSet<>();
+  private Set<Name> entities = new HashSet<>();
   private Scope parent;
 
-  public Scope() {}
+  /**
+   * The {@code Scope} constructor.
+   *
+   * @param parent its parent scope
+   */
+  public Scope(Scope parent) {
+    this.parent = parent;
+  }
 
   public Scope parent() {
     return parent;
@@ -24,7 +34,7 @@ public class Scope {
    * @param identifier the identifier to look for
    * @return whether the identifier was found
    */
-  public boolean lookup(String identifier) {
+  public boolean lookup(Name identifier) {
     return entities.contains(identifier);
   }
 
@@ -33,7 +43,7 @@ public class Scope {
    *
    * @param identifier the identifier to add
    */
-  public void insert(String identifier) {
+  public void insert(Name identifier) {
     entities.add(identifier);
   }
 

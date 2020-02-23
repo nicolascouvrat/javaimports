@@ -14,7 +14,7 @@
   <properties>
     <junit.version>4.12</junit.version>
     <java.version>1.8</java.version>
-    <guava.version>28.2-jre</guava.version>
+    <guava.version>28.1-jre</guava.version>
   </properties>
 
   <dependencyManagement>
@@ -80,6 +80,25 @@
             </manifest>
           </archive>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4.3</version>
+        <executions>
+          <execution>
+            <id>shade-all-deps</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>all-deps</shadedClassifierName>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

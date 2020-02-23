@@ -6,6 +6,9 @@ import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
 import java.io.File;
@@ -32,11 +35,25 @@ public final class ImportFixer {
     return d.getKind() == Diagnostic.Kind.ERROR;
   }
 
+  private static String getPackageRootName(JCExpression expr) {
+    JCExpression selected = expr;
+    while (!(selected instanceof JCIdent)) {
+      selected = ((JCFieldAccess) selected).getExpression();
+    }
+    return ((JCIdent) selected).getName().toString();
+  }
+
   public static void addUsedImports(final String javaCode) throws ImporterException {
     Context ctx = new Context();
     JCCompilationUnit unit = parse(ctx, javaCode);
+    UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
+    scanner.scan(unit, null);
+    System.out.println(scanner.unresolved());
+    System.out.println(unit.getPackageName());
+    System.out.println(getPackageRootName((JCExpression) unit.getPackageName()));
   }
 
+  /** Parse the input as java code */
   private static JCCompilationUnit parse(Context ctx, final String javaCode)
       throws ImporterException {
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
