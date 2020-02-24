@@ -71,7 +71,7 @@ public class UnresolvedIdentifierScannerTest {
       },
       {
         {
-          // Test that we handle scoping correctly in while blocks
+          // Test that we handle scoping correctly in while loops
           "class Test {",
           "  public void f() {",
           "    while (true) {",
@@ -85,7 +85,7 @@ public class UnresolvedIdentifierScannerTest {
       },
       {
         {
-          // Test that we handle scoping correctly in do-while blocks
+          // Test that we handle scoping correctly in do-while loops
           "class Test {",
           "  public void f() {",
           "    do {",
@@ -116,6 +116,46 @@ public class UnresolvedIdentifierScannerTest {
           "}",
         },
         {"c"},
+      },
+      {
+        {
+          // Test that we handle scoping correctly in try-catch-finally
+          "class Test {",
+          "  public void f() {",
+          "    try {",
+          "      int a = 1;",
+          "    } catch (SomeException e) {",
+          "      int b = e.getErrorCode();",
+          "    } catch (Exception e) {",
+          "      int c = a;",
+          "    } finally {",
+          "      int d = b;",
+          "    }",
+          "    int var = c + e;",
+          "  }",
+          "}",
+        },
+        {"SomeException", "Exception", "a", "b", "c", "e"},
+      },
+      {
+        {
+          // Test that we handle scoping correctly in try-catch-finally (with resource)
+          "class Test {",
+          "  public void f() {",
+          "    try (int r = 1) {",
+          "      int a = 1 + r;",
+          "    } catch (SomeException e) {",
+          "      int b = e.getErrorCode();",
+          "    } catch (Exception e) {",
+          "      int c = a + r;",
+          "    } finally {",
+          "      int d = b + r;",
+          "    }",
+          "    int var = c + e + r;",
+          "  }",
+          "}",
+        },
+        {"SomeException", "Exception", "a", "b", "c", "e", "r"},
       },
     };
     ImmutableList.Builder<Object[]> builder = ImmutableList.builder();

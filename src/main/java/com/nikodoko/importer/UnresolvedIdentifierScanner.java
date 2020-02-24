@@ -2,12 +2,14 @@ package com.nikodoko.importer;
 
 import com.google.common.collect.Sets;
 import com.sun.source.tree.BlockTree;
+import com.sun.source.tree.CatchTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.SwitchTree;
+import com.sun.source.tree.TryTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePathScanner;
 import java.util.Set;
@@ -23,7 +25,9 @@ import javax.lang.model.element.Name;
  *
  * <ul>
  *   <li>methods
- *   <li>classes TODO: add more!
+ *   <li>classes
+ *   <li>for loops and other control structures
+ *   <li>try-catch-finally (with resource or no)TODO: and more
  * </ul>
  *
  * Everytime an Identifier is encountered, it tries to resolve it by looking it up in all scopes up
@@ -103,6 +107,16 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return withScope(super::visitBlock).apply(tree, v);
   }
 
+  @Override
+  public Void visitTry(TryTree tree, Void v) {
+    return withScope(super::visitTry).apply(tree, v);
+  }
+
+  @Override
+  public Void visitCatch(CatchTree tree, Void v) {
+    return withScope(super::visitCatch).apply(tree, v);
+  }
+
   // visitSwitch does not call visitBlock so has to be implemented separately
   @Override
   public Void visitSwitch(SwitchTree tree, Void v) {
@@ -130,12 +144,6 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   @Override
-  public Void visitVariable(VariableTree tree, Void v) {
-    declare(tree.getName());
-    return super.visitVariable(tree, v);
-  }
-
-  @Override
   public Void visitClass(ClassTree tree, Void v) {
     // Declare the class name in the current scope before opening a new one
     declare(tree.getSimpleName());
@@ -151,6 +159,12 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     }
     closeScope();
     return r;
+  }
+
+  @Override
+  public Void visitVariable(VariableTree tree, Void v) {
+    declare(tree.getName());
+    return super.visitVariable(tree, v);
   }
 
   @Override
