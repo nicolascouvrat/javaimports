@@ -3,11 +3,15 @@ package com.nikodoko.importer;
 import com.google.common.collect.Sets;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.EnhancedForLoopTree;
+import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePathScanner;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import javax.lang.model.element.Name;
 
@@ -65,13 +69,56 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
       }
       current = current.parent();
     }
-
     return false;
   }
 
+  /**
+   * Surround a visitXX function in a scope
+   *
+   * @param f the function to surround
+   * @return a function with the same signature and the same return value
+   */
+  private <T> BiFunction<T, Void, Void> withScope(BiFunction<T, Void, Void> f) {
+    return (T t, Void v) -> {
+      openScope();
+      Void r = f.apply(t, v);
+      closeScope();
+      return r;
+    };
+  }
+
+  // The block case is a little special. Indeed, it will not only be called for "simple" blocks used
+  // for scoping, but for any block. This means that, for example, visitMethod will create a scope,
+  // then call visitBlock which will create another scope.
+  //
+  // While not perfectly accurate (this does not allow us to detect redeclaration of method
+  // parameters in the method body for example), this is enough for our purpose of resolving
+  // identifier, as any reference to the parameters in the block will be found in the immediately
+  // enclosing (method) scope.
+  //
+  // For control structures that do not allow variable declaration outside of the block, like if,
+  // then visitBlock will handle them nicely without the need to individually override visitIf
   @Override
   public Void visitBlock(BlockTree tree, Void v) {
-    return super.visitBlock(tree, v);
+    return withScope(super::visitBlock).apply(tree, v);
+  }
+
+  // visitSwitch does not call visitBlock so has to be implemented separately
+  @Override
+  public Void visitSwitch(SwitchTree tree, Void v) {
+    return withScope(super::visitSwitch).apply(tree, v);
+  }
+
+  @Override
+  public Void visitForLoop(ForLoopTree tree, Void v) {
+    // Make sure all variables get declared in the for loop scope, including the ones in the leading
+    // parenthesis (aka the initializer)
+    return withScope(super::visitForLoop).apply(tree, v);
+  }
+
+  @Override
+  public Void visitEnhancedForLoop(EnhancedForLoopTree tree, Void v) {
+    return withScope(super::visitEnhancedForLoop).apply(tree, v);
   }
 
   @Override
@@ -79,12 +126,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // The function itself is declared in the parent scope, but its parameters will be declared in
     // the function's own scope
     declare(tree.getName());
-    openScope();
-    // We don't need to declare the parameters now, as visitVariable will be called for us
-    Void r = super.visitMethod(tree, v);
-    // We're done visiting all child nodes, terminate the scope as it will be unreachable anyway.
-    closeScope();
-    return r;
+    return withScope(super::visitMethod).apply(tree, v);
   }
 
   @Override

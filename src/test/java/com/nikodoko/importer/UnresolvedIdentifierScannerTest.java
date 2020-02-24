@@ -32,6 +32,91 @@ public class UnresolvedIdentifierScannerTest {
         },
         {"b"},
       },
+      {
+        {
+          // Test that we handle scoping correctly in for loops
+          "class Test {",
+          "  public void f() {",
+          "    for (int i = 0; i < 10; i ++) {",
+          "      int b = 2;",
+          "      staticFunction(i + b);",
+          "    }",
+          "    int var = i + b;",
+          "    boolean[] c = {true, false};",
+          "    for (boolean d : c) {",
+          "      boolean e = d;",
+          "    }",
+          "    boolean f = e || d;",
+          "  }",
+          "}",
+        },
+        {"staticFunction", "i", "b", "e", "d"},
+      },
+      {
+        {
+          // Test that we handle scoping correctly in if blocks
+          "class Test {",
+          "  public void f() {",
+          "    if (true) {",
+          "      int a = 2;",
+          "      int b = 3;",
+          "    } else {",
+          "      int c = a;",
+          "    }",
+          "    int var = b + c;",
+          "  }",
+          "}",
+        },
+        {"a", "b", "c"},
+      },
+      {
+        {
+          // Test that we handle scoping correctly in while blocks
+          "class Test {",
+          "  public void f() {",
+          "    while (true) {",
+          "      int a = 2;",
+          "    }",
+          "    int var = a;",
+          "  }",
+          "}",
+        },
+        {"a"},
+      },
+      {
+        {
+          // Test that we handle scoping correctly in do-while blocks
+          "class Test {",
+          "  public void f() {",
+          "    do {",
+          "      int a = 2;",
+          "    } while (true);",
+          "    int var = a;",
+          "  }",
+          "}",
+        },
+        {"a"},
+      },
+      {
+        {
+          // Test that we handle scoping correctly in switch blocks
+          "class Test {",
+          "  public void f() {",
+          "    int a = 2;",
+          "    switch (a) {",
+          "    case 1:",
+          "      int b = 2;",
+          "      break;",
+          "    case 2:",
+          "      int c = b;",
+          "      break;",
+          "    }",
+          "    int var = c;",
+          "  }",
+          "}",
+        },
+        {"c"},
+      },
     };
     ImmutableList.Builder<Object[]> builder = ImmutableList.builder();
     for (String[][] inputOutput : inputOutputs) {
