@@ -1,20 +1,20 @@
 package com.nikodoko.importer;
 
-import com.google.common.collect.Sets;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CatchTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.LambdaExpressionTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.TryTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePathScanner;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import javax.lang.model.element.Name;
 
 /**
@@ -27,7 +27,9 @@ import javax.lang.model.element.Name;
  *   <li>methods
  *   <li>classes
  *   <li>for loops and other control structures
- *   <li>try-catch-finally (with resource or no)TODO: and more
+ *   <li>try-catch-finally (with resource or no)
+ *   <li>lambdas
+ *   <li>and all blocks in general
  * </ul>
  *
  * Everytime an Identifier is encountered, it tries to resolve it by looking it up in all scopes up
@@ -41,17 +43,21 @@ import javax.lang.model.element.Name;
  * produce {@code "com"}).
  */
 public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
-  // We need a concurrent set here, as scanning is done asynchronously and we might want to remove
-  // elements from it while processing the tree.
-  private final Set<Name> unresolved = Sets.newConcurrentHashSet();
   private Scope topScope = new Scope(null);
 
   private void openScope() {
     topScope = new Scope(topScope);
   }
 
-  private void closeScope() {
+  private void closeScope(boolean isClassScope) {
     System.out.println("Scope contained: " + topScope.toString());
+    // We resolve as we go, but scoping for a class works a little differently, as it ignores the
+    // order in which methods (or variables) are declared. We are about to close the scope, so we've
+    // collected all existing identifiers for this class: try one last time to resolve them.
+    for (Name n : topScope.unresolved()) {
+      if (isClassScope && resolve(n)) continue;
+      topScope.parent().markAsUnresolved(n);
+    }
     topScope = topScope.parent();
   }
 
@@ -62,7 +68,12 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   public Set<String> unresolved() {
-    return unresolved.stream().map(Name::toString).collect(Collectors.toSet());
+    Set<String> unresolved = new HashSet<>();
+    for (Name n : topScope.unresolved()) {
+      unresolved.add(n.toString());
+    }
+
+    return unresolved;
   }
 
   private boolean resolve(Name identifier) {
@@ -86,7 +97,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return (T t, Void v) -> {
       openScope();
       Void r = f.apply(t, v);
-      closeScope();
+      closeScope(false);
       return r;
     };
   }
@@ -136,6 +147,11 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   @Override
+  public Void visitLambdaExpression(LambdaExpressionTree tree, Void v) {
+    return withScope(super::visitLambdaExpression).apply(tree, v);
+  }
+
+  @Override
   public Void visitMethod(MethodTree tree, Void v) {
     // The function itself is declared in the parent scope, but its parameters will be declared in
     // the function's own scope
@@ -149,15 +165,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     declare(tree.getSimpleName());
     openScope();
     Void r = super.visitClass(tree, v);
-    // We resolve as we go, but scoping for a class works a little differently, as it ignores the
-    // order in which methods (or variables) are declared. We are about to close the scope, so we've
-    // collected all existing identifiers for this class: try one last time to resolve them.
-    for (Name u : unresolved) {
-      if (resolve(u)) {
-        unresolved.remove(u);
-      }
-    }
-    closeScope();
+    closeScope(true);
     return r;
   }
 
@@ -169,9 +177,9 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   @Override
   public Void visitIdentifier(IdentifierTree tree, Void unused) {
-    // Try to resolve the identifier, if it fails add it to unresolved.
+    // Try to resolve the identifier, if it fails add it to unresolved for the current scope
     if (!resolve(tree.getName())) {
-      unresolved.add(tree.getName());
+      topScope.markAsUnresolved(tree.getName());
     }
 
     return null;
