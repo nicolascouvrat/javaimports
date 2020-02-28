@@ -2,17 +2,39 @@ package com.nikodoko.importer;
 
 import com.google.common.base.MoreObjects;
 import com.sun.source.tree.ModifiersTree;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.lang.model.element.Modifier;
 
+/**
+ * An {@code Entity} describes a named language entity such as a method (static or no), class or
+ * variable. It always comes with a {@link Entity.Kind} and a {@link Entity.Visibility}, and might
+ * contain other information such as a name, or if it is static or not.
+ *
+ * <p>In addition, a {@link Entity.Kind#CLASS} {@code Entity} can contain its {@link Scope} and
+ * information regarding the class it extends (if any).
+ */
 public class Entity {
+  /** Possible kinds of entities */
   public static enum Kind {
-    FUNCTION,
+    /** This is used for error handling */
+    BAD,
+    /** Method */
+    METHOD,
+    /** Variable */
     VARIABLE,
+    /** Class */
     CLASS,
     ;
   }
 
+  /** Describes the visibility of a variable, class or method. */
   public static enum Visibility {
     /** The visibility given by {@code public} */
     PUBLIC,
@@ -29,14 +51,17 @@ public class Entity {
 
   // The kind of entity
   Kind kind;
-  // The scope that goes with this entity, can be null
-  Scope scope;
   // The entity's visibility
   Visibility visibility;
   // The entity's declared name
   String name;
   // If it is static (default is false)
   boolean isStatic;
+  // The scope that goes with this entity, can be null
+  Scope scope;
+  // The identifiers of the extended class, if any
+  // example: for class A extends B.C, this will be [B, C]
+  List<String> extendedClassPath;
 
   /**
    * An {@code Entity} constructor.
@@ -74,9 +99,74 @@ public class Entity {
     this.name = name;
   }
 
+  /**
+   * An {@code Entity} constructor with a default visiblity of NONE.
+   *
+   * @param kind its kind
+   */
+  public Entity(Kind kind) {
+    this.kind = kind;
+    this.visibility = Visibility.NONE;
+  }
+
   /** An {@code Entity}'s declared name */
+  @Nullable
   public String name() {
     return name;
+  }
+
+  /** The {@link Scope} attached to this {@code Entity} */
+  @Nullable
+  public Scope scope() {
+    return scope;
+  }
+
+  /** The visibility of this {@code Entity} */
+  public Visibility visibility() {
+    return visibility;
+  }
+
+  /** The kind of this {@code Entity} */
+  public Kind kind() {
+    return kind;
+  }
+
+  /** The path of the extended class of this {@code Entity} */
+  @Nullable
+  public List<String> extendedClassPath() {
+    return extendedClassPath;
+  }
+
+  /** Attach a scope to this {@code Entity} */
+  public void attachScope(Scope scope) {
+    this.scope = scope;
+  }
+
+  /**
+   * Parses information about a class this entity extends from a selector expression.
+   *
+   * <p>For example, something like java.util.List will produce an extendedClassPath of ["java",
+   * "util", "List"]
+   *
+   * <p>This is slightly hacky and relies heavily on type assertions, meaning it is highly coupled
+   * with the actual JavacParser implementation.
+   *
+   * @param expr the expression to parse
+   */
+  public void registerExtendedClass(JCExpression expr) {
+    JCExpression selected = expr;
+    List<String> extendedClassPath = new LinkedList<>();
+
+    while (!(selected instanceof JCIdent)) {
+      extendedClassPath.add(((JCFieldAccess) selected).getIdentifier().toString());
+      selected = ((JCFieldAccess) selected).getExpression();
+    }
+
+    extendedClassPath.add(((JCIdent) selected).getName().toString());
+
+    // We've built a reverse path, so reverse it and store it
+    Collections.reverse(extendedClassPath);
+    this.extendedClassPath = extendedClassPath;
   }
 
   /** Debugging support. */
@@ -87,6 +177,7 @@ public class Entity {
         .add("visibility", visibility)
         .add("isStatic", isStatic)
         .add("scope", scope)
+        .add("extendedClassPath", extendedClassPath)
         .toString();
   }
 }

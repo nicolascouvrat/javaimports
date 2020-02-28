@@ -1,10 +1,10 @@
 package com.nikodoko.importer;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.Sets;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import javax.lang.model.element.Name;
 
 /**
  * Maintains the set of named language entities delared in the scope, as well as a link to the
@@ -15,16 +15,12 @@ import javax.lang.model.element.Name;
  * <p>The top level scope should have {@code parent==null}.
  */
 public class Scope {
-  // All the identifiers declared so far in this scope
-  private Set<Name> entities = new HashSet<>();
-  // All the public and protected identifiers declared in this scope
-  private Set<Name> exportedEntities = new HashSet<>();
-
+  // All the entities declared in this scope
+  private Map<String, Entity> entities = new HashMap<>();
   // All the identifiers so far unresolved in this scope
-  // It has to be thread safe, as we might remove elements from multiple threads
-  private Set<Name> unresolved = Sets.newConcurrentHashSet();
-  // Only for classes extending another one.
-  private Class extendedClass = null;
+  private Set<String> notYetResolved = new HashSet<>();
+  // All the classes extending a parent for which that parent has not yet been found in this scope
+  private Set<Entity> notYetExtended = new HashSet<>();
   // Parent scope, can be null if top scope
   private Scope parent = null;
 
@@ -37,29 +33,32 @@ public class Scope {
     this.parent = parent;
   }
 
+  /** This {@code Scope}'s parent scope. */
   public Scope parent() {
     return parent;
+  }
+
+  /** The set of identifiers that have not yet been resolved in this scope */
+  public Set<String> notYetResolved() {
+    return notYetResolved;
+  }
+
+  /**
+   * The set of classes extending a parent for which that parent has not yet been found in this
+   * scope
+   */
+  public Set<Entity> notYetExtended() {
+    return notYetExtended;
   }
 
   /**
    * Returns whether the identifier is found in this scope, ignoring all parent scopes.
    *
    * @param identifier the identifier to look for
-   * @return whether the identifier was found
+   * @return the entity found, or null
    */
-  public boolean lookup(Name identifier) {
-    return entities.contains(identifier);
-  }
-
-  /**
-   * Returns whether the identifier is found in this scope's exported identifiers, ignoring all
-   * parent scopes.
-   *
-   * @param identifier the identifier to look for
-   * @return whether the identifier was found
-   */
-  public boolean lookupExported(Name identifier) {
-    return exportedEntities.contains(identifier);
+  public Entity lookup(String identifier) {
+    return entities.get(identifier);
   }
 
   /**
@@ -67,60 +66,18 @@ public class Scope {
    *
    * @param identifier the identifier to add
    */
-  public void insert(Name identifier) {
-    entities.add(identifier);
+  public void insert(String identifier, Entity entity) {
+    entities.put(identifier, entity);
   }
 
-  /**
-   * Inserts the identifier in the scope's exported identifiers.
-   *
-   * @param identifier the identifier to add
-   */
-  public void insertExported(Name identifier) {
-    exportedEntities.add(identifier);
+  /** Adds the class entity to the set of classes which parent has not yet been found */
+  public void markAsNotYetExtended(Entity entity) {
+    notYetExtended.add(entity);
   }
 
-  /**
-   * Inserts the identifier as one currently unresolved
-   *
-   * @param identifier the identifier to add
-   */
-  public void markAsUnresolved(Name identifier) {
-    unresolved.add(identifier);
-  }
-
-  /**
-   * Removes the identifier from the unresolved set
-   *
-   * @param identifier the resolved identifier
-   */
-  public void resolve(Name identifier) {
-    boolean ok = unresolved.remove(identifier);
-    if (!ok) {
-      throw new IllegalArgumentException(
-          "why did we try to resolve an identifier not in this scope?!");
-    }
-  }
-
-  /**
-   * Registers an extended class
-   *
-   * @param extendedClass the extended class
-   */
-  public void registerExtendedClass(Class extendedClass) {
-    this.extendedClass = extendedClass;
-  }
-
-  public boolean hasExtends() {
-    return extendedClass != null;
-  }
-
-  public Class extendedClass() {
-    return extendedClass;
-  }
-
-  public Set<Name> unresolved() {
-    return unresolved;
+  /** Adds the identifier to the set of identifiers that have not yet been resolved */
+  public void markAsNotYetResolved(String identifier) {
+    notYetResolved.add(identifier);
   }
 
   /**
@@ -131,9 +88,8 @@ public class Scope {
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("entities", entities)
-        .add("unresolved", unresolved)
-        .add("exportedEntities", exportedEntities)
-        .add("extendedClass", extendedClass)
+        .add("notYetResolved", notYetResolved)
+        .add("notYetExtended", notYetExtended)
         .toString();
   }
 }

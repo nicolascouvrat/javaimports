@@ -15,14 +15,11 @@ import com.sun.source.tree.TryTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePathScanner;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
 
 /**
  * Visits an AST, recording all identifiers that cannot be resolved in the current file (either
@@ -43,102 +40,125 @@ import javax.lang.model.element.Name;
  * to the outermost one (encapsulating the whole AST). If it cannot be found, it is then added to an
  * unresolved set.
  *
+ * <p>It handles classes extending other classes differently, as they might be extended later.
+ *
  * <p>Note that this will not consider any imports already present in the AST, meaning that all
  * identifiers referring to imported packages will be marked as unresolved (this is because {@link
- * com.sun.source.tree.ImportTree} does not contain the imported name). Similarly, it will also
- * contain a "trash" identifier that is in fact the package root ({@code package com.example;} will
- * produce {@code "com"}).
+ * com.sun.source.tree.ImportTree} does not contain the imported name).
  */
 public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private Scope topScope = new Scope(null);
-  private Map<Name, Scope> classScopes = new HashMap<>();
 
-  private void openScope(
-      boolean isClassScope, @Nullable Name className, @Nullable Tree extendsClause) {
-    Scope newScope = new Scope(topScope);
-
-    // Opening a scope works a little differently for a class. Indeed, a class can extend another
-    // one, and that other one can be declared elsewhere in the file. In this case, we want to be
-    // able to later resolve the child class unresolved identifiers using the entities declared in
-    // the parent class.
-    //
-    // For this purpose, register class scope to a different set too
-    if (isClassScope) {
-      if (extendsClause != null) {
-        Class extendedClass = Class.fromSelectorExpr((JCExpression) extendsClause);
-        newScope.registerExtendedClass(extendedClass);
-
-        // In this case, we need to declare a trash identifier corresponding to the tail, as it will
-        // be visited as an identifier
-        newScope.insert(extendedClass.tail());
-      }
-
-      classScopes.put(className, newScope);
-    }
-
-    topScope = newScope;
+  // Copied from the original class where it is private
+  private Void scanAndReduce(Iterable<? extends Tree> nodes, Void p, Void r) {
+    return reduce(scan(nodes, p), r);
   }
 
-  private void closeScope(boolean isClassScope) {
-    System.out.println("Scope contained: " + topScope.toString());
+  private void openScope() {
+    topScope = new Scope(topScope);
+  }
 
-    for (Name n : topScope.unresolved()) {
-      // If we are not closing a class scope, then we might still resolve identifiers at the class
-      // level (as declaration order does not matter in a class, we can discover these identifiers
-      // later)
-      if (!isClassScope) {
-        topScope.parent().markAsUnresolved(n);
+  // This assumes that classEntity has a kind of CLASS and an extended class path
+  private Entity findParent(Entity classEntity) {
+    List<String> parentPath = classEntity.extendedClassPath();
+
+    // The parentPath may look like something like this: A.B.C
+    // What we are going to do:
+    //  - See if the leftmost part of the path is in topScope (A in our case)
+    //  - If not we might find it later, so we return null
+    //  - If yes we go down the path left to right, as long as we keep finding classes. If for
+    //  whatever reason we do not (either because the class does not exist, or because it's not a
+    //  class but something else), then we return a BAD Entity
+    Entity maybeParent = topScope.lookup(parentPath.get(0));
+    if (maybeParent == null) {
+      return null;
+    }
+
+    Scope toScan = topScope;
+    for (String s : parentPath) {
+      maybeParent = toScan.lookup(s);
+      if (maybeParent == null || maybeParent.kind() != Entity.Kind.CLASS) {
+        // Whatever we are trying to extend, this is not going to work
+        return new Entity(Entity.Kind.BAD);
+      }
+    }
+
+    // If we got here, then we found it
+    return maybeParent;
+  }
+
+  // This assumes that classEntity has a kind of CLASS and an extended class path
+  private void tryToExtendClass(Entity classEntity) {
+    // TODO: try to resolve the extending class
+    Entity parent = findParent(classEntity);
+    if (parent == null) {
+      topScope.parent().markAsNotYetExtended(classEntity);
+      return;
+    }
+
+    if (parent.kind != Entity.Kind.CLASS) {
+      // XXX: we could actually return a helpful error here, but instead just swallow all not yet
+      // resolved identifiers, as this file will not compile anyway so let's not spend time trying
+      // to resolve identifiers if we can avoid it.
+      return;
+    }
+
+    // We found the parent, so resolve what we can and pass the rest up
+    // XXX: we could actually return useful errors here, such as "this is a private variable", but
+    // let's not bother about it for now
+    for (String s : classEntity.scope().notYetResolved()) {
+      if (parent.scope().lookup(s) == null) {
+        topScope.parent().markAsNotYetResolved(s);
+      }
+    }
+  }
+
+  private void closeScope(@Nullable Entity classEntity) {
+    System.out.println("Scope contained: " + topScope.toString());
+    // First, try to find parents for all orphans child classes
+    for (Entity childClass : topScope.notYetExtended()) {
+      tryToExtendClass(childClass);
+    }
+
+    // Then, three scenarios:
+    //  - we are closing a child class, we do not bubble anything up
+    //  - we are closing a class, try again to resolve any not yet resolved identifiers (as they can
+    //  be declared in any order in the class so we might have missed them) and bubble whatever is
+    //  not found
+    //  - we are not closing a class scope, bubble all not yet resolved identifiers up
+    if (classEntity != null && classEntity.extendedClassPath() != null) {
+      topScope = topScope.parent();
+      return;
+    }
+
+    for (String s : topScope.notYetResolved()) {
+      if (classEntity != null && resolve(s)) {
         continue;
       }
-      // We resolve as we go, but scoping for a class works a little differently, as it ignores the
-      // order in which methods (or variables) are declared. We are about to close the scope, so
-      // we've
-      // collected all existing identifiers for this class: try one last time to resolve them.
-      //
-      // In the case of a class, we do not bubble up the unresolved identifiers as we still need to
-      // try to resolve them using extends clauses, and this will be done later
-      if (resolve(n)) topScope.resolve(n);
+
+      topScope.parent().markAsNotYetResolved(s);
     }
 
     topScope = topScope.parent();
   }
 
-  private void declare(boolean isExported, Name identifier) {
-    topScope.insert(identifier);
-    if (isExported) topScope.insertExported(identifier);
+  private void declare(String name, Entity entity) {
+    topScope.insert(name, entity);
   }
 
   public Set<String> unresolved() {
-    Set<String> unresolved = new HashSet<>();
-    for (Name n : topScope.unresolved()) {
-      unresolved.add(n.toString());
-    }
-
-    for (Scope s : classScopes.values()) {
-      for (Name n : s.unresolved()) {
-        // Check if the class being extended is in the same file, and if it is try to lookup the
-        // unresolved identifier one more time.
-        //
-        // We can't resolve it if it has a path anyway, as it means it has not been declared in
-        // the same file.
-        if (s.hasExtends() && s.extendedClass().path() == "") {
-          Scope extendedScope = classScopes.get(s.extendedClass().name());
-          if (extendedScope != null) {
-            if (extendedScope.lookupExported(n)) continue;
-          }
-        }
-
-        unresolved.add(n.toString());
-      }
+    Set<String> unresolved = topScope.notYetResolved();
+    for (Entity e : topScope.notYetExtended()) {
+      unresolved.addAll(e.scope().notYetResolved());
     }
 
     return unresolved;
   }
 
-  private boolean resolve(Name identifier) {
+  private boolean resolve(String identifier) {
     Scope current = topScope;
     while (current != null) {
-      if (current.lookup(identifier)) {
+      if (current.lookup(identifier) != null) {
         return true;
       }
       current = current.parent();
@@ -154,9 +174,9 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
    */
   private <T> BiFunction<T, Void, Void> withScope(BiFunction<T, Void, Void> f) {
     return (T t, Void v) -> {
-      openScope(false, null, null);
+      openScope();
       Void r = f.apply(t, v);
-      closeScope(false);
+      closeScope(null);
       return r;
     };
   }
@@ -214,7 +234,8 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   public Void visitMethod(MethodTree tree, Void v) {
     // The function itself is declared in the parent scope, but its parameters will be declared in
     // the function's own scope
-    declare(isExported(tree.getModifiers()), tree.getName());
+    String name = tree.getName().toString();
+    declare(name, new Entity(Entity.Kind.METHOD, name, tree.getModifiers()));
     return withScope(super::visitMethod).apply(tree, v);
   }
 
@@ -224,27 +245,49 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
         || tree.getFlags().contains(Modifier.PROTECTED);
   }
 
+  // Declares a class, returning the class entity
+  private Entity declareNewClass(ClassTree tree) {
+    String name = tree.getSimpleName().toString();
+    Entity c = new Entity(Entity.Kind.CLASS, name, tree.getModifiers());
+    declare(name, c);
+    if (tree.getExtendsClause() != null) {
+      c.registerExtendedClass((JCExpression) tree.getExtendsClause());
+      topScope.markAsNotYetExtended(c);
+    }
+    return c;
+  }
+
   @Override
   public Void visitClass(ClassTree tree, Void v) {
-    // Declare the class name in the current scope before opening a new one
-    declare(isExported(tree.getModifiers()), tree.getSimpleName());
-    openScope(true, tree.getSimpleName(), tree.getExtendsClause());
-    Void r = super.visitClass(tree, v);
-    closeScope(true);
+    Entity newClass = declareNewClass(tree);
+    openScope();
+
+    // Do not scan the extends clause again, as we handle it separately and do not want to get
+    // unresolved identifiers
+    Void r = scan(tree.getModifiers(), v);
+    r = scanAndReduce(tree.getTypeParameters(), v, r);
+    r = scanAndReduce(tree.getImplementsClause(), v, r);
+    r = scanAndReduce(tree.getMembers(), v, r);
+
+    // Add the scope to the class entity before closing it, as we might need it later
+    newClass.attachScope(topScope);
+    closeScope(newClass);
     return r;
   }
 
   @Override
   public Void visitVariable(VariableTree tree, Void v) {
-    declare(isExported(tree.getModifiers()), tree.getName());
+    String name = tree.getName().toString();
+    declare(name, new Entity(Entity.Kind.VARIABLE, name, tree.getModifiers()));
     return super.visitVariable(tree, v);
   }
 
   @Override
   public Void visitIdentifier(IdentifierTree tree, Void unused) {
     // Try to resolve the identifier, if it fails add it to unresolved for the current scope
-    if (!resolve(tree.getName())) {
-      topScope.markAsUnresolved(tree.getName());
+    String name = tree.getName().toString();
+    if (!resolve(name)) {
+      topScope.markAsNotYetResolved(name);
     }
 
     return null;
