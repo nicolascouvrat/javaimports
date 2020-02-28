@@ -36,10 +36,6 @@ public final class ImportFixer {
     return d.getKind() == Diagnostic.Kind.ERROR;
   }
 
-  private static class Dorp extends Derp {}
-
-  private static class Derp {}
-
   private static String getPackageRootName(JCExpression expr) {
     JCExpression selected = expr;
     while (!(selected instanceof JCIdent)) {

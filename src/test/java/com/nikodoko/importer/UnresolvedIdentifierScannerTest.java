@@ -197,25 +197,37 @@ public class UnresolvedIdentifierScannerTest {
         },
         {"SomeException", "Exception", "a", "b", "c", "e", "r"},
       },
-      // {
-      //   {
-      //     // Test we handle tricky inheritence cases correctly
-      //     "class Test {",
-      //     "  static class Child extends Parent {",
-      //     "    void f() {",
-      //     "      g(a);",
-      //     "    }",
-      //     "  }",
-      //     "  static class Child {",
-      //     "    int a = 0;",
-      //     "    int g(int x) {",
-      //     "      return x;",
-      //     "    }",
-      //     "  }",
-      //     "}",
-      //   },
-      //   {},
-      // },
+      {
+        {
+          // Test we handle tricky inheritence cases correctly
+          "class Test {",
+          "  static class NotAChild extends OtherParent {",
+          "    void f() {",
+          "      int c = p(0);",
+          "    }",
+          "  }",
+          "  static class Child extends Parent {",
+          "    void f() {",
+          "      int c = g(a) + h(b);",
+          "    }",
+          "  }",
+          "  static class Parent {",
+          "    protected int a = 0;",
+          "    public int p(int x) {",
+          "      return x;",
+          "    }",
+          "    public int g(int x) {",
+          "      int b = 5;",
+          "      return x;",
+          "    }",
+          "    int h(int x) {",
+          "      return x;",
+          "    }",
+          "  }",
+          "}",
+        },
+        {"b", "h", "p"},
+      },
       // {
       //   // "Realistic" test using a real file, courtesy of Google Guava
       //   {
@@ -885,6 +897,7 @@ public class UnresolvedIdentifierScannerTest {
   @Test
   public void scanTest() throws Exception {
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
+    System.out.println("test");
     try {
       scanner.scan(ImportFixer.parse(new Context(), input), null);
     } catch (ImporterException e) {
