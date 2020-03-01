@@ -14,6 +14,7 @@ import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TryTree;
+import com.sun.source.tree.TypeParameterTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePathScanner;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -281,13 +282,27 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return withScope(super::visitLambdaExpression).apply(tree, v);
   }
 
+  // The visitMethod of TreeScanner, except it parses the type parameters first, so that the return
+  // type does not produce an unresolved identifier if it is equal to that type parameter
+  private Void visitMethodTypeParametersFirst(MethodTree tree, Void v) {
+    Void r = scan(tree.getModifiers(), v);
+    r = scanAndReduce(tree.getTypeParameters(), v, r);
+    r = scanAndReduce(tree.getReturnType(), v, r);
+    r = scanAndReduce(tree.getParameters(), v, r);
+    r = scanAndReduce(tree.getReceiverParameter(), v, r);
+    r = scanAndReduce(tree.getThrows(), v, r);
+    r = scanAndReduce(tree.getBody(), v, r);
+    r = scanAndReduce(tree.getDefaultValue(), v, r);
+    return r;
+  }
+
   @Override
   public Void visitMethod(MethodTree tree, Void v) {
     // The function itself is declared in the parent scope, but its parameters will be declared in
     // the function's own scope
     String name = tree.getName().toString();
     declare(name, new Entity(Entity.Kind.METHOD, name, tree.getModifiers()));
-    return withScope(super::visitMethod).apply(tree, v);
+    return withScope(this::visitMethodTypeParametersFirst).apply(tree, v);
   }
 
   // Return true if the modifiers tree contains public or protected
@@ -306,6 +321,14 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
       topScope.markAsNotYetExtended(c);
     }
     return c;
+  }
+
+  @Override
+  public Void visitTypeParameter(TypeParameterTree tree, Void v) {
+    // A type parameter is like a variable, but for types, so declare it
+    String name = tree.getName().toString();
+    declare(name, new Entity(Entity.Kind.TYPE_PARAMETER, name));
+    return super.visitTypeParameter(tree, v);
   }
 
   @Override

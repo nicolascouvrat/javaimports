@@ -242,6 +242,18 @@ public class UnresolvedIdentifierScannerTest {
         },
         {"Annotation", "Function"},
       },
+      {
+        {
+          // Test that we handle generic types properly
+          "class Test<R> extends A.B<C>{",
+          "  public static <T> T f(T t) {",
+          "    R var = null;",
+          "    return t;",
+          "  }",
+          "}",
+        },
+        {},
+      },
       // {
       //   // "Realistic" test using a real file, courtesy of Google Guava
       //   {

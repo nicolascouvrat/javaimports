@@ -30,6 +30,8 @@ public class Entity {
     METHOD,
     /** Variable */
     VARIABLE,
+    /** Type parameter */
+    TYPE_PARAMETER,
     /** Class */
     CLASS,
     ;
@@ -80,12 +82,24 @@ public class Entity {
   }
 
   /**
-   * An {@code Entity} constructor with a default visibility of NONE.
+   * An {@code Entity} constructor, with a default visibility of NONE.
    *
    * @param kind its kind
    */
   public Entity(Kind kind) {
     this.kind = kind;
+    this.visibility = Visibility.NONE;
+  }
+
+  /**
+   * An {@code Entity} constructor, with a default visibility of NONE.
+   *
+   * @param kind its kind
+   * @param name its name
+   */
+  public Entity(Kind kind, String name) {
+    this.kind = kind;
+    this.name = name;
     this.visibility = Visibility.NONE;
   }
 
