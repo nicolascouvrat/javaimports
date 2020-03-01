@@ -202,9 +202,9 @@ public class UnresolvedIdentifierScannerTest {
         {
           // Test we handle tricky inheritence cases correctly
           "class Test {",
-          "  static class NotAChild extends OtherParent {",
-          "    public private void f() {",
-          "      int c = p(0);",
+          "  static class OtherChild extends Child {",
+          "    public private void m() {",
+          "      int c = n(f() + g(0));",
           "    }",
           "  }",
           "  static class Child extends Parent {",
@@ -227,7 +227,7 @@ public class UnresolvedIdentifierScannerTest {
           "  }",
           "}",
         },
-        {"b", "p"},
+        {"b", "n"},
       },
       // {
       //   // "Realistic" test using a real file, courtesy of Google Guava

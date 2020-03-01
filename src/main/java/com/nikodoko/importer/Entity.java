@@ -63,6 +63,31 @@ public class Entity {
   // example: for class A extends B.C, this will be [B, C]
   List<String> extendedClassPath;
 
+  private Entity(
+      Kind kind,
+      Visibility visibility,
+      String name,
+      boolean isStatic,
+      Scope scope,
+      List<String> extendedClassPath) {
+    this.kind = kind;
+    this.visibility = visibility;
+    this.name = name;
+    this.isStatic = isStatic;
+    this.scope = scope;
+    this.extendedClassPath = extendedClassPath;
+  }
+
+  /**
+   * An {@code Entity} constructor with a default visibility of NONE.
+   *
+   * @param kind its kind
+   */
+  public Entity(Kind kind) {
+    this.kind = kind;
+    this.visibility = Visibility.NONE;
+  }
+
   /**
    * An {@code Entity} constructor.
    *
@@ -99,14 +124,9 @@ public class Entity {
     this.name = name;
   }
 
-  /**
-   * An {@code Entity} constructor with a default visiblity of NONE.
-   *
-   * @param kind its kind
-   */
-  public Entity(Kind kind) {
-    this.kind = kind;
-    this.visibility = Visibility.NONE;
+  /** Returns the {@code Entity}'s shallow copy. */
+  public Entity clone() {
+    return new Entity(kind, visibility, name, isStatic, scope, extendedClassPath);
   }
 
   /** An {@code Entity}'s declared name */
@@ -137,9 +157,19 @@ public class Entity {
     return extendedClassPath;
   }
 
+  /** Set the extended class of this {@code Entity} */
+  public void extendedClassPath(List<String> path) {
+    extendedClassPath = path;
+  }
+
   /** Attach a scope to this {@code Entity} */
   public void attachScope(Scope scope) {
     this.scope = scope;
+  }
+
+  /** Whether this {@code Entity} is extending anything */
+  public boolean isChildClass() {
+    return extendedClassPath != null;
   }
 
   /**

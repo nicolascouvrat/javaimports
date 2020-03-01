@@ -16,6 +16,7 @@ import com.sun.source.tree.TryTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePathScanner;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -109,14 +110,39 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
       return;
     }
 
-    // We found the parent, so resolve what we can and pass the rest up
-    // XXX: we could actually return useful errors here, such as "this is a private variable", but
-    // let's not bother about it for now
+    // We found the parent, two cases:
+    //  - the parent itself is not a child class, resolve what we can an pass the rest up
+    //  - the parent itself is a child class, resolve what we can, switch the classEntity to be
+    //  extending whatever the parent extends and try to resolve it again.
+    if (!parent.isChildClass()) {
+      // XXX: we could actually return useful errors here, such as "this is a private variable", but
+      // let's not bother about it for now
+      for (String s : classEntity.scope().notYetResolved()) {
+        if (parent.scope().lookup(s) == null) {
+          topScope.parent().markAsNotYetResolved(s);
+        }
+      }
+      return;
+    }
+
+    Set<String> notYetResolved = new HashSet<>();
     for (String s : classEntity.scope().notYetResolved()) {
       if (parent.scope().lookup(s) == null) {
-        topScope.parent().markAsNotYetResolved(s);
+        notYetResolved.add(s);
       }
     }
+    // For the resolution stage, everything will now happend as if classEntity was directly
+    // extending the parent's parent instead of the parent. But we want the actuall classEntity
+    // stored in the scope to still point towards the original parent, as someone else might extend
+    // it.
+    // We therefore clone the entity and use this clone to do further extensions. A shallow copy is
+    // enough, as we will directly modify the extended path, and change nothing in the scope but the
+    // unresolved identifiers (which do not matter in extension resolution).
+    Entity clone = classEntity.clone();
+    clone.extendedClassPath(parent.extendedClassPath());
+    // this will also alter the "real" classEntity but it is fine.
+    clone.scope().notYetResolved(notYetResolved);
+    tryToExtendClass(clone);
   }
 
   private void closeScope(@Nullable Entity classEntity) {
@@ -132,7 +158,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     //  be declared in any order in the class so we might have missed them) and bubble whatever is
     //  not found
     //  - we are not closing a class scope, bubble all not yet resolved identifiers up
-    if (classEntity != null && classEntity.extendedClassPath() != null) {
+    if (classEntity != null && classEntity.isChildClass()) {
       topScope = topScope.parent();
       return;
     }

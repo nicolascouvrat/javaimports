@@ -44,6 +44,15 @@ public class Scope {
   }
 
   /**
+   * Sets this {@code Scope}'s notYetResolved set.
+   *
+   * @param identifiers the new set
+   */
+  public void notYetResolved(Set<String> identifiers) {
+    notYetResolved = identifiers;
+  }
+
+  /**
    * The set of classes extending a parent for which that parent has not yet been found in this
    * scope
    */
