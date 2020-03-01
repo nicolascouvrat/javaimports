@@ -1,5 +1,6 @@
 package com.nikodoko.importer;
 
+import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CatchTree;
 import com.sun.source.tree.ClassTree;
@@ -241,6 +242,15 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   @Override
   public Void visitTry(TryTree tree, Void v) {
     return withScope(super::visitTry).apply(tree, v);
+  }
+
+  @Override
+  public Void visitAnnotation(AnnotationTree tree, Void v) {
+    // Do not scan the annotation arguments, as something like
+    // @Annotation(param="value")
+    // Would produce a "param" identifier that we do not want
+    Void r = scan(tree.getAnnotationType(), v);
+    return r;
   }
 
   @Override
