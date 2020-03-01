@@ -98,7 +98,11 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   // This assumes that classEntity has a kind of CLASS and an extended class path
   private void tryToExtendClass(Entity classEntity) {
-    // TODO: try to resolve the extending class
+    if (classEntity.scope().notYetResolved().isEmpty()) {
+      // No need to do anything
+      return;
+    }
+
     Entity parent = findParent(classEntity);
     if (parent == null) {
       topScope.parent().markAsNotYetExtended(classEntity);
@@ -148,31 +152,51 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   private void closeScope(@Nullable Entity classEntity) {
-    System.out.println("Scope contained: " + topScope.toString());
     // First, try to find parents for all orphans child classes
     for (Entity childClass : topScope.notYetExtended()) {
+      // We do not bubble identifiers in the case of orphan child classes, so manually go over them
+      // trying to resolve
+      Set<String> notYetResolved = new HashSet<>();
+      for (String s : childClass.scope().notYetResolved()) {
+        if (topScope.lookup(s) == null) {
+          notYetResolved.add(s);
+        }
+      }
+      childClass.scope().notYetResolved(notYetResolved);
       tryToExtendClass(childClass);
     }
 
     // Then, three scenarios:
-    //  - we are closing a child class, we do not bubble anything up
     //  - we are closing a class, try again to resolve any not yet resolved identifiers (as they can
     //  be declared in any order in the class so we might have missed them) and bubble whatever is
     //  not found
+    //  - we are closing a child class, do like for the class but do not bubble any left overs
     //  - we are not closing a class scope, bubble all not yet resolved identifiers up
-    if (classEntity != null && classEntity.isChildClass()) {
+    if (classEntity == null) {
+      for (String s : topScope.notYetResolved()) {
+        topScope.parent().markAsNotYetResolved(s);
+      }
       topScope = topScope.parent();
       return;
     }
 
-    for (String s : topScope.notYetResolved()) {
-      if (classEntity != null && resolve(s)) {
-        continue;
+    if (!classEntity.isChildClass()) {
+      for (String s : topScope.notYetResolved()) {
+        if (!resolve(s)) {
+          topScope.parent().markAsNotYetResolved(s);
+        }
       }
-
-      topScope.parent().markAsNotYetResolved(s);
+      topScope = topScope.parent();
+      return;
     }
 
+    Set<String> notYetResolved = new HashSet<>();
+    for (String s : topScope.notYetResolved()) {
+      if (!resolve(s)) {
+        notYetResolved.add(s);
+      }
+    }
+    topScope.notYetResolved(notYetResolved);
     topScope = topScope.parent();
   }
 
