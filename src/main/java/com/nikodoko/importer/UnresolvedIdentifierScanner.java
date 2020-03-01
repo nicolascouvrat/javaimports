@@ -3,6 +3,7 @@ package com.nikodoko.importer;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CatchTree;
 import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
@@ -52,6 +53,11 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   // Copied from the original class where it is private
   private Void scanAndReduce(Iterable<? extends Tree> nodes, Void p, Void r) {
     return reduce(scan(nodes, p), r);
+  }
+
+  // Copied from the original class where it is private
+  private Void scanAndReduce(Tree node, Void p, Void r) {
+    return reduce(scan(node, p), r);
   }
 
   private void openScope() {
@@ -179,6 +185,15 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
       closeScope(null);
       return r;
     };
+  }
+
+  @Override
+  public Void visitCompilationUnit(CompilationUnitTree tree, Void v) {
+    Void r = scan(tree.getPackageAnnotations(), v);
+    // We do not want to generate any identifiers for the package nor the imports, so do not scan
+    // them and go directly to the declarations
+    r = scanAndReduce(tree.getTypeDecls(), v, r);
+    return r;
   }
 
   // The block case is a little special. Indeed, it will not only be called for "simple" blocks used

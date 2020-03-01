@@ -20,6 +20,7 @@ public class UnresolvedIdentifierScannerTest {
       {
         // Test that we handle scoping correctly in methods
         {
+          "package com.pkg.test;",
           "class Test {",
           "  public void g() {",
           "    int c = f(b);",
