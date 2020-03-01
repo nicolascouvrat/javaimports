@@ -5,6 +5,7 @@ import com.sun.source.tree.ModifiersTree;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCTypeApply;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -185,6 +186,11 @@ public class Entity {
    */
   public void registerExtendedClass(JCExpression expr) {
     JCExpression selected = expr;
+    if (selected instanceof JCTypeApply) {
+      // We have a parameterized type, like Package.Class<T, R>
+      // Ignore T and R for the etended class path
+      selected = (JCExpression) ((JCTypeApply) selected).getType();
+    }
     List<String> extendedClassPath = new LinkedList<>();
 
     while (!(selected instanceof JCIdent)) {
