@@ -53,6 +53,10 @@ import javax.lang.model.element.Modifier;
 public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private Scope topScope = new Scope(null);
 
+  /** The top level scope of this scanner. */
+  public Scope topScope() {
+    return topScope;
+  }
   // Copied from the original class where it is private
   private Void scanAndReduce(Iterable<? extends Tree> nodes, Void p, Void r) {
     return reduce(scan(nodes, p), r);

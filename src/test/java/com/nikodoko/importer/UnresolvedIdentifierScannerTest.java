@@ -4,7 +4,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.sun.tools.javac.util.Context;
 import java.util.Collection;
 import java.util.Set;
 import org.junit.Test;
@@ -940,7 +939,7 @@ public class UnresolvedIdentifierScannerTest {
   public void scanTest() throws Exception {
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
     try {
-      scanner.scan(ImportFixer.parse(new Context(), input), null);
+      scanner.scan(Parser.getCompilationUnit(input), null);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);
