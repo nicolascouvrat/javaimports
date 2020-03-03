@@ -49,7 +49,7 @@ public final class CLI {
     }
 
     try {
-      Importer.addUsedImports(input);
+      Importer.addUsedImports(path, input);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         errWriter.println(d);
