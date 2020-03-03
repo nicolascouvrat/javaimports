@@ -1,14 +1,15 @@
 package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableMap;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.sun.tools.javac.tree.JCTree.JCImport;
+import java.util.Map;
 
 /** An object representing a Java source file. */
 public class ParsedFile {
   String packageName;
-  Set<Import> imports;
+  Map<String, Import> imports;
   Scope scope;
 
   /**
@@ -18,7 +19,7 @@ public class ParsedFile {
    * @param imports its list of imports
    * @param scope its scope (the package scope, but limited to this file)
    */
-  public ParsedFile(String packageName, Set<Import> imports, Scope scope) {
+  public ParsedFile(String packageName, Map<String, Import> imports, Scope scope) {
     this.packageName = packageName;
     this.imports = imports;
     this.scope = scope;
@@ -32,10 +33,26 @@ public class ParsedFile {
    * @param unit the compilation unit to use
    */
   public static ParsedFile fromCompilationUnit(JCCompilationUnit unit) {
-    Set<Import> imports =
-        unit.getImports().stream().map(Import::fromJcImport).collect(Collectors.toSet());
+    ImmutableMap.Builder<String, Import> builder = ImmutableMap.builder();
+    for (JCImport existingImport : unit.getImports()) {
+      Import i = Import.fromJcImport(existingImport);
+      builder.put(i.name(), i);
+    }
+
     String packageName = unit.getPackageName().toString();
-    return new ParsedFile(packageName, imports, null);
+    return new ParsedFile(packageName, builder.build(), null);
+  }
+
+  public String packageName() {
+    return packageName;
+  }
+
+  public Map<String, Import> imports() {
+    return imports;
+  }
+
+  public Scope scope() {
+    return scope;
   }
 
   /**

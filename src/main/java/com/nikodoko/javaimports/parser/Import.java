@@ -40,6 +40,10 @@ public class Import {
     return new Import(name, qualifier, importTree.isStatic());
   }
 
+  public String name() {
+    return name;
+  }
+
   /** Debugging support. */
   public String toString() {
     return MoreObjects.toStringHelper(this)

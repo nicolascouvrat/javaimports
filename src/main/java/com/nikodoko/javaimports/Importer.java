@@ -9,7 +9,7 @@ import java.util.Set;
 public final class Importer {
   private Importer() {}
 
-  public static void addUsedImports(final Path filename, final String javaCode)
+  public static String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
     ParsedFile f = Parser.parse(javaCode);
 
@@ -19,8 +19,7 @@ public final class Importer {
     System.out.println(r);
 
     if (r.done()) {
-      // TODO: implement
-      return;
+      return applyFixes(javaCode, r);
     }
 
     Set<ParsedFile> siblings = parseSiblings(filename);
@@ -30,14 +29,23 @@ public final class Importer {
 
     if (r.done()) {
       // TODO: implement
-      return;
+      return applyFixes(javaCode, r);
     }
 
     // TODO: implement
+    return null;
   }
 
   private static Set<ParsedFile> parseSiblings(final Path filename) {
     // TODO: implement
+    return null;
+  }
+
+  private static String applyFixes(final String original, Fixer.Result result) {
+    if (result.toFix().isEmpty()) {
+      return original;
+    }
+
     return null;
   }
 }
