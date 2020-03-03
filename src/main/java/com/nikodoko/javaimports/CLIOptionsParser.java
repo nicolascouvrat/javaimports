@@ -1,4 +1,4 @@
-package com.nikodoko.importer;
+package com.nikodoko.javaimports;
 
 import java.util.Iterator;
 

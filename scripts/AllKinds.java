@@ -1,4 +1,4 @@
-package com.nikodoko.importer;
+package com.nikodoko.javaimports;
 
 /** Contains various kind of (exported and non exported) symbols. */
 public class AllKinds {

@@ -1,4 +1,4 @@
-package com.nikodoko.importer;
+package com.nikodoko.javaimports;
 
 import com.google.common.base.MoreObjects;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;

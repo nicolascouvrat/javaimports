@@ -2,12 +2,12 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.nikodoko.importer</groupId>
-  <artifactId>java-importer</artifactId>
+  <groupId>com.nikodoko.javaimports</groupId>
+  <artifactId>javaimports</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
 
-  <name>java-importer</name>
+  <name>javaimports</name>
   <!-- TODO: change URL -->
   <url>http://maven.apache.org</url>
 
@@ -88,7 +88,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.nikodoko.importer.CLI</mainClass>
+              <mainClass>com.nikodoko.javaimports.CLI</mainClass>
             </manifest>
           </archive>
         </configuration>
