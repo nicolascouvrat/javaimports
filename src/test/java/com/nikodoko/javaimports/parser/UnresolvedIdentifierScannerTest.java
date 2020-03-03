@@ -1,9 +1,10 @@
-package com.nikodoko.javaimports;
+package com.nikodoko.javaimports.parser;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.nikodoko.javaimports.ImporterException;
 import java.util.Collection;
 import java.util.Set;
 import org.junit.Test;

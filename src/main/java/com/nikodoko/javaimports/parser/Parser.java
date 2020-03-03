@@ -1,9 +1,10 @@
-package com.nikodoko.javaimports;
+package com.nikodoko.javaimports.parser;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.nikodoko.javaimports.ImporterException;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.parser.ParserFactory;

@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports;
+package com.nikodoko.javaimports.cli;
 
 /** Command line options */
 final class CLIOptions {

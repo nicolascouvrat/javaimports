@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports;
+package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
 import java.util.HashMap;

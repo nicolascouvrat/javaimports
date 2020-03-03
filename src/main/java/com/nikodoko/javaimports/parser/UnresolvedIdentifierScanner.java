@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports;
+package com.nikodoko.javaimports.parser;
 
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.BlockTree;

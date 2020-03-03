@@ -1,7 +1,9 @@
-package com.nikodoko.javaimports;
+package com.nikodoko.javaimports.cli;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.nikodoko.javaimports.Importer;
+import com.nikodoko.javaimports.ImporterException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -47,7 +49,7 @@ public final class CLI {
     }
 
     try {
-      ImportFixer.addUsedImports(input);
+      Importer.addUsedImports(input);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         errWriter.println(d);
