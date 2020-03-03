@@ -1,6 +1,5 @@
 package com.nikodoko.importer;
 
-
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
@@ -20,5 +19,6 @@ public final class ImportFixer {
 
   public static void addUsedImports(final String javaCode) throws ImporterException {
     ParsedFile f = Parser.parse(javaCode);
+    System.out.println(f);
   }
 }

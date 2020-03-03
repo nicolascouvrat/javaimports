@@ -22,13 +22,31 @@ import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardLocation;
 
+/**
+ * An "improved" Java parser, that parses the code and analyzes the resulting AST using an {@link
+ * UnresolvedIdentifierScanner} to find all declared variables, all unresolved identifiers as well
+ * as classes extending another class not declared in the same file.
+ */
 public class Parser {
-  // by nikodoko.com
+  /**
+   * Parse the given input (Java code) into a {@link ParsedFile}.
+   *
+   * @param javaCode the input code
+   * @throws ImporterException if the input cannot be parsed
+   */
   public static ParsedFile parse(final String javaCode) throws ImporterException {
+    // Parse the code into a compilation unit containing the AST
     JCCompilationUnit unit = getCompilationUnit(javaCode);
+
+    // Scan the AST
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
     scanner.scan(unit, null);
-    return new ParsedFile("", null, scanner.topScope());
+
+    // Wrap the results in a ParsedFile
+    ParsedFile f = ParsedFile.fromCompilationUnit(unit);
+    f.attachScope(scanner.topScope());
+
+    return f;
   }
 
   /** Return true if the diagnostic is an error diagnostic. */

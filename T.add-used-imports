@@ -13,7 +13,6 @@ public class SomeClass {
       ImportedClass.staticMethod(i);
     }
 
-    Integer xs = 1;
     assertThat(xs).isNull();
   }
 }
