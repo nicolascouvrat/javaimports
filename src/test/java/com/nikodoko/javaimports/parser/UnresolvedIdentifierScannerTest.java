@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.parser;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -945,7 +946,9 @@ public class UnresolvedIdentifierScannerTest {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);
       }
+      fail();
     }
+
     assertThat(scanner.unresolved()).containsExactlyElementsIn(expected);
   }
 }

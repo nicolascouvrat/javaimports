@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.fixer;
 
+import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.parser.Entity;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
@@ -69,6 +70,7 @@ public class Fixer {
 
     Result(boolean done) {
       this.done = done;
+      this.toFix = new HashSet<>();
     }
 
     public Set<Import> toFix() {
@@ -81,6 +83,10 @@ public class Fixer {
 
     static Result completed() {
       return new Result(true);
+    }
+
+    public String toString() {
+      return MoreObjects.toStringHelper(this).add("done", done).add("toFix", toFix).toString();
     }
   }
 }
