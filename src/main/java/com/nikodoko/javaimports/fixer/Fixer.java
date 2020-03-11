@@ -6,10 +6,11 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Fixer {
   ParsedFile file;
-  Set<ParsedFile> siblings;
+  Set<ParsedFile> siblings = new HashSet<>();
 
   private Fixer(ParsedFile file) {
     this.file = file;
@@ -19,17 +20,44 @@ public class Fixer {
     return new Fixer(file);
   }
 
+  /**
+   * Adds sibling files.
+   *
+   * <p>This will only add {@code ParsedFile} with the same package as file.
+   *
+   * @param siblings the files to add
+   */
   public void addSiblings(Set<ParsedFile> siblings) {
-    this.siblings = siblings;
+    this.siblings =
+        siblings.stream()
+            .filter(s -> s.packageName().equals(file.packageName()))
+            .collect(Collectors.toSet());
+  }
+
+  private Result loadAndTryToFix(boolean lastTry) {
+    LoadResult loaded = load();
+    if (loaded.isEmpty()) {
+      return Result.complete();
+    }
+
+    return fix(loaded, lastTry);
+  }
+
+  private Result fix(LoadResult loaded, boolean lastTry) {
+    if (!lastTry) {
+      return Result.incomplete();
+    }
+
+    // TODO: implement
+    return null;
   }
 
   public Result tryToFix() {
-    LoadResult loaded = load();
-    if (loaded.isEmpty()) {
-      return Result.completed();
-    }
+    return loadAndTryToFix(false);
+  }
 
-    return null;
+  public Result lastTryToFix() {
+    return loadAndTryToFix(true);
   }
 
   private LoadResult load() {
@@ -41,7 +69,7 @@ public class Fixer {
       }
     }
 
-    if (siblings == null) {
+    if (siblings.isEmpty()) {
       // can't do more
       return new LoadResult(unresolved, file.scope().notYetExtended());
     }
@@ -62,15 +90,21 @@ public class Fixer {
     public boolean isEmpty() {
       return unresolved.isEmpty() && orphans.isEmpty();
     }
+
+    public String toString() {
+      return MoreObjects.toStringHelper(this)
+          .add("unresolved", unresolved)
+          .add("orphans", orphans)
+          .toString();
+    }
   }
 
   public static class Result {
     private boolean done;
-    private Set<Import> toFix;
+    private Set<Import> toFix = new HashSet<>();
 
     Result(boolean done) {
       this.done = done;
-      this.toFix = new HashSet<>();
     }
 
     public Set<Import> toFix() {
@@ -81,8 +115,12 @@ public class Fixer {
       return done;
     }
 
-    static Result completed() {
+    static Result complete() {
       return new Result(true);
+    }
+
+    static Result incomplete() {
+      return new Result(false);
     }
 
     public String toString() {

@@ -1,6 +1,6 @@
 package com.nikodoko.javaimports;
 
-import static com.google.common.io.Files.getNameWithoutExtension;
+import static com.google.common.io.Files.getFileExtension;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.fail;
@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
@@ -25,11 +24,11 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class ImporterIntegrationTest {
   private static final Path dataPath = Paths.get("com/nikodoko/javaimports/testdata");
-  private static final String outputFileName = "output";
-  private static final String inputFileName = "input";
+  private static final String outputExtension = "output";
+  private static final String inputExtension = "input";
 
   @Parameters(name = "{index}: {0}")
-  public static Iterable<Object[]> data() throws IOException {
+  public static Iterable<Object[]> data() throws Exception {
     ClassLoader classLoader = ImporterIntegrationTest.class.getClassLoader();
 
     Map<String, Object[]> inputs = new HashMap<>();
@@ -40,9 +39,9 @@ public class ImporterIntegrationTest {
       if (resourcePath.startsWith(dataPath)) {
         Path relPath = dataPath.relativize(resourcePath);
         assertWithMessage("bad testdata").that(relPath.getNameCount()).isEqualTo(2);
-        String baseName = getNameWithoutExtension(relPath.getFileName().toString());
+        String extension = getFileExtension(relPath.getFileName().toString());
         String pkgName = relPath.subpath(0, 1).toString();
-        if (!baseName.equals(outputFileName) && !baseName.equals(inputFileName)) {
+        if (!extension.equals(outputExtension) && !extension.equals(inputExtension)) {
           // It's another file in the input package, ignore it
           continue;
         }
@@ -52,8 +51,9 @@ public class ImporterIntegrationTest {
           contents = CharStreams.toString(new InputStreamReader(stream, UTF_8));
         }
 
-        Object[] data = {resourcePath, contents};
-        if (baseName.equals(outputFileName)) {
+        // Make sure we get the absolute path of the resource
+        Object[] data = {Paths.get(resourceInfo.url().toURI()), contents};
+        if (extension.equals(outputExtension)) {
           outputs.put(pkgName, data);
         }
 
@@ -93,7 +93,6 @@ public class ImporterIntegrationTest {
 
   @Test
   public void testAddUsedImports() {
-    System.out.println(filepath);
     try {
       String output = Importer.addUsedImports(filepath, input);
       assertWithMessage("bad output for " + filepath).that(output).isEqualTo(expected);
