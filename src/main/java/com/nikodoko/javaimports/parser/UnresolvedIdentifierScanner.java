@@ -19,7 +19,6 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePathScanner;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import javax.annotation.Nullable;
@@ -72,42 +71,13 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   // This assumes that classEntity has a kind of CLASS and an extended class path
-  private Entity findParent(Entity classEntity) {
-    List<String> parentPath = classEntity.extendedClassPath();
-
-    // The parentPath may look like something like this: A.B.C
-    // What we are going to do:
-    //  - See if the leftmost part of the path is in topScope (A in our case)
-    //  - If not we might find it later, so we return null
-    //  - If yes we go down the path left to right, as long as we keep finding classes. If for
-    //  whatever reason we do not (either because the class does not exist, or because it's not a
-    //  class but something else), then we return a BAD Entity
-    Entity maybeParent = topScope.lookup(parentPath.get(0));
-    if (maybeParent == null) {
-      return null;
-    }
-
-    Scope toScan = topScope;
-    for (String s : parentPath) {
-      maybeParent = toScan.lookup(s);
-      if (maybeParent == null || maybeParent.kind() != Entity.Kind.CLASS) {
-        // Whatever we are trying to extend, this is not going to work
-        return new Entity(Entity.Kind.BAD);
-      }
-    }
-
-    // If we got here, then we found it
-    return maybeParent;
-  }
-
-  // This assumes that classEntity has a kind of CLASS and an extended class path
   private void tryToExtendClass(Entity classEntity) {
     if (classEntity.scope().notYetResolved().isEmpty()) {
       // No need to do anything
       return;
     }
 
-    Entity parent = findParent(classEntity);
+    Entity parent = topScope.findParent(classEntity);
     if (parent == null) {
       topScope.parent().markAsNotYetExtended(classEntity);
       return;

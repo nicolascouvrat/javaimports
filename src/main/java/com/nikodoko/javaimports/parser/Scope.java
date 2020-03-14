@@ -1,8 +1,11 @@
 package com.nikodoko.javaimports.parser;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.MoreObjects;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,6 +80,55 @@ public class Scope {
    */
   public void insert(String identifier, Entity entity) {
     entities.put(identifier, entity);
+  }
+
+  /**
+   * Searches for the parent class of {@code classEntity} in this {@code Scope}.
+   *
+   * <p>This will return {@code null} if the parent is not in the scope but has a chance to be
+   * somewhere else, and an {@link Entity} with {@link Entity.Kind#BAD} if the parent class is not
+   * found but cannot be found somewhere else (in other words, when it catches an identifier
+   * resolution error).
+   *
+   * <p>{@code classEntity} is expected to be of {@link Entity.Kind#CLASS} and to have a non-null
+   * extended path.
+   *
+   * @param classEntity the child class to try to extend
+   */
+  public Entity findParent(Entity classEntity) {
+    checkArgument(
+        classEntity.kind() == Entity.Kind.CLASS,
+        "expected a class entity but got %s",
+        classEntity.kind());
+    checkArgument(classEntity.isChildClass(), "expected a child class entity");
+
+    List<String> parentPath = classEntity.extendedClassPath();
+
+    // The parentPath may look like something like this: A.B.C
+    // What we are going to do:
+    //  - See if the leftmost part of the path is in this scope (A in our case)
+    //  - If not we might find it in another scope, so we return null
+    //  - If yes we go down the path left to right, as long as we keep finding classes. If for
+    //  whatever reason we do not (either because the class does not exist, or because it's not a
+    //  class but something else), then we return a BAD Entity
+    Entity maybeParent = lookup(parentPath.get(0));
+    if (maybeParent == null) {
+      return null;
+    }
+
+    Scope toScan = this;
+    for (String s : parentPath) {
+      maybeParent = toScan.lookup(s);
+      if (maybeParent == null || maybeParent.kind() != Entity.Kind.CLASS) {
+        // Whatever we are trying to extend, this is not going to work
+        return new Entity(Entity.Kind.BAD);
+      }
+
+      toScan = maybeParent.scope();
+    }
+
+    // If we got here, then we found it
+    return maybeParent;
   }
 
   /** Adds the class entity to the set of classes which parent has not yet been found */
