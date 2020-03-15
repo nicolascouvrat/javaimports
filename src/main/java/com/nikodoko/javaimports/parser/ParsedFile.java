@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.parser;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCImport;
 import java.util.Map;
 
@@ -11,16 +12,19 @@ public class ParsedFile {
   String packageName;
   Map<String, Import> imports;
   Scope scope;
+  int packageEndPos;
 
   /**
    * A {@code ParsedFile} constructor.
    *
    * @param packageName its package name
-   * @param imports its list of imports
+   * @param imports a map of identifier:import
    * @param scope its scope (the package scope, but limited to this file)
    */
-  public ParsedFile(String packageName, Map<String, Import> imports, Scope scope) {
+  public ParsedFile(
+      String packageName, int packageEndPos, Map<String, Import> imports, Scope scope) {
     this.packageName = packageName;
+    this.packageEndPos = packageEndPos;
     this.imports = imports;
     this.scope = scope;
   }
@@ -39,8 +43,14 @@ public class ParsedFile {
       builder.put(i.name(), i);
     }
 
+    JCExpression pkg = (JCExpression) unit.getPackageName();
     String packageName = unit.getPackageName().toString();
-    return new ParsedFile(packageName, builder.build(), null);
+    int packageEndPos = pkg.getEndPosition(unit.endPositions);
+    return new ParsedFile(packageName, packageEndPos, builder.build(), null);
+  }
+
+  public int packageEndPos() {
+    return packageEndPos;
   }
 
   public String packageName() {

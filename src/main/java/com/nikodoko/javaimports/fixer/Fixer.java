@@ -4,13 +4,16 @@ import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.parser.Entity;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Fixer {
   ParsedFile file;
   Set<ParsedFile> siblings = new HashSet<>();
+  Map<String, Import> candidates = new HashMap<>();
 
   private Fixer(ParsedFile file) {
     this.file = file;
@@ -44,6 +47,22 @@ public class Fixer {
   }
 
   private Result fix(LoadResult loaded, boolean lastTry) {
+    boolean allGood = true;
+    Set<Import> fixes = new HashSet<>();
+    for (String ident : loaded.unresolved) {
+      Import fix = candidates.get(ident);
+      if (fix != null) {
+        fixes.add(fix);
+        continue;
+      }
+
+      allGood = false;
+    }
+
+    if (allGood && loaded.orphans.isEmpty()) {
+      return Result.needsFixes(fixes);
+    }
+
     if (!lastTry) {
       return Result.incomplete();
     }
@@ -94,6 +113,9 @@ public class Fixer {
     //  - that identifier is accessible in the package and shadowed by the parent class, but it does
     //  not change the fact that it can be resolved anyway.
     for (ParsedFile sibling : siblings) {
+      // Add all the imports in that file to the list of potential candidates
+      candidates.putAll(sibling.imports());
+
       for (String ident : unresolved) {
         if (sibling.scope().lookup(ident) != null) {
           unresolved.remove(ident);
@@ -131,39 +153,45 @@ public class Fixer {
 
   private boolean tryToExtend(Entity childClass) {
     while (childClass.isChildClass()) {
-      boolean found = false;
-      for (ParsedFile sibling : siblings) {
-        Entity parent = sibling.scope().findParent(childClass);
-        if (parent == null) {
-          // Not in this sibling
-          continue;
-        }
-
-        if (parent.kind() != Entity.Kind.CLASS) {
-          // FIXME: what should we do here? it's not really worth continuing, so just return true
-          // event though we didnt find it, as a way to say it's no use trying to extend it again.
-          return true;
-        }
-
-        found = true;
-        Set<String> unresolved = new HashSet<>();
-        for (String s : childClass.scope().notYetResolved()) {
-          if (parent.scope().lookup(s) == null) {
-            unresolved.add(s);
-          }
-        }
-
-        childClass.scope().notYetResolved(unresolved);
-        childClass.extendedClassPath(parent.extendedClassPath());
-      }
-
-      // If we didn't find anything accross all siblings, break out of the loop
-      if (!found) {
+      if (!tryToExtendOnce(childClass)) {
+        // We could not extend it using any of the siblings
         return false;
       }
     }
 
+    // If we reach here, we fully extended this class
     return true;
+  }
+
+  private boolean tryToExtendOnce(Entity childClass) {
+    for (ParsedFile sibling : siblings) {
+      Entity parent = sibling.scope().findParent(childClass);
+      if (parent == null) {
+        // Not in this sibling
+        continue;
+      }
+
+      if (parent.kind() != Entity.Kind.CLASS) {
+        // FIXME: what should we do here? it's not really worth continuing, so just return true
+        // event though we didnt find it, as a way to say it's no use trying to extend it again.
+        return true;
+      }
+
+      Set<String> unresolved = new HashSet<>();
+      for (String s : childClass.scope().notYetResolved()) {
+        if (parent.scope().lookup(s) == null) {
+          unresolved.add(s);
+        }
+      }
+
+      childClass.scope().notYetResolved(unresolved);
+      childClass.extendedClassPath(parent.extendedClassPath());
+      // We managed to extend it once
+      return true;
+    }
+
+    // Nothing found accross all siblings
+    return false;
   }
 
   private static class LoadResult {
@@ -189,18 +217,27 @@ public class Fixer {
 
   public static class Result {
     private boolean done;
-    private Set<Import> toFix = new HashSet<>();
+    private Set<Import> fixes = new HashSet<>();
 
-    Result(boolean done) {
+    private Result(boolean done) {
       this.done = done;
     }
 
-    public Set<Import> toFix() {
-      return toFix;
+    private Result(boolean done, Set<Import> fixes) {
+      this.done = done;
+      this.fixes = fixes;
+    }
+
+    public Set<Import> fixes() {
+      return fixes;
     }
 
     public boolean done() {
       return done;
+    }
+
+    static Result needsFixes(Set<Import> fixes) {
+      return new Result(true, fixes);
     }
 
     static Result complete() {
@@ -212,7 +249,7 @@ public class Fixer {
     }
 
     public String toString() {
-      return MoreObjects.toStringHelper(this).add("done", done).add("toFix", toFix).toString();
+      return MoreObjects.toStringHelper(this).add("done", done).add("fixes", fixes).toString();
     }
   }
 }

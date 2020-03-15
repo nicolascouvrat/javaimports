@@ -55,6 +55,7 @@ public class ImporterIntegrationTest {
         Object[] data = {Paths.get(resourceInfo.url().toURI()), contents};
         if (extension.equals(outputExtension)) {
           outputs.put(pkgName, data);
+          continue;
         }
 
         inputs.put(pkgName, data);

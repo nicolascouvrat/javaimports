@@ -3,6 +3,7 @@ package com.nikodoko.javaimports;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.nikodoko.javaimports.fixer.Fixer;
+import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import java.io.IOError;
@@ -25,10 +26,8 @@ public final class Importer {
     Fixer fixer = Fixer.init(f);
     Fixer.Result r = fixer.tryToFix();
 
-    System.out.println(r);
-
     if (r.done()) {
-      return applyFixes(javaCode, r);
+      return applyFixes(f, javaCode, r);
     }
 
     Set<ParsedFile> siblings = parseSiblings(filename);
@@ -37,8 +36,7 @@ public final class Importer {
     r = fixer.tryToFix();
 
     if (r.done()) {
-      // TODO: implement
-      return applyFixes(javaCode, r);
+      return applyFixes(f, javaCode, r);
     }
 
     // TODO: implement
@@ -77,11 +75,22 @@ public final class Importer {
     return siblings;
   }
 
-  private static String applyFixes(final String original, Fixer.Result result) {
-    if (result.toFix().isEmpty()) {
+  private static String applyFixes(ParsedFile file, final String original, Fixer.Result result) {
+    // If there are no fixes to do, return the original source code
+    if (result.fixes().isEmpty()) {
       return original;
     }
 
-    return null;
+    int insertPos = 0;
+    if (file.packageEndPos() > -1) {
+      insertPos = original.indexOf(";", file.packageEndPos()) + 1;
+    }
+
+    // XXX: we don't really need to order imports alphabetically here, but we do it simply because
+    // it's harder to test if the order is not decided.
+    String toInsert =
+        result.fixes().stream().map(Import::asStatement).sorted().collect(Collectors.joining(""));
+
+    return new StringBuffer(original).insert(insertPos, toInsert).toString();
   }
 }

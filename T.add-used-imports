@@ -1,6 +1,7 @@
 package com.nikodoko.example;
 
 import static com.google.truth.Truth.assertThat;
+import java.util.List;
 
 public class SomeClass {
   private String param;

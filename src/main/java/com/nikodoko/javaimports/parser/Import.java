@@ -22,7 +22,7 @@ public class Import {
   public Import(String name, String qualifier, boolean isStatic) {
     this.name = name;
     this.qualifier = qualifier;
-    this.isStatic = true;
+    this.isStatic = isStatic;
   }
 
   /**
@@ -42,6 +42,11 @@ public class Import {
 
   public String name() {
     return name;
+  }
+
+  /** Creates a fully qualified import statement from this {@code Import} object. */
+  public String asStatement() {
+    return String.format("import%s %s.%s;", isStatic ? " static" : "", qualifier, name);
   }
 
   /** Debugging support. */

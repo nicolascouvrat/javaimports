@@ -81,7 +81,9 @@ public class Parser {
     Log.instance(ctx).useSource(source);
 
     ParserFactory parserFactory = ParserFactory.instance(ctx);
-    JavacParser parser = parserFactory.newParser(javaCode, false, false, false);
+    // It is necessary to set keepEndPos to true in order to retrieve the end position of
+    // expressions like the package clause, etc.
+    JavacParser parser = parserFactory.newParser(javaCode, false, /*keepEndPos=*/ true, false);
     unit = parser.parseCompilationUnit();
     unit.sourcefile = source;
 
