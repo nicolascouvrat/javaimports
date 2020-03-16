@@ -60,15 +60,24 @@ public class Fixer {
     }
 
     if (allGood && loaded.orphans.isEmpty()) {
-      return Result.needsFixes(fixes);
+      return Result.complete(fixes);
     }
 
     if (!lastTry) {
       return Result.incomplete();
     }
 
-    // TODO: implement
-    return null;
+    // We did not find everything, do our best effort by trying to resolve anything we can in non
+    // resolved orphan classes
+    for (Entity orphan : loaded.orphans) {
+      for (String ident : orphan.scope().notYetResolved()) {
+        if (candidates.get(ident) != null) {
+          fixes.add(candidates.get(ident));
+        }
+      }
+    }
+
+    return Result.incomplete(fixes);
   }
 
   public Result tryToFix() {
@@ -236,7 +245,11 @@ public class Fixer {
       return done;
     }
 
-    static Result needsFixes(Set<Import> fixes) {
+    static Result incomplete(Set<Import> fixes) {
+      return new Result(false, fixes);
+    }
+
+    static Result complete(Set<Import> fixes) {
       return new Result(true, fixes);
     }
 

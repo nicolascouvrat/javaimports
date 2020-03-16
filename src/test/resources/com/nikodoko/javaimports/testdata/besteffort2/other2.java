@@ -1,0 +1,15 @@
+package com.nikodoko.javaimports.testdata.besteffort2;
+
+import static com.google.common.base.Preconditions.checkArgument;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Structure {
+  private List<Integer> l = new ArrayList<>();
+
+  public Structure(int i) {
+    checkArgument(i != 0, "error");
+    l.add(i);
+  }
+}

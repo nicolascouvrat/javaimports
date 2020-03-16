@@ -1,3 +1,4 @@
+// Test that we can find imports elsewhere in the package and mimic them to complete this file
 package com.nikodoko.javaimports.testdata.withpackageimports;import java.util.ArrayList;import java.util.List;
 
 public class Test extends Base {

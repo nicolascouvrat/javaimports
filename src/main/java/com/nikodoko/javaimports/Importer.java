@@ -40,7 +40,7 @@ public final class Importer {
     }
 
     // TODO: implement
-    return null;
+    return applyFixes(f, javaCode, fixer.lastTryToFix());
   }
 
   private static Set<ParsedFile> parseSiblings(final Path filename) throws ImporterException {
