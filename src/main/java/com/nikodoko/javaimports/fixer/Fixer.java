@@ -10,6 +10,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Given a {@link ParsedFile} with unresolved identifiers and orphan child classes, use a variety of
+ * information to determine which identifiers indeed need to be imported, and how to import them.
+ */
 public class Fixer {
   ParsedFile file;
   Set<ParsedFile> siblings = new HashSet<>();
@@ -19,6 +23,11 @@ public class Fixer {
     this.file = file;
   }
 
+  /**
+   * Initializes a {@code Fixer} for a {@code file}.
+   *
+   * @param file the source file to fix
+   */
   public static Fixer init(ParsedFile file) {
     return new Fixer(file);
   }
@@ -26,7 +35,7 @@ public class Fixer {
   /**
    * Adds sibling files.
    *
-   * <p>This will only add {@code ParsedFile} with the same package as file.
+   * <p>This will only add files with the same package as this {@code Fixer}'s file.
    *
    * @param siblings the files to add
    */
@@ -46,6 +55,11 @@ public class Fixer {
     return fix(loaded, lastTry);
   }
 
+  // Given an intermediate load result, use all the candidates gathered so far to find imports to
+  // add to the source file.
+  //
+  // Gives up if all necessary imports cannot be found, except if it is a last try, in which case
+  // the best possible incomplete list of fixes will be returned.
   private Result fix(LoadResult loaded, boolean lastTry) {
     boolean allGood = true;
     Set<Import> fixes = new HashSet<>();
@@ -59,10 +73,12 @@ public class Fixer {
       allGood = false;
     }
 
+    // We have found all necessary fixes
     if (allGood && loaded.orphans.isEmpty()) {
       return Result.complete(fixes);
     }
 
+    // This is not the last try, we can probably find more fixes next try
     if (!lastTry) {
       return Result.incomplete();
     }
@@ -80,10 +96,19 @@ public class Fixer {
     return Result.incomplete(fixes);
   }
 
+  /**
+   * Identifies symbols that really need to be imported, and try to find a fitting import. Either
+   * returns a complete result with some fixes, or an incomplete result without any fixes.
+   */
   public Result tryToFix() {
     return loadAndTryToFix(false);
   }
 
+  /**
+   * Identifies symbols that really need to be imported, and try to find a fitting import. Either
+   * returns a complete result with some fixes, or an incomplete result with all the fixes that
+   * could be found.
+   */
   public Result lastTryToFix() {
     return loadAndTryToFix(true);
   }
@@ -160,6 +185,8 @@ public class Fixer {
     return new LoadResult(unresolved, notYetExtended);
   }
 
+  // Try to extend a child class as much as possible (extending its parent if the parent itself is a
+  // child, etc).
   private boolean tryToExtend(Entity childClass) {
     while (childClass.isChildClass()) {
       if (!tryToExtendOnce(childClass)) {
@@ -172,6 +199,7 @@ public class Fixer {
     return true;
   }
 
+  // Try to extend a child class using all classes declared in files of the same package
   private boolean tryToExtendOnce(Entity childClass) {
     for (ParsedFile sibling : siblings) {
       Entity parent = sibling.scope().findParent(childClass);
@@ -203,6 +231,8 @@ public class Fixer {
     return false;
   }
 
+  // An intermediate result containing symbols that cannot be found and child classes that cannot be
+  // extended
   private static class LoadResult {
     public Set<String> unresolved;
     public Set<Entity> orphans;
@@ -224,6 +254,7 @@ public class Fixer {
     }
   }
 
+  /** The result of a {@code Fixer} run. */
   public static class Result {
     private boolean done;
     private Set<Import> fixes = new HashSet<>();
@@ -237,10 +268,18 @@ public class Fixer {
       this.fixes = fixes;
     }
 
+    /**
+     * A set of missing {@link Import} found by the {@code Fixer} and that have to be added to the
+     * source file.
+     */
     public Set<Import> fixes() {
       return fixes;
     }
 
+    /**
+     * Whether this {@code Result} is complete, or in other words, whether the {@code Fixer} managed
+     * to find a matching import clause for all unresolved symbols.
+     */
     public boolean done() {
       return done;
     }
@@ -261,6 +300,7 @@ public class Fixer {
       return new Result(false);
     }
 
+    /** Debugging support. */
     public String toString() {
       return MoreObjects.toStringHelper(this).add("done", done).add("fixes", fixes).toString();
     }
