@@ -200,14 +200,18 @@ public class Entity {
    */
   public void registerExtendedClass(JCExpression expr) {
     JCExpression selected = expr;
-    if (selected instanceof JCTypeApply) {
-      // We have a parameterized type, like Package.Class<T, R>
-      // Ignore T and R for the etended class path
-      selected = (JCExpression) ((JCTypeApply) selected).getType();
-    }
+    // The possible underlying types for selected should be: JCIdent (when we have a plain
+    // identifier), JCFieldAccess (when it looks like A.B.C) or JCTypeApply when it is a
+    // parametrized type like Package.Class<T, R>
     List<String> extendedClassPath = new LinkedList<>();
 
     while (!(selected instanceof JCIdent)) {
+      if (selected instanceof JCTypeApply) {
+        // Ignore type parameters
+        selected = (JCExpression) ((JCTypeApply) selected).getType();
+        continue;
+      }
+
       extendedClassPath.add(((JCFieldAccess) selected).getIdentifier().toString());
       selected = ((JCFieldAccess) selected).getExpression();
     }

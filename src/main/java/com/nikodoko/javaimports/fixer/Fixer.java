@@ -6,6 +6,7 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -150,9 +151,9 @@ public class Fixer {
       // Add all the imports in that file to the list of potential candidates
       candidates.putAll(sibling.imports());
 
-      for (String ident : unresolved) {
-        if (sibling.scope().lookup(ident) != null) {
-          unresolved.remove(ident);
+      for (Iterator<String> i = unresolved.iterator(); i.hasNext(); ) {
+        if (sibling.scope().lookup(i.next()) != null) {
+          i.remove();
         }
       }
 
