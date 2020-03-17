@@ -334,6 +334,7 @@ public class UnresolvedIdentifierScannerTest {
           "    return construct(5, 5, e1, e2, e3, e4, e5);",
           "  }",
           "",
+          "  @SafeVarargs",
           "  public static <E> ImmutableSet<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E... others) {",
           "    checkArgument(",
           "        others.length <= Integer.MAX_VALUE - 6, \"the total number of elements must fit in an int\");",
@@ -916,6 +917,7 @@ public class UnresolvedIdentifierScannerTest {
           "System",
           "super",
           "Integer",
+          "SafeVarargs",
         },
       },
     };
