@@ -20,24 +20,57 @@ public final class CLI {
     this.errWriter = errWriter;
   }
 
+  static String versionString() {
+    return "javaimports: Version " + CLI.class.getPackage().getImplementationVersion();
+  }
+
   /**
    * Main method
    *
    * @param args the command line arguments
    */
   public static void main(String[] args) {
+    int result;
     PrintWriter err = new PrintWriter(new OutputStreamWriter(System.err, UTF_8));
+    try {
+      CLI parser = new CLI(err);
+      result = parser.parse(args);
+    } catch (UsageException e) {
+      err.print(e.getMessage());
+      result = 0;
+    } finally {
+      err.flush();
+    }
 
-    CLI parser = new CLI(err);
-    int result = parser.parse(args);
-
-    // Print all errors
-    err.flush();
     System.exit(result);
   }
 
-  public int parse(String... args) {
-    CLIOptions params = CLIOptionsParser.parse(Arrays.asList(args));
+  private CLIOptions processArgs(String... args) throws UsageException {
+    CLIOptions params;
+    try {
+      params = CLIOptionsParser.parse(Arrays.asList(args));
+    } catch (IllegalArgumentException e) {
+      throw new UsageException(e.getMessage());
+    }
+
+    if (params.file() == null && !(params.help() || params.version())) {
+      throw new UsageException("please provide a file");
+    }
+
+    return params;
+  }
+
+  private int parse(String... args) throws UsageException {
+    CLIOptions params = processArgs(args);
+
+    if (params.version()) {
+      errWriter.println(versionString());
+      return 0;
+    }
+
+    if (params.help()) {
+      throw new UsageException();
+    }
 
     Path path = Paths.get(params.file());
     String input;

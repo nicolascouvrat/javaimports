@@ -89,6 +89,9 @@
           <archive>
             <manifest>
               <mainClass>com.nikodoko.javaimports.cli.CLI</mainClass>
+              <addDefaultImplementationEntries>
+                true
+              </addDefaultImplementationEntries>
             </manifest>
           </archive>
         </configuration>

@@ -1,0 +1,8 @@
+package com.nikodoko.javaimports.cli;
+
+public class JavaimportsVersion {
+  static String version() {
+    return "%VERSION%";
+  }
+}
+
