@@ -15,9 +15,11 @@ import java.util.Arrays;
 /** The main class for the CLI */
 public final class CLI {
   private final PrintWriter errWriter;
+  private final PrintWriter outWriter;
 
-  private CLI(PrintWriter errWriter) {
+  private CLI(PrintWriter outWriter, PrintWriter errWriter) {
     this.errWriter = errWriter;
+    this.outWriter = outWriter;
   }
 
   static String versionString() {
@@ -32,14 +34,16 @@ public final class CLI {
   public static void main(String[] args) {
     int result;
     PrintWriter err = new PrintWriter(new OutputStreamWriter(System.err, UTF_8));
+    PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out, UTF_8));
     try {
-      CLI parser = new CLI(err);
+      CLI parser = new CLI(out, err);
       result = parser.parse(args);
     } catch (UsageException e) {
       err.print(e.getMessage());
       result = 0;
     } finally {
       err.flush();
+      out.flush();
     }
 
     System.exit(result);
@@ -81,8 +85,9 @@ public final class CLI {
       return 1;
     }
 
+    String fixed;
     try {
-      Importer.addUsedImports(path, input);
+      fixed = Importer.addUsedImports(path, input);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         errWriter.println(d);
@@ -91,6 +96,7 @@ public final class CLI {
       return 1;
     }
 
+    outWriter.write(fixed);
     return 0;
   }
 }
