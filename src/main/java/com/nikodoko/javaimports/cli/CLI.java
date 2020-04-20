@@ -76,9 +76,11 @@ public final class CLI {
       throw new UsageException();
     }
 
-    Path path = Paths.get(params.file());
+    Path path;
     String input;
     try {
+      // Importer expects an absolute path
+      path = Paths.get(params.file()).toAbsolutePath();
       input = new String(Files.readAllBytes(path), UTF_8);
     } catch (IOException e) {
       errWriter.println(params.file() + ": could not read file: " + e.getMessage());

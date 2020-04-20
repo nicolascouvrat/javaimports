@@ -42,7 +42,7 @@ public final class Importer {
    *   <li>TODO: more to come!
    * </ol>
    *
-   * @param filename the path to the file to fix
+   * @param filename the absolute path to the file to fix
    * @param javaCode the source code to fix
    * @throws ImporterException if the source code cannot be parsed
    */
