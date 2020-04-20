@@ -95,7 +95,6 @@ public class ImporterIntegrationTest {
   @Test
   public void testAddUsedImports() {
     try {
-      System.out.println(pkgName);
       String output = Importer.addUsedImports(filepath, input);
       assertWithMessage("bad output for " + filepath).that(output).isEqualTo(expected);
     } catch (ImporterException e) {
