@@ -1,17 +1,17 @@
 package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
-import com.sun.source.tree.ModifiersTree;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
-import com.sun.tools.javac.tree.JCTree.JCIdent;
-import com.sun.tools.javac.tree.JCTree.JCTypeApply;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
-import javax.lang.model.element.Modifier;
+import org.openjdk.javax.lang.model.element.Modifier;
+import org.openjdk.source.tree.ModifiersTree;
+import org.openjdk.tools.javac.tree.JCTree.JCExpression;
+import org.openjdk.tools.javac.tree.JCTree.JCFieldAccess;
+import org.openjdk.tools.javac.tree.JCTree.JCIdent;
+import org.openjdk.tools.javac.tree.JCTree.JCTypeApply;
 
 /**
  * An {@code Entity} describes a named language entity such as a method (static or no), class or

@@ -1,28 +1,28 @@
 package com.nikodoko.javaimports.parser;
 
-import com.sun.source.tree.AnnotationTree;
-import com.sun.source.tree.BlockTree;
-import com.sun.source.tree.CatchTree;
-import com.sun.source.tree.ClassTree;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.EnhancedForLoopTree;
-import com.sun.source.tree.ForLoopTree;
-import com.sun.source.tree.IdentifierTree;
-import com.sun.source.tree.LambdaExpressionTree;
-import com.sun.source.tree.MethodTree;
-import com.sun.source.tree.ModifiersTree;
-import com.sun.source.tree.SwitchTree;
-import com.sun.source.tree.Tree;
-import com.sun.source.tree.TryTree;
-import com.sun.source.tree.TypeParameterTree;
-import com.sun.source.tree.VariableTree;
-import com.sun.source.util.TreePathScanner;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
 import javax.annotation.Nullable;
-import javax.lang.model.element.Modifier;
+import org.openjdk.javax.lang.model.element.Modifier;
+import org.openjdk.source.tree.AnnotationTree;
+import org.openjdk.source.tree.BlockTree;
+import org.openjdk.source.tree.CatchTree;
+import org.openjdk.source.tree.ClassTree;
+import org.openjdk.source.tree.CompilationUnitTree;
+import org.openjdk.source.tree.EnhancedForLoopTree;
+import org.openjdk.source.tree.ForLoopTree;
+import org.openjdk.source.tree.IdentifierTree;
+import org.openjdk.source.tree.LambdaExpressionTree;
+import org.openjdk.source.tree.MethodTree;
+import org.openjdk.source.tree.ModifiersTree;
+import org.openjdk.source.tree.SwitchTree;
+import org.openjdk.source.tree.Tree;
+import org.openjdk.source.tree.TryTree;
+import org.openjdk.source.tree.TypeParameterTree;
+import org.openjdk.source.tree.VariableTree;
+import org.openjdk.source.util.TreePathScanner;
+import org.openjdk.tools.javac.tree.JCTree.JCExpression;
 
 /**
  * Visits an AST, recording all identifiers that cannot be resolved in the current file (either

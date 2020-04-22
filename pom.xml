@@ -14,6 +14,7 @@
   <properties>
     <junit.version>4.12</junit.version>
     <java.version>1.8</java.version>
+    <javac.version>9+181-r4173-1</javac.version>
     <guava.version>28.1-jre</guava.version>
     <truth.version>1.0.1</truth.version>
   </properties>
@@ -25,6 +26,12 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
+      </dependency>
+      <!-- OpenJDK's langtools mirror -->
+      <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>javac-shaded</artifactId>
+        <version>${javac.version}</version>
       </dependency>
       <!-- Test dependencies -->
       <dependency>
@@ -47,6 +54,11 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+    </dependency>
+    <!-- OpenJDK's langtools mirror -->
+    <dependency>
+      <groupId>com.google.errorprone</groupId>
+      <artifactId>javac-shaded</artifactId>
     </dependency>
     <!-- Test dependencies -->
     <dependency>

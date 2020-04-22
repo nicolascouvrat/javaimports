@@ -1,8 +1,8 @@
 package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
-import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
-import com.sun.tools.javac.tree.JCTree.JCImport;
+import org.openjdk.tools.javac.tree.JCTree.JCFieldAccess;
+import org.openjdk.tools.javac.tree.JCTree.JCImport;
 
 /** An {@code Import} represents a single import statement. */
 public class Import {
