@@ -49,6 +49,12 @@ public class CLIOptionsParser {
 
       FlagAndValue fv = FlagAndValue.fromString(option);
       switch (fv.flag) {
+        case "--replace":
+        case "-replace":
+        case "-r":
+        case "-w":
+          optsBuilder.replace(true);
+          break;
         case "--help":
         case "-help":
         case "-h":

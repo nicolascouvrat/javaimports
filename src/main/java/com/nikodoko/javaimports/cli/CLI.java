@@ -98,7 +98,24 @@ public final class CLI {
       return 1;
     }
 
-    outWriter.write(fixed);
+    if (!params.replace()) {
+      outWriter.write(fixed);
+      return 0;
+    }
+
+    boolean changed = !fixed.equals(input);
+    if (!changed) {
+      // don't bother writing to file if nothing changed
+      return 0;
+    }
+
+    try {
+      Files.write(path, fixed.getBytes(UTF_8));
+    } catch (IOException e) {
+      errWriter.println(path + ": could not write file: " + e.getMessage());
+      return 1;
+    }
+
     return 0;
   }
 }
