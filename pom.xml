@@ -4,7 +4,7 @@
   <groupId>com.nikodoko.javaimports</groupId>
   <artifactId>javaimports</artifactId>
   <packaging>jar</packaging>
-  <version>0.0</version>
+  <version>0.1-SNAPSHOT</version>
 
   <name>Javaimports</name>
 
@@ -18,7 +18,7 @@
     <url>http://github.com/nicolascouvrat/javaimports</url>
     <connection>scm:git:git://github.com/nicolascouvrat/javaimports</connection>
     <developerConnection>scm:git:ssh://git@github.com/nicolascouvrat/javaimports.git</developerConnection>
-    <tag>javaimports-0.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
