@@ -7,9 +7,20 @@
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
 
-  <name>javaimports</name>
-  <!-- TODO: change URL -->
-  <url>http://maven.apache.org</url>
+  <name>Javaimports</name>
+
+  <description>
+    A tool that updates Java source code import lines, adding missing ones.
+  </description>
+
+  <url>https://github.com/nicolascouvrat/javaimports</url>
+
+  <scm>
+    <url>http://github.com/nicolascouvrat/javaimports</url>
+    <connection>scm:git:git://github.com/nicolascouvrat/javaimports</connection>
+    <developerConnection>scm:git:ssh://git@github.com/nicolascouvrat/javaimports.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
 
   <properties>
     <junit.version>4.12</junit.version>
