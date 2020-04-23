@@ -5,11 +5,13 @@ final class CLIOptions {
   private final String file;
   private final boolean help;
   private final boolean version;
+  private final boolean replace;
 
-  CLIOptions(String file, boolean help, boolean version) {
+  CLIOptions(String file, boolean help, boolean version, boolean replace) {
     this.file = file;
     this.help = help;
     this.version = version;
+    this.replace = replace;
   }
 
   /** The file to operate on */
@@ -22,6 +24,11 @@ final class CLIOptions {
     return help;
   }
 
+  /** Whether to operate in place (and write to source file) */
+  boolean replace() {
+    return replace;
+  }
+
   boolean version() {
     return version;
   }
@@ -30,6 +37,7 @@ final class CLIOptions {
     private String file;
     private boolean help;
     private boolean version;
+    private boolean replace;
 
     Builder file(String file) {
       this.file = file;
@@ -46,8 +54,13 @@ final class CLIOptions {
       return this;
     }
 
+    Builder replace(boolean replace) {
+      this.replace = replace;
+      return this;
+    }
+
     CLIOptions build() {
-      return new CLIOptions(file, help, version);
+      return new CLIOptions(file, help, version, replace);
     }
   }
 

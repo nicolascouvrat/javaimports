@@ -11,6 +11,8 @@ public class UsageException extends Exception {
     "Usage: javaimports [options] file",
     "",
     "Options:",
+    "  --replace, -replace, -r, -w",
+    "    Write result to source file instead of stdout.",
     "  --version, -version, -v",
     "    Print the version.",
     "  --help, -help, -h",
