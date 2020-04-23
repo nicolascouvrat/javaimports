@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.nikodoko.javaimports</groupId>
   <artifactId>javaimports</artifactId>
   <packaging>jar</packaging>
-  <version>0.0-SNAPSHOT</version>
+  <version>0.0</version>
 
   <name>Javaimports</name>
 
@@ -19,7 +18,7 @@
     <url>http://github.com/nicolascouvrat/javaimports</url>
     <connection>scm:git:git://github.com/nicolascouvrat/javaimports</connection>
     <developerConnection>scm:git:ssh://git@github.com/nicolascouvrat/javaimports.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>javaimports-0.0</tag>
   </scm>
 
   <properties>
