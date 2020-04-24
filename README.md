@@ -8,11 +8,14 @@ Javaimports updates Java import lines, adding missing ones.
 Usage: javaimports [options] file
 
 Options:
+  --fix-only
+    Do not format ouput, simply add and remove imports.
+  --replace, -replace, -r, -w
+    Write result to source file instead of stdout.
   --version, -version, -v
     Print the version.
   --help, -help, -h
     Print this usage statement.
-
 ```
 
 ## Credit
