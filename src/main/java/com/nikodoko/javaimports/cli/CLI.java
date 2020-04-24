@@ -66,6 +66,18 @@ public final class CLI {
     return params;
   }
 
+  private String googleFormat(String code) {
+    try {
+      return new Formatter().formatSource(code);
+    } catch (FormatterException e) {
+      // Formatting is not vital, so print a warning and continue
+      errWriter.println("WARNING: formatter exception: " + e);
+      errWriter.println("WARNING: output will not be formatted");
+    }
+
+    return code;
+  }
+
   private int parse(String... args) throws UsageException {
     CLIOptions params = processArgs(args);
 
@@ -100,12 +112,8 @@ public final class CLI {
       return 1;
     }
 
-    try {
-      fixed = new Formatter().formatSource(fixed);
-    } catch (FormatterException e) {
-      // Formatting is not vital, so print a warning and continue
-      errWriter.println("WARNING: formatter exception: " + e);
-      errWriter.println("WARNING: output will not be formatted");
+    if (!params.fixOnly()) {
+      fixed = googleFormat(fixed);
     }
 
     if (!params.replace()) {

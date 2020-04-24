@@ -6,12 +6,14 @@ final class CLIOptions {
   private final boolean help;
   private final boolean version;
   private final boolean replace;
+  private final boolean fixOnly;
 
-  CLIOptions(String file, boolean help, boolean version, boolean replace) {
+  CLIOptions(String file, boolean help, boolean version, boolean replace, boolean fixOnly) {
     this.file = file;
     this.help = help;
     this.version = version;
     this.replace = replace;
+    this.fixOnly = fixOnly;
   }
 
   /** The file to operate on */
@@ -29,6 +31,11 @@ final class CLIOptions {
     return replace;
   }
 
+  /** If true, no formatting should be done outside of adding and removing imports */
+  boolean fixOnly() {
+    return fixOnly;
+  }
+
   boolean version() {
     return version;
   }
@@ -38,6 +45,7 @@ final class CLIOptions {
     private boolean help;
     private boolean version;
     private boolean replace;
+    private boolean fixOnly;
 
     Builder file(String file) {
       this.file = file;
@@ -59,8 +67,13 @@ final class CLIOptions {
       return this;
     }
 
+    Builder fixOnly(boolean fixOnly) {
+      this.fixOnly = fixOnly;
+      return this;
+    }
+
     CLIOptions build() {
-      return new CLIOptions(file, help, version, replace);
+      return new CLIOptions(file, help, version, replace, fixOnly);
     }
   }
 
