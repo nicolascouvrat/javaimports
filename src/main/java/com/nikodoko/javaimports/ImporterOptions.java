@@ -1,12 +1,17 @@
 package com.nikodoko.javaimports;
 
+import java.util.List;
+
+/** {@link Importer} options */
 public class ImporterOptions {
   boolean debug;
+  List<String> test;
 
   public ImporterOptions(boolean debug) {
     this.debug = debug;
   }
 
+  /** Whether to run the {@code Importer} in debug mode */
   public boolean debug() {
     return debug;
   }
@@ -28,5 +33,10 @@ public class ImporterOptions {
 
   public static Builder builder() {
     return new Builder();
+  }
+
+  /** Default options */
+  public static ImporterOptions defaults() {
+    return builder().debug(false).build();
   }
 }

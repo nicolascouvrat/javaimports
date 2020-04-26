@@ -105,7 +105,7 @@ public final class CLI {
     ImporterOptions opts = ImporterOptions.builder().debug(true).build();
     String fixed;
     try {
-      fixed = Importer.addUsedImports(path, input);
+      fixed = new Importer(opts).addUsedImports(path, input);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         errWriter.println(d);

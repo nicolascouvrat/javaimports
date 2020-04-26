@@ -23,7 +23,21 @@ import java.util.stream.Collectors;
  * using various approaches.
  */
 public final class Importer {
-  private Importer() {}
+  private ImporterOptions options;
+
+  /** An {@code Importer} constructor with default options */
+  public Importer() {
+    this(ImporterOptions.defaults());
+  }
+
+  /**
+   * An {@code Importer} constructor.
+   *
+   * @param options its options.
+   */
+  public Importer(ImporterOptions options) {
+    this.options = options;
+  }
 
   /**
    * Finds all unresolved identifiers in the given {@code javaCode}, and tries to find (and add) as
@@ -46,7 +60,7 @@ public final class Importer {
    * @param javaCode the source code to fix
    * @throws ImporterException if the source code cannot be parsed
    */
-  public static String addUsedImports(final Path filename, final String javaCode)
+  public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
     ParsedFile f = Parser.parse(javaCode);
 
@@ -76,7 +90,7 @@ public final class Importer {
   }
 
   // Find and parse all java files in the directory of filename, excepting filename itself
-  private static Set<ParsedFile> parseSiblings(final Path filename) throws ImporterException {
+  private Set<ParsedFile> parseSiblings(final Path filename) throws ImporterException {
     List<String> sources = new ArrayList<>();
     try {
       // Retrieve all java files in the parent directory of filename, excluding filename and not
@@ -109,7 +123,7 @@ public final class Importer {
   }
 
   // Add all fixes to the original source code
-  private static String applyFixes(ParsedFile file, final String original, Fixer.Result result) {
+  private String applyFixes(ParsedFile file, final String original, Fixer.Result result) {
     // If there are no fixes to do, return the original source code
     if (result.fixes().isEmpty()) {
       return original;
