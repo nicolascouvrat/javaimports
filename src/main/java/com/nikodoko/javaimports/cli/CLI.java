@@ -68,7 +68,7 @@ public final class CLI {
 
   private String googleFormat(String code) {
     try {
-      return new Formatter().formatSource(code);
+      return new Formatter().formatSourceAndFixImports(code);
     } catch (FormatterException e) {
       // Formatting is not vital, so print a warning and continue
       errWriter.println("WARNING: formatter exception: " + e);
