@@ -49,6 +49,9 @@ public class CLIOptionsParser {
 
       FlagAndValue fv = FlagAndValue.fromString(option);
       switch (fv.flag) {
+        case "--fix-only":
+          optsBuilder.fixOnly(true);
+          break;
         case "--replace":
         case "-replace":
         case "-r":

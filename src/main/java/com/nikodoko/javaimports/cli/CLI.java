@@ -2,6 +2,8 @@ package com.nikodoko.javaimports.cli;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.googlejavaformat.java.Formatter;
+import com.google.googlejavaformat.java.FormatterException;
 import com.nikodoko.javaimports.Importer;
 import com.nikodoko.javaimports.ImporterException;
 import java.io.IOException;
@@ -64,6 +66,18 @@ public final class CLI {
     return params;
   }
 
+  private String googleFormat(String code) {
+    try {
+      return new Formatter().formatSource(code);
+    } catch (FormatterException e) {
+      // Formatting is not vital, so print a warning and continue
+      errWriter.println("WARNING: formatter exception: " + e);
+      errWriter.println("WARNING: output will not be formatted");
+    }
+
+    return code;
+  }
+
   private int parse(String... args) throws UsageException {
     CLIOptions params = processArgs(args);
 
@@ -96,6 +110,10 @@ public final class CLI {
       }
 
       return 1;
+    }
+
+    if (!params.fixOnly()) {
+      fixed = googleFormat(fixed);
     }
 
     if (!params.replace()) {
