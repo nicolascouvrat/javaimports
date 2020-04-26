@@ -102,7 +102,7 @@ public final class CLI {
       return 1;
     }
 
-    ImporterOptions opts = ImporterOptions.builder().debug(true).build();
+    ImporterOptions opts = ImporterOptions.builder().debug(params.verbose()).build();
     String fixed;
     try {
       fixed = new Importer(opts).addUsedImports(path, input);

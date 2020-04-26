@@ -7,13 +7,21 @@ final class CLIOptions {
   private final boolean version;
   private final boolean replace;
   private final boolean fixOnly;
+  private final boolean verbose;
 
-  CLIOptions(String file, boolean help, boolean version, boolean replace, boolean fixOnly) {
+  CLIOptions(
+      String file,
+      boolean help,
+      boolean version,
+      boolean replace,
+      boolean fixOnly,
+      boolean verbose) {
     this.file = file;
     this.help = help;
     this.version = version;
     this.replace = replace;
     this.fixOnly = fixOnly;
+    this.verbose = verbose;
   }
 
   /** The file to operate on */
@@ -36,6 +44,11 @@ final class CLIOptions {
     return fixOnly;
   }
 
+  /** If true, output debug information */
+  boolean verbose() {
+    return verbose;
+  }
+
   boolean version() {
     return version;
   }
@@ -46,6 +59,7 @@ final class CLIOptions {
     private boolean version;
     private boolean replace;
     private boolean fixOnly;
+    private boolean verbose;
 
     Builder file(String file) {
       this.file = file;
@@ -72,8 +86,13 @@ final class CLIOptions {
       return this;
     }
 
+    Builder verbose(boolean verbose) {
+      this.verbose = verbose;
+      return this;
+    }
+
     CLIOptions build() {
-      return new CLIOptions(file, help, version, replace, fixOnly);
+      return new CLIOptions(file, help, version, replace, fixOnly, verbose);
     }
   }
 
