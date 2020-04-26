@@ -1,11 +1,8 @@
 package com.nikodoko.javaimports;
 
-import java.util.List;
-
 /** {@link Importer} options */
 public class ImporterOptions {
   boolean debug;
-  List<String> test;
 
   public ImporterOptions(boolean debug) {
     this.debug = debug;
