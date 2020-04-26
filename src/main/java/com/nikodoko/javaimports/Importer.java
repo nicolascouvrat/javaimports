@@ -4,9 +4,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.nikodoko.javaimports.fixer.Fixer;
+import com.nikodoko.javaimports.fixer.FixerOptions;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
+import com.nikodoko.javaimports.parser.ParserOptions;
 import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,6 +41,14 @@ public final class Importer {
     this.options = options;
   }
 
+  private static ParserOptions parserOptions(ImporterOptions opts) {
+    return ParserOptions.builder().debug(opts.debug()).build();
+  }
+
+  private static FixerOptions fixerOptions(ImporterOptions opts) {
+    return FixerOptions.builder().debug(opts.debug()).build();
+  }
+
   /**
    * Finds all unresolved identifiers in the given {@code javaCode}, and tries to find (and add) as
    * many missing imports as possible using different approaches.
@@ -62,9 +72,9 @@ public final class Importer {
    */
   public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
-    ParsedFile f = Parser.parse(javaCode);
+    ParsedFile f = new Parser(parserOptions(options)).parse(javaCode);
 
-    Fixer fixer = Fixer.init(f);
+    Fixer fixer = Fixer.init(f, fixerOptions(options));
     // Initial run with the current file only.
     Fixer.Result r = fixer.tryToFix();
 

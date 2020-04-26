@@ -17,20 +17,23 @@ import java.util.stream.Collectors;
  */
 public class Fixer {
   ParsedFile file;
+  FixerOptions options;
   Set<ParsedFile> siblings = new HashSet<>();
   Map<String, Import> candidates = new HashMap<>();
 
-  private Fixer(ParsedFile file) {
+  private Fixer(ParsedFile file, FixerOptions options) {
     this.file = file;
+    this.options = options;
   }
 
   /**
    * Initializes a {@code Fixer} for a {@code file}.
    *
    * @param file the source file to fix
+   * @param options the fixer's options
    */
-  public static Fixer init(ParsedFile file) {
-    return new Fixer(file);
+  public static Fixer init(ParsedFile file, FixerOptions options) {
+    return new Fixer(file, options);
   }
 
   /**
