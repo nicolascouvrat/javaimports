@@ -49,6 +49,11 @@ public class CLIOptionsParser {
 
       FlagAndValue fv = FlagAndValue.fromString(option);
       switch (fv.flag) {
+        case "--verbose":
+        case "-verbose":
+        case "-v":
+          optsBuilder.verbose(true);
+          break;
         case "--fix-only":
           optsBuilder.fixOnly(true);
           break;
@@ -65,7 +70,6 @@ public class CLIOptionsParser {
           break;
         case "--version":
         case "-version":
-        case "-v":
           optsBuilder.version(true);
           break;
         default:

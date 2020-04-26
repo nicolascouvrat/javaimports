@@ -95,7 +95,7 @@ public class ImporterIntegrationTest {
   @Test
   public void testAddUsedImports() {
     try {
-      String output = Importer.addUsedImports(filepath, input);
+      String output = new Importer().addUsedImports(filepath, input);
       assertWithMessage("bad output for " + filepath).that(output).isEqualTo(expected);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {

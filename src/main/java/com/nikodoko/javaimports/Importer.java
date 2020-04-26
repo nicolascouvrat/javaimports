@@ -4,9 +4,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.nikodoko.javaimports.fixer.Fixer;
+import com.nikodoko.javaimports.fixer.FixerOptions;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
+import com.nikodoko.javaimports.parser.ParserOptions;
 import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +25,31 @@ import java.util.stream.Collectors;
  * using various approaches.
  */
 public final class Importer {
-  private Importer() {}
+  private ImporterOptions options;
+  private Parser parser;
+
+  /** An {@code Importer} constructor with default options */
+  public Importer() {
+    this(ImporterOptions.defaults());
+  }
+
+  /**
+   * An {@code Importer} constructor.
+   *
+   * @param options its options.
+   */
+  public Importer(ImporterOptions options) {
+    this.options = options;
+    this.parser = new Parser(parserOptions(options));
+  }
+
+  private static ParserOptions parserOptions(ImporterOptions opts) {
+    return ParserOptions.builder().debug(opts.debug()).build();
+  }
+
+  private static FixerOptions fixerOptions(ImporterOptions opts) {
+    return FixerOptions.builder().debug(opts.debug()).build();
+  }
 
   /**
    * Finds all unresolved identifiers in the given {@code javaCode}, and tries to find (and add) as
@@ -46,11 +72,11 @@ public final class Importer {
    * @param javaCode the source code to fix
    * @throws ImporterException if the source code cannot be parsed
    */
-  public static String addUsedImports(final Path filename, final String javaCode)
+  public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
-    ParsedFile f = Parser.parse(javaCode);
+    ParsedFile f = parser.parse(javaCode);
 
-    Fixer fixer = Fixer.init(f);
+    Fixer fixer = Fixer.init(f, fixerOptions(options));
     // Initial run with the current file only.
     Fixer.Result r = fixer.tryToFix();
 
@@ -76,7 +102,7 @@ public final class Importer {
   }
 
   // Find and parse all java files in the directory of filename, excepting filename itself
-  private static Set<ParsedFile> parseSiblings(final Path filename) throws ImporterException {
+  private Set<ParsedFile> parseSiblings(final Path filename) throws ImporterException {
     List<String> sources = new ArrayList<>();
     try {
       // Retrieve all java files in the parent directory of filename, excluding filename and not
@@ -102,14 +128,14 @@ public final class Importer {
     // stopping at the first incorrect file. That way the user knows all the errors and can fix all
     // of them without rerunning the tool.
     for (String source : sources) {
-      siblings.add(Parser.parse(source));
+      siblings.add(parser.parse(source));
     }
 
     return siblings;
   }
 
   // Add all fixes to the original source code
-  private static String applyFixes(ParsedFile file, final String original, Fixer.Result result) {
+  private String applyFixes(ParsedFile file, final String original, Fixer.Result result) {
     // If there are no fixes to do, return the original source code
     if (result.fixes().isEmpty()) {
       return original;

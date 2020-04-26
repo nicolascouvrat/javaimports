@@ -5,16 +5,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.nikodoko.javaimports.ImporterException;
-import org.openjdk.tools.javac.file.JavacFileManager;
-import org.openjdk.tools.javac.parser.JavacParser;
-import org.openjdk.tools.javac.parser.ParserFactory;
-import org.openjdk.tools.javac.tree.JCTree.JCCompilationUnit;
-import org.openjdk.tools.javac.util.Context;
-import org.openjdk.tools.javac.util.Log;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.openjdk.javax.tools.Diagnostic;
 import org.openjdk.javax.tools.DiagnosticCollector;
@@ -22,6 +17,12 @@ import org.openjdk.javax.tools.DiagnosticListener;
 import org.openjdk.javax.tools.JavaFileObject;
 import org.openjdk.javax.tools.SimpleJavaFileObject;
 import org.openjdk.javax.tools.StandardLocation;
+import org.openjdk.tools.javac.file.JavacFileManager;
+import org.openjdk.tools.javac.parser.JavacParser;
+import org.openjdk.tools.javac.parser.ParserFactory;
+import org.openjdk.tools.javac.tree.JCTree.JCCompilationUnit;
+import org.openjdk.tools.javac.util.Context;
+import org.openjdk.tools.javac.util.Log;
 
 /**
  * An "improved" Java parser, that parses the code and analyzes the resulting AST using an {@link
@@ -29,13 +30,25 @@ import org.openjdk.javax.tools.StandardLocation;
  * as classes extending another class not declared in the same file.
  */
 public class Parser {
+  private ParserOptions options;
+  private static Logger log = Logger.getLogger(Parser.class.getName());
+
+  /**
+   * A {@code Parser} constructor.
+   *
+   * @param options its options
+   */
+  public Parser(ParserOptions options) {
+    this.options = options;
+  }
+
   /**
    * Parse the given input (Java code) into a {@link ParsedFile}.
    *
    * @param javaCode the input code
    * @throws ImporterException if the input cannot be parsed
    */
-  public static ParsedFile parse(final String javaCode) throws ImporterException {
+  public ParsedFile parse(final String javaCode) throws ImporterException {
     // Parse the code into a compilation unit containing the AST
     JCCompilationUnit unit = getCompilationUnit(javaCode);
 
@@ -46,6 +59,9 @@ public class Parser {
     // Wrap the results in a ParsedFile
     ParsedFile f = ParsedFile.fromCompilationUnit(unit);
     f.attachScope(scanner.topScope());
+    if (options.debug()) {
+      log.info("completed parsing: " + f.toString());
+    }
 
     return f;
   }
