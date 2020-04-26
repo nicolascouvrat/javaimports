@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  */
 public final class Importer {
   private ImporterOptions options;
+  private Parser parser;
 
   /** An {@code Importer} constructor with default options */
   public Importer() {
@@ -39,6 +40,7 @@ public final class Importer {
    */
   public Importer(ImporterOptions options) {
     this.options = options;
+    this.parser = new Parser(parserOptions(options));
   }
 
   private static ParserOptions parserOptions(ImporterOptions opts) {
@@ -72,7 +74,7 @@ public final class Importer {
    */
   public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
-    ParsedFile f = new Parser(parserOptions(options)).parse(javaCode);
+    ParsedFile f = parser.parse(javaCode);
 
     Fixer fixer = Fixer.init(f, fixerOptions(options));
     // Initial run with the current file only.
@@ -126,7 +128,7 @@ public final class Importer {
     // stopping at the first incorrect file. That way the user knows all the errors and can fix all
     // of them without rerunning the tool.
     for (String source : sources) {
-      siblings.add(Parser.parse(source));
+      siblings.add(parser.parse(source));
     }
 
     return siblings;

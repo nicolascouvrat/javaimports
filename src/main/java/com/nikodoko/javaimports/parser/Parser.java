@@ -9,6 +9,7 @@ import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.openjdk.javax.tools.Diagnostic;
 import org.openjdk.javax.tools.DiagnosticCollector;
@@ -29,7 +30,8 @@ import org.openjdk.tools.javac.util.Log;
  * as classes extending another class not declared in the same file.
  */
 public class Parser {
-  ParserOptions options;
+  private ParserOptions options;
+  private static Logger log = Logger.getLogger(Parser.class.getName());
 
   /**
    * A {@code Parser} constructor.
@@ -46,7 +48,7 @@ public class Parser {
    * @param javaCode the input code
    * @throws ImporterException if the input cannot be parsed
    */
-  public static ParsedFile parse(final String javaCode) throws ImporterException {
+  public ParsedFile parse(final String javaCode) throws ImporterException {
     // Parse the code into a compilation unit containing the AST
     JCCompilationUnit unit = getCompilationUnit(javaCode);
 
@@ -57,6 +59,9 @@ public class Parser {
     // Wrap the results in a ParsedFile
     ParsedFile f = ParsedFile.fromCompilationUnit(unit);
     f.attachScope(scanner.topScope());
+    if (options.debug()) {
+      log.info("completed parsing: " + f.toString());
+    }
 
     return f;
   }

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -16,10 +17,11 @@ import java.util.stream.Collectors;
  * information to determine which identifiers indeed need to be imported, and how to import them.
  */
 public class Fixer {
-  ParsedFile file;
-  FixerOptions options;
-  Set<ParsedFile> siblings = new HashSet<>();
-  Map<String, Import> candidates = new HashMap<>();
+  private ParsedFile file;
+  private FixerOptions options;
+  private Set<ParsedFile> siblings = new HashSet<>();
+  private Map<String, Import> candidates = new HashMap<>();
+  private static Logger log = Logger.getLogger(Fixer.class.getName());
 
   private Fixer(ParsedFile file, FixerOptions options) {
     this.file = file;
@@ -52,6 +54,10 @@ public class Fixer {
 
   private Result loadAndTryToFix(boolean lastTry) {
     LoadResult loaded = load();
+    if (options.debug()) {
+      log.info("load completed: " + loaded.toString());
+    }
+
     if (loaded.isEmpty()) {
       return Result.complete();
     }
