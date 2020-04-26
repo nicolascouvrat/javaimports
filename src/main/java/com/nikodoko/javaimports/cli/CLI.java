@@ -6,6 +6,7 @@ import com.google.googlejavaformat.java.Formatter;
 import com.google.googlejavaformat.java.FormatterException;
 import com.nikodoko.javaimports.Importer;
 import com.nikodoko.javaimports.ImporterException;
+import com.nikodoko.javaimports.ImporterOptions;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -101,6 +102,7 @@ public final class CLI {
       return 1;
     }
 
+    ImporterOptions opts = ImporterOptions.builder().debug(true).build();
     String fixed;
     try {
       fixed = Importer.addUsedImports(path, input);
