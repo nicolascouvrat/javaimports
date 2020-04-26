@@ -12,7 +12,9 @@ Options:
     Do not format ouput, simply add and remove imports.
   --replace, -replace, -r, -w
     Write result to source file instead of stdout.
-  --version, -version, -v
+  --verbose, -verbose, -v
+    Verbose logging.
+  --version, -version
     Print the version.
   --help, -help, -h
     Print this usage statement.
