@@ -26,6 +26,20 @@ public class ImporterException extends Exception {
     return new ImporterException(importerDiagnostics);
   }
 
+  /**
+   * Combine multiple exceptions into a new one
+   *
+   * @param exceptions a list of {@code ImporterException} to combine
+   */
+  public static ImporterException combine(List<ImporterException> exceptions) {
+    List<ImporterDiagnostic> combined = new ArrayList<>();
+    for (ImporterException e : exceptions) {
+      combined.addAll(e.diagnostics());
+    }
+
+    return new ImporterException(combined);
+  }
+
   private ImporterException(List<ImporterDiagnostic> diagnostics) {
     this.diagnostics = diagnostics;
   }

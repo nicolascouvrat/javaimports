@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -126,11 +126,19 @@ public final class Importer {
     }
 
     Set<ParsedFile> siblings = new HashSet<>();
-    // XXX: might want to run the parsing on all files, and combine the exceptions instead of
-    // stopping at the first incorrect file. That way the user knows all the errors and can fix all
-    // of them without rerunning the tool.
+    List<ImporterException> exceptions = new ArrayList<>();
+    // Try to parse all files even if one is invalid (so that the user can fix everything without
+    // rerunning the tool), but fail if one is wrong.
     for (Map.Entry<Path, String> source : sources.entrySet()) {
-      siblings.add(parser.parse(source.getKey(), source.getValue()));
+      try {
+        siblings.add(parser.parse(source.getKey(), source.getValue()));
+      } catch (ImporterException e) {
+        exceptions.add(e);
+      }
+    }
+
+    if (!exceptions.isEmpty()) {
+      throw ImporterException.combine(exceptions);
     }
 
     return siblings;
