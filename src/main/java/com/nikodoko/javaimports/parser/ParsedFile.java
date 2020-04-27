@@ -1,12 +1,12 @@
 package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.openjdk.tools.javac.tree.JCTree.JCCompilationUnit;
 import org.openjdk.tools.javac.tree.JCTree.JCExpression;
 import org.openjdk.tools.javac.tree.JCTree.JCImport;
-import java.util.Map;
-import javax.annotation.Nullable;
 
 /** An object representing a Java source file. */
 public class ParsedFile {
@@ -44,16 +44,18 @@ public class ParsedFile {
    * @param unit the compilation unit to use
    */
   public static ParsedFile fromCompilationUnit(JCCompilationUnit unit) {
-    ImmutableMap.Builder<String, Import> builder = ImmutableMap.builder();
+    Map<String, Import> imports = new HashMap<>();
+    // unit.getImports() potentially contains the same import twice, in which case we want to
+    // consider only one of them (and ignore the other one)
     for (JCImport existingImport : unit.getImports()) {
       Import i = Import.fromJcImport(existingImport);
-      builder.put(i.name(), i);
+      imports.put(i.name(), i);
     }
 
     JCExpression pkg = (JCExpression) unit.getPackageName();
     String packageName = unit.getPackageName().toString();
     int packageEndPos = pkg.getEndPosition(unit.endPositions);
-    return new ParsedFile(packageName, packageEndPos, builder.build(), null);
+    return new ParsedFile(packageName, packageEndPos, imports, null);
   }
 
   /** The position of the end of this {@code ParsedFile}'s package clause */
