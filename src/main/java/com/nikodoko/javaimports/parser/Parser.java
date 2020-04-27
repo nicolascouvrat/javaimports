@@ -8,9 +8,9 @@ import com.nikodoko.javaimports.ImporterException;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Logger;
-import java.nio.file.Path;
 import java.util.stream.Collectors;
 import org.openjdk.javax.tools.Diagnostic;
 import org.openjdk.javax.tools.DiagnosticCollector;
@@ -51,7 +51,7 @@ public class Parser {
    */
   public ParsedFile parse(final Path filename, final String javaCode) throws ImporterException {
     // Parse the code into a compilation unit containing the AST
-    JCCompilationUnit unit = getCompilationUnit(filename, javaCode);
+    JCCompilationUnit unit = getCompilationUnit(filename.toString(), javaCode);
 
     // Scan the AST
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
@@ -73,7 +73,7 @@ public class Parser {
   }
 
   @VisibleForTesting
-  static JCCompilationUnit getCompilationUnit(final Path filename, final String javaCode)
+  static JCCompilationUnit getCompilationUnit(final String filename, final String javaCode)
       throws ImporterException {
     Context ctx = new Context();
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();

@@ -943,7 +943,7 @@ public class UnresolvedIdentifierScannerTest {
   public void scanTest() throws Exception {
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
     try {
-      scanner.scan(Parser.getCompilationUnit(input), null);
+      scanner.scan(Parser.getCompilationUnit("testfile", input), null);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);

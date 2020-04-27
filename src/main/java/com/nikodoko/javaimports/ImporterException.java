@@ -2,7 +2,6 @@ package com.nikodoko.javaimports;
 
 import static java.util.Locale.ENGLISH;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.openjdk.javax.tools.Diagnostic;
@@ -18,7 +17,7 @@ public class ImporterException extends Exception {
    * @param diagnostics a list of parser diagnostics
    */
   public static ImporterException fromDiagnostics(
-      Path filename, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+      String filename, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
     List<ImporterDiagnostic> importerDiagnostics = new ArrayList<>();
     for (Diagnostic<?> d : diagnostics) {
       importerDiagnostics.add(ImporterDiagnostic.create(filename, d));
@@ -45,19 +44,19 @@ public class ImporterException extends Exception {
     private final int line;
     private final int column;
     private final String message;
-    private final Path filename;
+    private final String filename;
 
     /**
      * Wrap a parser diagnostic
      *
      * @param d the diagnostic to wrap
      */
-    public static ImporterDiagnostic create(Path filename, Diagnostic<?> d) {
+    public static ImporterDiagnostic create(String filename, Diagnostic<?> d) {
       return new ImporterDiagnostic(
           filename, (int) d.getLineNumber(), (int) d.getColumnNumber(), d.getMessage(ENGLISH));
     }
 
-    private ImporterDiagnostic(Path filename, int line, int column, String message) {
+    private ImporterDiagnostic(String filename, int line, int column, String message) {
       // TODO: assert > 0 with precondition
       this.filename = filename;
       this.line = line;
@@ -66,7 +65,7 @@ public class ImporterException extends Exception {
     }
 
     public String toString() {
-      return filename + ": " + line + ":" + column + ": error: " + message;
+      return filename + ":" + line + ":" + column + ": error: " + message;
     }
   }
 }
