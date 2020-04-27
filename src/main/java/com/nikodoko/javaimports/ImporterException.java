@@ -2,8 +2,9 @@ package com.nikodoko.javaimports;
 
 import static java.util.Locale.ENGLISH;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.openjdk.javax.tools.Diagnostic;
 import org.openjdk.javax.tools.JavaFileObject;
 
@@ -17,9 +18,13 @@ public class ImporterException extends Exception {
    * @param diagnostics a list of parser diagnostics
    */
   public static ImporterException fromDiagnostics(
-      List<Diagnostic<? extends JavaFileObject>> diagnostics) {
-    return new ImporterException(
-        diagnostics.stream().map(ImporterDiagnostic::create).collect(Collectors.toList()));
+      Path filename, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+    List<ImporterDiagnostic> importerDiagnostics = new ArrayList<>();
+    for (Diagnostic<?> d : diagnostics) {
+      importerDiagnostics.add(ImporterDiagnostic.create(filename, d));
+    }
+
+    return new ImporterException(importerDiagnostics);
   }
 
   private ImporterException(List<ImporterDiagnostic> diagnostics) {
@@ -40,27 +45,28 @@ public class ImporterException extends Exception {
     private final int line;
     private final int column;
     private final String message;
+    private final Path filename;
 
     /**
      * Wrap a parser diagnostic
      *
      * @param d the diagnostic to wrap
      */
-    public static ImporterDiagnostic create(Diagnostic<?> d) {
+    public static ImporterDiagnostic create(Path filename, Diagnostic<?> d) {
       return new ImporterDiagnostic(
-          (int) d.getLineNumber(), (int) d.getColumnNumber(), d.getMessage(ENGLISH));
+          filename, (int) d.getLineNumber(), (int) d.getColumnNumber(), d.getMessage(ENGLISH));
     }
 
-    private ImporterDiagnostic(int line, int column, String message) {
+    private ImporterDiagnostic(Path filename, int line, int column, String message) {
       // TODO: assert > 0 with precondition
+      this.filename = filename;
       this.line = line;
       this.column = column;
       this.message = message;
     }
 
     public String toString() {
-      // TODO: format this more cleanly
-      return line + ":" + column + ": error: " + message;
+      return filename + ": " + line + ":" + column + ": error: " + message;
     }
   }
 }

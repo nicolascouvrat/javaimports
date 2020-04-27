@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,7 +76,7 @@ public final class Importer {
    */
   public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
-    ParsedFile f = parser.parse(javaCode);
+    ParsedFile f = parser.parse(filename, javaCode);
 
     Fixer fixer = Fixer.init(f, fixerOptions(options));
     // Initial run with the current file only.
@@ -103,7 +105,7 @@ public final class Importer {
 
   // Find and parse all java files in the directory of filename, excepting filename itself
   private Set<ParsedFile> parseSiblings(final Path filename) throws ImporterException {
-    List<String> sources = new ArrayList<>();
+    Map<Path, String> sources = new HashMap<>();
     try {
       // Retrieve all java files in the parent directory of filename, excluding filename and not
       // searching recursively
@@ -117,7 +119,7 @@ public final class Importer {
               .collect(Collectors.toList());
 
       for (Path p : paths) {
-        sources.add(new String(Files.readAllBytes(p), UTF_8));
+        sources.put(p, new String(Files.readAllBytes(p), UTF_8));
       }
     } catch (IOException e) {
       throw new IOError(e);
@@ -127,8 +129,8 @@ public final class Importer {
     // XXX: might want to run the parsing on all files, and combine the exceptions instead of
     // stopping at the first incorrect file. That way the user knows all the errors and can fix all
     // of them without rerunning the tool.
-    for (String source : sources) {
-      siblings.add(parser.parse(source));
+    for (Map.Entry<Path, String> source : sources.entrySet()) {
+      siblings.add(parser.parse(source.getKey(), source.getValue()));
     }
 
     return siblings;
