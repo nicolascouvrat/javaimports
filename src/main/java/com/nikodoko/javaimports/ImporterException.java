@@ -2,8 +2,8 @@ package com.nikodoko.javaimports;
 
 import static java.util.Locale.ENGLISH;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.openjdk.javax.tools.Diagnostic;
 import org.openjdk.javax.tools.JavaFileObject;
 
@@ -17,9 +17,27 @@ public class ImporterException extends Exception {
    * @param diagnostics a list of parser diagnostics
    */
   public static ImporterException fromDiagnostics(
-      List<Diagnostic<? extends JavaFileObject>> diagnostics) {
-    return new ImporterException(
-        diagnostics.stream().map(ImporterDiagnostic::create).collect(Collectors.toList()));
+      String filename, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+    List<ImporterDiagnostic> importerDiagnostics = new ArrayList<>();
+    for (Diagnostic<?> d : diagnostics) {
+      importerDiagnostics.add(ImporterDiagnostic.create(filename, d));
+    }
+
+    return new ImporterException(importerDiagnostics);
+  }
+
+  /**
+   * Combine multiple exceptions into a new one
+   *
+   * @param exceptions a list of {@code ImporterException} to combine
+   */
+  public static ImporterException combine(List<ImporterException> exceptions) {
+    List<ImporterDiagnostic> combined = new ArrayList<>();
+    for (ImporterException e : exceptions) {
+      combined.addAll(e.diagnostics());
+    }
+
+    return new ImporterException(combined);
   }
 
   private ImporterException(List<ImporterDiagnostic> diagnostics) {
@@ -40,27 +58,28 @@ public class ImporterException extends Exception {
     private final int line;
     private final int column;
     private final String message;
+    private final String filename;
 
     /**
      * Wrap a parser diagnostic
      *
      * @param d the diagnostic to wrap
      */
-    public static ImporterDiagnostic create(Diagnostic<?> d) {
+    public static ImporterDiagnostic create(String filename, Diagnostic<?> d) {
       return new ImporterDiagnostic(
-          (int) d.getLineNumber(), (int) d.getColumnNumber(), d.getMessage(ENGLISH));
+          filename, (int) d.getLineNumber(), (int) d.getColumnNumber(), d.getMessage(ENGLISH));
     }
 
-    private ImporterDiagnostic(int line, int column, String message) {
+    private ImporterDiagnostic(String filename, int line, int column, String message) {
       // TODO: assert > 0 with precondition
+      this.filename = filename;
       this.line = line;
       this.column = column;
       this.message = message;
     }
 
     public String toString() {
-      // TODO: format this more cleanly
-      return line + ":" + column + ": error: " + message;
+      return filename + ":" + line + ":" + column + ": error: " + message;
     }
   }
 }

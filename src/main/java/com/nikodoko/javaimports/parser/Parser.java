@@ -8,6 +8,7 @@ import com.nikodoko.javaimports.ImporterException;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -48,9 +49,9 @@ public class Parser {
    * @param javaCode the input code
    * @throws ImporterException if the input cannot be parsed
    */
-  public ParsedFile parse(final String javaCode) throws ImporterException {
+  public ParsedFile parse(final Path filename, final String javaCode) throws ImporterException {
     // Parse the code into a compilation unit containing the AST
-    JCCompilationUnit unit = getCompilationUnit(javaCode);
+    JCCompilationUnit unit = getCompilationUnit(filename.toString(), javaCode);
 
     // Scan the AST
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
@@ -72,7 +73,8 @@ public class Parser {
   }
 
   @VisibleForTesting
-  static JCCompilationUnit getCompilationUnit(final String javaCode) throws ImporterException {
+  static JCCompilationUnit getCompilationUnit(final String filename, final String javaCode)
+      throws ImporterException {
     Context ctx = new Context();
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     ctx.put(DiagnosticListener.class, diagnostics);
@@ -109,7 +111,7 @@ public class Parser {
             .collect(Collectors.toList());
 
     if (!errorDiagnostics.isEmpty()) {
-      throw ImporterException.fromDiagnostics(errorDiagnostics);
+      throw ImporterException.fromDiagnostics(filename, errorDiagnostics);
     }
 
     return unit;
