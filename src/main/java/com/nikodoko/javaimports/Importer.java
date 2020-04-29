@@ -3,6 +3,7 @@ package com.nikodoko.javaimports;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.common.collect.Range;
 import com.nikodoko.javaimports.fixer.Fixer;
 import com.nikodoko.javaimports.fixer.FixerOptions;
 import com.nikodoko.javaimports.parser.Import;
@@ -86,7 +87,7 @@ public final class Importer {
       // We cannot add any imports at this stage, as we need the package information for that. If we
       // are done, this should mean that the file is complete
       checkArgument(r.fixes().isEmpty(), "expected no fixes but found %s", r.fixes());
-      return javaCode;
+      return applyFixes(f, javaCode, r);
     }
 
     // Add package information
@@ -144,13 +145,19 @@ public final class Importer {
     return siblings;
   }
 
+  private String buildImportStatements(Set<Import> fixes) {
+    // XXX: we don't really need to order imports alphabetically here, but we do it simply because
+    // it's harder to test if the order is not deterministic
+    return fixes.stream().map(Import::asStatement).sorted().collect(Collectors.joining(""));
+  }
+
   // Add all fixes to the original source code
   private String applyFixes(ParsedFile file, final String original, Fixer.Result result) {
-    // If there are no fixes to do, return the original source code
-    if (result.fixes().isEmpty()) {
+    if (result.fixes().isEmpty() && file.duplicates().isEmpty()) {
       return original;
     }
 
+    String statements = buildImportStatements(result.fixes());
     int insertPos = 0;
     if (file.packageEndPos() > -1) {
       insertPos = original.indexOf(";", file.packageEndPos()) + 1;
@@ -159,13 +166,14 @@ public final class Importer {
     // We brutally insert imports just after the package clause, on the same line. This is not
     // pretty, but we do not care: our goal is to find imports, not to organize them nicely. This
     // job is left to other tools.
-    // XXX: we don't really need to order imports alphabetically here, but we do it simply because
-    // it's harder to test if the order is not decided.
     // XXX: it would however make sense to add a "useless import removal" feature, as javaimports
     // should cover everything that has to do with imports in a file.
-    String toInsert =
-        result.fixes().stream().map(Import::asStatement).sorted().collect(Collectors.joining(""));
+    StringBuilder sb = new StringBuilder(original);
+    sb.insert(insertPos, statements);
 
-    return new StringBuffer(original).insert(insertPos, toInsert).toString();
+    for (Range<Integer> duplicate : file.duplicates()) {
+      sb.delete(duplicate.lowerEndpoint(), duplicate.upperEndpoint());
+    }
+    return sb.toString();
   }
 }
