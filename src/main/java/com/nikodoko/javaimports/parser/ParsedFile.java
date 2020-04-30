@@ -1,12 +1,15 @@
 package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.openjdk.tools.javac.tree.JCTree.JCCompilationUnit;
 import org.openjdk.tools.javac.tree.JCTree.JCExpression;
 import org.openjdk.tools.javac.tree.JCTree.JCImport;
-import java.util.Map;
-import javax.annotation.Nullable;
 
 /** An object representing a Java source file. */
 public class ParsedFile {
@@ -18,6 +21,7 @@ public class ParsedFile {
   Scope scope;
   // The position of the end of the package clause
   int packageEndPos;
+  List<Range<Integer>> duplicates;
 
   /**
    * A {@code ParsedFile} constructor.
@@ -29,11 +33,25 @@ public class ParsedFile {
    * @param scope its scope (the package scope, but limited to this file)
    */
   public ParsedFile(
-      String packageName, int packageEndPos, Map<String, Import> imports, Scope scope) {
+      String packageName,
+      int packageEndPos,
+      List<Range<Integer>> duplicates,
+      Map<String, Import> imports,
+      Scope scope) {
     this.packageName = packageName;
     this.packageEndPos = packageEndPos;
+    this.duplicates = duplicates;
     this.imports = imports;
     this.scope = scope;
+  }
+
+  private static int findEndOfPackageClause(JCCompilationUnit unit) {
+    JCExpression pkg = (JCExpression) unit.getPackageName();
+    return pkg.getEndPosition(unit.endPositions);
+  }
+
+  private static Range<Integer> rangeOf(JCCompilationUnit unit, JCImport statement) {
+    return Range.closed(statement.getStartPosition(), statement.getEndPosition(unit.endPositions));
   }
 
   /**
@@ -44,21 +62,35 @@ public class ParsedFile {
    * @param unit the compilation unit to use
    */
   public static ParsedFile fromCompilationUnit(JCCompilationUnit unit) {
-    ImmutableMap.Builder<String, Import> builder = ImmutableMap.builder();
+    String packageName = unit.getPackageName().toString();
+
+    int packageEndPos = findEndOfPackageClause(unit);
+    Map<String, Import> imports = new HashMap<>();
+    List<Range<Integer>> duplicates = new ArrayList<>();
+    // unit.getImports() potentially contains the same import multiple times, in which case we want
+    // to
+    // consider only one of them (and mark the others as duplicates)
     for (JCImport existingImport : unit.getImports()) {
       Import i = Import.fromJcImport(existingImport);
-      builder.put(i.name(), i);
+      if (!imports.containsKey(i.name())) {
+        imports.put(i.name(), i);
+        continue;
+      }
+
+      duplicates.add(rangeOf(unit, existingImport));
     }
 
-    JCExpression pkg = (JCExpression) unit.getPackageName();
-    String packageName = unit.getPackageName().toString();
-    int packageEndPos = pkg.getEndPosition(unit.endPositions);
-    return new ParsedFile(packageName, packageEndPos, builder.build(), null);
+    return new ParsedFile(packageName, packageEndPos, duplicates, imports, null);
   }
 
   /** The position of the end of this {@code ParsedFile}'s package clause */
   public int packageEndPos() {
     return packageEndPos;
+  }
+
+  /** The [startPosition, endPosition] of duplicate imports, if any */
+  public List<Range<Integer>> duplicates() {
+    return duplicates;
   }
 
   /** The package to which this {@code ParsedFile} belongs */
@@ -92,6 +124,8 @@ public class ParsedFile {
         .add("packageName", packageName)
         .add("imports", imports)
         .add("scope", scope)
+        .add("packageEndPos", packageEndPos)
+        .add("duplicates", duplicates)
         .toString();
   }
 }
