@@ -2,11 +2,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.nikodoko.javaimports</groupId>
-  <artifactId>javaimports</artifactId>
-  <packaging>jar</packaging>
+  <artifactId>javaimports-parent</artifactId>
+  <packaging>pom</packaging>
   <version>0.1-SNAPSHOT</version>
 
-  <name>Javaimports</name>
+  <modules>
+    <module>core</module>
+  </modules>
+
+  <name>Javaimports Parent</name>
 
   <description>
     A tool that updates Java source code import lines, adding missing ones.
@@ -67,34 +71,6 @@
     </dependencies>
   </dependencyManagement>
 
-  <dependencies>
-    <!-- Google Guava -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-    <!-- OpenJDK's langtools mirror -->
-    <dependency>
-      <groupId>com.google.errorprone</groupId>
-      <artifactId>javac-shaded</artifactId>
-    </dependency>
-    <!-- Google java format -->
-    <dependency>
-      <groupId>com.google.googlejavaformat</groupId>
-      <artifactId>google-java-format</artifactId>
-    </dependency>
-    <!-- Test dependencies -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.truth</groupId>
-      <artifactId>truth</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -108,48 +84,5 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>com.nikodoko.javaimports.cli.CLI</mainClass>
-              <addDefaultImplementationEntries>
-                true
-              </addDefaultImplementationEntries>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.4.3</version>
-        <executions>
-          <execution>
-            <id>shade-all-deps</id>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>all-deps</shadedClassifierName>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
   </build>
 </project>
