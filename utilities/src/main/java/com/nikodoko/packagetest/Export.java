@@ -10,6 +10,7 @@ public class Export {
 
   public static Exported of(Kind exporter, List<Module> modules) {
     File temp = Files.createTempDir();
-    return null;
+    Exported exported = new Exported(temp.toPath());
+    return exported;
   }
 }

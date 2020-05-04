@@ -1,6 +1,7 @@
 package com.nikodoko.packagetest.exporters;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -9,6 +10,7 @@ import com.nikodoko.packagetest.Exported;
 import com.nikodoko.packagetest.Module;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 
 public class MavenExporterTest {
@@ -44,7 +46,10 @@ public class MavenExporterTest {
   private void checkWritten(Exported result, String module, String fragment, String expected)
       throws Exception {
     Path expect = result.root().resolve(expected);
-    Path got = result.file(module, fragment);
+    Optional<Path> got = result.file(module, fragment);
+    if (!got.isPresent()) {
+      fail("file not written");
+    }
 
     assertThat((Object) got).isEqualTo(expect);
   }
