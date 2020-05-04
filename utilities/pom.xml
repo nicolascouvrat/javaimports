@@ -10,6 +10,14 @@
 
   <name>Javaimports Utilities</name>
 
+  <dependencies>
+    <!-- Google Guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
