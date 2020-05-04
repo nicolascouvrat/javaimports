@@ -1,5 +1,5 @@
 package com.nikodoko.packagetest.exporters;
 
-interface Exporter {
+public interface Exporter {
   String name();
 }

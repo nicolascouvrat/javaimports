@@ -6,6 +6,8 @@ import java.io.File;
 import java.util.List;
 
 public class Export {
+  private Export() {}
+
   public static Exported of(Kind exporter, List<Module> modules) {
     File temp = Files.createTempDir();
     return null;
