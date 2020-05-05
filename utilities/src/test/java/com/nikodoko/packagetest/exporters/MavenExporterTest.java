@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
 import com.nikodoko.packagetest.Module;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +28,12 @@ public class MavenExporterTest {
                     "package an.awesome.module.b")),
             new Module("an.other.module", ImmutableMap.of("C.java", "package an.other.module;")));
 
-    Exported out = Export.of(Kind.MAVEN, modules);
+    Exported out = null;
+    try {
+      out = Export.of(Kind.MAVEN, modules);
+    } catch (IOException e) {
+      fail(e.getMessage());
+    }
 
     checkWritten(
         out,
@@ -51,6 +57,6 @@ public class MavenExporterTest {
       fail("file not written");
     }
 
-    assertThat((Object) got).isEqualTo(expect);
+    assertThat((Object) got.get()).isEqualTo(expect);
   }
 }
