@@ -56,6 +56,12 @@
       <artifactId>truth-java8-extension</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.nikodoko.javapackagetest</groupId>
+      <artifactId>javapackagetest</artifactId>
+      <version>0.2</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
