@@ -56,7 +56,7 @@ public class Exported {
    * @param fragment a path fragment
    * @param path the path at which the file has been written
    */
-  public void markAsWritten(String module, String fragment, Path path) {
+  void markAsWritten(String module, String fragment, Path path) {
     checkNotNull(path, "why mark a null path as written?");
     Map<String, Path> moduleFiles = written.get(module);
     if (moduleFiles == null) {
