@@ -1,6 +1,7 @@
 package com.nikodoko.packagetest.exporters;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
@@ -9,6 +10,7 @@ import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
 import com.nikodoko.packagetest.Module;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +27,7 @@ public class MavenExporterTest {
                     "a/A.java",
                     "package an.awesome.module.a;",
                     "b/B.java",
-                    "package an.awesome.module.b")),
+                    "package an.awesome.module.b;")),
             new Module("an.other.module", ImmutableMap.of("C.java", "package an.other.module;")));
 
     Exported out = null;
@@ -47,6 +49,27 @@ public class MavenExporterTest {
         "anawesomemodule/src/main/java/an/awesome/module/b/B.java");
     checkWritten(
         out, "an.other.module", "C.java", "anothermodule/src/main/java/an/other/module/C.java");
+
+    checkContent(out, "an.awesome.module", "a/A.java", "package an.awesome.module.a;");
+    checkContent(out, "an.awesome.module", "b/B.java", "package an.awesome.module.b;");
+    checkContent(out, "an.other.module", "C.java", "package an.other.module;");
+  }
+
+  private void checkContent(Exported result, String module, String fragment, String expected)
+      throws Exception {
+    Optional<Path> written = result.file(module, fragment);
+    if (!written.isPresent()) {
+      fail("file " + fragment + " not written for module " + module);
+    }
+
+    String got = null;
+    try {
+      got = new String(Files.readAllBytes(written.get()), UTF_8);
+    } catch (IOException e) {
+      fail("cannot read file " + written);
+    }
+
+    assertThat(got).isEqualTo(expected);
   }
 
   private void checkWritten(Exported result, String module, String fragment, String expected)
@@ -54,7 +77,7 @@ public class MavenExporterTest {
     Path expect = result.root().resolve(expected);
     Optional<Path> got = result.file(module, fragment);
     if (!got.isPresent()) {
-      fail("file not written");
+      fail("file " + fragment + " not written for module " + module);
     }
 
     assertThat((Object) got.get()).isEqualTo(expect);
