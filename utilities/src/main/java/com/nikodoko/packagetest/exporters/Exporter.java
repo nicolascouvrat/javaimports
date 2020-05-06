@@ -2,9 +2,15 @@ package com.nikodoko.packagetest.exporters;
 
 import java.nio.file.Path;
 
+/**
+ * {@code Exporter} implementations are responsible for turning generic project descriptions into
+ * system specific architectures.
+ *
+ * <p>See {@link Kind} for a list of exporters available.
+ */
 public interface Exporter {
   /**
-   * Returns the name of this {@code Exporter}
+   * Returns the name of this {@code Exporter}.
    *
    * @return the exporter name
    */

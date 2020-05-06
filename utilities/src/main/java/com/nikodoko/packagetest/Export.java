@@ -11,6 +11,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * Creates temporary projects on disk to test tools on.
+ *
+ * <p>{@link #of} makes it easy to create projects for multiple build systems by changing the type
+ * of {@link Exporter} used (see {@link Kind} for a list of exporters available).
+ */
 public class Export {
   private Export() {}
 
@@ -21,7 +27,7 @@ public class Export {
    *
    * @param exporterKind a type of exporter
    * @param modules a list of modules to export
-   * @return informations about the successful export
+   * @return information about the successful export
    * @throws IOException if an I/O error occurs
    */
   public static Exported of(Kind exporterKind, List<Module> modules) throws IOException {

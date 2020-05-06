@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/** Contains the result of {@link com.nikodoko.packagetest.Export#of}. */
 public class Exported {
   private Path root;
   private Map<String, Map<String, Path>> written = new HashMap<>();
@@ -20,7 +21,7 @@ public class Exported {
     this.root = root;
   }
 
-  /** Returns the temporary directory at the root of this {@code Exported} */
+  /** Returns the directory at the root of this {@code Exported} data. */
   public Path root() {
     return root;
   }
@@ -41,7 +42,7 @@ public class Exported {
   }
 
   /**
-   * Signal that a file has been written at the path {@code path}
+   * Signal that a file has been written at the given {@code path}.
    *
    * @param module a module name
    * @param fragment a path fragment
