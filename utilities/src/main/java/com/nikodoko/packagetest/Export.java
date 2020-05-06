@@ -16,6 +16,33 @@ import java.util.List;
  *
  * <p>{@link #of} makes it easy to create projects for multiple build systems by changing the type
  * of {@link Exporter} used (see {@link Kind} for a list of exporters available).
+ *
+ * <p><b>Example (using Junit)</b>:
+ *
+ * <blockquote>
+ *
+ * <pre>
+ * public class MyToolTest {
+ *   Exported project;
+ *
+ *   &#064;After
+ *   public void cleanup() {
+ *     out.cleanup();
+ *   }
+ *
+ *   &#064;Test
+ *   public void test() {
+ *     List&#060;Module&#062; modules;
+ *     // populate modules with whatever project you want exported
+ *     project = Export.of(Kind.MAVEN, modules);
+ *     // now ready to run test on the generated project...
+ *   }
+ * }
+ * </pre>
+ *
+ * </blockquote>
+ *
+ * Do not forget to cleanup the generated files using {@link Exported#cleanup}!
  */
 public class Export {
   private Export() {}
