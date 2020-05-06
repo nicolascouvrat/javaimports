@@ -23,7 +23,8 @@ public class Export {
   /**
    * Writes a test directory given a kind of exporter and system agnostic module descriptions.
    *
-   * <p>Returns an {@link Exported} object containing the results of the export.
+   * <p>Returns an {@link Exported} object containing the results of the export. {@link
+   * Exported#cleanup} must be called on the result to remove all created files and folders.
    *
    * @param exporterKind a type of exporter
    * @param modules a list of modules to export

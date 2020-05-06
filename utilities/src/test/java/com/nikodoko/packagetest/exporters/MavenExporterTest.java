@@ -14,9 +14,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import org.junit.After;
 import org.junit.Test;
 
 public class MavenExporterTest {
+  Exported out;
+
+  @After
+  public void cleanup() throws Exception {
+    out.cleanup();
+  }
+
   @Test
   public void testExport() throws Exception {
     List<Module> modules =
@@ -30,7 +38,6 @@ public class MavenExporterTest {
                     "package an.awesome.module.b;")),
             new Module("an.other.module", ImmutableMap.of("C.java", "package an.other.module;")));
 
-    Exported out = null;
     try {
       out = Export.of(Kind.MAVEN, modules);
     } catch (IOException e) {
