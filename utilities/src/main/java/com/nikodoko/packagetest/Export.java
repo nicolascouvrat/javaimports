@@ -2,12 +2,11 @@ package com.nikodoko.packagetest;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.io.Files;
 import com.nikodoko.packagetest.exporters.Exporter;
 import com.nikodoko.packagetest.exporters.ExporterFactory;
 import com.nikodoko.packagetest.exporters.Kind;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -45,6 +44,8 @@ import java.util.List;
  * Do not forget to cleanup the generated files using {@link Exported#cleanup}!
  */
 public class Export {
+  private static final String PREFIX = "packagetest";
+
   private Export() {}
 
   /**
@@ -59,8 +60,8 @@ public class Export {
    * @throws IOException if an I/O error occurs
    */
   public static Exported of(Kind exporterKind, List<Module> modules) throws IOException {
-    File temp = Files.createTempDir();
-    Exported exported = new Exported(temp.toPath());
+    Path temp = Files.createTempDirectory(PREFIX);
+    Exported exported = new Exported(temp);
     Exporter exporter = ExporterFactory.create(exporterKind);
     for (Module m : modules) {
       exportModule(exported, exporter, m);
@@ -73,8 +74,8 @@ public class Export {
       throws IOException {
     for (Module.File f : module.files()) {
       Path fullpath = exporter.filename(exported.root(), module.name(), f.fragment());
-      Files.createParentDirs(fullpath.toFile());
-      Files.write(f.content(), fullpath.toFile(), UTF_8);
+      Files.createDirectories(fullpath.getParent());
+      Files.write(fullpath, f.content().getBytes(UTF_8));
       exported.markAsWritten(module.name(), f.fragment(), fullpath);
     }
   }
