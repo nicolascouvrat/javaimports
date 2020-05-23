@@ -22,9 +22,12 @@ public class Fixer {
   private Map<String, Import> candidates = new HashMap<>();
   private static Logger log = Logger.getLogger(Fixer.class.getName());
 
+  private Loader loader;
+
   private Fixer(ParsedFile file, FixerOptions options) {
     this.file = file;
     this.options = options;
+    this.loader = new Loader();
   }
 
   /**
@@ -45,10 +48,13 @@ public class Fixer {
    * @param siblings the files to add
    */
   public void addSiblings(Set<ParsedFile> siblings) {
-    this.siblings =
+    Set<ParsedFile> siblingsOfSamePackage =
         siblings.stream()
             .filter(s -> s.packageName().equals(file.packageName()))
             .collect(Collectors.toSet());
+
+    this.siblings = siblingsOfSamePackage;
+    loader.addSiblings(siblingsOfSamePackage);
   }
 
   private Result loadAndTryToFix(boolean lastTry) {
@@ -183,7 +189,7 @@ public class Fixer {
     // result to the list of classes not fully extended
     Set<Entity> notYetExtended = new HashSet<>();
     for (Entity childClass : file.scope().notYetExtended()) {
-      if (tryToExtend(childClass)) {
+      if (loader.tryToExtend(childClass)) {
         unresolved.addAll(childClass.scope().notYetResolved());
         continue;
       }
@@ -192,51 +198,5 @@ public class Fixer {
     }
 
     return new LoadResult(unresolved, notYetExtended);
-  }
-
-  // Try to extend a child class as much as possible (extending its parent if the parent itself is a
-  // child, etc).
-  private boolean tryToExtend(Entity childClass) {
-    while (childClass.isChildClass()) {
-      if (!tryToExtendOnce(childClass)) {
-        // We could not extend it using any of the siblings
-        return false;
-      }
-    }
-
-    // If we reach here, we fully extended this class
-    return true;
-  }
-
-  // Try to extend a child class using all classes declared in files of the same package
-  private boolean tryToExtendOnce(Entity childClass) {
-    for (ParsedFile sibling : siblings) {
-      Entity parent = sibling.scope().findParent(childClass);
-      if (parent == null) {
-        // Not in this sibling
-        continue;
-      }
-
-      if (parent.kind() != Entity.Kind.CLASS) {
-        // FIXME: what should we do here? it's not really worth continuing, so just return true
-        // event though we didnt find it, as a way to say it's no use trying to extend it again.
-        return true;
-      }
-
-      Set<String> unresolved = new HashSet<>();
-      for (String s : childClass.scope().notYetResolved()) {
-        if (parent.scope().lookup(s) == null) {
-          unresolved.add(s);
-        }
-      }
-
-      childClass.scope().notYetResolved(unresolved);
-      childClass.extendedClassPath(parent.extendedClassPath());
-      // We managed to extend it once
-      return true;
-    }
-
-    // Nothing found accross all siblings
-    return false;
   }
 }
