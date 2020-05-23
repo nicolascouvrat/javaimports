@@ -156,7 +156,7 @@ func TestGetAllClasses(t *testing.T) {
 	}
 
 	for _, p := range prefixes {
-		if _, ok := expectedPrefixes[p.prefix]; !ok {
+		if _, ok := expectedPrefixes[p]; !ok {
 			t.Errorf("Unexpected prefix %s", p)
 		}
 	}

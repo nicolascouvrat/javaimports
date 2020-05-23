@@ -207,7 +207,12 @@ func getAllClasses() ([]classInfo, error) {
 		return nil, err
 	}
 
-	return findAllClassPrefixes(doc), nil
+	classes := make([]classInfo, 0)
+	for _, p := range findAllClassPrefixes(doc) {
+		classes = append(classes, newClassInfo(p))
+	}
+
+	return classes, nil
 }
 
 // generateJavaSEUrl generates the URL for a given page of the java SE javadoc
@@ -227,18 +232,18 @@ func getRaw(url string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func findAllClassPrefixes(doc *html.Node) []classInfo {
-	var classes = make([]classInfo, 0)
+func findAllClassPrefixes(doc *html.Node) []string {
+	var prefixes = make([]string, 0)
 	// The only "a" elements are the ones contained in the big list of all
 	// available classes
 	storePrefix := func(a *html.Node) {
 		if prefix, found := getAttributeValue(a, "href"); found {
-			classes = append(classes, newClassInfo(prefix))
+			prefixes = append(prefixes, prefix)
 		}
 	}
 
 	visitAnchorTags(doc, storePrefix)
-	return classes
+	return prefixes
 }
 
 func visitAnchorTags(n *html.Node, callback func(*html.Node)) {
