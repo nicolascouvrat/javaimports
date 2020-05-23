@@ -131,3 +131,33 @@ func TestPopulateClassInfo(t *testing.T) {
 		}
 	}
 }
+
+func TestGetAllClasses(t *testing.T) {
+	fullPage := genHtml(t, fixtures.AllClassesJavadoc)
+	expectedPrefixes := map[string]bool{
+		"javax/swing/AbstractAction.html":                            true,
+		"javax/lang/model/util/AbstractAnnotationValueVisitor6.html": true,
+		"javax/lang/model/util/AbstractAnnotationValueVisitor7.html": true,
+		"javax/lang/model/util/AbstractAnnotationValueVisitor8.html": true,
+		"javax/swing/border/AbstractBorder.html":                     true,
+		"javax/swing/AbstractButton.html":                            true,
+		"javax/swing/AbstractCellEditor.html":                        true,
+		"java/time/chrono/AbstractChronology.html":                   true,
+		"java/util/AbstractCollection.html":                          true,
+		"javax/swing/colorchooser/AbstractColorChooserPanel.html":    true,
+		"javax/swing/text/AbstractDocument.html":                     true,
+		"javax/swing/text/AbstractDocument.AttributeContext.html":    true,
+	}
+
+	prefixes := findAllClassPrefixes(fullPage)
+
+	if len(prefixes) != len(expectedPrefixes) {
+		t.Errorf("Expected size %d, got %d for prefixes", len(expectedPrefixes), len(prefixes))
+	}
+
+	for _, p := range prefixes {
+		if _, ok := expectedPrefixes[p.prefix]; !ok {
+			t.Errorf("Unexpected prefix %s", p)
+		}
+	}
+}

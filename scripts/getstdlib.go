@@ -16,9 +16,6 @@ const (
 )
 
 // classInfo contains a description of a class (or enum, or interface)
-// It contains two types of information:
-//	- what (public) static identifiers are there?
-//	- what identifiers (methods and variables) are visible to child classes?
 type classInfo struct {
 	// the url fragment to combine with the base URL to access this class' info
 	// page
@@ -42,55 +39,6 @@ func traverseAndPrint(n *html.Node) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		traverseAndPrint(c)
 	}
-}
-
-// generateJavaSEUrl from prefix
-func generateJavaSEUrl(prefix string) string {
-	return fmt.Sprintf(javaSEUrlBase, javaVer, prefix)
-}
-
-// getRaw returns html as a string
-func getRaw(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
-}
-
-// getAllClasses queries the java SE documentation and returns all classes
-//
-// The resulting classInfos will only contain their prefix, and no other
-// information
-func getAllClasses() ([]classInfo, error) {
-	raw, err := getRaw(generateJavaSEUrl(allClassesPrefix))
-	if err != nil {
-		return nil, err
-	}
-
-	doc, err := html.Parse(strings.NewReader(string(raw)))
-	var classes = make([]classInfo, 0)
-	var explore func(*html.Node)
-	// The only "a" elements are the ones contained in the big list of all
-	// available classes
-	explore = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "a" {
-			for _, a := range n.Attr {
-				if a.Key == "href" {
-					classes = append(classes, newClassInfo(a.Val))
-				}
-			}
-		}
-
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			explore(c)
-		}
-	}
-
-	explore(doc)
-	return classes, nil
 }
 
 // getIdentifier extracts the identifier from a "class=colLast" td.
@@ -122,6 +70,7 @@ func getIdentifier(td *html.Node) string {
 
 	return explore(td)
 }
+
 func getInnerText(parent *html.Node) string {
 	var explore func(*html.Node) string
 	explore = func(n *html.Node) string {
@@ -241,4 +190,62 @@ func main() {
 	}
 
 	fmt.Println(len(allClasses))
+}
+
+// getAllClasses queries the java SE documentation and returns all classes
+//
+// The resulting classInfos will only contain their prefix, and no other
+// information
+func getAllClasses() ([]classInfo, error) {
+	raw, err := getRaw(generateJavaSEUrl(allClassesPrefix))
+	if err != nil {
+		return nil, err
+	}
+
+	doc, err := html.Parse(strings.NewReader(string(raw)))
+	if err != nil {
+		return nil, err
+	}
+
+	return findAllClassPrefixes(doc), nil
+}
+
+func findAllClassPrefixes(doc *html.Node) []classInfo {
+	var classes = make([]classInfo, 0)
+	var explore func(*html.Node)
+	// The only "a" elements are the ones contained in the big list of all
+	// available classes
+	explore = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			for _, a := range n.Attr {
+				if a.Key == "href" {
+					classes = append(classes, newClassInfo(a.Val))
+				}
+			}
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			explore(c)
+		}
+	}
+
+	explore(doc)
+	return classes
+}
+
+// generateJavaSEUrl generates the URL for a given page of the java SE javadoc
+// given a prefix, leveraging the fact that all pages use the same base URL
+func generateJavaSEUrl(prefix string) string {
+	return fmt.Sprintf(javaSEUrlBase, javaVer, prefix)
+}
+
+// getRaw returns html as a string
+func getRaw(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
 }
