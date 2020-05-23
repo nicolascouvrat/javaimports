@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 public class Fixer {
   private ParsedFile file;
   private FixerOptions options;
-  private Set<ParsedFile> siblings = new HashSet<>();
   private static Logger log = Logger.getLogger(Fixer.class.getName());
 
   private Loader loader;
@@ -50,7 +49,6 @@ public class Fixer {
             .filter(s -> s.packageName().equals(file.packageName()))
             .collect(Collectors.toSet());
 
-    this.siblings = siblingsOfSamePackage;
     loader.addSiblings(siblingsOfSamePackage);
   }
 
