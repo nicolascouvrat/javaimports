@@ -152,35 +152,58 @@ func populateClassInfo(ci *classInfo) error {
 }
 
 func populateClassInfoFromHtml(ci *classInfo, doc *html.Node) error {
-	var explore func(*html.Node, bool)
-	explore = func(n *html.Node, inSummary bool) {
-		if inSummary {
-			if n.Type == html.ElementNode && n.Data == "tbody" {
-				for c := n.FirstChild; c != nil; c = c.NextSibling {
-					if c.Type == html.ElementNode && c.Data == "tr" {
-						addIdentifier(ci, c)
-					}
-				}
-			}
-			return
-		}
-
-		isSummary := false
-		if n.Type == html.ElementNode && n.Data == "table" {
-			for _, a := range n.Attr {
-				if a.Key == "class" && a.Val == "memberSummary" {
-					isSummary = true
-				}
-			}
-		}
-
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			explore(c, isSummary)
-		}
+	visitMemberRow := func(row *html.Node) {
+		addIdentifier(ci, row)
 	}
 
-	explore(doc, false)
+	doForEachMemberRow(doc, visitMemberRow)
 	return nil
+}
+
+func doForEachMemberRow(n *html.Node, callback func(*html.Node)) {
+	if isMemberSummary(n) {
+		doForEachBodyRow(n, callback)
+		return
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		doForEachMemberRow(c, callback)
+	}
+}
+
+func doForEachBodyRow(n *html.Node, callback func(*html.Node)) {
+	if isElement(n, "tbody") {
+		doForEachRow(n, callback)
+		return
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		doForEachBodyRow(c, callback)
+	}
+}
+
+func doForEachRow(n *html.Node, callback func(*html.Node)) {
+	if isElement(n, "tr") {
+		callback(n)
+		return
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		doForEachRow(c, callback)
+	}
+}
+
+func isMemberSummary(n *html.Node) bool {
+	if !isElement(n, "table") {
+		return false
+	}
+
+	class, found := getAttributeValue(n, "class")
+	if !found {
+		return false
+	}
+
+	return class == "memberSummary"
 }
 
 func main() {
@@ -247,7 +270,7 @@ func findAllClassPrefixes(doc *html.Node) []string {
 }
 
 func visitAnchorTags(n *html.Node, callback func(*html.Node)) {
-	if n.Type == html.ElementNode && n.Data == "a" {
+	if isElement(n, "a") {
 		callback(n)
 	}
 
@@ -264,4 +287,8 @@ func getAttributeValue(n *html.Node, attribute string) (value string, found bool
 	}
 
 	return "", false
+}
+
+func isElement(n *html.Node, tag string) bool {
+	return n.Type == html.ElementNode && n.Data == tag
 }
