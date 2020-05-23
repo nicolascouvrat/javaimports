@@ -232,10 +232,8 @@ func findAllClassPrefixes(doc *html.Node) []classInfo {
 	// The only "a" elements are the ones contained in the big list of all
 	// available classes
 	storePrefix := func(a *html.Node) {
-		for _, attr := range a.Attr {
-			if attr.Key == "href" {
-				classes = append(classes, newClassInfo(attr.Val))
-			}
+		if prefix, found := getAttributeValue(a, "href"); found {
+			classes = append(classes, newClassInfo(prefix))
 		}
 	}
 
@@ -251,4 +249,14 @@ func visitAnchorTags(n *html.Node, callback func(*html.Node)) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		visitAnchorTags(c, callback)
 	}
+}
+
+func getAttributeValue(n *html.Node, attribute string) (value string, found bool) {
+	for _, attr := range n.Attr {
+		if attr.Key == attribute {
+			return attr.Val, true
+		}
+	}
+
+	return "", false
 }
