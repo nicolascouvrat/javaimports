@@ -210,29 +210,6 @@ func getAllClasses() ([]classInfo, error) {
 	return findAllClassPrefixes(doc), nil
 }
 
-func findAllClassPrefixes(doc *html.Node) []classInfo {
-	var classes = make([]classInfo, 0)
-	var explore func(*html.Node)
-	// The only "a" elements are the ones contained in the big list of all
-	// available classes
-	explore = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "a" {
-			for _, a := range n.Attr {
-				if a.Key == "href" {
-					classes = append(classes, newClassInfo(a.Val))
-				}
-			}
-		}
-
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			explore(c)
-		}
-	}
-
-	explore(doc)
-	return classes
-}
-
 // generateJavaSEUrl generates the URL for a given page of the java SE javadoc
 // given a prefix, leveraging the fact that all pages use the same base URL
 func generateJavaSEUrl(prefix string) string {
@@ -248,4 +225,30 @@ func getRaw(url string) ([]byte, error) {
 
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)
+}
+
+func findAllClassPrefixes(doc *html.Node) []classInfo {
+	var classes = make([]classInfo, 0)
+	// The only "a" elements are the ones contained in the big list of all
+	// available classes
+	storePrefix := func(a *html.Node) {
+		for _, attr := range a.Attr {
+			if attr.Key == "href" {
+				classes = append(classes, newClassInfo(attr.Val))
+			}
+		}
+	}
+
+	visitAnchorTags(doc, storePrefix)
+	return classes
+}
+
+func visitAnchorTags(n *html.Node, callback func(*html.Node)) {
+	if n.Type == html.ElementNode && n.Data == "a" {
+		callback(n)
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		visitAnchorTags(c, callback)
+	}
 }
