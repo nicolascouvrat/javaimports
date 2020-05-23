@@ -1,11 +1,15 @@
 package com.nikodoko.javaimports.fixer;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.nikodoko.javaimports.parser.Entity;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -91,7 +95,8 @@ class Loader {
     // result to the list of classes not fully extended
     Set<Entity> notYetExtended = new HashSet<>();
     for (Entity childClass : file.scope().notYetExtended()) {
-      if (tryToExtend(childClass)) {
+      extend(childClass);
+      if (!isExtendable(childClass)) {
         unresolved.addAll(childClass.scope().notYetResolved());
         continue;
       }
@@ -104,47 +109,50 @@ class Loader {
 
   // Try to extend a child class as much as possible (extending its parent if the parent itself is a
   // child, etc).
-  private boolean tryToExtend(Entity childClass) {
-    while (childClass.isChildClass()) {
-      if (!tryToExtendOnce(childClass)) {
-        // We could not extend it using any of the siblings
-        return false;
+  private void extend(Entity childClass) {
+    while (isExtendable(childClass)) {
+      List<Entity> possibleParents = findPossibleParents(childClass);
+      if (possibleParents.isEmpty()) {
+        return;
       }
-    }
 
-    // If we reach here, we fully extended this class
-    return true;
+      extendWith(childClass, bestParent(possibleParents, childClass));
+    }
   }
 
-  // Try to extend a child class using all classes declared in files of the same package
-  private boolean tryToExtendOnce(Entity childClass) {
+  private boolean isExtendable(Entity childClass) {
+    return childClass.isChildClass();
+  }
+
+  private List<Entity> findPossibleParents(Entity childClass) {
+    List<Entity> possibleParents = new ArrayList<>();
     for (ParsedFile sibling : siblings) {
       Entity parent = sibling.scope().findParent(childClass);
-      if (parent == null) {
-        // Not in this sibling
+      if (parent == null || parent.kind() != Entity.Kind.CLASS) {
         continue;
       }
 
-      if (parent.kind() != Entity.Kind.CLASS) {
-        // FIXME: what should we do here? it's not really worth continuing, so just return true
-        // event though we didnt find it, as a way to say it's no use trying to extend it again.
-        return true;
-      }
-
-      Set<String> unresolved = new HashSet<>();
-      for (String s : childClass.scope().notYetResolved()) {
-        if (parent.scope().lookup(s) == null) {
-          unresolved.add(s);
-        }
-      }
-
-      childClass.scope().notYetResolved(unresolved);
-      childClass.extendedClassPath(parent.extendedClassPath());
-      // We managed to extend it once
-      return true;
+      possibleParents.add(parent);
     }
 
-    // Nothing found accross all siblings
-    return false;
+    return possibleParents;
+  }
+
+  private Entity bestParent(List<Entity> possibleParents, Entity child) {
+    // FIXME: this assumes we have only one parent
+    checkArgument(!possibleParents.isEmpty(), "cannot find best parent in empty list");
+    return possibleParents.get(0);
+  }
+
+  private void extendWith(Entity child, Entity parent) {
+    Set<String> unresolved = new HashSet<>();
+    for (String s : child.scope().notYetResolved()) {
+      if (parent.scope().lookup(s) == null) {
+        unresolved.add(s);
+      }
+    }
+
+    child.scope().notYetResolved(unresolved);
+    child.extendedClassPath(parent.extendedClassPath());
   }
 }
