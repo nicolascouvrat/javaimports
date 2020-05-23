@@ -6,6 +6,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.collect.Range;
 import com.nikodoko.javaimports.fixer.Fixer;
 import com.nikodoko.javaimports.fixer.FixerOptions;
+import com.nikodoko.javaimports.fixer.Result;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
@@ -81,7 +82,7 @@ public final class Importer {
 
     Fixer fixer = Fixer.init(f, fixerOptions(options));
     // Initial run with the current file only.
-    Fixer.Result r = fixer.tryToFix();
+    Result r = fixer.tryToFix();
 
     if (r.done()) {
       // We cannot add any imports at this stage, as we need the package information for that. If we
@@ -152,7 +153,7 @@ public final class Importer {
   }
 
   // Add all fixes to the original source code
-  private String applyFixes(ParsedFile file, final String original, Fixer.Result result) {
+  private String applyFixes(ParsedFile file, final String original, Result result) {
     if (result.fixes().isEmpty() && file.duplicates().isEmpty()) {
       return original;
     }
