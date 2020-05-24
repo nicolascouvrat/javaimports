@@ -67,6 +67,10 @@ public class Scope {
     return notYetExtended;
   }
 
+  public Map<String, Entity> entities() {
+    return entities;
+  }
+
   /**
    * Returns whether the identifier is found in this scope, ignoring all parent scopes.
    *

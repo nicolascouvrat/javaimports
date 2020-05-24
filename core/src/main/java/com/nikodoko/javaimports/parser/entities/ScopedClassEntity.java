@@ -14,15 +14,12 @@ import org.openjdk.tools.javac.tree.JCTree.JCIdent;
 import org.openjdk.tools.javac.tree.JCTree.JCTypeApply;
 
 public class ScopedClassEntity implements Entity {
-  private Visibility visibility;
-  private String name;
-  private boolean isStatic;
   private Scope scope;
-  private List<String> extendedClassPath;
+  private ClassEntity entity;
 
   @Override
   public String name() {
-    return name;
+    return entity.name();
   }
 
   @Nullable
@@ -32,41 +29,43 @@ public class ScopedClassEntity implements Entity {
 
   @Override
   public Kind kind() {
-    return Kind.CLASS;
+    return entity.kind();
   }
 
   @Nullable
   public List<String> extendedClassPath() {
-    return extendedClassPath;
+    return entity.extendedClassPath();
   }
 
-  ScopedClassEntity(Visibility visibility, boolean isStatic, String name) {
-    this.visibility = visibility;
-    this.name = name;
-    this.isStatic = isStatic;
+  private ScopedClassEntity(ClassEntity entity) {
+    this.entity = entity;
+  }
+
+  static ScopedClassEntity of(ClassEntity entity) {
+    return new ScopedClassEntity(entity);
   }
 
   /** Returns the {@code Entity}'s shallow copy. */
   public ScopedClassEntity clone() {
-    ScopedClassEntity clone = new ScopedClassEntity(visibility, isStatic, name);
+    ScopedClassEntity clone = new ScopedClassEntity(entity.clone());
     clone.scope = scope;
-    clone.extendedClassPath = extendedClassPath;
     return clone;
   }
 
   /** Set the extended class of this {@code Entity} */
   public void extendedClassPath(List<String> path) {
-    extendedClassPath = path;
+    entity.extendedClassPath(path);
   }
 
   /** Attach a scope to this {@code Entity} */
   public void attachScope(Scope scope) {
     this.scope = scope;
+    entity.members(scope.entities().keySet());
   }
 
   /** Whether this {@code Entity} is extending anything */
   public boolean isChildClass() {
-    return extendedClassPath != null;
+    return entity.isChildClass();
   }
 
   /**
@@ -102,7 +101,7 @@ public class ScopedClassEntity implements Entity {
 
     // We've built a reverse path, so reverse it and store it
     Collections.reverse(extendedClassPath);
-    this.extendedClassPath = extendedClassPath;
+    entity.extendedClassPath(extendedClassPath);
   }
 
   public void extendWith(ScopedClassEntity parent) {
@@ -118,12 +117,6 @@ public class ScopedClassEntity implements Entity {
 
   /** Debugging support. */
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("name", name)
-        .add("visibility", visibility)
-        .add("isStatic", isStatic)
-        .add("scope", scope)
-        .add("extendedClassPath", extendedClassPath)
-        .toString();
+    return MoreObjects.toStringHelper(this).add("scope", scope).add("entity", entity).toString();
   }
 }

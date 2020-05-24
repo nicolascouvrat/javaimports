@@ -13,7 +13,7 @@ public class EntityFactory {
 
   public static ScopedClassEntity createClass(String name, ModifiersTree modifiersTree) {
     EntityModifiers modifiers = parseModifiers(modifiersTree);
-    return new ScopedClassEntity(modifiers.visibility, modifiers.isStatic, name);
+    return ScopedClassEntity.of(new ClassEntity(modifiers.visibility, modifiers.isStatic, name));
   }
 
   public static Entity createMethod(String name, ModifiersTree modifiersTree) {
