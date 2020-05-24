@@ -2,7 +2,7 @@ package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.parser.entities.ClassEntity;
+import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -96,7 +96,7 @@ public class Fixer {
 
     // We did not find everything, do our best effort by trying to resolve anything we can in non
     // resolved orphan classes
-    for (ClassEntity orphan : loaded.orphans) {
+    for (ScopedClassEntity orphan : loaded.orphans) {
       for (String ident : orphan.scope().notYetResolved()) {
         if (candidates.get(ident) != null) {
           fixes.add(candidates.get(ident));

@@ -4,9 +4,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
-import com.nikodoko.javaimports.parser.entities.ClassEntity;
 import com.nikodoko.javaimports.parser.entities.Entity;
 import com.nikodoko.javaimports.parser.entities.Kind;
+import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +27,7 @@ public class Scope {
   // All the identifiers so far unresolved in this scope
   private Set<String> notYetResolved = new HashSet<>();
   // All the classes extending a parent for which that parent has not yet been found in this scope
-  private Set<ClassEntity> notYetExtended = new HashSet<>();
+  private Set<ScopedClassEntity> notYetExtended = new HashSet<>();
   // Parent scope, can be null if top scope
   private Scope parent = null;
 
@@ -63,7 +63,7 @@ public class Scope {
    * The set of classes extending a parent for which that parent has not yet been found in this
    * scope
    */
-  public Set<ClassEntity> notYetExtended() {
+  public Set<ScopedClassEntity> notYetExtended() {
     return notYetExtended;
   }
 
@@ -87,16 +87,16 @@ public class Scope {
   }
 
   // FIXME: get rid of me, I'm ugly
-  private ClassEntity unsafeCast(Entity classEntity) {
+  private ScopedClassEntity unsafeCast(Entity classEntity) {
     if (classEntity == null) {
       return null;
     }
 
     checkArgument(
-        classEntity instanceof ClassEntity,
+        classEntity instanceof ScopedClassEntity,
         "expected a class entity but got %s",
         classEntity.kind());
-    return (ClassEntity) classEntity;
+    return (ScopedClassEntity) classEntity;
   }
 
   /**
@@ -112,7 +112,7 @@ public class Scope {
    *
    * @param classEntity the child class to try to extend
    */
-  public ClassEntity findParent(ClassEntity classEntity) {
+  public ScopedClassEntity findParent(ScopedClassEntity classEntity) {
     checkArgument(classEntity.isChildClass(), "expected a child class entity");
 
     List<String> parentPath = classEntity.extendedClassPath();
@@ -124,7 +124,7 @@ public class Scope {
     //  - If yes we go down the path left to right, as long as we keep finding classes. If for
     //  whatever reason we do not (either because the class does not exist, or because it's not a
     //  class but something else), then we return a BAD Entity
-    ClassEntity maybeParent = unsafeCast(lookup(parentPath.get(0)));
+    ScopedClassEntity maybeParent = unsafeCast(lookup(parentPath.get(0)));
     if (maybeParent == null) {
       return null;
     }
@@ -144,7 +144,7 @@ public class Scope {
   }
 
   /** Adds the class entity to the set of classes which parent has not yet been found */
-  public void markAsNotYetExtended(ClassEntity entity) {
+  public void markAsNotYetExtended(ScopedClassEntity entity) {
     notYetExtended.add(entity);
   }
 
