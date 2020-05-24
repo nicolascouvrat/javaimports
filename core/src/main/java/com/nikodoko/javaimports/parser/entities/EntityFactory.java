@@ -12,7 +12,7 @@ public class EntityFactory {
   }
 
   public static Entity createClass(String name, ModifiersTree modifiers) {
-    return create(Kind.CLASS, name, parseClassModifiers(modifiers));
+    return createClassEntity(name, parseClassModifiers(modifiers));
   }
 
   public static Entity createMethod(String name, ModifiersTree modifiers) {
@@ -29,6 +29,10 @@ public class EntityFactory {
 
   public static Entity createBad() {
     return create(Kind.BAD, "", new EntityModifiers());
+  }
+
+  private static ClassEntity createClassEntity(String name, EntityModifiers modifiers) {
+    return new ClassEntity(name, modifiers.visibility, modifiers.isStatic);
   }
 
   private static EntityModifiers parseClassModifiers(ModifiersTree modifiersTree) {

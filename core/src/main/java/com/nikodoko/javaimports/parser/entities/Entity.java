@@ -18,7 +18,6 @@ public interface Entity {
   public Entity clone();
 
   /** An {@code Entity}'s declared name */
-  @Nullable
   public String name();
 
   /** The {@link Scope} attached to this {@code Entity} */
