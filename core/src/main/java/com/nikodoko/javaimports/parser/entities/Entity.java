@@ -23,21 +23,6 @@ import org.openjdk.tools.javac.tree.JCTree.JCTypeApply;
  * information regarding the class it extends (if any).
  */
 public class Entity {
-  /** Possible kinds of entities */
-  public static enum Kind {
-    /** This is used for error handling */
-    BAD,
-    /** Method */
-    METHOD,
-    /** Variable */
-    VARIABLE,
-    /** Type parameter */
-    TYPE_PARAMETER,
-    /** Class */
-    CLASS,
-    ;
-  }
-
   /** Describes the visibility of a variable, class or method. */
   public static enum Visibility {
     /** The visibility given by {@code public} */

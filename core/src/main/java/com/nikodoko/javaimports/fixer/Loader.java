@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.entities.Entity;
+import com.nikodoko.javaimports.parser.entities.Kind;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -128,7 +129,7 @@ class Loader {
     List<Entity> possibleParents = new ArrayList<>();
     for (ParsedFile sibling : siblings) {
       Entity parent = sibling.scope().findParent(childClass);
-      if (parent == null || parent.kind() != Entity.Kind.CLASS) {
+      if (parent == null || parent.kind() != Kind.CLASS) {
         continue;
       }
 

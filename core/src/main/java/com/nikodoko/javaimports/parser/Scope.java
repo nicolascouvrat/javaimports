@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.parser.entities.Entity;
+import com.nikodoko.javaimports.parser.entities.Kind;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -87,20 +88,18 @@ public class Scope {
    * Searches for the parent class of {@code classEntity} in this {@code Scope}.
    *
    * <p>This will return {@code null} if the parent is not in the scope but has a chance to be
-   * somewhere else, and an {@link Entity} with {@link Entity.Kind#BAD} if the parent class is not
-   * found but cannot be found somewhere else (in other words, when it catches an identifier
-   * resolution error).
+   * somewhere else, and an {@link Entity} with {@link Kind#BAD} if the parent class is not found
+   * but cannot be found somewhere else (in other words, when it catches an identifier resolution
+   * error).
    *
-   * <p>{@code classEntity} is expected to be of {@link Entity.Kind#CLASS} and to have a non-null
-   * extended path.
+   * <p>{@code classEntity} is expected to be of {@link Kind#CLASS} and to have a non-null extended
+   * path.
    *
    * @param classEntity the child class to try to extend
    */
   public Entity findParent(Entity classEntity) {
     checkArgument(
-        classEntity.kind() == Entity.Kind.CLASS,
-        "expected a class entity but got %s",
-        classEntity.kind());
+        classEntity.kind() == Kind.CLASS, "expected a class entity but got %s", classEntity.kind());
     checkArgument(classEntity.isChildClass(), "expected a child class entity");
 
     List<String> parentPath = classEntity.extendedClassPath();
@@ -120,9 +119,9 @@ public class Scope {
     Scope toScan = this;
     for (String s : parentPath) {
       maybeParent = toScan.lookup(s);
-      if (maybeParent == null || maybeParent.kind() != Entity.Kind.CLASS) {
+      if (maybeParent == null || maybeParent.kind() != Kind.CLASS) {
         // Whatever we are trying to extend, this is not going to work
-        return new Entity(Entity.Kind.BAD);
+        return new Entity(Kind.BAD);
       }
 
       toScan = maybeParent.scope();
