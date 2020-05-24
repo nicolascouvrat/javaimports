@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
-import com.nikodoko.javaimports.parser.entities.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +50,7 @@ class Loader {
       }
     }
 
-    for (Entity childClass : file.scope().notYetExtended()) {
+    for (ClassEntity childClass : file.scope().notYetExtended()) {
       Set<String> notYetResolved = new HashSet<>();
       for (String ident : childClass.scope().notYetResolved()) {
         if (file.imports().get(ident) == null) {
@@ -78,7 +77,7 @@ class Loader {
         }
       }
 
-      for (Entity childClass : file.scope().notYetExtended()) {
+      for (ClassEntity childClass : file.scope().notYetExtended()) {
         Set<String> notYetResolved = new HashSet<>();
         for (String ident : childClass.scope().notYetResolved()) {
           if (sibling.scope().lookup(ident) == null) {
@@ -94,7 +93,7 @@ class Loader {
     // If we can finish extending (find all parents), then add whatever is left unresolved to the
     // global set of unresolved identifiers. If it is not totally resolved, add the intermediate
     // result to the list of classes not fully extended
-    Set<Entity> notYetExtended = new HashSet<>();
+    Set<ClassEntity> notYetExtended = new HashSet<>();
     for (ClassEntity childClass : file.scope().notYetExtended()) {
       extend(childClass);
       if (!isExtendable(childClass)) {

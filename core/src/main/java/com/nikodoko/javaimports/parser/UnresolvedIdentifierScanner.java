@@ -176,7 +176,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   public Set<String> unresolved() {
     Set<String> unresolved = topScope.notYetResolved();
-    for (Entity e : topScope.notYetExtended()) {
+    for (ClassEntity e : topScope.notYetExtended()) {
       unresolved.addAll(e.scope().notYetResolved());
     }
 

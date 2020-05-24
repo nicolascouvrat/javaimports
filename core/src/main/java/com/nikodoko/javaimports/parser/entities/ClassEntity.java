@@ -23,7 +23,6 @@ public class ClassEntity implements Entity {
     return name;
   }
 
-  @Override
   @Nullable
   public Scope scope() {
     return scope;
@@ -68,6 +67,17 @@ public class ClassEntity implements Entity {
     return extendedClassPath != null;
   }
 
+  /**
+   * Parses information about a class this entity extends from a selector expression.
+   *
+   * <p>For example, something like java.util.List will produce an extendedClassPath of ["java",
+   * "util", "List"]
+   *
+   * <p>This is slightly hacky and relies heavily on type assertions, meaning it is highly coupled
+   * with the actual JavacParser implementation.
+   *
+   * @param expr the expression to parse
+   */
   public void registerExtendedClass(JCExpression expr) {
     JCExpression selected = expr;
     // The possible underlying types for selected should be: JCIdent (when we have a plain

@@ -1,7 +1,7 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.google.common.base.MoreObjects;
-import com.nikodoko.javaimports.parser.entities.Entity;
+import com.nikodoko.javaimports.parser.entities.ClassEntity;
 import java.util.Set;
 
 // An intermediate result containing symbols that cannot be found and child classes that cannot be
@@ -9,9 +9,9 @@ import java.util.Set;
 class LoadResult {
   // by nikodoko.com
   public Set<String> unresolved;
-  public Set<Entity> orphans;
+  public Set<ClassEntity> orphans;
 
-  public LoadResult(Set<String> unresolved, Set<Entity> orphans) {
+  public LoadResult(Set<String> unresolved, Set<ClassEntity> orphans) {
     this.unresolved = unresolved;
     this.orphans = orphans;
   }
