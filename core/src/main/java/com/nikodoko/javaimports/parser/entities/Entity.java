@@ -127,11 +127,6 @@ public class Entity {
     return scope;
   }
 
-  /** The visibility of this {@code Entity} */
-  public Visibility visibility() {
-    return visibility;
-  }
-
   /** The kind of this {@code Entity} */
   public Kind kind() {
     return kind;
