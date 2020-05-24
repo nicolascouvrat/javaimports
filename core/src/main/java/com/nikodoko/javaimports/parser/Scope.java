@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.parser.entities.Entity;
+import com.nikodoko.javaimports.parser.entities.EntityFactory;
 import com.nikodoko.javaimports.parser.entities.Kind;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,7 +122,7 @@ public class Scope {
       maybeParent = toScan.lookup(s);
       if (maybeParent == null || maybeParent.kind() != Kind.CLASS) {
         // Whatever we are trying to extend, this is not going to work
-        return new Entity(Kind.BAD);
+        return EntityFactory.createBad();
       }
 
       toScan = maybeParent.scope();

@@ -5,10 +5,7 @@ import com.nikodoko.javaimports.parser.Scope;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
-import org.openjdk.javax.lang.model.element.Modifier;
-import org.openjdk.source.tree.ModifiersTree;
 import org.openjdk.tools.javac.tree.JCTree.JCExpression;
 import org.openjdk.tools.javac.tree.JCTree.JCFieldAccess;
 import org.openjdk.tools.javac.tree.JCTree.JCIdent;
@@ -37,82 +34,19 @@ public class Entity {
   // example: for class A extends B.C, this will be [B, C]
   List<String> extendedClassPath;
 
-  private Entity(
-      Kind kind,
-      Visibility visibility,
-      String name,
-      boolean isStatic,
-      Scope scope,
-      List<String> extendedClassPath) {
+  Entity(Kind kind, String name, Visibility visibility, boolean isStatic) {
     this.kind = kind;
     this.visibility = visibility;
     this.name = name;
     this.isStatic = isStatic;
-    this.scope = scope;
-    this.extendedClassPath = extendedClassPath;
-  }
-
-  /**
-   * An {@code Entity} constructor, with a default visibility of NONE.
-   *
-   * @param kind its kind
-   */
-  public Entity(Kind kind) {
-    this.kind = kind;
-    this.visibility = Visibility.NONE;
-  }
-
-  /**
-   * An {@code Entity} constructor, with a default visibility of NONE.
-   *
-   * @param kind its kind
-   * @param name its name
-   */
-  public Entity(Kind kind, String name) {
-    this.kind = kind;
-    this.name = name;
-    this.visibility = Visibility.NONE;
-  }
-
-  /**
-   * An {@code Entity} constructor.
-   *
-   * @param kind its kind
-   * @param name its name
-   * @param modifiers the different modifiers with which this entity is declared
-   */
-  public Entity(Kind kind, String name, ModifiersTree modifiers) {
-    // XXX: this dictates an arbitrary precedence between public, private and protected in the
-    // unlikely case where several of them are present in modifiers at the same time. But this
-    // should be forbidden by the java language, so we don't want to bother too much anyway.
-    Set<Modifier> flags = modifiers.getFlags();
-
-    if (flags.contains(Modifier.PROTECTED)) {
-      this.visibility = Visibility.PROTECTED;
-    }
-
-    if (flags.contains(Modifier.PRIVATE)) {
-      this.visibility = Visibility.PRIVATE;
-    }
-
-    if (flags.contains(Modifier.PUBLIC)) {
-      this.visibility = Visibility.PUBLIC;
-    }
-
-    // The default visibility depends on the kind
-    this.visibility = Visibility.NONE;
-    if (kind == Kind.CLASS) {
-      this.visibility = Visibility.PACKAGE_PRIVATE;
-    }
-
-    this.isStatic = flags.contains(Modifier.STATIC);
-    this.kind = kind;
-    this.name = name;
   }
 
   /** Returns the {@code Entity}'s shallow copy. */
   public Entity clone() {
-    return new Entity(kind, visibility, name, isStatic, scope, extendedClassPath);
+    Entity clone = new Entity(kind, name, visibility, isStatic);
+    clone.scope = scope;
+    clone.extendedClassPath = extendedClassPath;
+    return clone;
   }
 
   /** An {@code Entity}'s declared name */

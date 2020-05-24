@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.parser;
 
 import com.nikodoko.javaimports.parser.entities.Entity;
+import com.nikodoko.javaimports.parser.entities.EntityFactory;
 import com.nikodoko.javaimports.parser.entities.Kind;
 import java.util.HashSet;
 import java.util.Set;
@@ -301,7 +302,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // The function itself is declared in the parent scope, but its parameters will be declared in
     // the function's own scope
     String name = tree.getName().toString();
-    declare(name, new Entity(Kind.METHOD, name, tree.getModifiers()));
+    declare(name, EntityFactory.createMethod(name, tree.getModifiers()));
     return withScope(this::visitMethodTypeParametersFirst).apply(tree, v);
   }
 
@@ -314,7 +315,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   // Declares a class, returning the class entity
   private Entity declareNewClass(ClassTree tree) {
     String name = tree.getSimpleName().toString();
-    Entity c = new Entity(Kind.CLASS, name, tree.getModifiers());
+    Entity c = EntityFactory.createClass(name, tree.getModifiers());
     declare(name, c);
     if (tree.getExtendsClause() != null) {
       c.registerExtendedClass((JCExpression) tree.getExtendsClause());
@@ -327,7 +328,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   public Void visitTypeParameter(TypeParameterTree tree, Void v) {
     // A type parameter is like a variable, but for types, so declare it
     String name = tree.getName().toString();
-    declare(name, new Entity(Kind.TYPE_PARAMETER, name));
+    declare(name, EntityFactory.createTypeParameter(name));
     return super.visitTypeParameter(tree, v);
   }
 
@@ -352,7 +353,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   @Override
   public Void visitVariable(VariableTree tree, Void v) {
     String name = tree.getName().toString();
-    declare(name, new Entity(Kind.VARIABLE, name, tree.getModifiers()));
+    declare(name, EntityFactory.createVariable(name, tree.getModifiers()));
     return super.visitVariable(tree, v);
   }
 
