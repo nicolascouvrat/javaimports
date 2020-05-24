@@ -3,8 +3,10 @@ package com.nikodoko.javaimports.parser.entities;
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.parser.Scope;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.openjdk.tools.javac.tree.JCTree.JCExpression;
 import org.openjdk.tools.javac.tree.JCTree.JCFieldAccess;
@@ -101,6 +103,17 @@ public class ClassEntity implements Entity {
     // We've built a reverse path, so reverse it and store it
     Collections.reverse(extendedClassPath);
     this.extendedClassPath = extendedClassPath;
+  }
+
+  public void extendWith(ClassEntity parent) {
+    Set<String> notYetResolved = new HashSet<>();
+    for (String s : scope.notYetResolved()) {
+      if (parent.scope().lookup(s) == null) {
+        notYetResolved.add(s);
+      }
+    }
+
+    this.scope.notYetResolved(notYetResolved);
   }
 
   /** Debugging support. */

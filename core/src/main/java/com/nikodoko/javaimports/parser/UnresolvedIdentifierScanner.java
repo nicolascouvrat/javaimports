@@ -93,20 +93,13 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     if (!parent.isChildClass()) {
       // XXX: we could actually return useful errors here, such as "this is a private variable", but
       // let's not bother about it for now
+      classEntity.extendWith(parent);
       for (String s : classEntity.scope().notYetResolved()) {
-        if (parent.scope().lookup(s) == null) {
-          topScope.parent().markAsNotYetResolved(s);
-        }
+        topScope.parent().markAsNotYetResolved(s);
       }
       return;
     }
 
-    Set<String> notYetResolved = new HashSet<>();
-    for (String s : classEntity.scope().notYetResolved()) {
-      if (parent.scope().lookup(s) == null) {
-        notYetResolved.add(s);
-      }
-    }
     // For the resolution stage, everything will now happend as if classEntity was directly
     // extending the parent's parent instead of the parent. But we want the actuall classEntity
     // stored in the scope to still point towards the original parent, as someone else might extend
@@ -115,9 +108,8 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // enough, as we will directly modify the extended path, and change nothing in the scope but the
     // unresolved identifiers (which do not matter in extension resolution).
     ClassEntity clone = classEntity.clone();
+    classEntity.extendWith(parent);
     clone.extendedClassPath(parent.extendedClassPath());
-    // this will also alter the "real" classEntity but it is fine.
-    clone.scope().notYetResolved(notYetResolved);
     tryToExtendClass(clone);
   }
 
