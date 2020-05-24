@@ -23,21 +23,6 @@ import org.openjdk.tools.javac.tree.JCTree.JCTypeApply;
  * information regarding the class it extends (if any).
  */
 public class Entity {
-  /** Describes the visibility of a variable, class or method. */
-  public static enum Visibility {
-    /** The visibility given by {@code public} */
-    PUBLIC,
-    /** The visibility given by {@code protected} */
-    PROTECTED,
-    /** The visibility given by {@code private} */
-    PRIVATE,
-    /** The default visibility for classes (accessible only from the same package) */
-    PACKAGE_PRIVATE,
-    /** The default visibility for any other scope (accessible only from inside the scope) */
-    NONE,
-    ;
-  }
-
   // The kind of entity
   Kind kind;
   // The entity's visibility
