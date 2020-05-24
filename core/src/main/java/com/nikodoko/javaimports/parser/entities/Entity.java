@@ -1,6 +1,7 @@
-package com.nikodoko.javaimports.parser;
+package com.nikodoko.javaimports.parser.entities;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.parser.Scope;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;

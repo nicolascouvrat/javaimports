@@ -1,8 +1,8 @@
 package com.nikodoko.javaimports.fixer;
 
-import com.nikodoko.javaimports.parser.Entity;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.parser.entities.Entity;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;

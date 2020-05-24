@@ -2,9 +2,9 @@ package com.nikodoko.javaimports.fixer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.nikodoko.javaimports.parser.Entity;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.parser.entities.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

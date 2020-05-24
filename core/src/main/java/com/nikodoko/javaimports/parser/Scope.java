@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.parser;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.parser.entities.Entity;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

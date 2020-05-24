@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.parser;
 
+import com.nikodoko.javaimports.parser.entities.Entity;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -83,7 +84,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
       return;
     }
 
-    if (parent.kind != Entity.Kind.CLASS) {
+    if (parent.kind() != Entity.Kind.CLASS) {
       // XXX: we could actually return a helpful error here, but instead just swallow all not yet
       // resolved identifiers, as this file will not compile anyway so let's not spend time trying
       // to resolve identifiers if we can avoid it.

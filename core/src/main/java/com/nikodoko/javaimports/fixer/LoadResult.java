@@ -1,7 +1,7 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.google.common.base.MoreObjects;
-import com.nikodoko.javaimports.parser.Entity;
+import com.nikodoko.javaimports.parser.entities.Entity;
 import java.util.Set;
 
 // An intermediate result containing symbols that cannot be found and child classes that cannot be
