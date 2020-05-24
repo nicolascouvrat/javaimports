@@ -1,8 +1,8 @@
 package com.nikodoko.javaimports.parser;
 
+import com.nikodoko.javaimports.parser.entities.ClassEntity;
 import com.nikodoko.javaimports.parser.entities.Entity;
 import com.nikodoko.javaimports.parser.entities.EntityFactory;
-import com.nikodoko.javaimports.parser.entities.Kind;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -74,22 +74,15 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   // This assumes that classEntity has a kind of CLASS and an extended class path
-  private void tryToExtendClass(Entity classEntity) {
+  private void tryToExtendClass(ClassEntity classEntity) {
     if (classEntity.scope().notYetResolved().isEmpty()) {
       // No need to do anything
       return;
     }
 
-    Entity parent = topScope.findParent(classEntity);
+    ClassEntity parent = topScope.findParent(classEntity);
     if (parent == null) {
       topScope.parent().markAsNotYetExtended(classEntity);
-      return;
-    }
-
-    if (parent.kind() != Kind.CLASS) {
-      // XXX: we could actually return a helpful error here, but instead just swallow all not yet
-      // resolved identifiers, as this file will not compile anyway so let's not spend time trying
-      // to resolve identifiers if we can avoid it.
       return;
     }
 
@@ -121,16 +114,16 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // We therefore clone the entity and use this clone to do further extensions. A shallow copy is
     // enough, as we will directly modify the extended path, and change nothing in the scope but the
     // unresolved identifiers (which do not matter in extension resolution).
-    Entity clone = classEntity.clone();
+    ClassEntity clone = classEntity.clone();
     clone.extendedClassPath(parent.extendedClassPath());
     // this will also alter the "real" classEntity but it is fine.
     clone.scope().notYetResolved(notYetResolved);
     tryToExtendClass(clone);
   }
 
-  private void closeScope(@Nullable Entity classEntity) {
+  private void closeScope(@Nullable ClassEntity classEntity) {
     // First, try to find parents for all orphans child classes
-    for (Entity childClass : topScope.notYetExtended()) {
+    for (ClassEntity childClass : topScope.notYetExtended()) {
       // We do not bubble identifiers in the case of orphan child classes, so manually go over them
       // trying to resolve
       Set<String> notYetResolved = new HashSet<>();
@@ -313,9 +306,9 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   // Declares a class, returning the class entity
-  private Entity declareNewClass(ClassTree tree) {
+  private ClassEntity declareNewClass(ClassTree tree) {
     String name = tree.getSimpleName().toString();
-    Entity c = EntityFactory.createClass(name, tree.getModifiers());
+    ClassEntity c = EntityFactory.createClass(name, tree.getModifiers());
     declare(name, c);
     if (tree.getExtendsClause() != null) {
       c.registerExtendedClass((JCExpression) tree.getExtendsClause());
@@ -334,7 +327,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   @Override
   public Void visitClass(ClassTree tree, Void v) {
-    Entity newClass = declareNewClass(tree);
+    ClassEntity newClass = declareNewClass(tree);
     openScope();
 
     // Do not scan the extends clause again, as we handle it separately and do not want to get

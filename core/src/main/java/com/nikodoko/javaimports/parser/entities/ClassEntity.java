@@ -46,7 +46,7 @@ public class ClassEntity implements Entity {
   }
 
   /** Returns the {@code Entity}'s shallow copy. */
-  public Entity clone() {
+  public ClassEntity clone() {
     ClassEntity clone = new ClassEntity(name, visibility, isStatic);
     clone.scope = scope;
     clone.extendedClassPath = extendedClassPath;

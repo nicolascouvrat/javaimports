@@ -11,7 +11,7 @@ public class EntityFactory {
     boolean isStatic = false;
   }
 
-  public static Entity createClass(String name, ModifiersTree modifiers) {
+  public static ClassEntity createClass(String name, ModifiersTree modifiers) {
     return createClassEntity(name, parseClassModifiers(modifiers));
   }
 
@@ -25,10 +25,6 @@ public class EntityFactory {
 
   public static Entity createVariable(String name, ModifiersTree modifiers) {
     return create(Kind.VARIABLE, name, parseModifiers(modifiers));
-  }
-
-  public static Entity createBad() {
-    return create(Kind.BAD, "", new EntityModifiers());
   }
 
   private static ClassEntity createClassEntity(String name, EntityModifiers modifiers) {

@@ -4,8 +4,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.parser.entities.ClassEntity;
 import com.nikodoko.javaimports.parser.entities.Entity;
-import com.nikodoko.javaimports.parser.entities.Kind;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,7 +95,7 @@ class Loader {
     // global set of unresolved identifiers. If it is not totally resolved, add the intermediate
     // result to the list of classes not fully extended
     Set<Entity> notYetExtended = new HashSet<>();
-    for (Entity childClass : file.scope().notYetExtended()) {
+    for (ClassEntity childClass : file.scope().notYetExtended()) {
       extend(childClass);
       if (!isExtendable(childClass)) {
         unresolved.addAll(childClass.scope().notYetResolved());
@@ -110,9 +110,9 @@ class Loader {
 
   // Try to extend a child class as much as possible (extending its parent if the parent itself is a
   // child, etc).
-  private void extend(Entity childClass) {
+  private void extend(ClassEntity childClass) {
     while (isExtendable(childClass)) {
-      List<Entity> possibleParents = findPossibleParents(childClass);
+      List<ClassEntity> possibleParents = findPossibleParents(childClass);
       if (possibleParents.isEmpty()) {
         return;
       }
@@ -121,15 +121,15 @@ class Loader {
     }
   }
 
-  private boolean isExtendable(Entity childClass) {
+  private boolean isExtendable(ClassEntity childClass) {
     return childClass.isChildClass();
   }
 
-  private List<Entity> findPossibleParents(Entity childClass) {
-    List<Entity> possibleParents = new ArrayList<>();
+  private List<ClassEntity> findPossibleParents(ClassEntity childClass) {
+    List<ClassEntity> possibleParents = new ArrayList<>();
     for (ParsedFile sibling : siblings) {
-      Entity parent = sibling.scope().findParent(childClass);
-      if (parent == null || parent.kind() != Kind.CLASS) {
+      ClassEntity parent = sibling.scope().findParent(childClass);
+      if (parent == null) {
         continue;
       }
 
@@ -139,13 +139,13 @@ class Loader {
     return possibleParents;
   }
 
-  private Entity bestParent(List<Entity> possibleParents, Entity child) {
+  private ClassEntity bestParent(List<ClassEntity> possibleParents, ClassEntity child) {
     // FIXME: this assumes we have only one parent
     checkArgument(!possibleParents.isEmpty(), "cannot find best parent in empty list");
     return possibleParents.get(0);
   }
 
-  private void extendWith(Entity child, Entity parent) {
+  private void extendWith(ClassEntity child, ClassEntity parent) {
     Set<String> unresolved = new HashSet<>();
     for (String s : child.scope().notYetResolved()) {
       if (parent.scope().lookup(s) == null) {
