@@ -85,6 +85,6 @@ public class EntityFactory {
   }
 
   private static Entity create(Kind kind, String name, EntityModifiers modifiers) {
-    return new Entity(kind, name, modifiers.visibility, modifiers.isStatic);
+    return new EntityImpl(kind, name, modifiers.visibility, modifiers.isStatic);
   }
 }
