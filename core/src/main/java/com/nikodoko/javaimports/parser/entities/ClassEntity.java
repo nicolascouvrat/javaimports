@@ -38,7 +38,7 @@ public class ClassEntity implements Entity {
     return extendedClassPath;
   }
 
-  ClassEntity(String name, Visibility visibility, boolean isStatic) {
+  ClassEntity(Visibility visibility, boolean isStatic, String name) {
     this.visibility = visibility;
     this.name = name;
     this.isStatic = isStatic;
@@ -46,7 +46,7 @@ public class ClassEntity implements Entity {
 
   /** Returns the {@code Entity}'s shallow copy. */
   public ClassEntity clone() {
-    ClassEntity clone = new ClassEntity(name, visibility, isStatic);
+    ClassEntity clone = new ClassEntity(visibility, isStatic, name);
     clone.scope = scope;
     clone.extendedClassPath = extendedClassPath;
     return clone;

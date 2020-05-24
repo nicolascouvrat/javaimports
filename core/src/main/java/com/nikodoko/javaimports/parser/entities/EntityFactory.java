@@ -11,24 +11,23 @@ public class EntityFactory {
     boolean isStatic = false;
   }
 
-  public static ClassEntity createClass(String name, ModifiersTree modifiers) {
-    return createClassEntity(name, parseClassModifiers(modifiers));
+  public static ClassEntity createClass(String name, ModifiersTree modifiersTree) {
+    EntityModifiers modifiers = parseModifiers(modifiersTree);
+    return new ClassEntity(modifiers.visibility, modifiers.isStatic, name);
   }
 
-  public static Entity createMethod(String name, ModifiersTree modifiers) {
-    return create(Kind.METHOD, name, parseModifiers(modifiers));
+  public static Entity createMethod(String name, ModifiersTree modifiersTree) {
+    EntityModifiers modifiers = parseModifiers(modifiersTree);
+    return new MethodEntity(modifiers.visibility, modifiers.isStatic, name);
   }
 
   public static Entity createTypeParameter(String name) {
-    return create(Kind.TYPE_PARAMETER, name, new EntityModifiers());
+    return new TypeParameterEntity(name);
   }
 
-  public static Entity createVariable(String name, ModifiersTree modifiers) {
-    return create(Kind.VARIABLE, name, parseModifiers(modifiers));
-  }
-
-  private static ClassEntity createClassEntity(String name, EntityModifiers modifiers) {
-    return new ClassEntity(name, modifiers.visibility, modifiers.isStatic);
+  public static Entity createVariable(String name, ModifiersTree modifiersTree) {
+    EntityModifiers modifiers = parseModifiers(modifiersTree);
+    return new VariableEntity(modifiers.visibility, modifiers.isStatic, name);
   }
 
   private static EntityModifiers parseClassModifiers(ModifiersTree modifiersTree) {
@@ -82,9 +81,5 @@ public class EntityFactory {
 
   private static boolean getStatic(Set<Modifier> flags) {
     return flags.contains(Modifier.STATIC);
-  }
-
-  private static Entity create(Kind kind, String name, EntityModifiers modifiers) {
-    return new EntityImpl(kind, name, modifiers.visibility, modifiers.isStatic);
   }
 }
