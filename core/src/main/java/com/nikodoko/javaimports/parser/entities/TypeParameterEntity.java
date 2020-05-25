@@ -1,7 +1,7 @@
 package com.nikodoko.javaimports.parser.entities;
 
 public class TypeParameterEntity implements Entity {
-  private String name;
+  private final String name;
 
   TypeParameterEntity(String name) {
     this.name = name;
