@@ -41,8 +41,14 @@ public class ScopedClassEntity implements Entity {
     this.entity = entity;
   }
 
-  static ScopedClassEntity of(ClassEntity entity) {
+  // FIXME: should be package private
+  public static ScopedClassEntity of(ClassEntity entity) {
     return new ScopedClassEntity(entity);
+  }
+
+  // FIXME: get rid of me!
+  public ClassEntity classEntity() {
+    return entity;
   }
 
   /** Returns the {@code Entity}'s shallow copy. */
@@ -71,8 +77,8 @@ public class ScopedClassEntity implements Entity {
   /**
    * Parses information about a class this entity extends from a selector expression.
    *
-   * <p>For example, something like java.util.List will produce an parentPath of ["java",
-   * "util", "List"]
+   * <p>For example, something like java.util.List will produce an parentPath of ["java", "util",
+   * "List"]
    *
    * <p>This is slightly hacky and relies heavily on type assertions, meaning it is highly coupled
    * with the actual JavacParser implementation.
