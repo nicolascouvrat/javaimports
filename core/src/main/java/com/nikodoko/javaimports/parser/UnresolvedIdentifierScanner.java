@@ -113,6 +113,19 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     tryToExtendClass(clone);
   }
 
+  private void handleChildClass(ScopedClassEntity childClass) {
+    // We do not bubble identifiers in the case of orphan child classes, so manually go over them
+    // trying to resolve
+    Set<String> notYetResolved = new HashSet<>();
+    for (String s : childClass.scope().notYetResolved()) {
+      if (topScope.lookup(s) == null) {
+        notYetResolved.add(s);
+      }
+    }
+    childClass.scope().notYetResolved(notYetResolved);
+    tryToExtendClass(childClass);
+  }
+
   private void closeScope(@Nullable ScopedClassEntity classEntity) {
     if (classEntity != null) {
       // Add the scope to the class entity before closing it, as we might need it later
@@ -120,21 +133,12 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     }
 
     if (classEntity != null && classEntity.isChildClass()) {
-      topScope.markAsNotYetExtended(classEntity);
+      handleChildClass(classEntity);
     }
 
     // First, try to find parents for all orphans child classes
     for (ScopedClassEntity childClass : topScope.notYetExtended()) {
-      // We do not bubble identifiers in the case of orphan child classes, so manually go over them
-      // trying to resolve
-      Set<String> notYetResolved = new HashSet<>();
-      for (String s : childClass.scope().notYetResolved()) {
-        if (topScope.lookup(s) == null) {
-          notYetResolved.add(s);
-        }
-      }
-      childClass.scope().notYetResolved(notYetResolved);
-      tryToExtendClass(childClass);
+      handleChildClass(childClass);
     }
 
     // Then, three scenarios:
