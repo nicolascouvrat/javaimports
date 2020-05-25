@@ -114,6 +114,10 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   private void closeScope(@Nullable ScopedClassEntity classEntity) {
+    if (classEntity != null && classEntity.isChildClass()) {
+      topScope.markAsNotYetExtended(classEntity);
+    }
+
     // First, try to find parents for all orphans child classes
     for (ScopedClassEntity childClass : topScope.notYetExtended()) {
       // We do not bubble identifiers in the case of orphan child classes, so manually go over them
@@ -304,7 +308,6 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     declare(name, c);
     if (tree.getExtendsClause() != null) {
       c.registerExtendedClass((JCExpression) tree.getExtendsClause());
-      topScope.markAsNotYetExtended(c);
     }
     return c;
   }
