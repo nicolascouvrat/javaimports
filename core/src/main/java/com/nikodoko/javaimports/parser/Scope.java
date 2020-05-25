@@ -119,7 +119,7 @@ public class Scope {
   public ScopedClassEntity findParent(ScopedClassEntity classEntity) {
     checkArgument(classEntity.isChildClass(), "expected a child class entity");
 
-    List<String> parentPath = classEntity.extendedClassPath();
+    List<String> parentPath = classEntity.parentPath();
 
     // The parentPath may look like something like this: A.B.C
     // What we are going to do:

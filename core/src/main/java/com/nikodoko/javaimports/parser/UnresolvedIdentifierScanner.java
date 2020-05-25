@@ -109,7 +109,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // unresolved identifiers (which do not matter in extension resolution).
     ScopedClassEntity clone = classEntity.clone();
     classEntity.extendWith(parent);
-    clone.extendedClassPath(parent.extendedClassPath());
+    clone.parentPath(parent.parentPath());
     tryToExtendClass(clone);
   }
 

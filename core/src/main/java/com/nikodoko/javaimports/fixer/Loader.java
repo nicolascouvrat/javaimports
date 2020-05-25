@@ -154,6 +154,6 @@ class Loader {
     }
 
     child.scope().notYetResolved(unresolved);
-    child.extendedClassPath(parent.extendedClassPath());
+    child.parentPath(parent.parentPath());
   }
 }

@@ -33,8 +33,8 @@ public class ScopedClassEntity implements Entity {
   }
 
   @Nullable
-  public List<String> extendedClassPath() {
-    return entity.extendedClassPath();
+  public List<String> parentPath() {
+    return entity.parentPath();
   }
 
   private ScopedClassEntity(ClassEntity entity) {
@@ -53,8 +53,8 @@ public class ScopedClassEntity implements Entity {
   }
 
   /** Set the extended class of this {@code Entity} */
-  public void extendedClassPath(List<String> path) {
-    entity.extendedClassPath(path);
+  public void parentPath(List<String> path) {
+    entity.parentPath(path);
   }
 
   /** Attach a scope to this {@code Entity} */
@@ -71,7 +71,7 @@ public class ScopedClassEntity implements Entity {
   /**
    * Parses information about a class this entity extends from a selector expression.
    *
-   * <p>For example, something like java.util.List will produce an extendedClassPath of ["java",
+   * <p>For example, something like java.util.List will produce an parentPath of ["java",
    * "util", "List"]
    *
    * <p>This is slightly hacky and relies heavily on type assertions, meaning it is highly coupled
@@ -84,7 +84,7 @@ public class ScopedClassEntity implements Entity {
     // The possible underlying types for selected should be: JCIdent (when we have a plain
     // identifier), JCFieldAccess (when it looks like A.B.C) or JCTypeApply when it is a
     // parametrized type like Package.Class<T, R>
-    List<String> extendedClassPath = new LinkedList<>();
+    List<String> parentPath = new LinkedList<>();
 
     while (!(selected instanceof JCIdent)) {
       if (selected instanceof JCTypeApply) {
@@ -93,15 +93,15 @@ public class ScopedClassEntity implements Entity {
         continue;
       }
 
-      extendedClassPath.add(((JCFieldAccess) selected).getIdentifier().toString());
+      parentPath.add(((JCFieldAccess) selected).getIdentifier().toString());
       selected = ((JCFieldAccess) selected).getExpression();
     }
 
-    extendedClassPath.add(((JCIdent) selected).getName().toString());
+    parentPath.add(((JCIdent) selected).getName().toString());
 
     // We've built a reverse path, so reverse it and store it
-    Collections.reverse(extendedClassPath);
-    entity.extendedClassPath(extendedClassPath);
+    Collections.reverse(parentPath);
+    entity.parentPath(parentPath);
   }
 
   public void extendWith(ScopedClassEntity parent) {

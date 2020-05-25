@@ -10,7 +10,7 @@ public class ClassEntity implements Entity {
   private Visibility visibility;
   private String name;
   private boolean isStatic;
-  private List<String> extendedClassPath;
+  private List<String> parentPath;
   private Set<String> members = new HashSet<>();
 
   ClassEntity(Visibility visibility, boolean isStatic, String name) {
@@ -38,23 +38,23 @@ public class ClassEntity implements Entity {
   }
 
   @Nullable
-  public List<String> extendedClassPath() {
-    return extendedClassPath;
+  public List<String> parentPath() {
+    return parentPath;
   }
 
   /** Set the extended class of this {@code Entity} */
-  public void extendedClassPath(List<String> path) {
-    extendedClassPath = path;
+  public void parentPath(List<String> path) {
+    parentPath = path;
   }
 
   /** Whether this {@code Entity} is extending anything */
   public boolean isChildClass() {
-    return extendedClassPath != null;
+    return parentPath != null;
   }
 
   public ClassEntity clone() {
     ClassEntity clone = new ClassEntity(visibility, isStatic, name);
-    clone.extendedClassPath = extendedClassPath;
+    clone.parentPath = parentPath;
     clone.members = members;
     return clone;
   }
@@ -65,7 +65,7 @@ public class ClassEntity implements Entity {
         .add("name", name)
         .add("visibility", visibility)
         .add("isStatic", isStatic)
-        .add("extendedClassPath", extendedClassPath)
+        .add("parentPath", parentPath)
         .add("members", members)
         .toString();
   }
