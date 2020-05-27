@@ -135,7 +135,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // trying to resolve
     Scope childScope = childClass.scope();
     ClassExtender extender =
-        ClassExtender.of(childClass.classEntity(), childScope.notYetResolved());
+        ClassExtender.of(childClass.classEntity()).withNotYetResolved(childScope.notYetResolved());
 
     extender.resolveUsing(topScope);
 

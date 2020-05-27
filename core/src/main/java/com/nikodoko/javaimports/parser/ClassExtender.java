@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.parser;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
 import java.util.HashSet;
@@ -12,16 +13,20 @@ public class ClassExtender {
   private ClassEntity toExtend;
   private List<String> nextParentPath;
 
-  private ClassExtender(
-      ClassEntity toExtend, Set<String> notYetResolved, List<String> nextParentPath) {
+  private ClassExtender(ClassEntity toExtend, List<String> nextParentPath) {
     this.toExtend = toExtend;
-    this.notYetResolved = notYetResolved;
     this.nextParentPath = nextParentPath;
   }
 
-  public static ClassExtender of(ClassEntity toExtend, Set<String> notYetResolved) {
-    checkArgument(toExtend.isChildClass(), "can only create extender of child classes");
-    return new ClassExtender(toExtend, notYetResolved, toExtend.parentPath());
+  public static ClassExtender of(ClassEntity toExtend) {
+    checkArgument(toExtend.isChildClass(), "ClassExtender only accept child classes");
+    return new ClassExtender(toExtend, toExtend.parentPath());
+  }
+
+  public ClassExtender withNotYetResolved(Set<String> identifiers) {
+    checkNotNull(identifiers, "ClassExtender does not accept null for unresolved identifiers");
+    this.notYetResolved = identifiers;
+    return this;
   }
 
   public void resolveUsing(Scope scope) {
