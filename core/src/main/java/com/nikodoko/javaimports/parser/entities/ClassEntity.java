@@ -13,7 +13,7 @@ public class ClassEntity implements Entity {
   private List<String> parentPath;
   private Set<String> members = new HashSet<>();
 
-  ClassEntity(Visibility visibility, boolean isStatic, String name) {
+  public ClassEntity(Visibility visibility, boolean isStatic, String name) {
     this.visibility = visibility;
     this.isStatic = isStatic;
     this.name = name;
@@ -33,8 +33,9 @@ public class ClassEntity implements Entity {
     return members;
   }
 
-  public void members(Set<String> members) {
+  public ClassEntity members(Set<String> members) {
     this.members = members;
+    return this;
   }
 
   @Nullable
@@ -43,8 +44,9 @@ public class ClassEntity implements Entity {
   }
 
   /** Set the extended class of this {@code Entity} */
-  public void parentPath(List<String> path) {
-    parentPath = path;
+  public ClassEntity parentPath(List<String> path) {
+    this.parentPath = path;
+    return this;
   }
 
   /** Whether this {@code Entity} is extending anything */

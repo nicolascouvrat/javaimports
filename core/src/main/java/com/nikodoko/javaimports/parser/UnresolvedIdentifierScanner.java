@@ -126,16 +126,12 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     tryToExtendClass(childClass);
   }
 
-  private void resolveUsingTopScope(ClassExtender classExtender) {
-    classExtender.resolveUsing(topScope);
-  }
-
   private void handleNewChildClass(ScopedClassEntity childClass) {
     // We do not bubble identifiers in the case of orphan child classes, so manually go over them
     // trying to resolve
     Scope childScope = childClass.scope();
     ClassExtender extender =
-        ClassExtender.of(childClass.classEntity()).withNotYetResolved(childScope.notYetResolved());
+        ClassExtender.of(childClass.classEntity()).notYetResolved(childScope.notYetResolved());
 
     extender.resolveUsing(topScope);
 

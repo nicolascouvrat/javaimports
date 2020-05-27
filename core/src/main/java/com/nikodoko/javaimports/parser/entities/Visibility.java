@@ -1,7 +1,7 @@
 package com.nikodoko.javaimports.parser.entities;
 
 /** Describes the visibility of a variable, class or method. */
-enum Visibility {
+public enum Visibility {
   /** The visibility given by {@code public} */
   PUBLIC,
   /** The visibility given by {@code protected} */

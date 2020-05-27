@@ -118,9 +118,11 @@ public class Scope {
    */
   public ScopedClassEntity findParent(ScopedClassEntity classEntity) {
     checkArgument(classEntity.isChildClass(), "expected a child class entity");
-
     List<String> parentPath = classEntity.parentPath();
+    return findParent(parentPath);
+  }
 
+  public ScopedClassEntity findParent(List<String> parentPath) {
     // The parentPath may look like something like this: A.B.C
     // What we are going to do:
     //  - See if the leftmost part of the path is in this scope (A in our case)
