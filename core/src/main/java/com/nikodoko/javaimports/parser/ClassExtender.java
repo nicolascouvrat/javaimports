@@ -7,6 +7,7 @@ import com.nikodoko.javaimports.parser.entities.ClassEntity;
 import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class ClassExtender {
@@ -49,14 +50,16 @@ public class ClassExtender {
     return nextParentPath == null;
   }
 
-  // FIXME: get rid of me
-  private ClassEntity findParentIn(Scope scope) {
-    ScopedClassEntity parent = scope.findParent(nextParentPath);
-    if (parent == null) {
-      return null;
+  // FIXME: refactor me
+  public void extendAsMuchAsPossibleUsing(Scope scope) {
+    while (!isFullyExtended()) {
+      Optional<ClassEntity> maybeParent = tryToFindParentIn(scope);
+      if (!maybeParent.isPresent()) {
+        return;
+      }
+      extendWith(maybeParent.get());
+      nextParentPath = maybeParent.get().parentPath();
     }
-
-    return parent.classEntity();
   }
 
   private void extendWith(ClassEntity parent) {
@@ -70,14 +73,13 @@ public class ClassExtender {
     notYetResolved = unresolved;
   }
 
-  public void extendAsMuchAsPossibleUsing(Scope scope) {
-    while (!isFullyExtended()) {
-      ClassEntity parent = findParentIn(scope);
-      if (parent == null) {
-        return;
-      }
-      extendWith(parent);
-      nextParentPath = parent.parentPath();
+  // FIXME: get rid of me
+  private Optional<ClassEntity> tryToFindParentIn(Scope scope) {
+    ScopedClassEntity parent = scope.findParent(nextParentPath);
+    if (parent == null) {
+      return Optional.empty();
     }
+
+    return Optional.of(parent.classEntity());
   }
 }
