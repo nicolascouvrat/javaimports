@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
 import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
 import com.nikodoko.javaimports.parser.entities.Visibility;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClassExtenderTest {
   @Test
