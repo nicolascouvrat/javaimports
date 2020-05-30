@@ -11,9 +11,9 @@ public class EntityFactory {
     boolean isStatic = false;
   }
 
-  public static ScopedClassEntity createClass(String name, ModifiersTree modifiersTree) {
+  public static ClassEntity createClass(String name, ModifiersTree modifiersTree) {
     EntityModifiers modifiers = parseModifiers(modifiersTree);
-    return ScopedClassEntity.of(new ClassEntity(modifiers.visibility, modifiers.isStatic, name));
+    return new ClassEntity(modifiers.visibility, modifiers.isStatic, name);
   }
 
   public static Entity createMethod(String name, ModifiersTree modifiersTree) {

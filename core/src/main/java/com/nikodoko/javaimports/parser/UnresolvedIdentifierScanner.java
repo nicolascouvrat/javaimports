@@ -326,17 +326,6 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
         || tree.getFlags().contains(Modifier.PROTECTED);
   }
 
-  // Declares a class, returning the class entity
-  private ScopedClassEntity declareNewClass(ClassTree tree) {
-    String name = tree.getSimpleName().toString();
-    ScopedClassEntity c = EntityFactory.createClass(name, tree.getModifiers());
-    declare(name, c);
-    if (tree.getExtendsClause() != null) {
-      c.registerExtendedClass((JCExpression) tree.getExtendsClause());
-    }
-    return c;
-  }
-
   @Override
   public Void visitTypeParameter(TypeParameterTree tree, Void v) {
     // A type parameter is like a variable, but for types, so declare it
@@ -361,6 +350,17 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return r;
   }
 
+  // Declares a class, returning the class entity
+  private ScopedClassEntity declareNewClass(ClassTree tree) {
+    String name = tree.getSimpleName().toString();
+    ScopedClassEntity c =
+        ScopedClassEntity.of(EntityFactory.createClass(name, tree.getModifiers()));
+    declare(name, c);
+    if (tree.getExtendsClause() != null) {
+      c.registerExtendedClass((JCExpression) tree.getExtendsClause());
+    }
+    return c;
+  }
   @Override
   public Void visitVariable(VariableTree tree, Void v) {
     String name = tree.getName().toString();
