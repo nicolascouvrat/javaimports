@@ -1,22 +1,32 @@
 package com.nikodoko.javaimports.parser.entities;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.parser.internal.ClassSelector;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 
 public class ClassEntity implements Entity {
-  private Visibility visibility;
-  private String name;
-  private boolean isStatic;
+  private final Visibility visibility;
+  private final String name;
+  private final boolean isStatic;
+  @Nullable private final ClassSelector superclass;
+  // FIXME: remove me
   private List<String> parentPath;
   private Set<String> members = new HashSet<>();
 
   public ClassEntity(Visibility visibility, boolean isStatic, String name) {
+    this(visibility, isStatic, name, null);
+  }
+
+  public ClassEntity(
+      Visibility visibility, boolean isStatic, String name, ClassSelector superclass) {
     this.visibility = visibility;
     this.isStatic = isStatic;
     this.name = name;
+    this.superclass = superclass;
   }
 
   @Override
@@ -38,11 +48,17 @@ public class ClassEntity implements Entity {
     return this;
   }
 
+  public Optional<ClassSelector> superclass() {
+    return Optional.ofNullable(superclass);
+  }
+
+  // FIXME: remove this
   @Nullable
   public List<String> parentPath() {
     return parentPath;
   }
 
+  // FIXME: remove this
   /** Set the extended class of this {@code Entity} */
   public ClassEntity parentPath(List<String> path) {
     this.parentPath = path;

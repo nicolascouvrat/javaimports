@@ -1,11 +1,15 @@
 package com.nikodoko.javaimports.parser.entities;
 
+import com.nikodoko.javaimports.parser.internal.ClassSelector;
+import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import java.util.Set;
 import org.openjdk.javax.lang.model.element.Modifier;
 import org.openjdk.source.tree.ModifiersTree;
+import org.openjdk.tools.javac.tree.JCTree.JCExpression;
 
 public class EntityFactory {
-  // EntityModifiers provides sane defaults (except for classes)
+  // EntityModifiers provides sane defaults (except for classes, for which the default visibility is
+  // package-private)
   private static class EntityModifiers {
     Visibility visibility = Visibility.NONE;
     boolean isStatic = false;
@@ -14,6 +18,13 @@ public class EntityFactory {
   public static ClassEntity createClass(String name, ModifiersTree modifiersTree) {
     EntityModifiers modifiers = parseModifiers(modifiersTree);
     return new ClassEntity(modifiers.visibility, modifiers.isStatic, name);
+  }
+
+  public static ClassEntity createChildClass(
+      String name, ModifiersTree modifiersTree, JCExpression extendsClause) {
+    EntityModifiers modifiers = parseModifiers(modifiersTree);
+    ClassSelector superclass = ClassSelectors.of(extendsClause);
+    return new ClassEntity(modifiers.visibility, modifiers.isStatic, name, superclass);
   }
 
   public static Entity createMethod(String name, ModifiersTree modifiersTree) {
