@@ -21,7 +21,7 @@ public class ClassEntity implements Entity {
 
   @Override
   public String name() {
-    return null;
+    return name;
   }
 
   @Override

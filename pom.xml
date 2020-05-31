@@ -75,6 +75,11 @@
         <artifactId>jqwik</artifactId>
         <version>${jqwik.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.google.truth.extensions</groupId>
+        <artifactId>truth-java8-extension</artifactId>
+        <version>${truth.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
