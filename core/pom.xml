@@ -32,6 +32,11 @@
     </dependency>
     <!-- Test dependencies -->
     <dependency>
+      <groupId>net.jqwik</groupId>
+      <artifactId>jqwik</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.junit.vintage</groupId>
       <artifactId>junit-vintage-engine</artifactId>
       <scope>test</scope>
@@ -61,6 +66,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
+            <include>**/*Properties.java</include>
             <include>**/*Test.java</include>
           </includes>
         </configuration>
