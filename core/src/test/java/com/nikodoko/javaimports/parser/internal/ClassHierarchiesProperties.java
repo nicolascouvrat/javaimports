@@ -15,7 +15,7 @@ public class ClassHierarchiesProperties {
     }
 
     for (int i = 0; i < times; i++) {
-      current = current.moveUp();
+      current = current.moveUp().get();
     }
 
     return start == current;

@@ -8,7 +8,7 @@ public interface ClassHierarchy {
 
   public ClassHierarchy moveToLeaf();
 
-  public ClassHierarchy moveUp();
+  public Optional<ClassHierarchy> moveUp();
 
   public Optional<ClassEntity> find(ClassSelector selector);
 }

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 public class ClassHierarchiesTest {
   static ClassHierarchy root;
+  static ClassHierarchy leaf;
   static ClassEntity A = new ClassEntity(Visibility.PUBLIC, true, "A");
   static ClassEntity B = new ClassEntity(Visibility.PUBLIC, true, "B");
   static ClassEntity C1 = new ClassEntity(Visibility.PUBLIC, true, "C1");
@@ -33,8 +34,9 @@ public class ClassHierarchiesTest {
     hierarchy = hierarchy.moveTo(A);
     hierarchy = hierarchy.moveTo(B);
     hierarchy = hierarchy.moveToLeaf();
+    leaf = hierarchy;
     hierarchy = hierarchy.moveTo(C1);
-    hierarchy = hierarchy.moveUp();
+    hierarchy = hierarchy.moveUp().get();
     hierarchy = hierarchy.moveTo(C2);
   }
 
@@ -47,5 +49,17 @@ public class ClassHierarchiesTest {
   @Test
   void testNotFound() {
     assertThat(root.find(ClassSelectors.of("Z"))).isEmpty();
+  }
+
+  @Test
+  void testLeafNotReachableFromParent() {
+    assertThat(root.find(ClassSelectors.of("A", "B", "C1"))).isEmpty();
+    assertThat(root.find(ClassSelectors.of("A", "B", "C2"))).isEmpty();
+  }
+
+  @Test
+  void testLeafChildsCanReachEachother() {
+    assertThat(leaf.find(ClassSelectors.of("C1"))).hasValue(C1);
+    assertThat(leaf.find(ClassSelectors.of("C2"))).hasValue(C2);
   }
 }
