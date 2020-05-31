@@ -1,28 +1,26 @@
 package com.nikodoko.javaimports.parser;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
-import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
+import com.nikodoko.javaimports.parser.internal.ClassHierarchy;
+import com.nikodoko.javaimports.parser.internal.ClassSelector;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 public class ClassExtender {
   private Set<String> notYetResolved = new HashSet<>();
   private ClassEntity toExtend;
-  private List<String> nextParentPath;
+  private Optional<ClassSelector> nextSuperclass;
 
-  private ClassExtender(ClassEntity toExtend, List<String> nextParentPath) {
+  private ClassExtender(ClassEntity toExtend, Optional<ClassSelector> nextSuperclass) {
     this.toExtend = toExtend;
-    this.nextParentPath = nextParentPath;
+    this.nextSuperclass = nextSuperclass;
   }
 
   public static ClassExtender of(ClassEntity toExtend) {
-    checkArgument(toExtend.isChildClass(), "ClassExtender only accept child classes");
-    return new ClassExtender(toExtend, toExtend.parentPath());
+    return new ClassExtender(toExtend, toExtend.superclass());
   }
 
   public ClassExtender notYetResolved(Set<String> identifiers) {
@@ -46,20 +44,20 @@ public class ClassExtender {
     return notYetResolved;
   }
 
-  public boolean isFullyExtended() {
-    return nextParentPath == null;
-  }
-
-  // FIXME: refactor me
-  public void extendAsMuchAsPossibleUsing(Scope scope) {
-    while (!isFullyExtended()) {
-      Optional<ClassEntity> maybeParent = tryToFindParentIn(scope);
+  public void extendAsMuchAsPossibleUsing(ClassHierarchy hierarchy) {
+    while (nextSuperclass.isPresent()) {
+      Optional<ClassEntity> maybeParent = hierarchy.find(nextSuperclass.get());
       if (!maybeParent.isPresent()) {
         return;
       }
+
       extendWith(maybeParent.get());
-      nextParentPath = maybeParent.get().parentPath();
+      nextSuperclass = maybeParent.get().superclass();
     }
+  }
+
+  public boolean isFullyExtended() {
+    return !nextSuperclass.isPresent();
   }
 
   private void extendWith(ClassEntity parent) {
@@ -71,15 +69,5 @@ public class ClassExtender {
     }
 
     notYetResolved = unresolved;
-  }
-
-  // FIXME: get rid of me
-  private Optional<ClassEntity> tryToFindParentIn(Scope scope) {
-    ScopedClassEntity parent = scope.findParent(nextParentPath);
-    if (parent == null) {
-      return Optional.empty();
-    }
-
-    return Optional.of(parent.classEntity());
   }
 }
