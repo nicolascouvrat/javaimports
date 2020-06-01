@@ -53,6 +53,18 @@ public class ClassExtenderTest {
     assertThat(extender.notYetResolved()).containsExactlyElementsIn(ImmutableSet.of("c", "d"));
   }
 
+  @Test
+  void testPartialExtensionOfChildClass() {
+    ClassHierarchy hierarchy = createFlatHierarchy(child);
+    ClassExtender extender =
+        ClassExtender.of(childOfChild).notYetResolved(ImmutableSet.of("a", "b", "c"));
+
+    extender.extendAsMuchAsPossibleUsing(hierarchy);
+
+    assertThat(extender.isFullyExtended()).isFalse();
+    assertThat(extender.notYetResolved()).containsExactlyElementsIn(ImmutableSet.of("a", "b"));
+  }
+
   static ClassHierarchy createFlatHierarchy(ClassEntity... entities) {
     ClassHierarchy hierarchy = ClassHierarchies.root();
     for (ClassEntity entity : entities) {
