@@ -29,6 +29,11 @@ public class ClassExtender {
     return this;
   }
 
+  // FIXME: probably remove this
+  public ClassEntity classToExtend() {
+    return toExtend;
+  }
+
   public void resolveUsing(Scope scope) {
     Set<String> unresolved = new HashSet<>();
     for (String s : notYetResolved) {

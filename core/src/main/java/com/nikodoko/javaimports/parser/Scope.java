@@ -7,6 +7,7 @@ import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.parser.entities.Entity;
 import com.nikodoko.javaimports.parser.entities.Kind;
 import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ public class Scope {
   private Set<ScopedClassEntity> notYetExtended = new HashSet<>();
   // Parent scope, can be null if top scope
   private Scope parent = null;
+  private List<ClassExtender> notFullyExtended = new ArrayList<>();
 
   /**
    * The {@code Scope} constructor.
@@ -64,9 +66,27 @@ public class Scope {
    * scope
    */
   public Set<ScopedClassEntity> notYetExtended() {
-    return notYetExtended;
+    Set<ScopedClassEntity> scopedClasses = new HashSet<>();
+    for (ClassExtender extender : notFullyExtended) {
+      Scope scope = new Scope(null);
+      scope.notYetResolved(extender.notYetResolved());
+      ScopedClassEntity scopedClass = ScopedClassEntity.of(extender.classToExtend());
+      scopedClass.attachScope(scope);
+      scopedClasses.add(scopedClass);
+    }
+
+    return scopedClasses;
   }
 
+  public Iterable<ClassExtender> notFullyExtended() {
+    return notFullyExtended;
+  }
+
+  public Set<String> identifiers() {
+    return entities.keySet();
+  }
+
+  // FIXME: remove
   public Map<String, Entity> entities() {
     return entities;
   }
@@ -157,6 +177,10 @@ public class Scope {
   /** Adds the identifier to the set of identifiers that have not yet been resolved */
   public void markAsNotYetResolved(String identifier) {
     notYetResolved.add(identifier);
+  }
+
+  public void markAsNotFullyExtended(ClassExtender extender) {
+    notFullyExtended.add(extender);
   }
 
   /**

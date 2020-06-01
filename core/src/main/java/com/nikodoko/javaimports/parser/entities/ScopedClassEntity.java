@@ -66,7 +66,6 @@ public class ScopedClassEntity implements Entity {
   /** Attach a scope to this {@code Entity} */
   public void attachScope(Scope scope) {
     this.scope = scope;
-    entity.members(scope.entities().keySet());
   }
 
   /** Whether this {@code Entity} is extending anything */
