@@ -11,20 +11,43 @@ import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import org.junit.jupiter.api.Test;
 
 public class ClassExtenderTest {
+  ClassEntity childOfChild =
+      new ClassEntity(Visibility.PUBLIC, false, "ChildOfChild", ClassSelectors.of("Child"));
+  ClassEntity child =
+      new ClassEntity(Visibility.PUBLIC, false, "Child", ClassSelectors.of("Parent"))
+          .members(ImmutableSet.of("c"));
+  ClassEntity parent =
+      new ClassEntity(Visibility.PUBLIC, false, "Parent").members(ImmutableSet.of("a", "b"));
+
   @Test
-  public void testExtend() {
-    ClassEntity child =
-        new ClassEntity(Visibility.PUBLIC, false, "Child", ClassSelectors.of("Parent"));
-    ClassEntity parent =
-        new ClassEntity(Visibility.PUBLIC, false, "Parent").members(ImmutableSet.of("a", "b"));
-
-    ClassHierarchy hierarchy = ClassHierarchies.root();
-    hierarchy.moveTo(parent);
-
+  void testExtendChildClass() {
+    ClassHierarchy hierarchy = createFlatHierarchy(parent);
     ClassExtender extender = ClassExtender.of(child).notYetResolved(ImmutableSet.of("a", "b", "c"));
+
     extender.extendAsMuchAsPossibleUsing(hierarchy);
 
     assertThat(extender.isFullyExtended()).isTrue();
     assertThat(extender.notYetResolved()).containsExactlyElementsIn(ImmutableSet.of("c"));
+  }
+
+  @Test
+  void testExtendChildOfChildClass() {
+    ClassHierarchy hierarchy = createFlatHierarchy(parent, child);
+    ClassExtender extender =
+        ClassExtender.of(childOfChild).notYetResolved(ImmutableSet.of("a", "b", "c", "d"));
+
+    extender.extendAsMuchAsPossibleUsing(hierarchy);
+
+    assertThat(extender.isFullyExtended()).isTrue();
+    assertThat(extender.notYetResolved()).containsExactlyElementsIn(ImmutableSet.of("d"));
+  }
+
+  static ClassHierarchy createFlatHierarchy(ClassEntity... entities) {
+    ClassHierarchy hierarchy = ClassHierarchies.root();
+    for (ClassEntity entity : entities) {
+      hierarchy.moveTo(entity);
+    }
+
+    return hierarchy;
   }
 }
