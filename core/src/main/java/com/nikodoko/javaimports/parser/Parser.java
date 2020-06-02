@@ -59,7 +59,9 @@ public class Parser {
 
     // Wrap the results in a ParsedFile
     ParsedFile f = ParsedFile.fromCompilationUnit(unit);
-    f.attachScope(scanner.topScope());
+    Scope s = scanner.topScope();
+    s.makeNotYetExtended();
+    f.attachScope(s);
     if (options.debug()) {
       log.info("completed parsing: " + f.toString());
     }

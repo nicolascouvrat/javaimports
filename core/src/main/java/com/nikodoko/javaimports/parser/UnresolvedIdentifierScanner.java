@@ -204,7 +204,14 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   private void closeScope(@Nullable ScopedClassEntity classEntity) {
     if (classEntity != null) {
-      closeClassScope(classEntity.classEntity());
+      ClassEntity childClass = classEntity.classEntity();
+      childClass.members(topScope.identifiers());
+      ClassExtender extender =
+          ClassExtender.of(childClass).notYetResolved(topScope.notYetResolved());
+      resolveAndExtend(extender);
+      topScope.notYetResolved(extender.notYetResolved());
+      classEntity.attachScope(topScope);
+      closeScope();
       return;
     }
 
@@ -263,6 +270,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   public Set<String> unresolved() {
+    topScope.makeNotYetExtended();
     Set<String> unresolved = topScope.notYetResolved();
     for (ScopedClassEntity e : topScope.notYetExtended()) {
       unresolved.addAll(e.scope().notYetResolved());

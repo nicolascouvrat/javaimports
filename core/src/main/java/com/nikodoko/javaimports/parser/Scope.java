@@ -66,6 +66,11 @@ public class Scope {
    * scope
    */
   public Set<ScopedClassEntity> notYetExtended() {
+    return notYetExtended;
+  }
+
+  // FIXME: kill me
+  public void makeNotYetExtended() {
     Set<ScopedClassEntity> scopedClasses = new HashSet<>();
     for (ClassExtender extender : notFullyExtended) {
       Scope scope = new Scope(null);
@@ -75,7 +80,7 @@ public class Scope {
       scopedClasses.add(scopedClass);
     }
 
-    return scopedClasses;
+    notYetExtended = scopedClasses;
   }
 
   public Iterable<ClassExtender> notFullyExtended() {
