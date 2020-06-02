@@ -64,6 +64,10 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   public Scope topScope() {
     return topScope;
   }
+
+  public ClassHierarchy topClass() {
+    return topClass;
+  }
   // Copied from the original class where it is private
   private Void scanAndReduce(Iterable<? extends Tree> nodes, Void p, Void r) {
     return reduce(scan(nodes, p), r);
