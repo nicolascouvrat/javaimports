@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.parser.entities;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.Scope;
 import java.util.Collections;
 import java.util.HashSet;
@@ -118,6 +119,14 @@ public class ScopedClassEntity implements Entity {
     }
 
     this.scope.notYetResolved(notYetResolved);
+  }
+
+  public static ScopedClassEntity recompose(ClassExtender extender) {
+    Scope scope = new Scope(null);
+    scope.notYetResolved(extender.notYetResolved());
+    ScopedClassEntity scoped = ScopedClassEntity.of(extender.classToExtend());
+    scoped.attachScope(scope);
+    return scoped;
   }
 
   /** Debugging support. */

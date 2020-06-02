@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.parser.Scope;
 import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +35,17 @@ class Loader {
     return candidates;
   }
 
+  private Set<String> findNotImported(Scope scope) {
+    Set<String> notImported = new HashSet<>();
+    for (String identifier : scope.notYetResolved()) {
+      if (file.imports().get(identifier) == null) {
+        notImported.add(identifier);
+      }
+    }
+
+    return notImported;
+  }
+
   // Try to compute what identifiers are still unresolved, and what child classes are still not
   // extended, using whatever information is available to the Fixer at the time.
   LoadResult load() {
@@ -43,20 +55,10 @@ class Loader {
     // class so that we can decide which identifiers are still unresoled.
     // We should probably have shortcut here that directly goes to find that package? But we most
     // likely need environment information for this...
-    Set<String> unresolved = new HashSet<>();
-    for (String ident : file.scope().notYetResolved()) {
-      if (file.imports().get(ident) == null) {
-        unresolved.add(ident);
-      }
-    }
+    Set<String> unresolved = findNotImported(file.scope());
 
     for (ScopedClassEntity childClass : file.scope().notYetExtended()) {
-      Set<String> notYetResolved = new HashSet<>();
-      for (String ident : childClass.scope().notYetResolved()) {
-        if (file.imports().get(ident) == null) {
-          notYetResolved.add(ident);
-        }
-      }
+      Set<String> notYetResolved = findNotImported(childClass.scope());
 
       childClass.scope().notYetResolved(notYetResolved);
     }

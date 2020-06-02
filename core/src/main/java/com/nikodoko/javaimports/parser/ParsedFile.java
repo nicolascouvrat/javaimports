@@ -34,7 +34,7 @@ public class ParsedFile {
    * @param packageEndPos the position of the end of its package clause
    * @param scope its scope (the package scope, but limited to this file)
    */
-  public ParsedFile(
+  private ParsedFile(
       String packageName,
       int packageEndPos,
       List<Range<Integer>> duplicates,

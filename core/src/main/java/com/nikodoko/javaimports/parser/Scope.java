@@ -73,11 +73,7 @@ public class Scope {
   public void makeNotYetExtended() {
     Set<ScopedClassEntity> scopedClasses = new HashSet<>();
     for (ClassExtender extender : notFullyExtended) {
-      Scope scope = new Scope(null);
-      scope.notYetResolved(extender.notYetResolved());
-      ScopedClassEntity scopedClass = ScopedClassEntity.of(extender.classToExtend());
-      scopedClass.attachScope(scope);
-      scopedClasses.add(scopedClass);
+      scopedClasses.add(ScopedClassEntity.recompose(extender));
     }
 
     notYetExtended = scopedClasses;
