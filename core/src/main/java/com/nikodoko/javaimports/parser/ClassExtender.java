@@ -34,10 +34,10 @@ public class ClassExtender {
     return toExtend;
   }
 
-  public void resolveUsing(Scope scope) {
+  public void resolveUsing(Set<String> identifiers) {
     Set<String> unresolved = new HashSet<>();
     for (String s : notYetResolved) {
-      if (scope.lookup(s) == null) {
+      if (!identifiers.contains(s)) {
         unresolved.add(s);
       }
     }

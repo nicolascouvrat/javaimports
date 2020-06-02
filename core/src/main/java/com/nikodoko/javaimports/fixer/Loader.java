@@ -2,9 +2,9 @@ package com.nikodoko.javaimports.fixer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.parser.Scope;
 import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,15 +35,15 @@ class Loader {
     return candidates;
   }
 
-  private Set<String> findNotImported(Scope scope) {
-    Set<String> notImported = new HashSet<>();
-    for (String identifier : scope.notYetResolved()) {
-      if (file.imports().get(identifier) == null) {
-        notImported.add(identifier);
+  private Set<String> difference(Set<String> original, Set<String> toRemove) {
+    Set<String> result = new HashSet<>();
+    for (String identifier : original) {
+      if (!toRemove.contains(identifier)) {
+        result.add(identifier);
       }
     }
 
-    return notImported;
+    return result;
   }
 
   // Try to compute what identifiers are still unresolved, and what child classes are still not
@@ -55,12 +55,10 @@ class Loader {
     // class so that we can decide which identifiers are still unresoled.
     // We should probably have shortcut here that directly goes to find that package? But we most
     // likely need environment information for this...
-    Set<String> unresolved = findNotImported(file.scope());
+    Set<String> unresolved = difference(file.scope().notYetResolved(), file.imports().keySet());
 
-    for (ScopedClassEntity childClass : file.scope().notYetExtended()) {
-      Set<String> notYetResolved = findNotImported(childClass.scope());
-
-      childClass.scope().notYetResolved(notYetResolved);
+    for (ClassExtender e : file.notFullyExtendedClasses()) {
+      e.resolveUsing(file.imports().keySet());
     }
 
     // Go over all identifiers in siblings and resolve what we can.
@@ -79,17 +77,11 @@ class Loader {
         }
       }
 
-      for (ScopedClassEntity childClass : file.scope().notYetExtended()) {
-        Set<String> notYetResolved = new HashSet<>();
-        for (String ident : childClass.scope().notYetResolved()) {
-          if (sibling.scope().lookup(ident) == null) {
-            notYetResolved.add(ident);
-          }
-        }
-
-        childClass.scope().notYetResolved(notYetResolved);
+      for (ClassExtender e : file.notFullyExtendedClasses()) {
+        e.resolveUsing(sibling.topLevelDeclarations());
       }
     }
+    file.scope().makeNotYetExtended();
 
     // Finally, try to extend each child class of the original file.
     // If we can finish extending (find all parents), then add whatever is left unresolved to the

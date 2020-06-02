@@ -180,7 +180,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   private void resolveAndExtend(ClassExtender extender) {
-    extender.resolveUsing(topScope);
+    extender.resolveUsing(topScope.identifiers());
     extender.extendAsMuchAsPossibleUsing(topClass);
     if (!extender.isFullyExtended()) {
       topScope.parent().markAsNotFullyExtended(extender);
