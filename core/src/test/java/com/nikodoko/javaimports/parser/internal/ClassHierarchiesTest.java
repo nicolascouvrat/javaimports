@@ -62,4 +62,14 @@ public class ClassHierarchiesTest {
     assertThat(leaf.find(ClassSelectors.of("C1"))).hasValue(C1);
     assertThat(leaf.find(ClassSelectors.of("C2"))).hasValue(C2);
   }
+
+  @Test
+  void testCombineLeafAndRoot() {
+    ClassHierarchy combined = ClassHierarchies.combine(root, leaf);
+
+    assertThat(leaf.find(ClassSelectors.of("C1"))).hasValue(C1);
+    assertThat(leaf.find(ClassSelectors.of("C2"))).hasValue(C2);
+    assertThat(root.find(ClassSelectors.of("A"))).hasValue(A);
+    assertThat(root.find(ClassSelectors.of("A", "B"))).hasValue(B);
+  }
 }
