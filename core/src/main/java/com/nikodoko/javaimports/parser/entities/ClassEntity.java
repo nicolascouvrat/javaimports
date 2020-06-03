@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 
-public class ClassEntity implements Entity {
+public class ClassEntity {
   private final Visibility visibility;
   private final String name;
   private final boolean isStatic;
@@ -29,12 +29,10 @@ public class ClassEntity implements Entity {
     this.superclass = superclass;
   }
 
-  @Override
   public String name() {
     return name;
   }
 
-  @Override
   public Kind kind() {
     return Kind.CLASS;
   }

@@ -27,20 +27,6 @@ public class EntityFactory {
     return new ClassEntity(modifiers.visibility, modifiers.isStatic, name, superclass);
   }
 
-  public static Entity createMethod(String name, ModifiersTree modifiersTree) {
-    EntityModifiers modifiers = parseModifiers(modifiersTree);
-    return new MethodEntity(modifiers.visibility, modifiers.isStatic, name);
-  }
-
-  public static Entity createTypeParameter(String name) {
-    return new TypeParameterEntity(name);
-  }
-
-  public static Entity createVariable(String name, ModifiersTree modifiersTree) {
-    EntityModifiers modifiers = parseModifiers(modifiersTree);
-    return new VariableEntity(modifiers.visibility, modifiers.isStatic, name);
-  }
-
   private static EntityModifiers parseClassModifiers(ModifiersTree modifiersTree) {
     EntityModifiers modifiers = new EntityModifiers();
     Set<Modifier> flags = modifiersTree.getFlags();
