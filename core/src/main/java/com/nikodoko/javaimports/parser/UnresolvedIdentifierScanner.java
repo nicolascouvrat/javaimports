@@ -1,16 +1,14 @@
 package com.nikodoko.javaimports.parser;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
 import com.nikodoko.javaimports.parser.entities.Entity;
 import com.nikodoko.javaimports.parser.entities.EntityFactory;
-import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
 import com.nikodoko.javaimports.parser.internal.ClassHierarchies;
 import com.nikodoko.javaimports.parser.internal.ClassHierarchy;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
-import javax.annotation.Nullable;
 import org.openjdk.javax.lang.model.element.Modifier;
 import org.openjdk.source.tree.AnnotationTree;
 import org.openjdk.source.tree.BlockTree;
@@ -83,79 +81,6 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     topClass = topClass.moveToLeaf();
   }
 
-  // This assumes that classEntity has a kind of CLASS and an extended class path
-  private void tryToExtendClass(ScopedClassEntity classEntity) {
-    if (classEntity.scope().notYetResolved().isEmpty()) {
-      // No need to do anything
-      return;
-    }
-
-    ScopedClassEntity parent = topScope.findParent(classEntity);
-    if (parent == null) {
-      topScope.parent().markAsNotYetExtended(classEntity);
-      return;
-    }
-
-    // We found the parent, two cases:
-    //  - the parent itself is not a child class, resolve what we can an pass the rest up
-    //  - the parent itself is a child class, resolve what we can, switch the classEntity to be
-    //  extending whatever the parent extends and try to resolve it again.
-    if (!parent.isChildClass()) {
-      // XXX: we could actually return useful errors here, such as "this is a private variable", but
-      // let's not bother about it for now
-      classEntity.extendWith(parent);
-      for (String s : classEntity.scope().notYetResolved()) {
-        topScope.parent().markAsNotYetResolved(s);
-      }
-      return;
-    }
-
-    // For the resolution stage, everything will now happend as if classEntity was directly
-    // extending the parent's parent instead of the parent. But we want the actuall classEntity
-    // stored in the scope to still point towards the original parent, as someone else might extend
-    // it.
-    // We therefore clone the entity and use this clone to do further extensions. A shallow copy is
-    // enough, as we will directly modify the extended path, and change nothing in the scope but the
-    // unresolved identifiers (which do not matter in extension resolution).
-    ScopedClassEntity clone = classEntity.clone();
-    classEntity.extendWith(parent);
-    clone.parentPath(parent.parentPath());
-    tryToExtendClass(clone);
-  }
-
-  private void handleChildClass(ScopedClassEntity childClass) {
-    // We do not bubble identifiers in the case of orphan child classes, so manually go over them
-    // trying to resolve
-    Set<String> notYetResolved = new HashSet<>();
-    for (String s : childClass.scope().notYetResolved()) {
-      if (topScope.lookup(s) == null) {
-        notYetResolved.add(s);
-      }
-    }
-    childClass.scope().notYetResolved(notYetResolved);
-    tryToExtendClass(childClass);
-  }
-
-  private void handleNewChildClass(ClassEntity childClass) {
-    // We do not bubble identifiers in the case of orphan child classes, so manually go over them
-    // trying to resolve
-    childClass.members(topScope.identifiers());
-    ClassExtender extender = ClassExtender.of(childClass).notYetResolved(topScope.notYetResolved());
-
-    resolveAndExtend(extender);
-    if (extender.isFullyExtended()) {
-      return;
-    }
-
-    Scope s = new Scope(null);
-    s.notYetResolved(extender.notYetResolved());
-    ScopedClassEntity recomposed = ScopedClassEntity.of(childClass);
-    recomposed.attachScope(s);
-
-    topScope.parent().markAsNotYetExtended(recomposed);
-  }
-
-  // FIXME: that's what we want
   private void closeClassScope(ClassEntity classEntity) {
     classEntity.members(topScope.identifiers());
     ClassExtender extender =
@@ -206,91 +131,30 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     topClass = maybeParent.get();
   }
 
-  private void closeScope(@Nullable ScopedClassEntity classEntity) {
-    if (classEntity != null) {
-      ClassEntity childClass = classEntity.classEntity();
-      childClass.members(topScope.identifiers());
-      ClassExtender extender =
-          ClassExtender.of(childClass).notYetResolved(topScope.notYetResolved());
-      resolveAndExtend(extender);
-      topScope.notYetResolved(extender.notYetResolved());
-      classEntity.attachScope(topScope);
-      closeScope();
-      return;
-    }
-
-    closeNonClassScope();
-    return;
-    // if (classEntity != null) {
-    //   // Add the scope to the class entity before closing it, as we might need it later
-    //   classEntity.attachScope(topScope);
-    //   handleNewChildClass(classEntity.classEntity());
-    // }
-
-    // // First, try to find parents for all orphans child classes
-    // for (ScopedClassEntity childClass : topScope.notYetExtended()) {
-    //   handleChildClass(childClass);
-    // }
-
-    // moveUpInHierarchy();
-    // // Then, three scenarios:
-    // //  - we are closing a class, try again to resolve any not yet resolved identifiers (as they
-    // can
-    // //  be declared in any order in the class so we might have missed them) and bubble whatever
-    // is
-    // //  not found
-    // //  - we are closing a child class, do like for the class but do not bubble any left overs
-    // //  - we are not closing a class scope, bubble all not yet resolved identifiers up
-    // if (classEntity == null) {
-    //   for (String s : topScope.notYetResolved()) {
-    //     topScope.parent().markAsNotYetResolved(s);
-    //   }
-    //   topScope = topScope.parent();
-    //   return;
-    // }
-
-    // if (!classEntity.isChildClass()) {
-    //   for (String s : topScope.notYetResolved()) {
-    //     if (!resolve(s)) {
-    //       topScope.parent().markAsNotYetResolved(s);
-    //     }
-    //   }
-    //   topScope = topScope.parent();
-    //   return;
-    // }
-
-    // Set<String> notYetResolved = new HashSet<>();
-    // for (String s : topScope.notYetResolved()) {
-    //   if (!resolve(s)) {
-    //     notYetResolved.add(s);
-    //   }
-    // }
-    // topScope.notYetResolved(notYetResolved);
-    // topScope = topScope.parent();
-  }
-
   private void declare(String name, Entity entity) {
-    topScope.insert(name, entity);
+    topScope.insert(name);
   }
 
-  public Set<String> unresolved() {
-    topScope.makeNotYetExtended();
+  @VisibleForTesting
+  Set<String> unresolved() {
     Set<String> unresolved = topScope.notYetResolved();
-    for (ScopedClassEntity e : topScope.notYetExtended()) {
-      unresolved.addAll(e.scope().notYetResolved());
+    for (ClassExtender e : topScope.notFullyExtended()) {
+      unresolved.addAll(e.notYetResolved());
     }
 
     return unresolved;
   }
 
-  private boolean resolve(String identifier) {
+  private boolean resolvable(String identifier) {
     Scope current = topScope;
     while (current != null) {
-      if (current.lookup(identifier) != null) {
+      if (current.contains(identifier)) {
         return true;
       }
+
       current = current.parent();
     }
+
     return false;
   }
 
@@ -305,7 +169,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
       openNonClassScope();
 
       Void r = f.apply(t, v);
-      closeScope(null);
+      closeNonClassScope();
       return r;
     };
   }
@@ -416,8 +280,9 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   @Override
   public Void visitClass(ClassTree tree, Void v) {
-    ScopedClassEntity newClass = declareNewClass(tree);
-    openClassScope(newClass.classEntity());
+    ClassEntity newClass = createClassEntity(tree);
+    declare(newClass.name(), newClass);
+    openClassScope(newClass);
 
     // Do not scan the extends clause again, as we handle it separately and do not want to get
     // unresolved identifiers
@@ -426,21 +291,8 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     r = scanAndReduce(tree.getImplementsClause(), v, r);
     r = scanAndReduce(tree.getMembers(), v, r);
 
-    closeScope(newClass);
+    closeClassScope(newClass);
     return r;
-  }
-
-  // Declares a class, returning the class entity
-  private ScopedClassEntity declareNewClass(ClassTree tree) {
-    String name = tree.getSimpleName().toString();
-    ClassEntity entity = createClassEntity(tree);
-    // FIXME: remove this
-    ScopedClassEntity c = ScopedClassEntity.of(entity);
-    declare(name, c);
-    if (tree.getExtendsClause() != null) {
-      c.registerExtendedClass((JCExpression) tree.getExtendsClause());
-    }
-    return c;
   }
 
   private ClassEntity createClassEntity(ClassTree tree) {
@@ -469,7 +321,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   public Void visitIdentifier(IdentifierTree tree, Void unused) {
     // Try to resolve the identifier, if it fails add it to unresolved for the current scope
     String name = tree.getName().toString();
-    if (!resolve(name)) {
+    if (!resolvable(name)) {
       topScope.markAsNotYetResolved(name);
     }
 

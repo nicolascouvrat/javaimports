@@ -60,7 +60,6 @@ public class Parser {
     // Wrap the results in a ParsedFile
     ParsedFile f = ParsedFile.fromCompilationUnit(unit);
     Scope s = scanner.topScope();
-    s.makeNotYetExtended();
     f.topScope(s);
     f.classHierarchy(scanner.topClass());
     if (options.debug()) {
