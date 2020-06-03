@@ -18,7 +18,7 @@ class Loader {
 
   private Loader(ParsedFile file) {
     this.file = file;
-    this.result.unresolved = file.scope().notYetResolved();
+    this.result.unresolved = file.notYetResolved();
     this.result.orphans = file.notFullyExtendedClasses();
   }
 

@@ -104,11 +104,6 @@ public class ParsedFile {
     return imports;
   }
 
-  /** The package {@link Scope}, limited to this current {@code ParsedFile} */
-  public Scope scope() {
-    return topScope;
-  }
-
   /**
    * Attach the given {@code scope} to this {@code ParsedFile}.
    *
@@ -122,6 +117,10 @@ public class ParsedFile {
   public ParsedFile classHierarchy(ClassHierarchy topClass) {
     this.classHierarchy = classHierarchy;
     return this;
+  }
+
+  public Set<String> notYetResolved() {
+    return topScope.notYetResolved();
   }
 
   public Set<ClassExtender> notFullyExtendedClasses() {
