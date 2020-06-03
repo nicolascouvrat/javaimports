@@ -7,7 +7,6 @@ import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.parser.entities.Entity;
 import com.nikodoko.javaimports.parser.entities.Kind;
 import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +30,7 @@ public class Scope {
   private Set<ScopedClassEntity> notYetExtended = new HashSet<>();
   // Parent scope, can be null if top scope
   private Scope parent = null;
-  private List<ClassExtender> notFullyExtended = new ArrayList<>();
+  private Set<ClassExtender> notFullyExtended = new HashSet<>();
 
   /**
    * The {@code Scope} constructor.
@@ -79,7 +78,7 @@ public class Scope {
     notYetExtended = scopedClasses;
   }
 
-  public Iterable<ClassExtender> notFullyExtended() {
+  public Set<ClassExtender> notFullyExtended() {
     return notFullyExtended;
   }
 

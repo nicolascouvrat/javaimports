@@ -53,16 +53,16 @@ public class Fixer {
   }
 
   private Result loadAndTryToFix(boolean lastTry) {
-    LoadResult loaded = loader.load();
+    loader.load();
     if (options.debug()) {
-      log.info("load completed: " + loaded.toString());
+      log.info("load completed: " + loader.result().toString());
     }
 
-    if (loaded.isEmpty()) {
+    if (loader.result().isEmpty()) {
       return Result.complete();
     }
 
-    return fix(loaded, lastTry);
+    return fix(lastTry);
   }
 
   // Given an intermediate load result, use all the candidates gathered so far to find imports to
@@ -70,9 +70,10 @@ public class Fixer {
   //
   // Gives up if all necessary imports cannot be found, except if it is a last try, in which case
   // the best possible incomplete list of fixes will be returned.
-  private Result fix(LoadResult loaded, boolean lastTry) {
+  private Result fix(boolean lastTry) {
     boolean allGood = true;
     Set<Import> fixes = new HashSet<>();
+    LoadResult loaded = loader.result();
     Map<String, Import> candidates = loader.candidates();
     for (String ident : loaded.unresolved) {
       Import fix = candidates.get(ident);

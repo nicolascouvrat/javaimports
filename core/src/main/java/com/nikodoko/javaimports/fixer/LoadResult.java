@@ -10,11 +10,6 @@ class LoadResult {
   public Set<String> unresolved;
   public Set<ClassExtender> orphans;
 
-  public LoadResult(Set<String> unresolved, Set<ClassExtender> orphans) {
-    this.unresolved = unresolved;
-    this.orphans = orphans;
-  }
-
   public boolean isEmpty() {
     return unresolved.isEmpty() && orphans.isEmpty();
   }

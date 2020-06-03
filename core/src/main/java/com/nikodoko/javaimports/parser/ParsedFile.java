@@ -124,7 +124,7 @@ public class ParsedFile {
     return this;
   }
 
-  public Iterable<ClassExtender> notFullyExtendedClasses() {
+  public Set<ClassExtender> notFullyExtendedClasses() {
     return topScope.notFullyExtended();
   }
 
