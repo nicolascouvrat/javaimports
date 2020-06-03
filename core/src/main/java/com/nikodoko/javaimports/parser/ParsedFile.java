@@ -2,8 +2,6 @@ package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Range;
-import com.nikodoko.javaimports.parser.internal.ClassHierarchies;
-import com.nikodoko.javaimports.parser.internal.ClassHierarchy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -1,10 +1,10 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.parser.ClassExtender;
+import com.nikodoko.javaimports.parser.ClassHierarchies;
+import com.nikodoko.javaimports.parser.ClassHierarchy;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.parser.internal.ClassHierarchies;
-import com.nikodoko.javaimports.parser.internal.ClassHierarchy;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

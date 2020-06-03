@@ -1,7 +1,8 @@
-package com.nikodoko.javaimports.parser.internal;
+package com.nikodoko.javaimports.parser;
 
 import static com.google.common.truth.Truth8.assertThat;
 
+import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.constraints.IntRange;

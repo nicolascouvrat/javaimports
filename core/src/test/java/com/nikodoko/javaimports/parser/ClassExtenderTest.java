@@ -4,8 +4,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableSet;
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
-import com.nikodoko.javaimports.parser.internal.ClassHierarchies;
-import com.nikodoko.javaimports.parser.internal.ClassHierarchy;
 import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import org.junit.jupiter.api.Test;
 

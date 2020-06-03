@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.parser.internal;
+package com.nikodoko.javaimports.parser;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

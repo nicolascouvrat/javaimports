@@ -1,6 +1,7 @@
-package com.nikodoko.javaimports.parser.internal;
+package com.nikodoko.javaimports.parser;
 
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
+import com.nikodoko.javaimports.parser.internal.ClassSelector;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
