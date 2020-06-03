@@ -4,20 +4,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableSet;
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
-import com.nikodoko.javaimports.parser.entities.Visibility;
 import com.nikodoko.javaimports.parser.internal.ClassHierarchies;
 import com.nikodoko.javaimports.parser.internal.ClassHierarchy;
 import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import org.junit.jupiter.api.Test;
 
 public class ClassExtenderTest {
-  ClassEntity childOfChild =
-      new ClassEntity(Visibility.PUBLIC, false, "ChildOfChild", ClassSelectors.of("Child"));
+  ClassEntity childOfChild = new ClassEntity("ChildOfChild", ClassSelectors.of("Child"));
   ClassEntity child =
-      new ClassEntity(Visibility.PUBLIC, false, "Child", ClassSelectors.of("Parent"))
-          .members(ImmutableSet.of("c"));
-  ClassEntity parent =
-      new ClassEntity(Visibility.PUBLIC, false, "Parent").members(ImmutableSet.of("a", "b"));
+      new ClassEntity("Child", ClassSelectors.of("Parent")).members(ImmutableSet.of("c"));
+  ClassEntity parent = new ClassEntity("Parent").members(ImmutableSet.of("a", "b"));
 
   @Test
   void testExtendChildClass() {

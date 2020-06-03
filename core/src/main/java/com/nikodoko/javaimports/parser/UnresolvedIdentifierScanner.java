@@ -189,11 +189,10 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private ClassEntity createClassEntity(ClassTree tree) {
     String name = tree.getSimpleName().toString();
     if (tree.getExtendsClause() == null) {
-      return EntityFactory.createClass(name, tree.getModifiers());
+      return EntityFactory.createClass(name);
     }
 
-    return EntityFactory.createChildClass(
-        name, tree.getModifiers(), (JCExpression) tree.getExtendsClause());
+    return EntityFactory.createChildClass(name, (JCExpression) tree.getExtendsClause());
   }
 
   private void openClassScope(ClassEntity entity) {

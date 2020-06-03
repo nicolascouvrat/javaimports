@@ -3,17 +3,16 @@ package com.nikodoko.javaimports.parser.internal;
 import static com.google.common.truth.Truth8.assertThat;
 
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
-import com.nikodoko.javaimports.parser.entities.Visibility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ClassHierarchiesTest {
   static ClassHierarchy root;
   static ClassHierarchy leaf;
-  static ClassEntity A = new ClassEntity(Visibility.PUBLIC, true, "A");
-  static ClassEntity B = new ClassEntity(Visibility.PUBLIC, true, "B");
-  static ClassEntity C1 = new ClassEntity(Visibility.PUBLIC, true, "C1");
-  static ClassEntity C2 = new ClassEntity(Visibility.PUBLIC, true, "C2");
+  static ClassEntity A = new ClassEntity("A");
+  static ClassEntity B = new ClassEntity("B");
+  static ClassEntity C1 = new ClassEntity("C1");
+  static ClassEntity C2 = new ClassEntity("C2");
 
   // Create the following:
   // root

@@ -8,20 +8,15 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 public class ClassEntity {
-  private final Visibility visibility;
   private final String name;
-  private final boolean isStatic;
-  @Nullable private final ClassSelector superclass;
   private Set<String> members = new HashSet<>();
+  @Nullable private final ClassSelector superclass;
 
-  public ClassEntity(Visibility visibility, boolean isStatic, String name) {
-    this(visibility, isStatic, name, null);
+  public ClassEntity(String name) {
+    this(name, null);
   }
 
-  public ClassEntity(
-      Visibility visibility, boolean isStatic, String name, ClassSelector superclass) {
-    this.visibility = visibility;
-    this.isStatic = isStatic;
+  public ClassEntity(String name, ClassSelector superclass) {
     this.name = name;
     this.superclass = superclass;
   }
@@ -47,8 +42,6 @@ public class ClassEntity {
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("name", name)
-        .add("visibility", visibility)
-        .add("isStatic", isStatic)
         .add("members", members)
         .add("superclass", superclass)
         .toString();
