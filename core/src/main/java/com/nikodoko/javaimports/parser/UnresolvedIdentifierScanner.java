@@ -1,8 +1,6 @@
 package com.nikodoko.javaimports.parser;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
-import com.nikodoko.javaimports.parser.entities.Entity;
 import com.nikodoko.javaimports.parser.entities.EntityFactory;
 import com.nikodoko.javaimports.parser.internal.ClassHierarchies;
 import com.nikodoko.javaimports.parser.internal.ClassHierarchy;
@@ -65,111 +63,6 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   public ClassHierarchy topClass() {
     return topClass;
-  }
-
-  // Copied from the original class where it is private
-  private Void scanAndReduce(Iterable<? extends Tree> nodes, Void p, Void r) {
-    return reduce(scan(nodes, p), r);
-  }
-
-  // Copied from the original class where it is private
-  private Void scanAndReduce(Tree node, Void p, Void r) {
-    return reduce(scan(node, p), r);
-  }
-
-  private void resolveAndExtend(ClassExtender extender) {
-    extender.resolveUsing(topScope.identifiers);
-    extender.extendAsMuchAsPossibleUsing(topClass);
-    if (!extender.isFullyExtended()) {
-      topScope.parent.notFullyExtended.add(extender);
-      return;
-    }
-
-    for (String s : extender.notYetResolved()) {
-      topScope.parent.notYetResolved.add(s);
-    }
-  }
-
-  private void bubbleUnresolvedIdentifiers() {
-    for (String s : topScope.notYetResolved) {
-      topScope.parent.notYetResolved.add(s);
-    }
-  }
-
-  private void moveUpInHierarchy() {
-    Optional<ClassHierarchy> maybeParent = topClass.moveUp();
-    if (!maybeParent.isPresent()) {
-      throw new RuntimeException("trying to move up, but already at class hierarchy root!");
-    }
-    topClass = maybeParent.get();
-  }
-
-  private void declare(String name, Entity entity) {
-    topScope.identifiers.add(name);
-  }
-
-  @VisibleForTesting
-  Set<String> unresolved() {
-    Set<String> unresolved = topScope.notYetResolved;
-    for (ClassExtender e : topScope.notFullyExtended) {
-      unresolved.addAll(e.notYetResolved());
-    }
-
-    return unresolved;
-  }
-
-  private boolean resolvable(String identifier) {
-    Scope current = topScope;
-    while (current != null) {
-      if (current.identifiers.contains(identifier)) {
-        return true;
-      }
-
-      current = current.parent;
-    }
-
-    return false;
-  }
-
-  /**
-   * Surround a visitXX function in a scope
-   *
-   * @param f the function to surround
-   * @return a function with the same signature and the same return value
-   */
-  private <T> BiFunction<T, Void, Void> withScope(BiFunction<T, Void, Void> f) {
-    return (T t, Void v) -> {
-      openNonClassScope();
-
-      Void r = f.apply(t, v);
-      closeNonClassScope();
-      return r;
-    };
-  }
-
-  private void openNonClassScope() {
-    topClass = topClass.moveToLeaf();
-    openScope();
-  }
-
-  private void openScope() {
-    Scope newScope = new Scope();
-    newScope.parent = topScope;
-    topScope = newScope;
-  }
-
-  private void closeNonClassScope() {
-    bubbleUnresolvedIdentifiers();
-    closeScope();
-  }
-
-  private void closeScope() {
-    for (ClassExtender extender : topScope.notFullyExtended) {
-      resolveAndExtend(extender);
-    }
-
-    moveUpInHierarchy();
-    topScope = topScope.parent;
   }
 
   @Override
@@ -258,7 +151,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // The function itself is declared in the parent scope, but its parameters will be declared in
     // the function's own scope
     String name = tree.getName().toString();
-    declare(name, EntityFactory.createMethod(name, tree.getModifiers()));
+    declare(name);
     return withScope(this::visitMethodTypeParametersFirst).apply(tree, v);
   }
 
@@ -272,14 +165,14 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   public Void visitTypeParameter(TypeParameterTree tree, Void v) {
     // A type parameter is like a variable, but for types, so declare it
     String name = tree.getName().toString();
-    declare(name, EntityFactory.createTypeParameter(name));
+    declare(name);
     return super.visitTypeParameter(tree, v);
   }
 
   @Override
   public Void visitClass(ClassTree tree, Void v) {
     ClassEntity newClass = createClassEntity(tree);
-    declare(newClass.name(), newClass);
+    declare(newClass.name());
     openClassScope(newClass);
 
     // Do not scan the extends clause again, as we handle it separately and do not want to get
@@ -319,7 +212,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   @Override
   public Void visitVariable(VariableTree tree, Void v) {
     String name = tree.getName().toString();
-    declare(name, EntityFactory.createVariable(name, tree.getModifiers()));
+    declare(name);
     return super.visitVariable(tree, v);
   }
 
@@ -332,5 +225,98 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     }
 
     return null;
+  }
+
+  private boolean resolvable(String identifier) {
+    Scope current = topScope;
+    while (current != null) {
+      if (current.identifiers.contains(identifier)) {
+        return true;
+      }
+
+      current = current.parent;
+    }
+
+    return false;
+  }
+
+  private void declare(String name) {
+    topScope.identifiers.add(name);
+  }
+
+  /**
+   * Surround a visitXX function in a scope
+   *
+   * @param f the function to surround
+   * @return a function with the same signature and the same return value
+   */
+  private <T> BiFunction<T, Void, Void> withScope(BiFunction<T, Void, Void> f) {
+    return (T t, Void v) -> {
+      openNonClassScope();
+
+      Void r = f.apply(t, v);
+      closeNonClassScope();
+      return r;
+    };
+  }
+
+  private void openNonClassScope() {
+    topClass = topClass.moveToLeaf();
+    openScope();
+  }
+
+  private void openScope() {
+    Scope newScope = new Scope();
+    newScope.parent = topScope;
+    topScope = newScope;
+  }
+
+  private void closeNonClassScope() {
+    bubbleUnresolvedIdentifiers(topScope.notYetResolved);
+    closeScope();
+  }
+
+  private void closeScope() {
+    for (ClassExtender extender : topScope.notFullyExtended) {
+      resolveAndExtend(extender);
+    }
+
+    moveUpInHierarchy();
+    topScope = topScope.parent;
+  }
+
+  private void moveUpInHierarchy() {
+    Optional<ClassHierarchy> maybeParent = topClass.moveUp();
+    if (!maybeParent.isPresent()) {
+      throw new RuntimeException("trying to move up, but already at class hierarchy root!");
+    }
+    topClass = maybeParent.get();
+  }
+
+  private void resolveAndExtend(ClassExtender extender) {
+    extender.resolveUsing(topScope.identifiers);
+    extender.extendAsMuchAsPossibleUsing(topClass);
+    if (!extender.isFullyExtended()) {
+      topScope.parent.notFullyExtended.add(extender);
+      return;
+    }
+
+    bubbleUnresolvedIdentifiers(extender.notYetResolved());
+  }
+
+  private void bubbleUnresolvedIdentifiers(Set<String> unresolved) {
+    for (String s : unresolved) {
+      topScope.parent.notYetResolved.add(s);
+    }
+  }
+
+  // Copied from the original class where it is private
+  private Void scanAndReduce(Iterable<? extends Tree> nodes, Void p, Void r) {
+    return reduce(scan(nodes, p), r);
+  }
+
+  // Copied from the original class where it is private
+  private Void scanAndReduce(Tree node, Void p, Void r) {
+    return reduce(scan(node, p), r);
   }
 }

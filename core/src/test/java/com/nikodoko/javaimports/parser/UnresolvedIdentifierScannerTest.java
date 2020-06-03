@@ -939,6 +939,15 @@ public class UnresolvedIdentifierScannerTest {
     this.expected = expected;
   }
 
+  private static Set<String> allUnresolvedIn(Scope scope) {
+    Set<String> unresolved = scope.notYetResolved;
+    for (ClassExtender e : scope.notFullyExtended) {
+      unresolved.addAll(e.notYetResolved());
+    }
+
+    return unresolved;
+  }
+
   @Test
   public void scanTest() throws Exception {
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
@@ -951,6 +960,6 @@ public class UnresolvedIdentifierScannerTest {
       fail();
     }
 
-    assertThat(scanner.unresolved()).containsExactlyElementsIn(expected);
+    assertThat(allUnresolvedIn(scanner.topScope())).containsExactlyElementsIn(expected);
   }
 }
