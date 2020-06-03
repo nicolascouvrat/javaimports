@@ -1,5 +1,7 @@
 package com.nikodoko.javaimports.parser.internal;
 
+import static com.google.common.truth.Truth8.assertThat;
+
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.constraints.IntRange;
@@ -19,5 +21,17 @@ public class ClassHierarchiesProperties {
     }
 
     return start == current;
+  }
+
+  @Property
+  void rootDoesNotContainAnything(@ForAll String aSelector) {
+    ClassHierarchy root = ClassHierarchies.root();
+    assertThat(root.find(ClassSelectors.of(aSelector))).isEmpty();
+  }
+
+  @Property
+  void emptyCombinationDoesNotContainAnything(@ForAll String aSelector) {
+    ClassHierarchy combined = ClassHierarchies.combine();
+    assertThat(combined.find(ClassSelectors.of(aSelector))).isEmpty();
   }
 }
