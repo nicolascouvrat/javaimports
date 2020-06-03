@@ -1,16 +1,12 @@
 package com.nikodoko.javaimports.fixer;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
-import java.util.ArrayList;
+import com.nikodoko.javaimports.parser.internal.ClassHierarchies;
+import com.nikodoko.javaimports.parser.internal.ClassHierarchy;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,83 +67,41 @@ class Loader {
       // Add all the imports in that file to the list of potential candidates
       candidates.putAll(sibling.imports());
 
-      for (Iterator<String> i = unresolved.iterator(); i.hasNext(); ) {
-        if (sibling.scope().lookup(i.next()) != null) {
-          i.remove();
-        }
-      }
+      unresolved = difference(unresolved, sibling.topLevelDeclarations());
 
       for (ClassExtender e : file.notFullyExtendedClasses()) {
         e.resolveUsing(sibling.topLevelDeclarations());
       }
     }
-    file.scope().makeNotYetExtended();
 
     // Finally, try to extend each child class of the original file.
     // If we can finish extending (find all parents), then add whatever is left unresolved to the
     // global set of unresolved identifiers. If it is not totally resolved, add the intermediate
     // result to the list of classes not fully extended
-    Set<ScopedClassEntity> notYetExtended = new HashSet<>();
-    for (ScopedClassEntity childClass : file.scope().notYetExtended()) {
-      extend(childClass);
-      if (!isExtendable(childClass)) {
-        unresolved.addAll(childClass.scope().notYetResolved());
+    Set<ClassExtender> notFullyExtendedClasses = new HashSet<>();
+    for (ClassExtender e : file.notFullyExtendedClasses()) {
+      extendUsingSiblings(e);
+      if (e.isFullyExtended()) {
+        unresolved.addAll(e.notYetResolved());
         continue;
       }
 
-      notYetExtended.add(childClass);
+      notFullyExtendedClasses.add(e);
     }
 
-    return new LoadResult(unresolved, notYetExtended);
+    return new LoadResult(unresolved, notFullyExtendedClasses);
   }
 
-  // Try to extend a child class as much as possible (extending its parent if the parent itself is a
-  // child, etc).
-  private void extend(ScopedClassEntity childClass) {
-    while (isExtendable(childClass)) {
-      List<ScopedClassEntity> possibleParents = findPossibleParents(childClass);
-      if (possibleParents.isEmpty()) {
-        return;
-      }
-
-      extendWith(childClass, bestParent(possibleParents, childClass));
-    }
-  }
-
-  private boolean isExtendable(ScopedClassEntity childClass) {
-    return childClass.isChildClass();
-  }
-
-  private List<ScopedClassEntity> findPossibleParents(ScopedClassEntity childClass) {
-    List<ScopedClassEntity> possibleParents = new ArrayList<>();
+  private void extendUsingSiblings(ClassExtender toExtend) {
+    // XXX: this will stop at the first match in siblings. This should be OK, as siblings are from
+    // the same package, so the class selector should not be ambiguous.
+    ClassHierarchy[] hierarchies = new ClassHierarchy[siblings.size()];
+    int i = 0;
     for (ParsedFile sibling : siblings) {
-      ScopedClassEntity parent = sibling.scope().findParent(childClass);
-      if (parent == null) {
-        continue;
-      }
-
-      possibleParents.add(parent);
+      hierarchies[i++] = sibling.classHierarchy();
     }
 
-    return possibleParents;
-  }
-
-  private ScopedClassEntity bestParent(
-      List<ScopedClassEntity> possibleParents, ScopedClassEntity child) {
-    // FIXME: this assumes we have only one parent
-    checkArgument(!possibleParents.isEmpty(), "cannot find best parent in empty list");
-    return possibleParents.get(0);
-  }
-
-  private void extendWith(ScopedClassEntity child, ScopedClassEntity parent) {
-    Set<String> unresolved = new HashSet<>();
-    for (String s : child.scope().notYetResolved()) {
-      if (parent.scope().lookup(s) == null) {
-        unresolved.add(s);
-      }
-    }
-
-    child.scope().notYetResolved(unresolved);
-    child.parentPath(parent.parentPath());
+    ClassHierarchy combined = ClassHierarchies.combine(hierarchies);
+    toExtend.extendAsMuchAsPossibleUsing(combined);
   }
 }

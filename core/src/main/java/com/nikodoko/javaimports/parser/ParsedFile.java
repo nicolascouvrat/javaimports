@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.openjdk.tools.javac.tree.JCTree.JCCompilationUnit;
 import org.openjdk.tools.javac.tree.JCTree.JCExpression;
@@ -125,16 +124,16 @@ public class ParsedFile {
     return this;
   }
 
-  public Optional<Import> getImportFor(String identifier) {
-    return Optional.ofNullable(imports.get(identifier));
-  }
-
   public Iterable<ClassExtender> notFullyExtendedClasses() {
     return topScope.notFullyExtended();
   }
 
   public Set<String> topLevelDeclarations() {
     return topScope.identifiers();
+  }
+
+  public ClassHierarchy classHierarchy() {
+    return classHierarchy;
   }
 
   /** Debugging support. */

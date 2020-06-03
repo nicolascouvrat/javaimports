@@ -1,17 +1,16 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.google.common.base.MoreObjects;
-import com.nikodoko.javaimports.parser.entities.ScopedClassEntity;
+import com.nikodoko.javaimports.parser.ClassExtender;
 import java.util.Set;
 
 // An intermediate result containing symbols that cannot be found and child classes that cannot be
 // extended
 class LoadResult {
-  // by nikodoko.com
   public Set<String> unresolved;
-  public Set<ScopedClassEntity> orphans;
+  public Set<ClassExtender> orphans;
 
-  public LoadResult(Set<String> unresolved, Set<ScopedClassEntity> orphans) {
+  public LoadResult(Set<String> unresolved, Set<ClassExtender> orphans) {
     this.unresolved = unresolved;
     this.orphans = orphans;
   }
