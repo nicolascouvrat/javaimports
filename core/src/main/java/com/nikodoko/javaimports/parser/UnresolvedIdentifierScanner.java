@@ -1,9 +1,9 @@
 package com.nikodoko.javaimports.parser;
 
 import com.nikodoko.javaimports.parser.entities.ClassEntity;
-import com.nikodoko.javaimports.parser.entities.EntityFactory;
 import com.nikodoko.javaimports.parser.internal.ClassHierarchies;
 import com.nikodoko.javaimports.parser.internal.ClassHierarchy;
+import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -189,10 +189,11 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private ClassEntity createClassEntity(ClassTree tree) {
     String name = tree.getSimpleName().toString();
     if (tree.getExtendsClause() == null) {
-      return EntityFactory.createClass(name);
+      return ClassEntity.named(name);
     }
 
-    return EntityFactory.createChildClass(name, (JCExpression) tree.getExtendsClause());
+    return ClassEntity.namedAndExtending(
+        name, ClassSelectors.of((JCExpression) tree.getExtendsClause()));
   }
 
   private void openClassScope(ClassEntity entity) {

@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 public class ClassHierarchiesTest {
   static ClassHierarchy root;
   static ClassHierarchy leaf;
-  static ClassEntity A = new ClassEntity("A");
-  static ClassEntity B = new ClassEntity("B");
-  static ClassEntity C1 = new ClassEntity("C1");
-  static ClassEntity C2 = new ClassEntity("C2");
+  static ClassEntity A = ClassEntity.named("A");
+  static ClassEntity B = ClassEntity.named("B");
+  static ClassEntity C1 = ClassEntity.named("C1");
+  static ClassEntity C2 = ClassEntity.named("C2");
 
   // Create the following:
   // root

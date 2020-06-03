@@ -12,11 +12,15 @@ public class ClassEntity {
   private Set<String> members = new HashSet<>();
   @Nullable private final ClassSelector superclass;
 
-  public ClassEntity(String name) {
-    this(name, null);
+  public static ClassEntity namedAndExtending(String name, ClassSelector superclass) {
+    return new ClassEntity(name, superclass);
   }
 
-  public ClassEntity(String name, ClassSelector superclass) {
+  public static ClassEntity named(String name) {
+    return new ClassEntity(name, null);
+  }
+
+  private ClassEntity(String name, ClassSelector superclass) {
     this.name = name;
     this.superclass = superclass;
   }

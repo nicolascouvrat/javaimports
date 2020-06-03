@@ -10,10 +10,12 @@ import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import org.junit.jupiter.api.Test;
 
 public class ClassExtenderTest {
-  ClassEntity childOfChild = new ClassEntity("ChildOfChild", ClassSelectors.of("Child"));
+  ClassEntity childOfChild =
+      ClassEntity.namedAndExtending("ChildOfChild", ClassSelectors.of("Child"));
   ClassEntity child =
-      new ClassEntity("Child", ClassSelectors.of("Parent")).members(ImmutableSet.of("c"));
-  ClassEntity parent = new ClassEntity("Parent").members(ImmutableSet.of("a", "b"));
+      ClassEntity.namedAndExtending("Child", ClassSelectors.of("Parent"))
+          .members(ImmutableSet.of("c"));
+  ClassEntity parent = ClassEntity.named("Parent").members(ImmutableSet.of("a", "b"));
 
   @Test
   void testExtendChildClass() {
