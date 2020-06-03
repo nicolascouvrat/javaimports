@@ -20,7 +20,7 @@ public class ParsedFile {
   // The imports in this file
   Map<String, Import> imports;
   // The package scope, limited to this file only
-  Scope topScope = new Scope(null);
+  Scope topScope = new Scope();
   ClassHierarchy classHierarchy = ClassHierarchies.root();
   // The position of the end of the package clause
   int packageEndPos;
@@ -120,15 +120,15 @@ public class ParsedFile {
   }
 
   public Set<String> notYetResolved() {
-    return topScope.notYetResolved();
+    return topScope.notYetResolved;
   }
 
   public Set<ClassExtender> notFullyExtendedClasses() {
-    return topScope.notFullyExtended();
+    return topScope.notFullyExtended;
   }
 
   public Set<String> topLevelDeclarations() {
-    return topScope.identifiers();
+    return topScope.identifiers;
   }
 
   public ClassHierarchy classHierarchy() {

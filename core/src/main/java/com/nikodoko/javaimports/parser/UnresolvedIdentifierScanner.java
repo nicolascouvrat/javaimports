@@ -55,7 +55,7 @@ import org.openjdk.tools.javac.tree.JCTree.JCExpression;
  * com.sun.source.tree.ImportTree} does not contain the imported name).
  */
 public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
-  private Scope topScope = new Scope(null);
+  private Scope topScope = new Scope();
   private ClassHierarchy topClass = ClassHierarchies.root();
 
   /** The top level scope of this scanner. */
@@ -66,6 +66,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   public ClassHierarchy topClass() {
     return topClass;
   }
+
   // Copied from the original class where it is private
   private Void scanAndReduce(Iterable<? extends Tree> nodes, Void p, Void r) {
     return reduce(scan(nodes, p), r);
@@ -76,50 +77,22 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return reduce(scan(node, p), r);
   }
 
-  private void openNonClassScope() {
-    topScope = new Scope(topScope);
-    topClass = topClass.moveToLeaf();
-  }
-
-  private void closeClassScope(ClassEntity classEntity) {
-    classEntity.members(topScope.identifiers());
-    ClassExtender extender =
-        ClassExtender.of(classEntity).notYetResolved(topScope.notYetResolved());
-    topScope.markAsNotFullyExtended(extender);
-
-    closeScope();
-  }
-
-  private void closeNonClassScope() {
-    bubbleUnresolvedIdentifiers();
-    closeScope();
-  }
-
-  private void closeScope() {
-    for (ClassExtender extender : topScope.notFullyExtended()) {
-      resolveAndExtend(extender);
-    }
-
-    moveUpInHierarchy();
-    topScope = topScope.parent();
-  }
-
   private void resolveAndExtend(ClassExtender extender) {
-    extender.resolveUsing(topScope.identifiers());
+    extender.resolveUsing(topScope.identifiers);
     extender.extendAsMuchAsPossibleUsing(topClass);
     if (!extender.isFullyExtended()) {
-      topScope.parent().markAsNotFullyExtended(extender);
+      topScope.parent.notFullyExtended.add(extender);
       return;
     }
 
     for (String s : extender.notYetResolved()) {
-      topScope.parent().markAsNotYetResolved(s);
+      topScope.parent.notYetResolved.add(s);
     }
   }
 
   private void bubbleUnresolvedIdentifiers() {
-    for (String s : topScope.notYetResolved()) {
-      topScope.parent().markAsNotYetResolved(s);
+    for (String s : topScope.notYetResolved) {
+      topScope.parent.notYetResolved.add(s);
     }
   }
 
@@ -132,13 +105,13 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   private void declare(String name, Entity entity) {
-    topScope.insert(name);
+    topScope.identifiers.add(name);
   }
 
   @VisibleForTesting
   Set<String> unresolved() {
-    Set<String> unresolved = topScope.notYetResolved();
-    for (ClassExtender e : topScope.notFullyExtended()) {
+    Set<String> unresolved = topScope.notYetResolved;
+    for (ClassExtender e : topScope.notFullyExtended) {
       unresolved.addAll(e.notYetResolved());
     }
 
@@ -148,11 +121,11 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private boolean resolvable(String identifier) {
     Scope current = topScope;
     while (current != null) {
-      if (current.contains(identifier)) {
+      if (current.identifiers.contains(identifier)) {
         return true;
       }
 
-      current = current.parent();
+      current = current.parent;
     }
 
     return false;
@@ -172,6 +145,31 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
       closeNonClassScope();
       return r;
     };
+  }
+
+  private void openNonClassScope() {
+    topClass = topClass.moveToLeaf();
+    openScope();
+  }
+
+  private void openScope() {
+    Scope newScope = new Scope();
+    newScope.parent = topScope;
+    topScope = newScope;
+  }
+
+  private void closeNonClassScope() {
+    bubbleUnresolvedIdentifiers();
+    closeScope();
+  }
+
+  private void closeScope() {
+    for (ClassExtender extender : topScope.notFullyExtended) {
+      resolveAndExtend(extender);
+    }
+
+    moveUpInHierarchy();
+    topScope = topScope.parent;
   }
 
   @Override
@@ -306,8 +304,16 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   private void openClassScope(ClassEntity entity) {
-    topScope = new Scope(topScope);
+    openScope();
     topClass = topClass.moveTo(entity);
+  }
+
+  private void closeClassScope(ClassEntity classEntity) {
+    classEntity.members(topScope.identifiers);
+    ClassExtender extender = ClassExtender.of(classEntity).notYetResolved(topScope.notYetResolved);
+    topScope.notFullyExtended.add(extender);
+
+    closeScope();
   }
 
   @Override
@@ -322,7 +328,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // Try to resolve the identifier, if it fails add it to unresolved for the current scope
     String name = tree.getName().toString();
     if (!resolvable(name)) {
-      topScope.markAsNotYetResolved(name);
+      topScope.notYetResolved.add(name);
     }
 
     return null;
