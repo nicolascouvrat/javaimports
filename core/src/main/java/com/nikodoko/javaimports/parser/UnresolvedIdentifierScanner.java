@@ -1,6 +1,6 @@
 package com.nikodoko.javaimports.parser;
 
-import com.nikodoko.javaimports.parser.entities.ClassEntity;
+import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import java.util.Optional;
 import java.util.Set;

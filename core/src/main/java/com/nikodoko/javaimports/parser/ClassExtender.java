@@ -2,7 +2,7 @@ package com.nikodoko.javaimports.parser;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.nikodoko.javaimports.parser.entities.ClassEntity;
+import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.ClassSelector;
 import java.util.HashSet;
 import java.util.Optional;

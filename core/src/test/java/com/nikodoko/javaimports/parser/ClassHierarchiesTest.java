@@ -2,7 +2,7 @@ package com.nikodoko.javaimports.parser;
 
 import static com.google.common.truth.Truth8.assertThat;
 
-import com.nikodoko.javaimports.parser.entities.ClassEntity;
+import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

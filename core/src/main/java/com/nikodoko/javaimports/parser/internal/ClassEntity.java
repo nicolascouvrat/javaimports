@@ -1,7 +1,6 @@
-package com.nikodoko.javaimports.parser.entities;
+package com.nikodoko.javaimports.parser.internal;
 
 import com.google.common.base.MoreObjects;
-import com.nikodoko.javaimports.parser.internal.ClassSelector;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
