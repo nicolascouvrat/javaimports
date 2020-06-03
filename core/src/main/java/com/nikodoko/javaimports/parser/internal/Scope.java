@@ -1,6 +1,7 @@
-package com.nikodoko.javaimports.parser;
+package com.nikodoko.javaimports.parser.internal;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.parser.ClassExtender;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,12 +13,12 @@ import java.util.Set;
  *
  * <p>The top level scope should have {@code parent==null}.
  */
-class Scope {
-  Set<String> identifiers = new HashSet<>();
-  Set<String> notYetResolved = new HashSet<>();
+public class Scope {
+  public Set<String> identifiers = new HashSet<>();
+  public Set<String> notYetResolved = new HashSet<>();
   // Parent scope can be null if top scope
-  Scope parent = null;
-  Set<ClassExtender> notFullyExtended = new HashSet<>();
+  public Scope parent = null;
+  public Set<ClassExtender> notFullyExtended = new HashSet<>();
 
   /**
    * Debugging support.

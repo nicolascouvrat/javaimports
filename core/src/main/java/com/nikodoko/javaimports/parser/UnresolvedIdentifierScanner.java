@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.parser;
 
 import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.ClassSelectors;
+import com.nikodoko.javaimports.parser.internal.Scope;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;

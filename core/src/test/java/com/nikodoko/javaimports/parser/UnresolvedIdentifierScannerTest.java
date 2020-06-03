@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.ImporterException;
+import com.nikodoko.javaimports.parser.internal.Scope;
 import java.util.Collection;
 import java.util.Set;
 import org.junit.Test;
