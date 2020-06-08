@@ -1,0 +1,7 @@
+// Assert that we find stdlib candidates
+package com.nikodoko.javaimports.testdata.withstdlib;
+
+public class TestClass {
+  List<String> l = new ArrayList<>();
+}
+
