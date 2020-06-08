@@ -5,6 +5,8 @@ import com.nikodoko.javaimports.parser.ClassHierarchies;
 import com.nikodoko.javaimports.parser.ClassHierarchy;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.stdlib.StdlibProvider;
+import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.Set;
  */
 public class Loader {
   private Set<ParsedFile> siblings = new HashSet<>();
+  private StdlibProvider stdlib = StdlibProviders.empty();
   private Map<String, Import> candidates = new HashMap<>();
   private LoadResult result = new LoadResult();
   private ParsedFile file;
@@ -59,6 +62,13 @@ public class Loader {
       candidates.putAll(sibling.imports());
       resolveUsingSibling(sibling);
     }
+
+    addStdlibCandidates();
+  }
+
+  private void addStdlibCandidates() {
+    Map<String, Import> stdlibCandidates = stdlib.find(result.unresolved);
+    candidates.putAll(stdlibCandidates);
   }
 
   // FIXME: this does not do anything about the situation where we import a class that we extend
