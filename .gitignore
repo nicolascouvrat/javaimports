@@ -7,3 +7,6 @@ target/
 
 # Ctags
 tags
+
+# jqwik
+.jqwik-database

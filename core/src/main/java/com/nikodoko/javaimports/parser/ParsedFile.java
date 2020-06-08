@@ -2,11 +2,12 @@ package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.parser.internal.Scope;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Set;
 import org.openjdk.tools.javac.tree.JCTree.JCCompilationUnit;
 import org.openjdk.tools.javac.tree.JCTree.JCExpression;
 import org.openjdk.tools.javac.tree.JCTree.JCImport;
@@ -18,7 +19,8 @@ public class ParsedFile {
   // The imports in this file
   Map<String, Import> imports;
   // The package scope, limited to this file only
-  Scope scope;
+  Scope topScope = new Scope();
+  ClassHierarchy classHierarchy = ClassHierarchies.root();
   // The position of the end of the package clause
   int packageEndPos;
   List<Range<Integer>> duplicates;
@@ -32,17 +34,15 @@ public class ParsedFile {
    * @param packageEndPos the position of the end of its package clause
    * @param scope its scope (the package scope, but limited to this file)
    */
-  public ParsedFile(
+  private ParsedFile(
       String packageName,
       int packageEndPos,
       List<Range<Integer>> duplicates,
-      Map<String, Import> imports,
-      Scope scope) {
+      Map<String, Import> imports) {
     this.packageName = packageName;
     this.packageEndPos = packageEndPos;
     this.duplicates = duplicates;
     this.imports = imports;
-    this.scope = scope;
   }
 
   private static int findEndOfPackageClause(JCCompilationUnit unit) {
@@ -80,7 +80,7 @@ public class ParsedFile {
       duplicates.add(rangeOf(unit, existingImport));
     }
 
-    return new ParsedFile(packageName, packageEndPos, duplicates, imports, null);
+    return new ParsedFile(packageName, packageEndPos, duplicates, imports);
   }
 
   /** The position of the end of this {@code ParsedFile}'s package clause */
@@ -103,19 +103,35 @@ public class ParsedFile {
     return imports;
   }
 
-  /** The package {@link Scope}, limited to this current {@code ParsedFile} */
-  @Nullable
-  public Scope scope() {
-    return scope;
-  }
-
   /**
    * Attach the given {@code scope} to this {@code ParsedFile}.
    *
-   * @param scope the scope to attach
+   * @param topScope the scope to attach
    */
-  public void attachScope(Scope scope) {
-    this.scope = scope;
+  public ParsedFile topScope(Scope topScope) {
+    this.topScope = topScope;
+    return this;
+  }
+
+  public ParsedFile classHierarchy(ClassHierarchy topClass) {
+    this.classHierarchy = classHierarchy;
+    return this;
+  }
+
+  public Set<String> notYetResolved() {
+    return topScope.notYetResolved;
+  }
+
+  public Set<ClassExtender> notFullyExtendedClasses() {
+    return topScope.notFullyExtended;
+  }
+
+  public Set<String> topLevelDeclarations() {
+    return topScope.identifiers;
+  }
+
+  public ClassHierarchy classHierarchy() {
+    return classHierarchy;
   }
 
   /** Debugging support. */
@@ -123,7 +139,7 @@ public class ParsedFile {
     return MoreObjects.toStringHelper(this)
         .add("packageName", packageName)
         .add("imports", imports)
-        .add("scope", scope)
+        .add("topScope", topScope)
         .add("packageEndPos", packageEndPos)
         .add("duplicates", duplicates)
         .toString();
