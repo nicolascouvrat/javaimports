@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.fixer;
+package com.nikodoko.javaimports.fixer.internal;
 
 import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.ClassHierarchies;
@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-class Loader {
+public class Loader {
   private Set<ParsedFile> siblings = new HashSet<>();
   private Map<String, Import> candidates = new HashMap<>();
   private LoadResult result = new LoadResult();
@@ -22,23 +22,23 @@ class Loader {
     this.result.orphans = file.notFullyExtendedClasses();
   }
 
-  static Loader of(ParsedFile file) {
+  public static Loader of(ParsedFile file) {
     return new Loader(file);
   }
 
-  void addSiblings(Set<ParsedFile> siblings) {
+  public void addSiblings(Set<ParsedFile> siblings) {
     this.siblings = siblings;
   }
 
-  Map<String, Import> candidates() {
+  public Map<String, Import> candidates() {
     return candidates;
   }
 
-  LoadResult result() {
+  public LoadResult result() {
     return result;
   }
 
-  void load() {
+  public void load() {
     extendAllClasses();
     resolveUsingImports();
 

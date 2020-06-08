@@ -1,5 +1,7 @@
 package com.nikodoko.javaimports.fixer;
 
+import com.nikodoko.javaimports.fixer.internal.LoadResult;
+import com.nikodoko.javaimports.fixer.internal.Loader;
 import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;

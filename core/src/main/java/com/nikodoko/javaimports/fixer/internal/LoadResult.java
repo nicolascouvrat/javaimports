@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.fixer;
+package com.nikodoko.javaimports.fixer.internal;
 
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.parser.ClassExtender;
@@ -6,7 +6,7 @@ import java.util.Set;
 
 // An intermediate result containing symbols that cannot be found and child classes that cannot be
 // extended
-class LoadResult {
+public class LoadResult {
   public Set<String> unresolved;
   public Set<ClassExtender> orphans;
 
