@@ -48,7 +48,7 @@ public class Loader {
 
   /**
    * Try to find which identifiers are still unresolved, using various information in addition to
-   * the file itself
+   * the file itself.
    */
   public void load() {
     extendAllClasses();

@@ -6,8 +6,8 @@ import java.util.Set;
 
 /** Contains the result of {@link Loader#load}. */
 public class LoadResult {
-  public final Set<String> unresolved;
-  public final Set<ClassExtender> orphans;
+  public Set<String> unresolved;
+  public Set<ClassExtender> orphans;
 
   public boolean isEmpty() {
     return unresolved.isEmpty() && orphans.isEmpty();
