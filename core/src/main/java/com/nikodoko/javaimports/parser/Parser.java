@@ -2,9 +2,9 @@ package com.nikodoko.javaimports.parser;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.nikodoko.javaimports.ImporterException;
+import com.nikodoko.javaimports.parser.internal.UnresolvedIdentifierScanner;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
@@ -73,8 +73,8 @@ public class Parser {
     return d.getKind() == Diagnostic.Kind.ERROR;
   }
 
-  @VisibleForTesting
-  static JCCompilationUnit getCompilationUnit(final String filename, final String javaCode)
+  // This should not be public, but is used in test
+  public static JCCompilationUnit getCompilationUnit(final String filename, final String javaCode)
       throws ImporterException {
     Context ctx = new Context();
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
