@@ -4,11 +4,18 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.Map;
 
+/** Utility methods for {@link ClassHierarchy}. */
 public class ClassHierarchies {
+  /** Return an empty {@link ClassHierarchy}. */
   public static ClassHierarchy root() {
     return ClassHierarchy.root();
   }
 
+  /**
+   * Combine several {@link ClassHierarchy} into one.
+   *
+   * <p>Does not accept two hierarchies having childs with the same name.
+   */
   public static ClassHierarchy combine(ClassHierarchy... hierarchies) {
     ClassHierarchy root = ClassHierarchy.root();
     for (ClassHierarchy hierarchy : hierarchies) {

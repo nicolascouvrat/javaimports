@@ -10,6 +10,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Uses additional information, such as files from the same package, to determine which identifiers
+ * are truly unresolved, and which classes are truly not extendable.
+ */
 public class Loader {
   private Set<ParsedFile> siblings = new HashSet<>();
   private Map<String, Import> candidates = new HashMap<>();
@@ -22,22 +26,30 @@ public class Loader {
     this.result.orphans = file.notFullyExtendedClasses();
   }
 
+  /** Create a {@code Loader} for the given {@code file}. */
   public static Loader of(ParsedFile file) {
     return new Loader(file);
   }
 
+  /** Add sibling files to the loader */
   public void addSiblings(Set<ParsedFile> siblings) {
     this.siblings = siblings;
   }
 
+  /** Returns the list of candidates found by this loader */
   public Map<String, Import> candidates() {
     return candidates;
   }
 
+  /** Returns the result of this loader */
   public LoadResult result() {
     return result;
   }
 
+  /**
+   * Try to find which identifiers are still unresolved, using various information in addition to
+   * the file itself
+   */
   public void load() {
     extendAllClasses();
     resolveUsingImports();

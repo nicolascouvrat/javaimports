@@ -6,7 +6,9 @@ import org.openjdk.tools.javac.tree.JCTree.JCFieldAccess;
 import org.openjdk.tools.javac.tree.JCTree.JCIdent;
 import org.openjdk.tools.javac.tree.JCTree.JCTypeApply;
 
+/** Utility methods for {@link ClassSelector}. */
 public class ClassSelectors {
+  /** Returns a {@code ClassSelector} representing the path given by first.others. */
   public static ClassSelector of(String first, String... others) {
     Selector head = new Selector(first);
     Selector tail = head;
@@ -23,6 +25,7 @@ public class ClassSelectors {
     return newTail;
   }
 
+  /** Returns a {@code ClassSelector} representing the given {@code extendsClause}. */
   public static ClassSelector of(JCExpression extendsClause) {
     JCExpression selector = extendsClause;
     Selector head = null;
