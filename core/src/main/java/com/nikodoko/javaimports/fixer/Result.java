@@ -55,5 +55,4 @@ public class Result {
   public String toString() {
     return MoreObjects.toStringHelper(this).add("done", done).add("fixes", fixes).toString();
   }
-  // by nikodoko.com
 }
