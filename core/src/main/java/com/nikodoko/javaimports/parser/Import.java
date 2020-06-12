@@ -1,16 +1,17 @@
 package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
+import java.util.Objects;
 import org.openjdk.tools.javac.tree.JCTree.JCFieldAccess;
 import org.openjdk.tools.javac.tree.JCTree.JCImport;
 
 /** An {@code Import} represents a single import statement. */
 public class Import {
   // Example: java.util
-  String qualifier;
+  final String qualifier;
   // Example List
-  String name;
-  boolean isStatic;
+  final String name;
+  final boolean isStatic;
 
   /**
    * An {@code Import} constructor.
@@ -47,6 +48,27 @@ public class Import {
   /** Creates a fully qualified import statement from this {@code Import} object. */
   public String asStatement() {
     return String.format("import%s %s.%s;", isStatic ? " static" : "", qualifier, name);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
+
+    if (!(o instanceof Import)) {
+      return false;
+    }
+
+    Import other = (Import) o;
+    return Objects.equals(qualifier, other.qualifier)
+        && Objects.equals(name, other.name)
+        && isStatic == other.isStatic;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(qualifier, name, isStatic);
   }
 
   /** Debugging support. */
