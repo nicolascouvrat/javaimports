@@ -39,6 +39,10 @@ public class Loader {
     this.siblings = siblings;
   }
 
+  public void addStdlibProvider(StdlibProvider provider) {
+    this.stdlib = provider;
+  }
+
   /** Returns the list of candidates found by this loader */
   public Map<String, Import> candidates() {
     return candidates;
@@ -56,19 +60,21 @@ public class Loader {
   public void load() {
     extendAllClasses();
     resolveUsingImports();
+    resolveUsingSiblings();
 
-    for (ParsedFile sibling : siblings) {
-      // Use the imports of sibling files as candidates for the current file
-      candidates.putAll(sibling.imports());
-      resolveUsingSibling(sibling);
-    }
-
+    addSiblingImportsAsCandidates();
     addStdlibCandidates();
   }
 
   private void addStdlibCandidates() {
     Map<String, Import> stdlibCandidates = stdlib.find(result.unresolved);
     candidates.putAll(stdlibCandidates);
+  }
+
+  private void addSiblingImportsAsCandidates() {
+    for (ParsedFile sibling : siblings) {
+      candidates.putAll(sibling.imports());
+    }
   }
 
   // FIXME: this does not do anything about the situation where we import a class that we extend
@@ -81,6 +87,12 @@ public class Loader {
 
     for (ClassExtender e : result.orphans) {
       e.resolveUsing(file.imports().keySet());
+    }
+  }
+
+  private void resolveUsingSiblings() {
+    for (ParsedFile sibling : siblings) {
+      resolveUsingSibling(sibling);
     }
   }
 

@@ -11,6 +11,7 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import com.nikodoko.javaimports.parser.ParserOptions;
+import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -94,6 +95,14 @@ public final class Importer {
     // Add package information
     Set<ParsedFile> siblings = parseSiblings(filename);
     fixer.addSiblings(siblings);
+
+    r = fixer.tryToFix();
+
+    if (r.done()) {
+      return applyFixes(f, javaCode, r);
+    }
+
+    fixer.addStdlibProvider(StdlibProviders.stub());
 
     r = fixer.tryToFix();
 
