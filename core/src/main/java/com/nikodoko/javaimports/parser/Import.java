@@ -49,6 +49,10 @@ public class Import {
     return qualifier.split("\\.").length;
   }
 
+  public boolean isInJavaUtil() {
+    return qualifier.equals("java.util");
+  }
+
   /** Creates a fully qualified import statement from this {@code Import} object. */
   public String asStatement() {
     return String.format("import%s %s.%s;", isStatic ? " static" : "", qualifier, name);

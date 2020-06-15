@@ -55,7 +55,7 @@ public class BasicStdlibProvider implements StdlibProvider {
       return filtered.get(0);
     }
 
-    throw new RuntimeException("unexpected");
+    return selectJavaUtilOrFirstOne(filtered);
   }
 
   private List<Import> selectShortestPaths(Import[] imports) {
@@ -77,5 +77,15 @@ public class BasicStdlibProvider implements StdlibProvider {
     }
 
     return candidates;
+  }
+
+  private Import selectJavaUtilOrFirstOne(List<Import> imports) {
+    for (Import i : imports) {
+      if (i.isInJavaUtil()) {
+        return i;
+      }
+    }
+
+    return imports.get(0);
   }
 }

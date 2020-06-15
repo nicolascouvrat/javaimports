@@ -11,7 +11,7 @@ public class FakeStdlib implements Stdlib {
           .put(
               "List",
               new Import[] {
-                new Import("List", "java.util", false), new Import("List", "java.awt", false)
+                new Import("List", "java.awt", false), new Import("List", "java.util", false)
               })
           .put(
               "Duration",

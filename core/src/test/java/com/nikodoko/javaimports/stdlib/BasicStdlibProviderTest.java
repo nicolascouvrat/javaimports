@@ -25,4 +25,12 @@ class BasicStdlibProviderTest {
 
     assertThat(got.get("Duration")).isEqualTo(expected);
   }
+
+  @Test
+  void testFindPrioritizesJavaUtilIfConflict() {
+    Map<String, Import> got = stdlib.find(ImmutableSet.of("List"));
+    Import expected = new Import("List", "java.util", false);
+
+    assertThat(got.get("List")).isEqualTo(expected);
+  }
 }
