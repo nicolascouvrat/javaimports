@@ -45,6 +45,10 @@ public class Import {
     return name;
   }
 
+  public int pathLength() {
+    return qualifier.split("\\.").length;
+  }
+
   /** Creates a fully qualified import statement from this {@code Import} object. */
   public String asStatement() {
     return String.format("import%s %s.%s;", isStatic ? " static" : "", qualifier, name);

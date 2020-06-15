@@ -17,4 +17,12 @@ class BasicStdlibProviderTest {
 
     assertThat(got.get("Component")).isEqualTo(expected);
   }
+
+  @Test
+  void testFindPrioritizesShortPath() {
+    Map<String, Import> got = stdlib.find(ImmutableSet.of("Duration"));
+    Import expected = new Import("Duration", "java.time", false);
+
+    assertThat(got.get("Duration")).isEqualTo(expected);
+  }
 }
