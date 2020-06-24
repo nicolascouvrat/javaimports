@@ -45,6 +45,10 @@ public class Import {
     return name;
   }
 
+  public String qualifier() {
+    return qualifier;
+  }
+
   public int pathLength() {
     return qualifier.split("\\.").length;
   }

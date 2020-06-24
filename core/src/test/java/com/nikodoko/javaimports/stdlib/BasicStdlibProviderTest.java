@@ -33,4 +33,12 @@ class BasicStdlibProviderTest {
 
     assertThat(got.get("List")).isEqualTo(expected);
   }
+
+  @Test
+  void testFindPrioritizesPackagesAlreadyInUse() {
+    Map<String, Import> got = stdlib.find(ImmutableSet.of("List", "Component"));
+    Import expected = new Import("List", "java.awt", false);
+
+    assertThat(got.get("List")).isEqualTo(expected);
+  }
 }

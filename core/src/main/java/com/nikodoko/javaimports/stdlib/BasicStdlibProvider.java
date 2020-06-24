@@ -9,6 +9,7 @@ import java.util.Map;
 
 public class BasicStdlibProvider implements StdlibProvider {
   private Stdlib stdlib;
+  private Map<String, Integer> usedPackages = new HashMap<>();
 
   BasicStdlibProvider(Stdlib stdlib) {
     this.stdlib = stdlib;
@@ -17,6 +18,7 @@ public class BasicStdlibProvider implements StdlibProvider {
   @Override
   public Map<String, Import> find(Iterable<String> identifiers) {
     Map<String, Import> candidates = findExactlyOneMatch(identifiers);
+    updateUsedPackages(candidates.values());
     for (String identifier : identifiers) {
       if (hasMultipleMatches(identifier)) {
         candidates.put(identifier, findBestMatch(identifier));
@@ -24,6 +26,13 @@ public class BasicStdlibProvider implements StdlibProvider {
     }
 
     return candidates;
+  }
+
+  private void updateUsedPackages(Iterable<Import> imports) {
+    for (Import i : imports) {
+      int currentUsageCount = usedPackages.getOrDefault(i.qualifier(), 0);
+      usedPackages.put(i.qualifier(), currentUsageCount + 1);
+    }
   }
 
   private Map<String, Import> findExactlyOneMatch(Iterable<String> identifiers) {
@@ -48,7 +57,8 @@ public class BasicStdlibProvider implements StdlibProvider {
   private Import findBestMatch(String identifier) {
     Import[] matches = stdlib.getClasses().get(identifier);
 
-    List<Import> filtered = selectShortestPaths(matches);
+    List<Import> filtered = selectMostUsedPackages(matches);
+    filtered = selectShortestPaths(filtered);
     if (filtered.size() == 1) {
       return filtered.get(0);
     }
@@ -56,11 +66,31 @@ public class BasicStdlibProvider implements StdlibProvider {
     return selectJavaUtilOrFirstOne(filtered);
   }
 
+  private List<Import> selectMostUsedPackages(Import[] imports) {
+    List<Import> candidates = new ArrayList<>();
+    int maxUsage = -1;
+    for (Import i : imports) {
+      int usageCount = usedPackages.getOrDefault(i.qualifier(), 0);
+
+      if (usageCount == maxUsage) {
+        candidates.add(i);
+      }
+
+      if (usageCount > maxUsage) {
+        candidates = new ArrayList<>();
+        candidates.add(i);
+        maxUsage = usageCount;
+      }
+    }
+
+    return candidates;
+  }
+
   // heuristic that is debatable, but a look at conflicts for the Java8 stdlib tends to show that
   // more common imports have a shorter import path.
-  private List<Import> selectShortestPaths(Import[] imports) {
+  private List<Import> selectShortestPaths(List<Import> imports) {
     List<Import> candidates = new ArrayList<>();
-    int currentShortestPath = imports[0].pathLength();
+    int currentShortestPath = imports.get(0).pathLength();
     for (Import i : imports) {
       if (i.pathLength() > currentShortestPath) {
         continue;
