@@ -1,16 +1,11 @@
 package com.nikodoko.javaimports.stdlib;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.stdlib.internal.Stdlib;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class BasicStdlibProvider implements StdlibProvider {
   private Stdlib stdlib;
@@ -21,36 +16,39 @@ public class BasicStdlibProvider implements StdlibProvider {
 
   @Override
   public Map<String, Import> find(Iterable<String> identifiers) {
-    Map<String, Import> found = new HashMap<>();
-    Set<String> leftovers = new HashSet<>();
+    Map<String, Import> candidates = findExactlyOneMatch(identifiers);
     for (String identifier : identifiers) {
-      if (!stdlib.getClasses().containsKey(identifier)) {
-        continue;
+      if (hasMultipleMatches(identifier)) {
+        candidates.put(identifier, findBestMatch(identifier));
       }
-
-      if (stdlib.getClasses().get(identifier).length == 1) {
-        found.put(identifier, stdlib.getClasses().get(identifier)[0]);
-        continue;
-      }
-
-      leftovers.add(identifier);
     }
 
-    for (String leftover : leftovers) {
-      found.put(leftover, selectImport(stdlib.getClasses().get(leftover)));
-    }
-
-    return found;
+    return candidates;
   }
 
-  private Import selectImport(Import[] imports) {
-    checkNotNull(imports, "why are imports null?");
-    checkArgument(imports.length > 0, "why are imports empty?");
-    if (imports.length == 1) {
-      return imports[0];
+  private Map<String, Import> findExactlyOneMatch(Iterable<String> identifiers) {
+    Map<String, Import> candidates = new HashMap<>();
+    for (String identifier : identifiers) {
+      Import[] found = stdlib.getClasses().get(identifier);
+      if (found == null || found.length != 1) {
+        continue;
+      }
+
+      candidates.put(identifier, found[0]);
     }
 
-    List<Import> filtered = selectShortestPaths(imports);
+    return candidates;
+  }
+
+  private boolean hasMultipleMatches(String identifier) {
+    Import[] matches = stdlib.getClasses().get(identifier);
+    return matches != null && matches.length > 1;
+  }
+
+  private Import findBestMatch(String identifier) {
+    Import[] matches = stdlib.getClasses().get(identifier);
+
+    List<Import> filtered = selectShortestPaths(matches);
     if (filtered.size() == 1) {
       return filtered.get(0);
     }
@@ -58,6 +56,8 @@ public class BasicStdlibProvider implements StdlibProvider {
     return selectJavaUtilOrFirstOne(filtered);
   }
 
+  // heuristic that is debatable, but a look at conflicts for the Java8 stdlib tends to show that
+  // more common imports have a shorter import path.
   private List<Import> selectShortestPaths(Import[] imports) {
     List<Import> candidates = new ArrayList<>();
     int currentShortestPath = imports[0].pathLength();
@@ -79,6 +79,8 @@ public class BasicStdlibProvider implements StdlibProvider {
     return candidates;
   }
 
+  // arbitrary rule, that exists mostly for cases like List, where the two candidates are java.util
+  // and java.awt (and we almost always want the first one).
   private Import selectJavaUtilOrFirstOne(List<Import> imports) {
     for (Import i : imports) {
       if (i.isInJavaUtil()) {
