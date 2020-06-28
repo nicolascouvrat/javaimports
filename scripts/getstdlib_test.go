@@ -86,11 +86,20 @@ func TestAddIdentifier(t *testing.T) {
 	}
 
 	if len(ci.visibleIdentifiers) != 0 {
-		t.Errorf("Expected no static identifier, got %v", ci.visibleIdentifiers)
+		t.Errorf("Expected no visible identifier, got %v", ci.visibleIdentifiers)
 	}
 
-	if ci.staticIdentifiers[0] != "builder" {
-		t.Errorf("Expected \"builder\" as identifier, got %s", ci.staticIdentifiers[0])
+	if _, ok := ci.staticIdentifiers["builder"]; !ok {
+		t.Errorf("Expected \"builder\" as identifier, but did not get it")
+	}
+}
+
+func TestGetIdentifier(t *testing.T) {
+	cell := genHtmlForTable(t, fixtures.MultipleLinksCell)
+	identifier := getIdentifier(cell)
+
+	if identifier != "parallelPrefix" {
+		t.Errorf("Expected \"parallelPrefix\" as identifier, got %s", identifier)
 	}
 }
 
@@ -108,8 +117,8 @@ func TestPopulateClassInfo(t *testing.T) {
 		"isSynthetic":       true,
 		"getName":           true,
 	}
-	ci := newClassInfo("")
-	populateClassInfoFromHtml(&ci, fullPage)
+
+	ci := populateClassInfoFromHtml("", fullPage)
 
 	if len(ci.visibleIdentifiers) != len(expectedVisibleIdentifiers) {
 		t.Errorf("Expected size %d, got %d for visibleIdentifiers", len(expectedVisibleIdentifiers), len(ci.visibleIdentifiers))
@@ -119,13 +128,13 @@ func TestPopulateClassInfo(t *testing.T) {
 		t.Errorf("Expected size %d, got %d for staticIdentifiers", len(expectedStaticIdentifiers), len(ci.staticIdentifiers))
 	}
 
-	for _, i := range ci.staticIdentifiers {
+	for i, _ := range ci.staticIdentifiers {
 		if _, ok := expectedStaticIdentifiers[i]; !ok {
 			t.Errorf("Unexpected static identifier %s", i)
 		}
 	}
 
-	for _, i := range ci.visibleIdentifiers {
+	for i, _ := range ci.visibleIdentifiers {
 		if _, ok := expectedVisibleIdentifiers[i]; !ok {
 			t.Errorf("Unexpected visible identifier %s", i)
 		}

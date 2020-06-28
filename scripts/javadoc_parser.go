@@ -7,13 +7,14 @@ import (
 	"golang.org/x/net/html"
 )
 
-func populateClassInfoFromHtml(ci *classInfo, doc *html.Node) error {
+func populateClassInfoFromHtml(prefix string, doc *html.Node) classInfo {
+	ci := newClassInfo(prefix)
 	visitMemberRow := func(row *html.Node) {
-		addIdentifier(ci, row)
+		addIdentifier(&ci, row)
 	}
 
 	doForEachMemberRow(doc, visitMemberRow)
-	return nil
+	return ci
 }
 
 func addIdentifier(ci *classInfo, row *html.Node) {
@@ -36,7 +37,7 @@ func addIdentifier(ci *classInfo, row *html.Node) {
 			isLastCol = true
 		}
 
-		if isLastCol == isFirstCol {
+		if isLastCol && isFirstCol {
 			// We cannot handle it
 			fmt.Printf("unknown cell: %v\n", n)
 		}
@@ -51,11 +52,11 @@ func addIdentifier(ci *classInfo, row *html.Node) {
 
 	if identifier != "" {
 		if static {
-			ci.staticIdentifiers = append(ci.staticIdentifiers, identifier)
+			ci.staticIdentifiers[identifier] = exists
 			return
 		}
 
-		ci.visibleIdentifiers = append(ci.visibleIdentifiers, identifier)
+		ci.visibleIdentifiers[identifier] = exists
 	}
 }
 
@@ -64,29 +65,36 @@ func addIdentifier(ci *classInfo, row *html.Node) {
 // td is supposed to contain at most one link, and the identifier is the text
 // inside
 func getIdentifier(td *html.Node) string {
-	var explore func(*html.Node) string
-	explore = func(n *html.Node) string {
-		if isElement(n, "a") {
-			if n.FirstChild != n.LastChild {
-				panic("link with more than one child")
-			}
-
-			if n.FirstChild.Type != html.TextNode {
-				panic("link child is not text")
-			}
-
-			return n.FirstChild.Data
+	var identifier string
+	getText := func(a *html.Node) {
+		if a.FirstChild != a.LastChild {
+			panic("link with more than one child")
 		}
 
-		var combined string
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			combined += explore(c)
+		if a.FirstChild.Type != html.TextNode {
+			panic(fmt.Sprintf("link child is not text: %v, %v", a, a.FirstChild))
 		}
 
-		return combined
+		identifier = a.FirstChild.Data
 	}
 
-	return explore(td)
+	findFirstAnchor(td, getText)
+	return identifier
+}
+
+func findFirstAnchor(n *html.Node, callback func(*html.Node)) bool {
+	if isElement(n, "a") {
+		callback(n)
+		return true
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if found := findFirstAnchor(c, callback); found {
+			return true
+		}
+	}
+
+	return false
 }
 
 func isStatic(parent *html.Node) bool {

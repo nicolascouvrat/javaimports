@@ -2,72 +2,123 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 
 	"golang.org/x/net/html"
 )
 
 const (
-	javaVer          = 8
-	javaSEUrlBase    = "https://docs.oracle.com/javase/%d/docs/api/%s"
-	allClassesPrefix = "allclasses-noframe.html"
+	javaVer            = 8
+	javaSEUrlBase      = "https://docs.oracle.com/javase/%d/docs/api/%s"
+	allClassesPrefix   = "allclasses-noframe.html"
+	outputFileTemplate = "java%d.txt"
+	// Change this depending on ulimit
+	maxParallelConnections = 1000
 )
+
+var exists = struct{}{}
 
 // classInfo contains a description of a class (or enum, or interface)
 type classInfo struct {
-	// the url fragment to combine with the base URL to access this class' info
-	// page
-	prefix string
-
+	pkg                string
 	name               string
-	staticIdentifiers  []string
-	visibleIdentifiers []string
+	staticIdentifiers  map[string]interface{}
+	visibleIdentifiers map[string]interface{}
 }
 
+func (ci *classInfo) output(w io.Writer) {
+	header := fmt.Sprintf("pkg %s class %s", ci.pkg, ci.name)
+	io.WriteString(w, header+"\n")
+	for ident, _ := range ci.staticIdentifiers {
+		io.WriteString(w, fmt.Sprintf("%s, static %s\n", header, ident))
+	}
+
+	for ident, _ := range ci.visibleIdentifiers {
+		io.WriteString(w, fmt.Sprintf("%s, %s\n", header, ident))
+	}
+}
+
+// generate an empty classInfo using a url fragment (like java/util/List.html)
 func newClassInfo(prefix string) classInfo {
+	pkg, name := parsePrefix(prefix)
 	return classInfo{
-		prefix:             prefix,
-		staticIdentifiers:  make([]string, 0),
-		visibleIdentifiers: make([]string, 0),
+		pkg:                pkg,
+		name:               name,
+		staticIdentifiers:  make(map[string]interface{}),
+		visibleIdentifiers: make(map[string]interface{}),
 	}
 }
 
-func traverseAndPrint(n *html.Node) {
-	fmt.Println(n.Data)
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		traverseAndPrint(c)
-	}
-}
-
-func populateClassInfo(ci *classInfo) error {
-	raw, err := getRaw(generateJavaSEUrl(ci.prefix))
-	if err != nil {
-		return err
-	}
-	doc, err := html.Parse(strings.NewReader(string(raw)))
-	if err != nil {
-		return err
-	}
-
-	return populateClassInfoFromHtml(ci, doc)
+// splits a class URL fragment (like java/util/List.html) into a class name and
+// a package path
+func parsePrefix(prefix string) (pkg, className string) {
+	pkgPath, prefixedClassName := filepath.Split(prefix)
+	pkg = strings.ReplaceAll(filepath.Clean(pkgPath), "/", ".")
+	className = strings.ReplaceAll(prefixedClassName, ".html", "")
+	return pkg, className
 }
 
 func main() {
-	allClasses, err := getAllClasses()
+	prefixes, err := getAllPrefixes()
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(len(allClasses))
+	file, err := os.Create(fmt.Sprintf(outputFileTemplate, javaVer))
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+	for class := range getAllClasses(prefixes) {
+		class.output(file)
+	}
 }
 
-// getAllClasses queries the java SE documentation and returns all classes
-//
-// The resulting classInfos will only contain their prefix, and no other
-// information
-func getAllClasses() ([]classInfo, error) {
+func getAllClasses(prefixes []string) chan classInfo {
+	var wg sync.WaitGroup
+	classes := make(chan classInfo)
+	for _, prefix := range prefixes {
+		wg.Add(1)
+		go func(p string) {
+			defer wg.Done()
+			classes <- populateClassInfo(p)
+		}(prefix)
+	}
+
+	go func() {
+		wg.Wait()
+		close(classes)
+	}()
+
+	return classes
+}
+
+// queries the java SE documentation for a given class using its URL fragment
+// (like java/util/List/html)
+func populateClassInfo(prefix string) classInfo {
+	raw, err := getRaw(generateJavaSEUrl(prefix))
+	if err != nil {
+		panic(err)
+	}
+
+	doc, err := html.Parse(strings.NewReader(string(raw)))
+	if err != nil {
+		panic(err)
+	}
+
+	return populateClassInfoFromHtml(prefix, doc)
+}
+
+// getAllPrefixes queries the java SE documentation and returns all classes' URL
+// fragments
+func getAllPrefixes() ([]string, error) {
 	raw, err := getRaw(generateJavaSEUrl(allClassesPrefix))
 	if err != nil {
 		return nil, err
@@ -78,12 +129,7 @@ func getAllClasses() ([]classInfo, error) {
 		return nil, err
 	}
 
-	classes := make([]classInfo, 0)
-	for _, p := range findAllClassPrefixes(doc) {
-		classes = append(classes, newClassInfo(p))
-	}
-
-	return classes, nil
+	return findAllClassPrefixes(doc), nil
 }
 
 // generateJavaSEUrl generates the URL for a given page of the java SE javadoc
@@ -92,9 +138,19 @@ func generateJavaSEUrl(prefix string) string {
 	return fmt.Sprintf(javaSEUrlBase, javaVer, prefix)
 }
 
+// ulimit restricts the number of maximum allowed open connections
+var tr = &http.Transport{MaxConnsPerHost: maxParallelConnections}
+
+var client = &http.Client{Transport: tr}
+
 // getRaw returns html as a string
 func getRaw(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
