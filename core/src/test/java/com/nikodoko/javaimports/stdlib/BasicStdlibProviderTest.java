@@ -41,4 +41,19 @@ class BasicStdlibProviderTest {
 
     assertThat(got.get("List")).isEqualTo(expected);
   }
+
+  @Test
+  void testIndentifierIsInJavaLang() {
+    assertThat(stdlib.isInJavaLang("Object")).isTrue();
+  }
+
+  @Test
+  void testNonExistingIdentifierIsNotInJavaLang() {
+    assertThat(stdlib.isInJavaLang("Derp")).isFalse();
+  }
+
+  @Test
+  void testIdentifierIsNotInJavaLang() {
+    assertThat(stdlib.isInJavaLang("List")).isFalse();
+  }
 }

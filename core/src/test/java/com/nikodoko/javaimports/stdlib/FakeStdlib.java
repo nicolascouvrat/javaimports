@@ -9,6 +9,12 @@ public class FakeStdlib implements Stdlib {
   private static final Map<String, Import[]> CLASSES =
       new ImmutableMap.Builder()
           .put(
+              "Object",
+              new Import[] {
+                new Import("Object", "java.lang", false),
+                new Import("Object", "org.omg.CORBA", false)
+              })
+          .put(
               "List",
               new Import[] {
                 new Import("List", "java.awt", false), new Import("List", "java.util", false)

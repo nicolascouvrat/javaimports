@@ -15,6 +15,21 @@ public class BasicStdlibProvider implements StdlibProvider {
     this.stdlib = stdlib;
   }
 
+  public boolean isInJavaLang(String identifier) {
+    Import[] matches = stdlib.getClassesFor(identifier);
+    if (matches == null) {
+      return false;
+    }
+
+    for (Import match : matches) {
+      if (match.qualifier().startsWith("java.lang")) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   @Override
   public Map<String, Import> find(Iterable<String> identifiers) {
     Map<String, Import> candidates = findExactlyOneMatch(identifiers);
