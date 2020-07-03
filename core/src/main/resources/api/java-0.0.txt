@@ -1,0 +1,5 @@
+pkg java.util class List
+pkg java.util class List, add
+pkg java.util class List, addAll
+pkg java.util class List, clear
+pkg javax.xml.ws class Action
