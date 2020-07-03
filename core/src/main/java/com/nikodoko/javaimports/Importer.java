@@ -102,7 +102,7 @@ public final class Importer {
       return applyFixes(f, javaCode, r);
     }
 
-    fixer.addStdlibProvider(StdlibProviders.stub());
+    fixer.addStdlibProvider(StdlibProviders.java00());
 
     r = fixer.tryToFix();
 
