@@ -59,11 +59,23 @@ public class Loader {
    */
   public void load() {
     extendAllClasses();
+    resolveAllJavaLang();
     resolveUsingImports();
     resolveUsingSiblings();
 
     addSiblingImportsAsCandidates();
     addStdlibCandidates();
+  }
+
+  private void resolveAllJavaLang() {
+    Set<String> inJavaLang = new HashSet<>();
+    for (String unresolved : result.unresolved) {
+      if (stdlib.isInJavaLang(unresolved)) {
+        inJavaLang.add(unresolved);
+      }
+    }
+
+    result.unresolved = difference(result.unresolved, inJavaLang);
   }
 
   private void addStdlibCandidates() {

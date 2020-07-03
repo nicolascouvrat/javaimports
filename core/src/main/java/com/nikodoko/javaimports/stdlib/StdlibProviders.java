@@ -28,6 +28,16 @@ public class StdlibProviders {
 
       return found;
     }
+
+    @Override
+    public boolean isInJavaLang(String identifier) {
+      Import found = stdlib.get(identifier);
+      if (found == null) {
+        return false;
+      }
+
+      return found.qualifier().startsWith("java.lang");
+    }
   }
 
   public static StdlibProvider empty() {

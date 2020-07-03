@@ -15,6 +15,7 @@ public class BasicStdlibProvider implements StdlibProvider {
     this.stdlib = stdlib;
   }
 
+  @Override
   public boolean isInJavaLang(String identifier) {
     Import[] matches = stdlib.getClassesFor(identifier);
     if (matches == null) {
