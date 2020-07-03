@@ -6,7 +6,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.io.Files;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
-import com.google.googlejavaformat.java.Formatter;
 import com.google.googlejavaformat.java.FormatterException;
 import java.io.BufferedReader;
 import java.io.File;
@@ -151,11 +150,12 @@ public class GenerateStdlib {
         i.output(out);
         out.print(",");
       }
-      out.print("})");
+      out.print("})\n");
     }
 
     outputFooter(out);
-    String formatted = new Formatter().formatSourceAndFixImports(writer.toString());
+    // String formatted = new Formatter().formatSourceAndFixImports(writer.toString());
+    String formatted = writer.toString();
     File f =
         new File(
             "core/src/main/java/com/nikodoko/javaimports/stdlib/internal/" + fileName + ".java");
@@ -178,8 +178,8 @@ public class GenerateStdlib {
 
   private static void outputFooter(PrintWriter out) {
     out.println(".build();");
-    out.println("public Map<String, Import[]> getClasses() {");
-    out.println("return CLASSES;");
+    out.println("public Import[] getClassesFor(String identifier) {");
+    out.println("return CLASSES.get(identifier);");
     out.println("}");
     out.println("}");
   }

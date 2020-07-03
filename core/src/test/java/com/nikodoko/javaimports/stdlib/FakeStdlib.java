@@ -22,7 +22,7 @@ public class FakeStdlib implements Stdlib {
           .put("Component", new Import[] {new Import("Component", "java.awt", false)})
           .build();
 
-  public Map<String, Import[]> getClasses() {
-    return CLASSES;
+  public Import[] getClassesFor(String identifier) {
+    return CLASSES.get(identifier);
   }
 }

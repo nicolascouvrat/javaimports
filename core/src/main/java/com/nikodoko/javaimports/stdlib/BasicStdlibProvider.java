@@ -38,7 +38,7 @@ public class BasicStdlibProvider implements StdlibProvider {
   private Map<String, Import> findExactlyOneMatch(Iterable<String> identifiers) {
     Map<String, Import> candidates = new HashMap<>();
     for (String identifier : identifiers) {
-      Import[] found = stdlib.getClasses().get(identifier);
+      Import[] found = stdlib.getClassesFor(identifier);
       if (found == null || found.length != 1) {
         continue;
       }
@@ -50,12 +50,12 @@ public class BasicStdlibProvider implements StdlibProvider {
   }
 
   private boolean hasMultipleMatches(String identifier) {
-    Import[] matches = stdlib.getClasses().get(identifier);
+    Import[] matches = stdlib.getClassesFor(identifier);
     return matches != null && matches.length > 1;
   }
 
   private Import findBestMatch(String identifier) {
-    Import[] matches = stdlib.getClasses().get(identifier);
+    Import[] matches = stdlib.getClassesFor(identifier);
 
     List<Import> filtered = selectMostUsedPackages(matches);
     filtered = selectShortestPaths(filtered);
