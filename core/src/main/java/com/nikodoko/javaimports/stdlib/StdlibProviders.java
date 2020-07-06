@@ -2,8 +2,8 @@ package com.nikodoko.javaimports.stdlib;
 
 import com.google.common.collect.ImmutableMap;
 import com.nikodoko.javaimports.parser.Import;
-import com.nikodoko.javaimports.stdlib.internal.Java0Stdlib;
-import com.nikodoko.javaimports.stdlib.internal.Java8Stdlib;
+import com.nikodoko.javaimports.stdlib.internal.api.v0.Java0Stdlib;
+import com.nikodoko.javaimports.stdlib.internal.api.v8.Java8Stdlib;
 import java.util.HashMap;
 import java.util.Map;
 
