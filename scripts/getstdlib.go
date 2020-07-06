@@ -17,7 +17,7 @@ const (
 	javaVer            = 8
 	javaSEUrlBase      = "https://docs.oracle.com/javase/%d/docs/api/%s"
 	allClassesPrefix   = "allclasses-noframe.html"
-	outputFileTemplate = "java%d.txt"
+	outputFileTemplate = "java-%d.txt"
 	// Change this depending on ulimit
 	maxParallelConnections = 1000
 )
@@ -61,6 +61,14 @@ func parsePrefix(prefix string) (pkg, className string) {
 	pkgPath, prefixedClassName := filepath.Split(prefix)
 	pkg = strings.ReplaceAll(filepath.Clean(pkgPath), "/", ".")
 	className = strings.ReplaceAll(prefixedClassName, ".html", "")
+	// The oracle documentation creates a separate page for static subclasses, with
+	// class name Parent.StaticChild
+	// We want to be able to address StaticChild by its own name
+	if fragments := strings.Split(className, "."); len(fragments) > 1 {
+		className = fragments[len(fragments)-1]
+		pkg = pkg + "." + strings.Join(fragments[0:len(fragments)-1], ".")
+	}
+
 	return pkg, className
 }
 
