@@ -14,14 +14,14 @@ public class Java8StdlibChunk0 {
                 new Import("CipherOutputStream", "javax.crypto", false),
               })
           .put(
-              "CurrencyNameProvider",
-              new Import[] {
-                new Import("CurrencyNameProvider", "java.util.spi", false),
-              })
-          .put(
               "setSecurityManager",
               new Import[] {
                 new Import("setSecurityManager", "java.lang.System", true),
+              })
+          .put(
+              "CurrencyNameProvider",
+              new Import[] {
+                new Import("CurrencyNameProvider", "java.util.spi", false),
               })
           .put(
               "setStrikeThrough",
@@ -39,14 +39,14 @@ public class Java8StdlibChunk0 {
                 new Import("OTHER_NUMBER", "java.lang.Character", true),
               })
           .put(
-              "deletePrevCharAction",
-              new Import[] {
-                new Import("deletePrevCharAction", "javax.swing.text.DefaultEditorKit", true),
-              })
-          .put(
               "FRANCE",
               new Import[] {
                 new Import("FRANCE", "java.util.Locale", true),
+              })
+          .put(
+              "deletePrevCharAction",
+              new Import[] {
+                new Import("deletePrevCharAction", "javax.swing.text.DefaultEditorKit", true),
               })
           .put(
               "LineEvent",
@@ -71,18 +71,13 @@ public class Java8StdlibChunk0 {
           .put(
               "YEAR",
               new Import[] {
-                new Import("YEAR", "java.util.Calendar", true),
                 new Import("YEAR", "java.text.DateFormat.Field", true),
+                new Import("YEAR", "java.util.Calendar", true),
               })
           .put(
               "isJavaIdentifierPart",
               new Import[] {
                 new Import("isJavaIdentifierPart", "java.lang.Character", true),
-              })
-          .put(
-              "NOWRAP",
-              new Import[] {
-                new Import("NOWRAP", "javax.swing.text.html.HTML.Attribute", true),
               })
           .put(
               "OPEN_TYPE_FIELD",
@@ -95,6 +90,11 @@ public class Java8StdlibChunk0 {
                 new Import("PrintServiceLookup", "javax.print", false),
               })
           .put(
+              "NOWRAP",
+              new Import[] {
+                new Import("NOWRAP", "javax.swing.text.html.HTML.Attribute", true),
+              })
+          .put(
               "ResultSet",
               new Import[] {
                 new Import("ResultSet", "java.sql", false),
@@ -105,14 +105,14 @@ public class Java8StdlibChunk0 {
                 new Import("StreamCorruptedException", "java.io", false),
               })
           .put(
-              "BasicTableHeaderUI",
-              new Import[] {
-                new Import("BasicTableHeaderUI", "javax.swing.plaf.basic", false),
-              })
-          .put(
               "ACTION_LINK",
               new Import[] {
                 new Import("ACTION_LINK", "java.awt.dnd.DnDConstants", true),
+              })
+          .put(
+              "BasicTableHeaderUI",
+              new Import[] {
+                new Import("BasicTableHeaderUI", "javax.swing.plaf.basic", false),
               })
           .put(
               "collectArguments",
@@ -129,6 +129,11 @@ public class Java8StdlibChunk0 {
               new Import[] {
                 new Import(
                     "OPC_LIFE_OVER", "javax.print.attribute.standard.PrinterStateReason", true),
+              })
+          .put(
+              "ColorSpaceType",
+              new Import[] {
+                new Import("ColorSpaceType", "java.awt.MultipleGradientPaint", false),
               })
           .put(
               "ACTION_INSERT_BEFORE",
@@ -148,8 +153,8 @@ public class Java8StdlibChunk0 {
           .put(
               "STOP",
               new Import[] {
-                new Import("STOP", "javax.sound.sampled.LineEvent.Type", true),
                 new Import("STOP", "javax.sound.midi.ShortMessage", true),
+                new Import("STOP", "javax.sound.sampled.LineEvent.Type", true),
               })
           .put(
               "POPUP_MENU_SEPARATOR",
@@ -159,9 +164,9 @@ public class Java8StdlibChunk0 {
           .put(
               "newProxyInstance",
               new Import[] {
+                new Import("newProxyInstance", "java.lang.reflect.Proxy", true),
                 new Import(
                     "newProxyInstance", "javax.management.MBeanServerInvocationHandler", true),
-                new Import("newProxyInstance", "java.lang.reflect.Proxy", true),
               })
           .put(
               "TYPE_CMYK",
@@ -189,6 +194,12 @@ public class Java8StdlibChunk0 {
                 new Import("Customizer", "java.beans", false),
               })
           .put(
+              "OfDouble",
+              new Import[] {
+                new Import("OfDouble", "java.util.PrimitiveIterator", false),
+                new Import("OfDouble", "java.util.Spliterator", false),
+              })
+          .put(
               "TableModel",
               new Import[] {
                 new Import("TableModel", "javax.swing.table", false),
@@ -196,10 +207,10 @@ public class Java8StdlibChunk0 {
           .put(
               "A",
               new Import[] {
-                new Import("A", "javax.swing.text.html.HTML.Tag", true),
-                new Import("A", "javax.print.attribute.standard.MediaSize.Engineering", true),
-                new Import("A", "javax.print.attribute.standard.MediaSizeName", true),
                 new Import("A", "java.awt.PageAttributes.MediaType", true),
+                new Import("A", "javax.print.attribute.standard.MediaSizeName", true),
+                new Import("A", "javax.print.attribute.standard.MediaSize.Engineering", true),
+                new Import("A", "javax.swing.text.html.HTML.Tag", true),
               })
           .put(
               "TYPE_RGB",
@@ -209,10 +220,10 @@ public class Java8StdlibChunk0 {
           .put(
               "B",
               new Import[] {
-                new Import("B", "javax.swing.text.html.HTML.Tag", true),
-                new Import("B", "javax.print.attribute.standard.MediaSize.Engineering", true),
-                new Import("B", "javax.print.attribute.standard.MediaSizeName", true),
                 new Import("B", "java.awt.PageAttributes.MediaType", true),
+                new Import("B", "javax.print.attribute.standard.MediaSizeName", true),
+                new Import("B", "javax.print.attribute.standard.MediaSize.Engineering", true),
+                new Import("B", "javax.swing.text.html.HTML.Tag", true),
               })
           .put(
               "IconElementName",
@@ -222,25 +233,25 @@ public class Java8StdlibChunk0 {
           .put(
               "C",
               new Import[] {
-                new Import("C", "javax.print.attribute.standard.MediaSize.Engineering", true),
-                new Import("C", "javax.print.attribute.standard.MediaSizeName", true),
                 new Import("C", "java.awt.PageAttributes.MediaType", true),
+                new Import("C", "javax.print.attribute.standard.MediaSizeName", true),
+                new Import("C", "javax.print.attribute.standard.MediaSize.Engineering", true),
               })
           .put(
               "D",
               new Import[] {
-                new Import("D", "javax.print.attribute.standard.MediaSize.Engineering", true),
-                new Import("D", "javax.print.attribute.standard.MediaSizeName", true),
                 new Import("D", "java.awt.PageAttributes.MediaType", true),
+                new Import("D", "javax.print.attribute.standard.MediaSizeName", true),
+                new Import("D", "javax.print.attribute.standard.MediaSize.Engineering", true),
               })
           .put(
               "E",
               new Import[] {
-                new Import("E", "java.lang.Math", true),
-                new Import("E", "javax.print.attribute.standard.MediaSize.Engineering", true),
-                new Import("E", "javax.print.attribute.standard.MediaSizeName", true),
-                new Import("E", "java.lang.StrictMath", true),
                 new Import("E", "java.awt.PageAttributes.MediaType", true),
+                new Import("E", "java.lang.Math", true),
+                new Import("E", "java.lang.StrictMath", true),
+                new Import("E", "javax.print.attribute.standard.MediaSizeName", true),
+                new Import("E", "javax.print.attribute.standard.MediaSize.Engineering", true),
               })
           .put(
               "LABELED_BY_PROPERTY",
@@ -248,14 +259,14 @@ public class Java8StdlibChunk0 {
                 new Import("LABELED_BY_PROPERTY", "javax.accessibility.AccessibleRelation", true),
               })
           .put(
-              "TC_MAX",
-              new Import[] {
-                new Import("TC_MAX", "java.io.ObjectStreamConstants", true),
-              })
-          .put(
               "TextHitInfo",
               new Import[] {
                 new Import("TextHitInfo", "java.awt.font", false),
+              })
+          .put(
+              "TC_MAX",
+              new Import[] {
+                new Import("TC_MAX", "java.io.ObjectStreamConstants", true),
               })
           .put(
               "PROMPT",
@@ -268,14 +279,14 @@ public class Java8StdlibChunk0 {
                 new Import("I", "javax.swing.text.html.HTML.Tag", true),
               })
           .put(
-              "JAXBContext",
-              new Import[] {
-                new Import("JAXBContext", "javax.xml.bind", false),
-              })
-          .put(
               "MultiViewportUI",
               new Import[] {
                 new Import("MultiViewportUI", "javax.swing.plaf.multi", false),
+              })
+          .put(
+              "JAXBContext",
+              new Import[] {
+                new Import("JAXBContext", "javax.xml.bind", false),
               })
           .put(
               "WebServiceRefs",
@@ -288,14 +299,14 @@ public class Java8StdlibChunk0 {
                 new Import("WINDOW_GAINED_FOCUS", "java.awt.event.WindowEvent", true),
               })
           .put(
-              "N",
-              new Import[] {
-                new Import("N", "javax.swing.text.html.HTML.Attribute", true),
-              })
-          .put(
               "Font",
               new Import[] {
                 new Import("Font", "java.awt", false),
+              })
+          .put(
+              "N",
+              new Import[] {
+                new Import("N", "javax.swing.text.html.HTML.Attribute", true),
               })
           .put(
               "RowSetInternal",
@@ -464,11 +475,6 @@ public class Java8StdlibChunk0 {
                 new Import("Attributes2Impl", "org.xml.sax.ext", false),
               })
           .put(
-              "AnnotatedConstruct",
-              new Import[] {
-                new Import("AnnotatedConstruct", "javax.lang.model", false),
-              })
-          .put(
               "FOCUS_EVENT_MASK",
               new Import[] {
                 new Import("FOCUS_EVENT_MASK", "java.awt.AWTEvent", true),
@@ -479,24 +485,29 @@ public class Java8StdlibChunk0 {
                 new Import("SCALE_AREA_AVERAGING", "java.awt.Image", true),
               })
           .put(
+              "AnnotatedConstruct",
+              new Import[] {
+                new Import("AnnotatedConstruct", "javax.lang.model", false),
+              })
+          .put(
+              "ElementEdit",
+              new Import[] {
+                new Import("ElementEdit", "javax.swing.text.AbstractDocument", false),
+              })
+          .put(
               "DOCUMENT_POSITION_PRECEDING",
               new Import[] {
                 new Import("DOCUMENT_POSITION_PRECEDING", "org.w3c.dom.Node", true),
               })
           .put(
-              "StyledEditorKit.FontFamilyAction",
-              new Import[] {
-                new Import("StyledEditorKit.FontFamilyAction", "javax.swing.text", false),
-              })
-          .put(
               "empty",
               new Import[] {
+                new Import("empty", "java.util.Optional", true),
+                new Import("empty", "java.util.OptionalDouble", true),
+                new Import("empty", "java.util.OptionalInt", true),
+                new Import("empty", "java.util.OptionalLong", true),
                 new Import("empty", "java.util.stream.DoubleStream", true),
                 new Import("empty", "java.util.stream.IntStream", true),
-                new Import("empty", "java.util.OptionalInt", true),
-                new Import("empty", "java.util.Optional", true),
-                new Import("empty", "java.util.OptionalLong", true),
-                new Import("empty", "java.util.OptionalDouble", true),
                 new Import("empty", "java.util.stream.LongStream", true),
                 new Import("empty", "java.util.stream.Stream", true),
               })
@@ -534,20 +545,14 @@ public class Java8StdlibChunk0 {
                 new Import("MetalCheckBoxIcon", "javax.swing.plaf.metal", false),
               })
           .put(
-              "ImplicitActivationPolicyOperations",
-              new Import[] {
-                new Import("ImplicitActivationPolicyOperations", "org.omg.PortableServer", false),
-              })
-          .put(
               "SSLSocketFactory",
               new Import[] {
                 new Import("SSLSocketFactory", "javax.net.ssl", false),
               })
           .put(
-              "ForkJoinPool.ForkJoinWorkerThreadFactory",
+              "ImplicitActivationPolicyOperations",
               new Import[] {
-                new Import(
-                    "ForkJoinPool.ForkJoinWorkerThreadFactory", "java.util.concurrent", false),
+                new Import("ImplicitActivationPolicyOperations", "org.omg.PortableServer", false),
               })
           .put(
               "DynAnySeqHelper",
@@ -570,6 +575,11 @@ public class Java8StdlibChunk0 {
                 new Import("CLASS_DISPLAY", "java.awt.color.ICC_Profile", true),
               })
           .put(
+              "TOGGLE_CLICK_COUNT_PROPERTY",
+              new Import[] {
+                new Import("TOGGLE_CLICK_COUNT_PROPERTY", "javax.swing.JTree", true),
+              })
+          .put(
               "getRadioButtonMenuItemIcon",
               new Import[] {
                 new Import(
@@ -578,9 +588,9 @@ public class Java8StdlibChunk0 {
                     "getRadioButtonMenuItemIcon", "javax.swing.plaf.metal.MetalIconFactory", true),
               })
           .put(
-              "TOGGLE_CLICK_COUNT_PROPERTY",
+              "SimpleEntry",
               new Import[] {
-                new Import("TOGGLE_CLICK_COUNT_PROPERTY", "javax.swing.JTree", true),
+                new Import("SimpleEntry", "java.util.AbstractMap", false),
               })
           .put(
               "ACCESSIBLE_NAME_PROPERTY",
@@ -622,24 +632,24 @@ public class Java8StdlibChunk0 {
           .put(
               "ENDTOT",
               new Import[] {
-                new Import("ENDTOT", "java.util.jar.JarOutputStream", true),
-                new Import("ENDTOT", "java.util.jar.JarInputStream", true),
                 new Import("ENDTOT", "java.util.jar.JarEntry", true),
                 new Import("ENDTOT", "java.util.jar.JarFile", true),
+                new Import("ENDTOT", "java.util.jar.JarInputStream", true),
+                new Import("ENDTOT", "java.util.jar.JarOutputStream", true),
                 new Import("ENDTOT", "java.util.zip.ZipEntry", true),
-                new Import("ENDTOT", "java.util.zip.ZipOutputStream", true),
-                new Import("ENDTOT", "java.util.zip.ZipInputStream", true),
                 new Import("ENDTOT", "java.util.zip.ZipFile", true),
-              })
-          .put(
-              "NOTATION",
-              new Import[] {
-                new Import("NOTATION", "javax.swing.text.html.parser.DTDConstants", true),
+                new Import("ENDTOT", "java.util.zip.ZipInputStream", true),
+                new Import("ENDTOT", "java.util.zip.ZipOutputStream", true),
               })
           .put(
               "setDefaultLocale",
               new Import[] {
                 new Import("setDefaultLocale", "javax.swing.JComponent", true),
+              })
+          .put(
+              "NOTATION",
+              new Import[] {
+                new Import("NOTATION", "javax.swing.text.html.parser.DTDConstants", true),
               })
           .put(
               "icSigGrayTRCTag",
@@ -665,6 +675,11 @@ public class Java8StdlibChunk0 {
                 new Import("RowId", "java.sql", false),
               })
           .put(
+              "Form",
+              new Import[] {
+                new Import("Form", "java.text.Normalizer", false),
+              })
+          .put(
               "ObjectView",
               new Import[] {
                 new Import("ObjectView", "javax.swing.text.html", false),
@@ -686,14 +701,14 @@ public class Java8StdlibChunk0 {
                     "ObjectReferenceTemplateSeqHelper", "org.omg.PortableInterceptor", false),
               })
           .put(
-              "WebFault",
-              new Import[] {
-                new Import("WebFault", "javax.xml.ws", false),
-              })
-          .put(
               "MidiFileFormat",
               new Import[] {
                 new Import("MidiFileFormat", "javax.sound.midi", false),
+              })
+          .put(
+              "WebFault",
+              new Import[] {
+                new Import("WebFault", "javax.xml.ws", false),
               })
           .put(
               "setAttribute",
@@ -730,18 +745,21 @@ public class Java8StdlibChunk0 {
           .put(
               "PROGRESS",
               new Import[] {
-                new Import("PROGRESS", "java.util.jar.Pack200.Unpacker", true),
                 new Import("PROGRESS", "java.util.jar.Pack200.Packer", true),
-              })
-          .put(
-              "StyleSheet.BoxPainter",
-              new Import[] {
-                new Import("StyleSheet.BoxPainter", "javax.swing.text.html", false),
+                new Import("PROGRESS", "java.util.jar.Pack200.Unpacker", true),
               })
           .put(
               "KeyboardFocusManager",
               new Import[] {
                 new Import("KeyboardFocusManager", "java.awt", false),
+              })
+          .put(
+              "MEMORY_COLLECTION_THRESHOLD_EXCEEDED",
+              new Import[] {
+                new Import(
+                    "MEMORY_COLLECTION_THRESHOLD_EXCEEDED",
+                    "java.lang.management.MemoryNotificationInfo",
+                    true),
               })
           .put(
               "IllegalFormatFlagsException",
@@ -754,29 +772,21 @@ public class Java8StdlibChunk0 {
                 new Import("CONTENTS_CHANGED", "javax.swing.event.ListDataEvent", true),
               })
           .put(
-              "MEMORY_COLLECTION_THRESHOLD_EXCEEDED",
-              new Import[] {
-                new Import(
-                    "MEMORY_COLLECTION_THRESHOLD_EXCEEDED",
-                    "java.lang.management.MemoryNotificationInfo",
-                    true),
-              })
-          .put(
               "COLOR_CHOOSER",
               new Import[] {
                 new Import("COLOR_CHOOSER", "javax.accessibility.AccessibleRole", true),
                 new Import("COLOR_CHOOSER", "javax.swing.plaf.synth.Region", true),
               })
           .put(
-              "FactoryConfigurationError",
-              new Import[] {
-                new Import("FactoryConfigurationError", "javax.xml.stream", false),
-                new Import("FactoryConfigurationError", "javax.xml.parsers", false),
-              })
-          .put(
               "FILENAME",
               new Import[] {
                 new Import("FILENAME", "javax.script.ScriptEngine", true),
+              })
+          .put(
+              "FactoryConfigurationError",
+              new Import[] {
+                new Import("FactoryConfigurationError", "javax.xml.parsers", false),
+                new Import("FactoryConfigurationError", "javax.xml.stream", false),
               })
           .put(
               "CodeSigner",
@@ -819,31 +829,26 @@ public class Java8StdlibChunk0 {
                 new Import("methodModifiers", "java.lang.reflect.Modifier", true),
               })
           .put(
-              "BIT",
-              new Import[] {
-                new Import("BIT", "java.sql.Types", true),
-              })
-          .put(
               "MEROITIC_HIEROGLYPHS",
               new Import[] {
                 new Import("MEROITIC_HIEROGLYPHS", "java.lang.Character.UnicodeBlock", true),
               })
           .put(
-              "NOT_FOUND_ERR",
+              "BIT",
               new Import[] {
-                new Import("NOT_FOUND_ERR", "org.w3c.dom.DOMException", true),
+                new Import("BIT", "java.sql.Types", true),
               })
           .put(
               "ENDCOM",
               new Import[] {
-                new Import("ENDCOM", "java.util.jar.JarOutputStream", true),
-                new Import("ENDCOM", "java.util.jar.JarInputStream", true),
                 new Import("ENDCOM", "java.util.jar.JarEntry", true),
                 new Import("ENDCOM", "java.util.jar.JarFile", true),
+                new Import("ENDCOM", "java.util.jar.JarInputStream", true),
+                new Import("ENDCOM", "java.util.jar.JarOutputStream", true),
                 new Import("ENDCOM", "java.util.zip.ZipEntry", true),
-                new Import("ENDCOM", "java.util.zip.ZipOutputStream", true),
-                new Import("ENDCOM", "java.util.zip.ZipInputStream", true),
                 new Import("ENDCOM", "java.util.zip.ZipFile", true),
+                new Import("ENDCOM", "java.util.zip.ZipInputStream", true),
+                new Import("ENDCOM", "java.util.zip.ZipOutputStream", true),
               })
           .put(
               "OAEPParameterSpec",
@@ -859,6 +864,11 @@ public class Java8StdlibChunk0 {
               "MutableTreeNode",
               new Import[] {
                 new Import("MutableTreeNode", "javax.swing.tree", false),
+              })
+          .put(
+              "NOT_FOUND_ERR",
+              new Import[] {
+                new Import("NOT_FOUND_ERR", "org.w3c.dom.DOMException", true),
               })
           .put(
               "localTime",
@@ -878,8 +888,13 @@ public class Java8StdlibChunk0 {
           .put(
               "ACTION",
               new Import[] {
-                new Import("ACTION", "javax.swing.text.html.HTML.Attribute", true),
                 new Import("ACTION", "javax.management.MBeanOperationInfo", true),
+                new Import("ACTION", "javax.swing.text.html.HTML.Attribute", true),
+              })
+          .put(
+              "IOError",
+              new Import[] {
+                new Import("IOError", "java.io", false),
               })
           .put(
               "selectionPreviousWordAction",
@@ -888,24 +903,19 @@ public class Java8StdlibChunk0 {
                     "selectionPreviousWordAction", "javax.swing.text.DefaultEditorKit", true),
               })
           .put(
-              "IOError",
-              new Import[] {
-                new Import("IOError", "java.io", false),
-              })
-          .put(
               "NOTE_ON",
               new Import[] {
                 new Import("NOTE_ON", "javax.sound.midi.ShortMessage", true),
               })
           .put(
-              "AlreadyBound",
-              new Import[] {
-                new Import("AlreadyBound", "org.omg.CosNaming.NamingContextPackage", false),
-              })
-          .put(
               "guardWithTest",
               new Import[] {
                 new Import("guardWithTest", "java.lang.invoke.MethodHandles", true),
+              })
+          .put(
+              "AlreadyBound",
+              new Import[] {
+                new Import("AlreadyBound", "org.omg.CosNaming.NamingContextPackage", false),
               })
           .put(
               "RENDERABLE_IMAGE",
@@ -921,11 +931,6 @@ public class Java8StdlibChunk0 {
               "ARG_INOUT",
               new Import[] {
                 new Import("ARG_INOUT", "org.omg.CORBA", false),
-              })
-          .put(
-              "Service.Mode",
-              new Import[] {
-                new Import("Service.Mode", "javax.xml.ws", false),
               })
           .put(
               "TC_REFERENCE",
@@ -960,9 +965,9 @@ public class Java8StdlibChunk0 {
           .put(
               "AUTOSENSE",
               new Import[] {
-                new Import("AUTOSENSE", "javax.print.DocFlavor.URL", true),
-                new Import("AUTOSENSE", "javax.print.DocFlavor.INPUT_STREAM", true),
                 new Import("AUTOSENSE", "javax.print.DocFlavor.BYTE_ARRAY", true),
+                new Import("AUTOSENSE", "javax.print.DocFlavor.INPUT_STREAM", true),
+                new Import("AUTOSENSE", "javax.print.DocFlavor.URL", true),
               })
           .put(
               "getAncestorNamed",
@@ -975,25 +980,25 @@ public class Java8StdlibChunk0 {
                 new Import("PAUSED", "javax.print.attribute.standard.PrinterStateReason", true),
               })
           .put(
-              "javaJVMLocalObjectMimeType",
-              new Import[] {
-                new Import("javaJVMLocalObjectMimeType", "java.awt.datatransfer.DataFlavor", true),
-              })
-          .put(
               "MultipleGradientPaint",
               new Import[] {
                 new Import("MultipleGradientPaint", "java.awt", false),
               })
           .put(
-              "KeyTab",
+              "javaJVMLocalObjectMimeType",
               new Import[] {
-                new Import("KeyTab", "javax.security.auth.kerberos", false),
+                new Import("javaJVMLocalObjectMimeType", "java.awt.datatransfer.DataFlavor", true),
               })
           .put(
               "TypeVariable",
               new Import[] {
-                new Import("TypeVariable", "javax.lang.model.type", false),
                 new Import("TypeVariable", "java.lang.reflect", false),
+                new Import("TypeVariable", "javax.lang.model.type", false),
+              })
+          .put(
+              "KeyTab",
+              new Import[] {
+                new Import("KeyTab", "javax.security.auth.kerberos", false),
               })
           .put(
               "GYEAR",
@@ -1031,14 +1036,14 @@ public class Java8StdlibChunk0 {
                 new Import("IllegalFormatCodePointException", "java.util", false),
               })
           .put(
-              "DatatypeConfigurationException",
-              new Import[] {
-                new Import("DatatypeConfigurationException", "javax.xml.datatype", false),
-              })
-          .put(
               "ANCIENT_SYMBOLS",
               new Import[] {
                 new Import("ANCIENT_SYMBOLS", "java.lang.Character.UnicodeBlock", true),
+              })
+          .put(
+              "DatatypeConfigurationException",
+              new Import[] {
+                new Import("DatatypeConfigurationException", "javax.xml.datatype", false),
               })
           .put(
               "VK_SPACE",
@@ -1102,14 +1107,14 @@ public class Java8StdlibChunk0 {
                 new Import("MAXIMIZED_HORIZ", "java.awt.Frame", true),
               })
           .put(
-              "SetOverrideType",
-              new Import[] {
-                new Import("SetOverrideType", "org.omg.CORBA", false),
-              })
-          .put(
               "TemplatesHandler",
               new Import[] {
                 new Import("TemplatesHandler", "javax.xml.transform.sax", false),
+              })
+          .put(
+              "SetOverrideType",
+              new Import[] {
+                new Import("SetOverrideType", "org.omg.CORBA", false),
               })
           .put(
               "instantiate",
@@ -1190,14 +1195,14 @@ public class Java8StdlibChunk0 {
                 new Import("SpaceAbove", "javax.swing.text.StyleConstants", true),
               })
           .put(
-              "XA_RBOTHER",
-              new Import[] {
-                new Import("XA_RBOTHER", "javax.transaction.xa.XAException", true),
-              })
-          .put(
               "RMIIIOPServerImpl",
               new Import[] {
                 new Import("RMIIIOPServerImpl", "javax.management.remote.rmi", false),
+              })
+          .put(
+              "XA_RBOTHER",
+              new Import[] {
+                new Import("XA_RBOTHER", "javax.transaction.xa.XAException", true),
               })
           .put(
               "IDEOGRAPHIC_DESCRIPTION_CHARACTERS",
@@ -1206,19 +1211,14 @@ public class Java8StdlibChunk0 {
                     "IDEOGRAPHIC_DESCRIPTION_CHARACTERS", "java.lang.Character.UnicodeBlock", true),
               })
           .put(
-              "InflaterInputStream",
-              new Import[] {
-                new Import("InflaterInputStream", "java.util.zip", false),
-              })
-          .put(
               "LONGNVARCHAR",
               new Import[] {
                 new Import("LONGNVARCHAR", "java.sql.Types", true),
               })
           .put(
-              "BorderUIResource.BevelBorderUIResource",
+              "InflaterInputStream",
               new Import[] {
-                new Import("BorderUIResource.BevelBorderUIResource", "javax.swing.plaf", false),
+                new Import("InflaterInputStream", "java.util.zip", false),
               })
           .put(
               "getDefaultCursor",
@@ -1226,15 +1226,15 @@ public class Java8StdlibChunk0 {
                 new Import("getDefaultCursor", "java.awt.Cursor", true),
               })
           .put(
+              "CharacterCodingException",
+              new Import[] {
+                new Import("CharacterCodingException", "java.nio.charset", false),
+              })
+          .put(
               "NOVEMBER",
               new Import[] {
                 new Import("NOVEMBER", "java.util.Calendar", true),
                 new Import("NOVEMBER", "javax.xml.datatype.DatatypeConstants", true),
-              })
-          .put(
-              "CharacterCodingException",
-              new Import[] {
-                new Import("CharacterCodingException", "java.nio.charset", false),
               })
           .put(
               "FILE_CHOOSER",
@@ -1284,14 +1284,14 @@ public class Java8StdlibChunk0 {
                 new Import("getAllAttributeKeys", "javax.swing.text.html.HTML", true),
               })
           .put(
-              "JToolBar.Separator",
-              new Import[] {
-                new Import("JToolBar.Separator", "javax.swing", false),
-              })
-          .put(
               "DataBufferDouble",
               new Import[] {
                 new Import("DataBufferDouble", "java.awt.image", false),
+              })
+          .put(
+              "DiscardOldestPolicy",
+              new Import[] {
+                new Import("DiscardOldestPolicy", "java.util.concurrent.ThreadPoolExecutor", false),
               })
           .put(
               "JLayer",
@@ -1307,6 +1307,12 @@ public class Java8StdlibChunk0 {
               "StatementEvent",
               new Import[] {
                 new Import("StatementEvent", "javax.sql", false),
+              })
+          .put(
+              "EventType",
+              new Import[] {
+                new Import("EventType", "javax.swing.event.DocumentEvent", false),
+                new Import("EventType", "javax.swing.event.HyperlinkEvent", false),
               })
           .put(
               "VK_KP_RIGHT",
@@ -1341,9 +1347,9 @@ public class Java8StdlibChunk0 {
                 new Import("getBundle", "java.util.ResourceBundle", true),
               })
           .put(
-              "AdapterActivator",
+              "StringSelection",
               new Import[] {
-                new Import("AdapterActivator", "org.omg.PortableServer", false),
+                new Import("StringSelection", "java.awt.datatransfer", false),
               })
           .put(
               "READ_WRITE",
@@ -1351,9 +1357,9 @@ public class Java8StdlibChunk0 {
                 new Import("READ_WRITE", "java.nio.channels.FileChannel.MapMode", true),
               })
           .put(
-              "StringSelection",
+              "AdapterActivator",
               new Import[] {
-                new Import("StringSelection", "java.awt.datatransfer", false),
+                new Import("AdapterActivator", "org.omg.PortableServer", false),
               })
           .put(
               "CONFIG",
@@ -1446,14 +1452,14 @@ public class Java8StdlibChunk0 {
                 new Import("SyncFactory", "javax.sql.rowset.spi", false),
               })
           .put(
-              "ADDRESS",
-              new Import[] {
-                new Import("ADDRESS", "javax.swing.text.html.HTML.Tag", true),
-              })
-          .put(
               "HEBREW",
               new Import[] {
                 new Import("HEBREW", "java.lang.Character.UnicodeBlock", true),
+              })
+          .put(
+              "ADDRESS",
+              new Import[] {
+                new Import("ADDRESS", "javax.swing.text.html.HTML.Tag", true),
               })
           .put(
               "PlatformManagedObject",
@@ -1495,8 +1501,8 @@ public class Java8StdlibChunk0 {
           .put(
               "ACTIVE",
               new Import[] {
-                new Import("ACTIVE", "org.omg.PortableInterceptor", false),
                 new Import("ACTIVE", "javax.accessibility.AccessibleState", true),
+                new Import("ACTIVE", "org.omg.PortableInterceptor", false),
                 new Import("ACTIVE", "org.omg.PortableServer.POAManagerPackage.State", true),
               })
           .put(
@@ -1504,11 +1510,6 @@ public class Java8StdlibChunk0 {
               new Import[] {
                 new Import("SRC", "java.awt.AlphaComposite", true),
                 new Import("SRC", "javax.swing.text.html.HTML.Attribute", true),
-              })
-          .put(
-              "PKIXRevocationChecker.Option",
-              new Import[] {
-                new Import("PKIXRevocationChecker.Option", "java.security.cert", false),
               })
           .put(
               "SQLFeatureNotSupportedException",
@@ -1587,6 +1588,11 @@ public class Java8StdlibChunk0 {
                 new Import("OpenMBeanInfo", "javax.management.openmbean", false),
               })
           .put(
+              "XADataSource",
+              new Import[] {
+                new Import("XADataSource", "javax.sql", false),
+              })
+          .put(
               "COLOR_ACTION",
               new Import[] {
                 new Import("COLOR_ACTION", "javax.swing.text.html.HTMLEditorKit", true),
@@ -1595,11 +1601,6 @@ public class Java8StdlibChunk0 {
               "PERSISTENT",
               new Import[] {
                 new Import("PERSISTENT", "org.omg.PortableServer.LifespanPolicyValue", true),
-              })
-          .put(
-              "XADataSource",
-              new Import[] {
-                new Import("XADataSource", "javax.sql", false),
               })
           .put(
               "STATUS_BAR",
@@ -1639,8 +1640,8 @@ public class Java8StdlibChunk0 {
           .put(
               "Array",
               new Import[] {
-                new Import("Array", "java.sql", false),
                 new Import("Array", "java.lang.reflect", false),
+                new Import("Array", "java.sql", false),
               })
           .put(
               "walkFileTree",
@@ -1663,16 +1664,6 @@ public class Java8StdlibChunk0 {
                 new Import("OverlayLayout", "javax.swing", false),
               })
           .put(
-              "ProcessBuilder.Redirect.Type",
-              new Import[] {
-                new Import("ProcessBuilder.Redirect.Type", "java.lang", false),
-              })
-          .put(
-              "Thread.UncaughtExceptionHandler",
-              new Import[] {
-                new Import("Thread.UncaughtExceptionHandler", "java.lang", false),
-              })
-          .put(
               "getUserTextColor",
               new Import[] {
                 new Import("getUserTextColor", "javax.swing.plaf.metal.MetalLookAndFeel", true),
@@ -1688,14 +1679,14 @@ public class Java8StdlibChunk0 {
                 new Import("AttributeView", "java.nio.file.attribute", false),
               })
           .put(
-              "X509CRL",
-              new Import[] {
-                new Import("X509CRL", "java.security.cert", false),
-              })
-          .put(
               "INHERIT",
               new Import[] {
                 new Import("INHERIT", "java.lang.ProcessBuilder.Redirect", true),
+              })
+          .put(
+              "X509CRL",
+              new Import[] {
+                new Import("X509CRL", "java.security.cert", false),
               })
           .put(
               "ValueBase",
@@ -1711,8 +1702,8 @@ public class Java8StdlibChunk0 {
           .put(
               "Document",
               new Import[] {
-                new Import("Document", "org.w3c.dom", false),
                 new Import("Document", "javax.swing.text", false),
+                new Import("Document", "org.w3c.dom", false),
               })
           .put(
               "Superscript",
@@ -1790,8 +1781,13 @@ public class Java8StdlibChunk0 {
           .put(
               "SO_REUSEADDR",
               new Import[] {
-                new Import("SO_REUSEADDR", "java.net.StandardSocketOptions", true),
                 new Import("SO_REUSEADDR", "java.net.SocketOptions", true),
+                new Import("SO_REUSEADDR", "java.net.StandardSocketOptions", true),
+              })
+          .put(
+              "setFailureHandler",
+              new Import[] {
+                new Import("setFailureHandler", "java.rmi.server.RMISocketFactory", true),
               })
           .put(
               "getFileChooserUpFolderIcon",
@@ -1800,14 +1796,14 @@ public class Java8StdlibChunk0 {
                     "getFileChooserUpFolderIcon", "javax.swing.plaf.metal.MetalIconFactory", true),
               })
           .put(
-              "setFailureHandler",
-              new Import[] {
-                new Import("setFailureHandler", "java.rmi.server.RMISocketFactory", true),
-              })
-          .put(
               "SUP",
               new Import[] {
                 new Import("SUP", "javax.swing.text.html.HTML.Tag", true),
+              })
+          .put(
+              "PooledConnection",
+              new Import[] {
+                new Import("PooledConnection", "javax.sql", false),
               })
           .put(
               "BACKGROUND_ATTACHMENT",
@@ -1815,9 +1811,9 @@ public class Java8StdlibChunk0 {
                 new Import("BACKGROUND_ATTACHMENT", "javax.swing.text.html.CSS.Attribute", true),
               })
           .put(
-              "PooledConnection",
+              "MOUSE_ENTER",
               new Import[] {
-                new Import("PooledConnection", "javax.sql", false),
+                new Import("MOUSE_ENTER", "java.awt.Event", true),
               })
           .put(
               "ACCESSIBLE_CARET_PROPERTY",
@@ -1826,19 +1822,9 @@ public class Java8StdlibChunk0 {
                     "ACCESSIBLE_CARET_PROPERTY", "javax.accessibility.AccessibleContext", true),
               })
           .put(
-              "MOUSE_ENTER",
-              new Import[] {
-                new Import("MOUSE_ENTER", "java.awt.Event", true),
-              })
-          .put(
               "VARCHAR",
               new Import[] {
                 new Import("VARCHAR", "java.sql.Types", true),
-              })
-          .put(
-              "ServantObject",
-              new Import[] {
-                new Import("ServantObject", "org.omg.CORBA.portable", false),
               })
           .put(
               "VMID",
@@ -1846,9 +1832,9 @@ public class Java8StdlibChunk0 {
                 new Import("VMID", "java.rmi.dgc", false),
               })
           .put(
-              "LongStream.Builder",
+              "ServantObject",
               new Import[] {
-                new Import("LongStream.Builder", "java.util.stream", false),
+                new Import("ServantObject", "org.omg.CORBA.portable", false),
               })
           .put(
               "VK_COLON",
@@ -1858,8 +1844,8 @@ public class Java8StdlibChunk0 {
           .put(
               "isParityAdjusted",
               new Import[] {
-                new Import("isParityAdjusted", "javax.crypto.spec.DESedeKeySpec", true),
                 new Import("isParityAdjusted", "javax.crypto.spec.DESKeySpec", true),
+                new Import("isParityAdjusted", "javax.crypto.spec.DESedeKeySpec", true),
               })
           .put(
               "Group",
@@ -1872,11 +1858,6 @@ public class Java8StdlibChunk0 {
                 new Import("GRAY", "java.awt.Color", true),
               })
           .put(
-              "BasicBorders.RadioButtonBorder",
-              new Import[] {
-                new Import("BasicBorders.RadioButtonBorder", "javax.swing.plaf.basic", false),
-              })
-          .put(
               "Instrumentation",
               new Import[] {
                 new Import("Instrumentation", "java.lang.instrument", false),
@@ -1887,14 +1868,14 @@ public class Java8StdlibChunk0 {
                 new Import("CellEditorListener", "javax.swing.event", false),
               })
           .put(
-              "JobKOctetsSupported",
-              new Import[] {
-                new Import("JobKOctetsSupported", "javax.print.attribute.standard", false),
-              })
-          .put(
               "VariableElement",
               new Import[] {
                 new Import("VariableElement", "javax.lang.model.element", false),
+              })
+          .put(
+              "JobKOctetsSupported",
+              new Import[] {
+                new Import("JobKOctetsSupported", "javax.print.attribute.standard", false),
               })
           .put(
               "DragSourceContext",
@@ -1927,11 +1908,6 @@ public class Java8StdlibChunk0 {
                 new Import("isUnicodeIdentifierStart", "java.lang.Character", true),
               })
           .put(
-              "Rectangle2D.Double",
-              new Import[] {
-                new Import("Rectangle2D.Double", "java.awt.geom", false),
-              })
-          .put(
               "INITIAL_CONTEXT_FACTORY",
               new Import[] {
                 new Import("INITIAL_CONTEXT_FACTORY", "javax.naming.Context", true),
@@ -1939,8 +1915,8 @@ public class Java8StdlibChunk0 {
           .put(
               "PRINTABLE",
               new Import[] {
-                new Import("PRINTABLE", "javax.print.DocFlavor.SERVICE_FORMATTED", true),
                 new Import("PRINTABLE", "java.awt.PageAttributes.OriginType", true),
+                new Import("PRINTABLE", "javax.print.DocFlavor.SERVICE_FORMATTED", true),
               })
           .put(
               "DRAFT",
@@ -1981,8 +1957,8 @@ public class Java8StdlibChunk0 {
           .put(
               "OTHER",
               new Import[] {
-                new Import("OTHER", "javax.print.attribute.standard.PrinterStateReason", true),
                 new Import("OTHER", "java.sql.Types", true),
+                new Import("OTHER", "javax.print.attribute.standard.PrinterStateReason", true),
               })
           .put(
               "ALTERNATE",
@@ -2000,11 +1976,6 @@ public class Java8StdlibChunk0 {
                 new Import("Runnable", "java.lang", false),
               })
           .put(
-              "BasicOptionPaneUI.ButtonAreaLayout",
-              new Import[] {
-                new Import("BasicOptionPaneUI.ButtonAreaLayout", "javax.swing.plaf.basic", false),
-              })
-          .put(
               "columnNullableUnknown",
               new Import[] {
                 new Import("columnNullableUnknown", "java.sql.DatabaseMetaData", true),
@@ -2016,22 +1987,17 @@ public class Java8StdlibChunk0 {
                 new Import("BasicSplitPaneUI", "javax.swing.plaf.basic", false),
               })
           .put(
+              "getBlack",
+              new Import[] {
+                new Import("getBlack", "javax.swing.plaf.metal.MetalLookAndFeel", true),
+              })
+          .put(
               "EXCLUSIVE_WITH_COMMENTS",
               new Import[] {
                 new Import(
                     "EXCLUSIVE_WITH_COMMENTS",
                     "javax.xml.crypto.dsig.CanonicalizationMethod",
                     true),
-              })
-          .put(
-              "getBlack",
-              new Import[] {
-                new Import("getBlack", "javax.swing.plaf.metal.MetalLookAndFeel", true),
-              })
-          .put(
-              "KeyRep.Type",
-              new Import[] {
-                new Import("KeyRep.Type", "java.security", false),
               })
           .put(
               "DynAnyFactoryOperations",
@@ -2075,11 +2041,6 @@ public class Java8StdlibChunk0 {
                 new Import("RemarshalException", "org.omg.CORBA.portable", false),
               })
           .put(
-              "XmlElementDecl.GLOBAL",
-              new Import[] {
-                new Import("XmlElementDecl.GLOBAL", "javax.xml.bind.annotation", false),
-              })
-          .put(
               "TAG_GLYF",
               new Import[] {
                 new Import("TAG_GLYF", "java.awt.font.OpenType", true),
@@ -2121,11 +2082,6 @@ public class Java8StdlibChunk0 {
                 new Import("AtomicMoveNotSupportedException", "java.nio.file", false),
               })
           .put(
-              "DefaultListCellRenderer.UIResource",
-              new Import[] {
-                new Import("DefaultListCellRenderer.UIResource", "javax.swing", false),
-              })
-          .put(
               "NamingExceptionEvent",
               new Import[] {
                 new Import("NamingExceptionEvent", "javax.naming.event", false),
@@ -2156,14 +2112,14 @@ public class Java8StdlibChunk0 {
                 new Import("PublicKey", "java.security", false),
               })
           .put(
-              "ObjectInstance",
-              new Import[] {
-                new Import("ObjectInstance", "javax.management", false),
-              })
-          .put(
               "NO_FIELDS",
               new Import[] {
                 new Import("NO_FIELDS", "java.io.ObjectStreamClass", true),
+              })
+          .put(
+              "ObjectInstance",
+              new Import[] {
+                new Import("ObjectInstance", "javax.management", false),
               })
           .put(
               "HTTP_NOT_AUTHORITATIVE",
@@ -2258,14 +2214,14 @@ public class Java8StdlibChunk0 {
                 new Import("GeneralPath", "java.awt.geom", false),
               })
           .put(
-              "IntSupplier",
-              new Import[] {
-                new Import("IntSupplier", "java.util.function", false),
-              })
-          .put(
               "SQLException",
               new Import[] {
                 new Import("SQLException", "java.sql", false),
+              })
+          .put(
+              "IntSupplier",
+              new Import[] {
+                new Import("IntSupplier", "java.util.function", false),
               })
           .put(
               "GradientPaint",
@@ -2311,14 +2267,14 @@ public class Java8StdlibChunk0 {
                     true),
               })
           .put(
-              "AbstractCellEditor",
-              new Import[] {
-                new Import("AbstractCellEditor", "javax.swing", false),
-              })
-          .put(
               "isDesktopSupported",
               new Import[] {
                 new Import("isDesktopSupported", "java.awt.Desktop", true),
+              })
+          .put(
+              "AbstractCellEditor",
+              new Import[] {
+                new Import("AbstractCellEditor", "javax.swing", false),
               })
           .put(
               "LOG_OPTION",
@@ -2351,14 +2307,19 @@ public class Java8StdlibChunk0 {
                 new Import("JMXPrincipal", "javax.management.remote", false),
               })
           .put(
-              "getDefaultProviderInstance",
+              "Purpose",
               new Import[] {
-                new Import("getDefaultProviderInstance", "java.rmi.server.RMIClassLoader", true),
+                new Import("Purpose", "javax.xml.crypto.KeySelector", false),
               })
           .put(
               "SUPERSCRIPT_SUB",
               new Import[] {
                 new Import("SUPERSCRIPT_SUB", "java.awt.font.TextAttribute", true),
+              })
+          .put(
+              "getDefaultProviderInstance",
+              new Import[] {
+                new Import("getDefaultProviderInstance", "java.rmi.server.RMIClassLoader", true),
               })
           .put(
               "getValue",
@@ -2371,15 +2332,15 @@ public class Java8StdlibChunk0 {
                 new Import("WINDOW_DEACTIVATED", "java.awt.event.WindowEvent", true),
               })
           .put(
-              "ENDTAG",
-              new Import[] {
-                new Import("ENDTAG", "javax.swing.text.html.parser.DTDConstants", true),
-                new Import("ENDTAG", "javax.swing.text.html.HTML.Attribute", true),
-              })
-          .put(
               "RSAMultiPrimePrivateCrtKey",
               new Import[] {
                 new Import("RSAMultiPrimePrivateCrtKey", "java.security.interfaces", false),
+              })
+          .put(
+              "ENDTAG",
+              new Import[] {
+                new Import("ENDTAG", "javax.swing.text.html.HTML.Attribute", true),
+                new Import("ENDTAG", "javax.swing.text.html.parser.DTDConstants", true),
               })
           .put(
               "ACTION_PERFORMED",
@@ -2401,11 +2362,6 @@ public class Java8StdlibChunk0 {
                     "NEWS", "javax.print.attribute.standard.ReferenceUriSchemesSupported", true),
               })
           .put(
-              "MINUTES",
-              new Import[] {
-                new Import("MINUTES", "javax.xml.datatype.DatatypeConstants", true),
-              })
-          .put(
               "DHPublicKeySpec",
               new Import[] {
                 new Import("DHPublicKeySpec", "javax.crypto.spec", false),
@@ -2414,6 +2370,11 @@ public class Java8StdlibChunk0 {
               "PrintServiceAttributeEvent",
               new Import[] {
                 new Import("PrintServiceAttributeEvent", "javax.print.event", false),
+              })
+          .put(
+              "MINUTES",
+              new Import[] {
+                new Import("MINUTES", "javax.xml.datatype.DatatypeConstants", true),
               })
           .put(
               "reducing",
@@ -2436,9 +2397,9 @@ public class Java8StdlibChunk0 {
                 new Import("TreeExpansionListener", "javax.swing.event", false),
               })
           .put(
-              "JList.DropLocation",
+              "LinkController",
               new Import[] {
-                new Import("JList.DropLocation", "javax.swing", false),
+                new Import("LinkController", "javax.swing.text.html.HTMLEditorKit", false),
               })
           .put(
               "PARAGRAPH",
@@ -2474,6 +2435,16 @@ public class Java8StdlibChunk0 {
               "ProgressBarUI",
               new Import[] {
                 new Import("ProgressBarUI", "javax.swing.plaf", false),
+              })
+          .put(
+              "SplitPaneBorder",
+              new Import[] {
+                new Import("SplitPaneBorder", "javax.swing.plaf.basic.BasicBorders", false),
+              })
+          .put(
+              "READER",
+              new Import[] {
+                new Import("READER", "javax.print.DocFlavor", false),
               })
           .put(
               "VK_NUM_LOCK",
@@ -2517,14 +2488,14 @@ public class Java8StdlibChunk0 {
                 new Import("NodeSetData", "javax.xml.crypto", false),
               })
           .put(
-              "AccessibleAction",
-              new Import[] {
-                new Import("AccessibleAction", "javax.accessibility", false),
-              })
-          .put(
               "NotSerializableException",
               new Import[] {
                 new Import("NotSerializableException", "java.io", false),
+              })
+          .put(
+              "AccessibleAction",
+              new Import[] {
+                new Import("AccessibleAction", "javax.accessibility", false),
               })
           .put(
               "parseString",
@@ -2532,15 +2503,20 @@ public class Java8StdlibChunk0 {
                 new Import("parseString", "javax.xml.bind.DatatypeConverter", true),
               })
           .put(
-              "Object",
+              "StateValue",
               new Import[] {
-                new Import("Object", "java.lang", false),
-                new Import("Object", "org.omg.CORBA", false),
+                new Import("StateValue", "javax.swing.SwingWorker", false),
               })
           .put(
               "Externalizable",
               new Import[] {
                 new Import("Externalizable", "java.io", false),
+              })
+          .put(
+              "Object",
+              new Import[] {
+                new Import("Object", "java.lang", false),
+                new Import("Object", "org.omg.CORBA", false),
               })
           .put(
               "setItalic",
@@ -2606,11 +2582,6 @@ public class Java8StdlibChunk0 {
                 new Import("BufferedWriter", "java.io", false),
               })
           .put(
-              "JSpinner.DateEditor",
-              new Import[] {
-                new Import("JSpinner.DateEditor", "javax.swing", false),
-              })
-          .put(
               "getAudioInputStream",
               new Import[] {
                 new Import("getAudioInputStream", "javax.sound.sampled.AudioSystem", true),
@@ -2621,9 +2592,39 @@ public class Java8StdlibChunk0 {
                 new Import("setPosixFilePermissions", "java.nio.file.Files", true),
               })
           .put(
+              "fromMillis",
+              new Import[] {
+                new Import("fromMillis", "java.nio.file.attribute.FileTime", true),
+              })
+          .put(
+              "SimpleTimeZone",
+              new Import[] {
+                new Import("SimpleTimeZone", "java.util", false),
+              })
+          .put(
               "AudioFileWriter",
               new Import[] {
                 new Import("AudioFileWriter", "javax.sound.sampled.spi", false),
+              })
+          .put(
+              "ParseConversionEventImpl",
+              new Import[] {
+                new Import("ParseConversionEventImpl", "javax.xml.bind.helpers", false),
+              })
+          .put(
+              "SpinnerUI",
+              new Import[] {
+                new Import("SpinnerUI", "javax.swing.plaf", false),
+              })
+          .put(
+              "ThreadGroup",
+              new Import[] {
+                new Import("ThreadGroup", "java.lang", false),
+              })
+          .put(
+              "DomHandler",
+              new Import[] {
+                new Import("DomHandler", "javax.xml.bind.annotation", false),
               })
           .build();
 }
