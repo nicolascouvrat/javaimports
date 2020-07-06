@@ -5,6 +5,7 @@ import com.nikodoko.javaimports.fixer.internal.Loader;
 import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -52,6 +53,10 @@ public class Fixer {
             .collect(Collectors.toSet());
 
     loader.addSiblings(siblingsOfSamePackage);
+  }
+
+  public void addStdlibProvider(StdlibProvider provider) {
+    loader.addStdlibProvider(provider);
   }
 
   private Result loadAndTryToFix(boolean lastTry) {

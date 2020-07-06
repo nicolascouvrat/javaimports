@@ -5,6 +5,8 @@ import com.nikodoko.javaimports.parser.ClassHierarchies;
 import com.nikodoko.javaimports.parser.ClassHierarchy;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.stdlib.StdlibProvider;
+import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.Set;
  */
 public class Loader {
   private Set<ParsedFile> siblings = new HashSet<>();
+  private StdlibProvider stdlib = StdlibProviders.empty();
   private Map<String, Import> candidates = new HashMap<>();
   private LoadResult result = new LoadResult();
   private ParsedFile file;
@@ -36,6 +39,10 @@ public class Loader {
     this.siblings = siblings;
   }
 
+  public void addStdlibProvider(StdlibProvider provider) {
+    this.stdlib = provider;
+  }
+
   /** Returns the list of candidates found by this loader */
   public Map<String, Import> candidates() {
     return candidates;
@@ -52,12 +59,33 @@ public class Loader {
    */
   public void load() {
     extendAllClasses();
+    resolveAllJavaLang();
     resolveUsingImports();
+    resolveUsingSiblings();
 
+    addSiblingImportsAsCandidates();
+    addStdlibCandidates();
+  }
+
+  private void resolveAllJavaLang() {
+    Set<String> inJavaLang = new HashSet<>();
+    for (String unresolved : result.unresolved) {
+      if (stdlib.isInJavaLang(unresolved)) {
+        inJavaLang.add(unresolved);
+      }
+    }
+
+    result.unresolved = difference(result.unresolved, inJavaLang);
+  }
+
+  private void addStdlibCandidates() {
+    Map<String, Import> stdlibCandidates = stdlib.find(result.unresolved);
+    candidates.putAll(stdlibCandidates);
+  }
+
+  private void addSiblingImportsAsCandidates() {
     for (ParsedFile sibling : siblings) {
-      // Use the imports of sibling files as candidates for the current file
       candidates.putAll(sibling.imports());
-      resolveUsingSibling(sibling);
     }
   }
 
@@ -71,6 +99,12 @@ public class Loader {
 
     for (ClassExtender e : result.orphans) {
       e.resolveUsing(file.imports().keySet());
+    }
+  }
+
+  private void resolveUsingSiblings() {
+    for (ParsedFile sibling : siblings) {
+      resolveUsingSibling(sibling);
     }
   }
 
