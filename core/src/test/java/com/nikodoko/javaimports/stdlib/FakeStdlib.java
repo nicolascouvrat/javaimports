@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class FakeStdlib implements Stdlib {
   private static final Map<String, Import[]> CLASSES =
-      new ImmutableMap.Builder()
+      new ImmutableMap.Builder<String, Import[]>()
           .put(
               "Object",
               new Import[] {
