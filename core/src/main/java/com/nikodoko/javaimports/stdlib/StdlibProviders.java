@@ -1,62 +1,27 @@
 package com.nikodoko.javaimports.stdlib;
 
-import com.google.common.collect.ImmutableMap;
 import com.nikodoko.javaimports.parser.Import;
-import com.nikodoko.javaimports.stdlib.internal.api.v0.Java0Stdlib;
 import com.nikodoko.javaimports.stdlib.internal.api.v8.Java8Stdlib;
 import java.util.HashMap;
 import java.util.Map;
 
 public class StdlibProviders {
-  private static class DummyStdlibProvider implements StdlibProvider {
-    Map<String, Import> stdlib;
-
-    DummyStdlibProvider(Map<String, Import> stdlib) {
-      this.stdlib = stdlib;
-    }
+  private static class EmptyStdlibProvider implements StdlibProvider {
+    Map<String, Import> EMPTY_MAP = new HashMap<>();
 
     @Override
     public Map<String, Import> find(Iterable<String> identifiers) {
-      Map<String, Import> found = new HashMap<>();
-      for (String identifier : identifiers) {
-        Import match = stdlib.get(identifier);
-        if (match == null) {
-          continue;
-        }
-
-        found.put(identifier, match);
-      }
-
-      return found;
+      return EMPTY_MAP;
     }
 
     @Override
     public boolean isInJavaLang(String identifier) {
-      Import found = stdlib.get(identifier);
-      if (found == null) {
-        return false;
-      }
-
-      return found.qualifier().startsWith("java.lang");
+      return false;
     }
   }
 
   public static StdlibProvider empty() {
-    return new DummyStdlibProvider(new HashMap<>());
-  }
-
-  public static StdlibProvider stub() {
-    // FIXME:remove this
-    return new DummyStdlibProvider(
-        ImmutableMap.of(
-            "List",
-            new Import("List", "java.util", false),
-            "ArrayList",
-            new Import("ArrayList", "java.util", false)));
-  }
-
-  public static StdlibProvider java0() {
-    return new BasicStdlibProvider(new Java0Stdlib());
+    return new EmptyStdlibProvider();
   }
 
   public static StdlibProvider java8() {
