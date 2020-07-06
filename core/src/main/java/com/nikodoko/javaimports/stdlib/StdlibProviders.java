@@ -2,8 +2,8 @@ package com.nikodoko.javaimports.stdlib;
 
 import com.google.common.collect.ImmutableMap;
 import com.nikodoko.javaimports.parser.Import;
-import com.nikodoko.javaimports.stdlib.internal.Java00Stdlib;
-import com.nikodoko.javaimports.stdlib.internal.Java18Stdlib;
+import com.nikodoko.javaimports.stdlib.internal.Java0Stdlib;
+import com.nikodoko.javaimports.stdlib.internal.Java8Stdlib;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,11 +55,11 @@ public class StdlibProviders {
             new Import("ArrayList", "java.util", false)));
   }
 
-  public static StdlibProvider java00() {
-    return new BasicStdlibProvider(new Java00Stdlib());
+  public static StdlibProvider java0() {
+    return new BasicStdlibProvider(new Java0Stdlib());
   }
 
-  public static StdlibProvider java18() {
-    return new BasicStdlibProvider(new Java18Stdlib());
+  public static StdlibProvider java8() {
+    return new BasicStdlibProvider(new Java8Stdlib());
   }
 }
