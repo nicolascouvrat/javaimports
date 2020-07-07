@@ -11,6 +11,7 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import com.nikodoko.javaimports.parser.ParserOptions;
+import com.nikodoko.javaimports.resolver.Resolvers;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.IOError;
 import java.io.IOException;
@@ -110,6 +111,7 @@ public final class Importer {
       return applyFixes(f, javaCode, r);
     }
 
+    fixer.addResolver(Resolvers.empty());
     // Do one last ditch effort
     return applyFixes(f, javaCode, fixer.lastTryToFix());
   }
