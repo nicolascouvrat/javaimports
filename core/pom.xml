@@ -59,7 +59,6 @@
     <dependency>
       <groupId>com.nikodoko.javapackagetest</groupId>
       <artifactId>javapackagetest</artifactId>
-      <version>0.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
