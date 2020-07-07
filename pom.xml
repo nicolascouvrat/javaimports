@@ -8,7 +8,6 @@
 
   <modules>
     <module>core</module>
-    <module>utilities</module>
   </modules>
 
   <name>Javaimports Parent</name>
