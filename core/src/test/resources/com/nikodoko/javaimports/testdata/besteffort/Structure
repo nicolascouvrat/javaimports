@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.testdata.besteffort;
+package besteffort;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

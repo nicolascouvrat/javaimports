@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.testdata.withpackageimports;
+package withpackage;
 
 public class Base {
   Structure baseGenerator(int i) {

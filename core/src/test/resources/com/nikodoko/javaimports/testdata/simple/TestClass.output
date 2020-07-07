@@ -1,5 +1,5 @@
 // Assert that we do not mess anything on an already complete file
-package com.nikodoko.javaimports.testdata.simple;
+package simple;
 
 import static org.junit.Assert.assertEquals;
 

@@ -1,6 +1,6 @@
 // Assert that we do not mess anything when we have a complete file using identifiers provided by
 // the package
-package com.nikodoko.javaimports.testdata.withpackage;
+package withpackage;
 
 import java.util.ArrayList;
 import java.util.List;
