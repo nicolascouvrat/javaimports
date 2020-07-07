@@ -1,0 +1,3 @@
+package com.nikodoko.javaimports.testdata.withotherpackages.other;
+
+public class OtherClass {}
