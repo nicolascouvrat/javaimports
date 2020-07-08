@@ -119,7 +119,7 @@ public class ImporterIntegrationTest {
 
   @After
   public void cleanup() throws Exception {
-    // this.testPkg.cleanup();
+    this.testPkg.cleanup();
   }
 
   @Test
