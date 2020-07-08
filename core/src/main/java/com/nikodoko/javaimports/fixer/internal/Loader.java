@@ -1,7 +1,5 @@
 package com.nikodoko.javaimports.fixer.internal;
 
-import static java.nio.channels.spi.AsynchronousChannelProvider.provider;
-
 import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.ClassHierarchies;
 import com.nikodoko.javaimports.parser.ClassHierarchy;
