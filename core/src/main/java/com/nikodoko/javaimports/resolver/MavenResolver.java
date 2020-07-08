@@ -14,13 +14,20 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MavenResolver implements Resolver {
+  private static class JavaFile {
+    ParsedFile contents;
+    Path path;
+  }
+
   private static class ImportWithDistance implements Comparable<ImportWithDistance> {
     Import i;
     // The distance to an imports is defined as the length of the relative path between the file
@@ -44,12 +51,28 @@ public class MavenResolver implements Resolver {
   private final Path root;
   private final Path fileBeingResolved;
   private Map<String, List<ImportWithDistance>> importsByIdentifier = new HashMap<>();
+  private List<JavaFile> filesInProject = new ArrayList<>();
   private boolean isInitialized = false;
-  private ParserOptions parserOpts = ParserOptions.builder().debug(false).build();
 
   MavenResolver(Path root, Path fileBeingResolved) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
+  }
+
+  @Override
+  public Set<ParsedFile> filesInPackage(String packageName) {
+    if (!isInitialized) {
+      init();
+    }
+
+    Set<ParsedFile> files = new HashSet<>();
+    for (JavaFile file : filesInProject) {
+      if (file.contents.packageName().equals(packageName)) {
+        files.add(file.contents);
+      }
+    }
+
+    return files;
   }
 
   @Override
@@ -67,11 +90,10 @@ public class MavenResolver implements Resolver {
   }
 
   private void init() {
-    List<List<ImportWithDistance>> files =
-        javaFilesNotBeingResolved().map(this::extractImports).collect(Collectors.toList());
+    filesInProject = javaFilesNotBeingResolved().map(this::parseFile).collect(Collectors.toList());
 
-    for (List<ImportWithDistance> imports : files) {
-      for (ImportWithDistance i : imports) {
+    for (JavaFile file : filesInProject) {
+      for (ImportWithDistance i : extractImports(file)) {
         List<ImportWithDistance> importsForIdentifier =
             importsByIdentifier.getOrDefault(i.i.name(), new ArrayList<>());
         importsForIdentifier.add(i);
@@ -92,13 +114,12 @@ public class MavenResolver implements Resolver {
     }
   }
 
-  private List<ImportWithDistance> extractImports(Path path) {
-    ParsedFile file = parseFileAt(path);
+  private List<ImportWithDistance> extractImports(JavaFile file) {
     List<ImportWithDistance> imports = new ArrayList<>();
-    for (String identifier : file.topLevelDeclarations()) {
+    for (String identifier : file.contents.topLevelDeclarations()) {
       ImportWithDistance toAdd = new ImportWithDistance();
-      toAdd.i = new Import(identifier, file.packageName(), false);
-      toAdd.distance = distance(fileBeingResolved, path);
+      toAdd.i = new Import(identifier, file.contents.packageName(), false);
+      toAdd.distance = distance(fileBeingResolved, file.path);
       imports.add(toAdd);
     }
 
@@ -109,10 +130,13 @@ public class MavenResolver implements Resolver {
     return from.relativize(to).toString().split("/").length;
   }
 
-  private ParsedFile parseFileAt(Path path) {
+  private JavaFile parseFile(Path path) {
     try {
-      String contents = new String(Files.readAllBytes(path), UTF_8);
-      return new Parser(parserOpts).parse(path, contents);
+      String source = new String(Files.readAllBytes(path), UTF_8);
+      JavaFile file = new JavaFile();
+      file.contents = new Parser(ParserOptions.builder().debug(false).build()).parse(path, source);
+      file.path = path;
+      return file;
     } catch (IOException | ImporterException e) {
       throw new RuntimeException(e);
     }

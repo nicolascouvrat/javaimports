@@ -51,6 +51,9 @@ public class Loader {
 
   public void addResolver(Resolver resolver) {
     this.resolver = resolver;
+    // The resolver lets us find not only the siblings in the same folder, but also the siblings in
+    // other folders of the same project
+    this.siblings = resolver.filesInPackage(file.packageName());
   }
 
   /** Returns the list of candidates found by this loader */
