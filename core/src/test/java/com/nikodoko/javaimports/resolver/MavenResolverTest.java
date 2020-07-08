@@ -54,4 +54,23 @@ public class MavenResolverTest {
     Resolver resolver = Resolvers.basedOnEnvironment(target);
     assertThat(resolver.find("Main")).isEmpty();
   }
+
+  @Test
+  void testThatFindPicksTheClosestImport() throws Exception {
+    Module module =
+        new Module(
+            "test.module",
+            ImmutableMap.of(
+                "Main.java",
+                "package test.module; public class Main {}",
+                "other/second/Second.java",
+                "package test.module.other.second; public class Second {}",
+                "second/Second.java",
+                "package test.module.second; public class Second {}"));
+    project = Export.of(Kind.MAVEN, ImmutableList.of(module));
+    Path target = project.file(module.name(), "Main.java").get();
+
+    Resolver resolver = Resolvers.basedOnEnvironment(target);
+    assertThat(resolver.find("Second")).hasValue(new Import("Second", "test.module.second", false));
+  }
 }

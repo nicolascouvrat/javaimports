@@ -1,0 +1,6 @@
+// Assert that we can import from other packages in the same project
+package withotherpackage;import java.util.ArrayList;import java.util.List;import withotherpackage.other.OtherClass;
+
+public class TestClass {
+  List<OtherClass> l = new ArrayList<>();
+}
