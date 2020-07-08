@@ -23,7 +23,7 @@ public class Resolvers {
     while (current != null) {
       Path potentialPom = Paths.get(current.toString(), "pom.xml");
       if (Files.exists(potentialPom)) {
-        return new MavenResolver(current);
+        return new MavenResolver(current, filename);
       }
 
       current = current.getParent();

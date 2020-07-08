@@ -10,9 +10,17 @@ import com.nikodoko.packagetest.Exported;
 import com.nikodoko.packagetest.Module;
 import com.nikodoko.packagetest.exporters.Kind;
 import java.nio.file.Path;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 public class MavenResolverTest {
+  Exported project;
+
+  @AfterEach
+  void cleanup() throws Exception {
+    project.cleanup();
+  }
+
   @Test
   void testThatTopLevelClassesAreFound() throws Exception {
     Module module =
@@ -23,12 +31,27 @@ public class MavenResolverTest {
                 "package test.module; public class Main {}",
                 "second/Second.java",
                 "package test.module.second; public class Second {}"));
-    Exported project = Export.of(Kind.MAVEN, ImmutableList.of(module));
+    project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
     Resolver resolver = Resolvers.basedOnEnvironment(target);
     assertThat(resolver.find("Second")).hasValue(new Import("Second", "test.module.second", false));
+  }
 
-    project.cleanup();
+  @Test
+  void testThatFileBeingResolvedIsNotFound() throws Exception {
+    Module module =
+        new Module(
+            "test.module",
+            ImmutableMap.of(
+                "Main.java",
+                "package test.module; public class Main {}",
+                "second/Second.java",
+                "package test.module.second; public class Second {}"));
+    project = Export.of(Kind.MAVEN, ImmutableList.of(module));
+    Path target = project.file(module.name(), "Main.java").get();
+
+    Resolver resolver = Resolvers.basedOnEnvironment(target);
+    assertThat(resolver.find("Main")).isEmpty();
   }
 }

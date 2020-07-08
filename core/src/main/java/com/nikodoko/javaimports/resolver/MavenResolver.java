@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 public class MavenResolver implements Resolver {
   private final Path root;
+  private final Path fileBeingResolved;
   private Map<String, Import> imports = new HashMap<>();
   private boolean isInitialized = false;
   private ParserOptions parserOpts = ParserOptions.builder().debug(false).build();
@@ -37,13 +38,18 @@ public class MavenResolver implements Resolver {
     return Optional.ofNullable(imports.get(identifier));
   }
 
-  MavenResolver(Path root) {
+  MavenResolver(Path root, Path fileBeingResolved) {
     this.root = root;
+    this.fileBeingResolved = fileBeingResolved;
   }
 
   private void init() throws IOException {
     Stream<Path> paths =
-        Files.find(root, 100, (path, attributes) -> path.toString().endsWith(".java"));
+        Files.find(
+            root,
+            100,
+            (path, attributes) ->
+                path.toString().endsWith(".java") && !path.equals(fileBeingResolved));
     List<ParsedFile> files = paths.map(this::parseFileAt).collect(Collectors.toList());
 
     for (ParsedFile f : files) {
