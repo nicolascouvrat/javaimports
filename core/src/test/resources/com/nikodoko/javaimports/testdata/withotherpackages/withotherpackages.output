@@ -1,5 +1,5 @@
 // Assert that we can import from other packages in the same project
-package com.nikodoko.javaimports.testdata.withotherpackages;import java.util.ArrayList;import java.util.List;import com.nikodoko.javaimports.testdata.withotherpackages.other.OtherClass;
+package withotherpackages;import java.util.ArrayList;import java.util.List;import withotherpackages.other.OtherClass;
 
 public class TestClass {
   List<OtherClass> l = new ArrayList<>();

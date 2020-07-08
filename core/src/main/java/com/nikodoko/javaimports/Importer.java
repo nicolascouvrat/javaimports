@@ -111,7 +111,7 @@ public final class Importer {
       return applyFixes(f, javaCode, r);
     }
 
-    fixer.addResolver(Resolvers.empty());
+    fixer.addResolver(Resolvers.basedOnEnvironment(filename));
     // Do one last ditch effort
     return applyFixes(f, javaCode, fixer.lastTryToFix());
   }
