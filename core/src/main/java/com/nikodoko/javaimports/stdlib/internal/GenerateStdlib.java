@@ -32,7 +32,8 @@ public class GenerateStdlib {
       Pattern.compile("pkg (?<pkg>\\S+) class (?<class>\\S+)(?:, static (?<identifier>\\w+))?");
   private static final String prefix =
       "core/src/main/java/com/nikodoko/javaimports/stdlib/internal/";
-  private static final int MAX_CHUNK_SIZE = 500;
+  // Adjust to control the output file size (and avoid StackOverflow errors when compiling)
+  private static final int MAX_CHUNK_SIZE = 300;
 
   private static class Importable {
     String pkg = "";

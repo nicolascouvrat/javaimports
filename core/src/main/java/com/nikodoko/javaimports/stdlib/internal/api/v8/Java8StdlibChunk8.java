@@ -9,2658 +9,1727 @@ public class Java8StdlibChunk8 {
   static final Map<String, Import[]> CLASSES =
       new ImmutableMap.Builder<String, Import[]>()
           .put(
-              "ABOVE_BASELINE_TRAILING",
+              "_DynValueStub",
               new Import[] {
-                new Import("ABOVE_BASELINE_TRAILING", "java.awt.GridBagConstraints", true),
+                new Import("_DynValueStub", "org.omg.DynamicAny", false),
               })
           .put(
-              "VK_UNDEFINED",
+              "HijrahDate",
               new Import[] {
-                new Import("VK_UNDEFINED", "java.awt.event.KeyEvent", true),
+                new Import("HijrahDate", "java.time.chrono", false),
               })
           .put(
-              "KEY_FRACTIONALMETRICS",
+              "HexBinaryAdapter",
               new Import[] {
-                new Import("KEY_FRACTIONALMETRICS", "java.awt.RenderingHints", true),
+                new Import("HexBinaryAdapter", "javax.xml.bind.annotation.adapters", false),
               })
           .put(
-              "ThreadPolicy",
+              "REVERT",
               new Import[] {
-                new Import("ThreadPolicy", "org.omg.PortableServer", false),
+                new Import("REVERT", "javax.swing.JFormattedTextField", true),
               })
           .put(
-              "ParameterDescriptor",
+              "MultiSpinnerUI",
               new Import[] {
-                new Import("ParameterDescriptor", "java.beans", false),
+                new Import("MultiSpinnerUI", "javax.swing.plaf.multi", false),
               })
           .put(
-              "DYNAMIC_SOAP_PROTOCOL",
+              "IORInfoOperations",
               new Import[] {
-                new Import("DYNAMIC_SOAP_PROTOCOL", "javax.xml.soap.SOAPConstants", true),
+                new Import("IORInfoOperations", "org.omg.PortableInterceptor", false),
               })
           .put(
-              "MALAYALAM",
+              "EventQueue",
               new Import[] {
-                new Import("MALAYALAM", "java.awt.font.NumericShaper", true),
-                new Import("MALAYALAM", "java.lang.Character.UnicodeBlock", true),
+                new Import("EventQueue", "java.awt", false),
               })
           .put(
-              "ALINK",
+              "USE_STD3_ASCII_RULES",
               new Import[] {
-                new Import("ALINK", "javax.swing.text.html.HTML.Attribute", true),
+                new Import("USE_STD3_ASCII_RULES", "java.net.IDN", true),
               })
           .put(
-              "ptLineDist",
+              "IntegerSyntax",
               new Import[] {
-                new Import("ptLineDist", "java.awt.geom.Line2D", true),
+                new Import("IntegerSyntax", "javax.print.attribute", false),
               })
           .put(
-              "UnknownUserExceptionHelper",
+              "MouseDragGestureRecognizer",
               new Import[] {
-                new Import("UnknownUserExceptionHelper", "org.omg.CORBA", false),
+                new Import("MouseDragGestureRecognizer", "java.awt.dnd", false),
               })
           .put(
-              "getHighlightedTextColor",
+              "tk_TypeCode",
+              new Import[] {
+                new Import("tk_TypeCode", "org.omg.CORBA.TCKind", true),
+              })
+          .put(
+              "writeAbstractObject",
+              new Import[] {
+                new Import("writeAbstractObject", "javax.rmi.CORBA.Util", true),
+              })
+          .put(
+              "MenuSelectionManager",
+              new Import[] {
+                new Import("MenuSelectionManager", "javax.swing", false),
+              })
+          .put(
+              "DefaultFormatter",
+              new Import[] {
+                new Import("DefaultFormatter", "javax.swing.text", false),
+              })
+          .put(
+              "MediaTray",
+              new Import[] {
+                new Import("MediaTray", "javax.print.attribute.standard", false),
+              })
+          .put(
+              "IllegalArgumentException",
+              new Import[] {
+                new Import("IllegalArgumentException", "java.lang", false),
+              })
+          .put(
+              "_dk_Primitive",
+              new Import[] {
+                new Import("_dk_Primitive", "org.omg.CORBA.DefinitionKind", true),
+              })
+          .put(
+              "ONE_MINUTE",
+              new Import[] {
+                new Import("ONE_MINUTE", "javax.management.timer.Timer", true),
+              })
+          .put(
+              "RowMapper",
+              new Import[] {
+                new Import("RowMapper", "javax.swing.tree", false),
+              })
+          .put(
+              "DOCTYPE_SYSTEM",
+              new Import[] {
+                new Import("DOCTYPE_SYSTEM", "javax.xml.transform.OutputKeys", true),
+              })
+          .put(
+              "VK_NUMPAD3",
+              new Import[] {
+                new Import("VK_NUMPAD3", "java.awt.event.KeyEvent", true),
+              })
+          .put(
+              "URIInaccessible",
+              new Import[] {
+                new Import("URIInaccessible", "javax.print.URIException", true),
+              })
+          .put(
+              "VK_NUMPAD4",
+              new Import[] {
+                new Import("VK_NUMPAD4", "java.awt.event.KeyEvent", true),
+              })
+          .put(
+              "AccessibleRelationSet",
+              new Import[] {
+                new Import("AccessibleRelationSet", "javax.accessibility", false),
+              })
+          .put(
+              "VK_NUMPAD5",
+              new Import[] {
+                new Import("VK_NUMPAD5", "java.awt.event.KeyEvent", true),
+              })
+          .put(
+              "getBlackLineBorderUIResource",
               new Import[] {
                 new Import(
-                    "getHighlightedTextColor", "javax.swing.plaf.metal.MetalLookAndFeel", true),
+                    "getBlackLineBorderUIResource", "javax.swing.plaf.BorderUIResource", true),
               })
           .put(
-              "ClosedByInterruptException",
+              "VK_NUMPAD6",
               new Import[] {
-                new Import("ClosedByInterruptException", "java.nio.channels", false),
+                new Import("VK_NUMPAD6", "java.awt.event.KeyEvent", true),
               })
           .put(
-              "STANDALONE",
+              "RSAPrivateCrtKey",
               new Import[] {
-                new Import("STANDALONE", "javax.xml.transform.OutputKeys", true),
+                new Import("RSAPrivateCrtKey", "java.security.interfaces", false),
               })
           .put(
-              "Codec",
+              "anySubString",
               new Import[] {
-                new Import("Codec", "org.omg.IOP", false),
+                new Import("anySubString", "javax.management.Query", true),
               })
           .put(
-              "setSpaceBelow",
+              "PADDING_RIGHT",
               new Import[] {
-                new Import("setSpaceBelow", "javax.swing.text.StyleConstants", true),
+                new Import("PADDING_RIGHT", "javax.swing.text.html.CSS.Attribute", true),
               })
           .put(
-              "COPIED",
+              "VK_NUMPAD0",
               new Import[] {
-                new Import("COPIED", "java.awt.BufferCapabilities.FlipContents", true),
+                new Import("VK_NUMPAD0", "java.awt.event.KeyEvent", true),
               })
           .put(
-              "XmlNsForm",
+              "VK_NUMPAD1",
               new Import[] {
-                new Import("XmlNsForm", "javax.xml.bind.annotation", false),
+                new Import("VK_NUMPAD1", "java.awt.event.KeyEvent", true),
               })
           .put(
-              "Phaser",
+              "VK_NUMPAD2",
               new Import[] {
-                new Import("Phaser", "java.util.concurrent", false),
+                new Import("VK_NUMPAD2", "java.awt.event.KeyEvent", true),
               })
           .put(
-              "EDITOR_PANE",
+              "ACTION_COMMAND_KEY",
               new Import[] {
-                new Import("EDITOR_PANE", "javax.swing.plaf.synth.Region", true),
+                new Import("ACTION_COMMAND_KEY", "javax.swing.Action", true),
               })
           .put(
-              "FileOwnerAttributeView",
+              "VK_RIGHT",
               new Import[] {
-                new Import("FileOwnerAttributeView", "java.nio.file.attribute", false),
+                new Import("VK_RIGHT", "java.awt.event.KeyEvent", true),
               })
           .put(
-              "IMPLICIT_ACTIVATION",
+              "LoginModule",
+              new Import[] {
+                new Import("LoginModule", "javax.security.auth.spi", false),
+              })
+          .put(
+              "AttachmentPart",
+              new Import[] {
+                new Import("AttachmentPart", "javax.xml.soap", false),
+              })
+          .put(
+              "ACCESSIBLE_TABLE_SUMMARY_CHANGED",
               new Import[] {
                 new Import(
-                    "IMPLICIT_ACTIVATION",
-                    "org.omg.PortableServer.ImplicitActivationPolicyValue",
+                    "ACCESSIBLE_TABLE_SUMMARY_CHANGED",
+                    "javax.accessibility.AccessibleContext",
                     true),
               })
           .put(
-              "BIND",
+              "Orientation",
               new Import[] {
-                new Import("BIND", "javax.print.attribute.standard.Finishings", true),
+                new Import("Orientation", "javax.swing.text.StyleConstants", true),
               })
           .put(
-              "ITEM_STATE_CHANGED",
+              "QuadCurve2D",
               new Import[] {
-                new Import("ITEM_STATE_CHANGED", "java.awt.event.ItemEvent", true),
+                new Import("QuadCurve2D", "java.awt.geom", false),
               })
           .put(
-              "SynthFormattedTextFieldUI",
+              "BAD_POLICY_VALUE",
               new Import[] {
-                new Import("SynthFormattedTextFieldUI", "javax.swing.plaf.synth", false),
+                new Import("BAD_POLICY_VALUE", "org.omg.CORBA", false),
               })
           .put(
-              "SOAP11HTTP_BINDING",
+              "SOAPHandler",
               new Import[] {
-                new Import("SOAP11HTTP_BINDING", "javax.xml.ws.soap.SOAPBinding", true),
+                new Import("SOAPHandler", "javax.xml.ws.handler.soap", false),
               })
           .put(
-              "InvalidClassException",
+              "setDefault",
               new Import[] {
-                new Import("InvalidClassException", "java.io", false),
+                new Import("setDefault", "java.net.Authenticator", true),
+                new Import("setDefault", "java.net.CookieHandler", true),
+                new Import("setDefault", "java.net.ProxySelector", true),
+                new Import("setDefault", "java.net.ResponseCache", true),
+                new Import("setDefault", "java.util.Locale", true),
+                new Import("setDefault", "java.util.TimeZone", true),
+                new Import("setDefault", "javax.net.ssl.SSLContext", true),
               })
           .put(
-              "getImageReader",
+              "UserPrincipal",
               new Import[] {
-                new Import("getImageReader", "javax.imageio.ImageIO", true),
+                new Import("UserPrincipal", "java.nio.file.attribute", false),
               })
           .put(
-              "ValueOutputStream",
+              "LinkException",
               new Import[] {
-                new Import("ValueOutputStream", "org.omg.CORBA.portable", false),
+                new Import("LinkException", "javax.naming", false),
               })
           .put(
-              "createDialog",
+              "getButtonBorder",
               new Import[] {
-                new Import("createDialog", "javax.swing.JColorChooser", true),
+                new Import("getButtonBorder", "javax.swing.plaf.basic.BasicBorders", true),
+                new Import("getButtonBorder", "javax.swing.plaf.metal.MetalBorders", true),
               })
           .put(
-              "ICONIFIED",
+              "MetalTextFieldUI",
               new Import[] {
-                new Import("ICONIFIED", "java.awt.Frame", true),
-                new Import("ICONIFIED", "javax.accessibility.AccessibleState", true),
+                new Import("MetalTextFieldUI", "javax.swing.plaf.metal", false),
               })
           .put(
-              "XmlRegistry",
+              "REVERB",
               new Import[] {
-                new Import("XmlRegistry", "javax.xml.bind.annotation", false),
+                new Import("REVERB", "javax.sound.sampled.EnumControl.Type", true),
               })
           .put(
-              "CUSTOM_DIALOG",
+              "icSigSpaceECLR",
               new Import[] {
-                new Import("CUSTOM_DIALOG", "javax.swing.JFileChooser", true),
+                new Import("icSigSpaceECLR", "java.awt.color.ICC_Profile", true),
               })
           .put(
-              "IMPERIAL_ARAMAIC",
+              "DynAny",
               new Import[] {
-                new Import("IMPERIAL_ARAMAIC", "java.lang.Character.UnicodeBlock", true),
+                new Import("DynAny", "org.omg.CORBA", false),
+                new Import("DynAny", "org.omg.DynamicAny", false),
               })
           .put(
-              "VK_ALT_GRAPH",
+              "newMXBeanProxy",
               new Import[] {
-                new Import("VK_ALT_GRAPH", "java.awt.event.KeyEvent", true),
+                new Import("newMXBeanProxy", "javax.management.JMX", true),
               })
           .put(
-              "AbstractMarshallerImpl",
+              "SortedMap",
               new Import[] {
-                new Import("AbstractMarshallerImpl", "javax.xml.bind.helpers", false),
+                new Import("SortedMap", "java.util", false),
               })
           .put(
-              "Watchable",
+              "TOP_ALIGNMENT",
               new Import[] {
-                new Import("Watchable", "java.nio.file", false),
+                new Import("TOP_ALIGNMENT", "java.awt.Component", true),
+                new Import("TOP_ALIGNMENT", "java.awt.font.GraphicAttribute", true),
               })
           .put(
-              "PASS",
+              "selectionHtmlFlavor",
               new Import[] {
-                new Import("PASS", "java.util.jar.Pack200.Packer", true),
+                new Import("selectionHtmlFlavor", "java.awt.datatransfer.DataFlavor", true),
               })
           .put(
-              "FileSystemNotFoundException",
+              "AbstractTableModel",
               new Import[] {
-                new Import("FileSystemNotFoundException", "java.nio.file", false),
+                new Import("AbstractTableModel", "javax.swing.table", false),
               })
           .put(
-              "NotificationFilterSupport",
+              "icSigChromaticityTag",
               new Import[] {
-                new Import("NotificationFilterSupport", "javax.management", false),
+                new Import("icSigChromaticityTag", "java.awt.color.ICC_Profile", true),
               })
           .put(
-              "XPathFactoryConfigurationException",
+              "COMMIT_ON_ACCEPT_CHANGES",
               new Import[] {
-                new Import("XPathFactoryConfigurationException", "javax.xml.xpath", false),
+                new Import("COMMIT_ON_ACCEPT_CHANGES", "javax.sql.rowset.CachedRowSet", true),
               })
           .put(
-              "OMGVMCID",
+              "numberFilter",
               new Import[] {
-                new Import("OMGVMCID", "org.omg.CORBA", false),
+                new Import("numberFilter", "javax.swing.RowFilter", true),
               })
           .put(
-              "icSigGreenColorantTag",
+              "SynthComboBoxUI",
               new Import[] {
-                new Import("icSigGreenColorantTag", "java.awt.color.ICC_Profile", true),
+                new Import("SynthComboBoxUI", "javax.swing.plaf.synth", false),
               })
           .put(
-              "TYPE_PRINTER",
+              "WeakHashMap",
               new Import[] {
-                new Import("TYPE_PRINTER", "java.awt.GraphicsDevice", true),
+                new Import("WeakHashMap", "java.util", false),
               })
           .put(
-              "_tk_value_box",
+              "lightGray",
               new Import[] {
-                new Import("_tk_value_box", "org.omg.CORBA.TCKind", true),
+                new Import("lightGray", "java.awt.Color", true),
               })
           .put(
-              "partitioningBy",
+              "ShortHolder",
               new Import[] {
-                new Import("partitioningBy", "java.util.stream.Collectors", true),
+                new Import("ShortHolder", "org.omg.CORBA", false),
               })
           .put(
-              "LARGE_KEY",
+              "ULongLongSeqHelper",
               new Import[] {
-                new Import("LARGE_KEY", "javax.swing.plaf.nimbus.NimbusStyle", true),
+                new Import("ULongLongSeqHelper", "org.omg.CORBA", false),
               })
           .put(
-              "SupportedSourceVersion",
+              "PI_ENABLE_OUTPUT_ESCAPING",
               new Import[] {
-                new Import("SupportedSourceVersion", "javax.annotation.processing", false),
+                new Import("PI_ENABLE_OUTPUT_ESCAPING", "javax.xml.transform.Result", true),
               })
           .put(
-              "setBold",
+              "DecimalFormat",
               new Import[] {
-                new Import("setBold", "javax.swing.text.StyleConstants", true),
+                new Import("DecimalFormat", "java.text", false),
               })
           .put(
-              "SHA512_224",
+              "DESKTOP_PANE",
               new Import[] {
-                new Import("SHA512_224", "java.security.spec.MGF1ParameterSpec", true),
+                new Import("DESKTOP_PANE", "javax.accessibility.AccessibleRole", true),
+                new Import("DESKTOP_PANE", "javax.swing.plaf.synth.Region", true),
               })
           .put(
-              "WEIGHT_LIGHT",
+              "EDITABLE",
               new Import[] {
-                new Import("WEIGHT_LIGHT", "java.awt.font.TextAttribute", true),
+                new Import("EDITABLE", "javax.accessibility.AccessibleState", true),
               })
           .put(
-              "Entry",
+              "X509Data",
               new Import[] {
-                new Import("Entry", "java.security.KeyStore", false),
-                new Import("Entry", "java.util.Map", false),
-                new Import("Entry", "javax.swing.RowFilter", false),
+                new Import("X509Data", "javax.xml.crypto.dsig.keyinfo", false),
               })
           .put(
-              "_ServantActivatorStub",
+              "BasicButtonUI",
               new Import[] {
-                new Import("_ServantActivatorStub", "org.omg.PortableServer", false),
+                new Import("BasicButtonUI", "javax.swing.plaf.basic", false),
               })
           .put(
-              "MAHJONG_TILES",
+              "SMALL_SCALE",
               new Import[] {
-                new Import("MAHJONG_TILES", "java.lang.Character.UnicodeBlock", true),
+                new Import("SMALL_SCALE", "javax.swing.plaf.nimbus.NimbusStyle", true),
               })
           .put(
-              "BORDER_BOTTOM_WIDTH",
+              "ActivationDataFlavor",
               new Import[] {
-                new Import("BORDER_BOTTOM_WIDTH", "javax.swing.text.html.CSS.Attribute", true),
+                new Import("ActivationDataFlavor", "javax.activation", false),
               })
           .put(
-              "infoText",
+              "RC5ParameterSpec",
               new Import[] {
-                new Import("infoText", "java.awt.SystemColor", true),
+                new Import("RC5ParameterSpec", "javax.crypto.spec", false),
               })
           .put(
-              "MethodType",
+              "ClassLoaderRepository",
               new Import[] {
-                new Import("MethodType", "java.lang.invoke", false),
-                new Import("MethodType", "javax.swing.text.html.FormSubmitEvent", false),
+                new Import("ClassLoaderRepository", "javax.management.loading", false),
               })
           .put(
-              "_dk_Value",
+              "NameAlreadyBoundException",
               new Import[] {
-                new Import("_dk_Value", "org.omg.CORBA.DefinitionKind", true),
+                new Import("NameAlreadyBoundException", "javax.naming", false),
               })
           .put(
-              "packagePrefix",
+              "MouseListener",
               new Import[] {
-                new Import("packagePrefix", "java.rmi.server.LoaderHandler", true),
-                new Import("packagePrefix", "java.rmi.server.RemoteRef", true),
+                new Import("MouseListener", "java.awt.event", false),
               })
           .put(
-              "ISO",
+              "CollectionCertStoreParameters",
               new Import[] {
-                new Import("ISO", "java.time.temporal.WeekFields", true),
-                new Import("ISO", "javax.print.attribute.standard.MediaSize", false),
+                new Import("CollectionCertStoreParameters", "java.security.cert", false),
               })
           .put(
-              "getAlignedSizeRequirements",
+              "StateFactory",
               new Import[] {
-                new Import("getAlignedSizeRequirements", "javax.swing.SizeRequirements", true),
+                new Import("StateFactory", "javax.naming.spi", false),
               })
           .put(
-              "getDefaultStyleContext",
+              "FULLWIDTH_DIGITS",
               new Import[] {
-                new Import("getDefaultStyleContext", "javax.swing.text.StyleContext", true),
+                new Import("FULLWIDTH_DIGITS", "java.awt.im.InputSubset", true),
               })
           .put(
-              "DESKTOP",
+              "MetalTheme",
               new Import[] {
-                new Import("DESKTOP", "java.awt.SystemColor", true),
+                new Import("MetalTheme", "javax.swing.plaf.metal", false),
               })
           .put(
-              "INCH",
+              "ONELEVEL_SCOPE",
               new Import[] {
-                new Import("INCH", "javax.print.attribute.Size2DSyntax", true),
-                new Import("INCH", "javax.print.attribute.standard.MediaPrintableArea", true),
+                new Import("ONELEVEL_SCOPE", "javax.naming.directory.SearchControls", true),
+                new Import("ONELEVEL_SCOPE", "javax.naming.event.EventContext", true),
               })
           .put(
-              "tk_longdouble",
+              "MetalComboBoxIcon",
               new Import[] {
-                new Import("tk_longdouble", "org.omg.CORBA.TCKind", true),
+                new Import("MetalComboBoxIcon", "javax.swing.plaf.metal", false),
               })
           .put(
-              "icSigXYZData",
+              "SynthRootPaneUI",
               new Import[] {
-                new Import("icSigXYZData", "java.awt.color.ICC_Profile", true),
+                new Import("SynthRootPaneUI", "javax.swing.plaf.synth", false),
               })
           .put(
-              "DefaultStyledDocument",
+              "MOUSE_CLICKED",
               new Import[] {
-                new Import("DefaultStyledDocument", "javax.swing.text", false),
+                new Import("MOUSE_CLICKED", "java.awt.event.MouseEvent", true),
               })
           .put(
-              "RUNIC",
+              "StreamPrintServiceFactory",
               new Import[] {
-                new Import("RUNIC", "java.lang.Character.UnicodeBlock", true),
+                new Import("StreamPrintServiceFactory", "javax.print", false),
               })
           .put(
-              "TextInputCallback",
+              "synchronizedMap",
               new Import[] {
-                new Import("TextInputCallback", "javax.security.auth.callback", false),
+                new Import("synchronizedMap", "java.util.Collections", true),
               })
           .put(
-              "icTagType",
+              "RejectedExecutionHandler",
               new Import[] {
-                new Import("icTagType", "java.awt.color.ICC_Profile", true),
+                new Import("RejectedExecutionHandler", "java.util.concurrent", false),
               })
           .put(
-              "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B",
-              new Import[] {
-                new Import(
-                    "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B", "java.lang.Character.UnicodeBlock", true),
-              })
-          .put(
-              "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A",
+              "JOB_CANCELED_BY_OPERATOR",
               new Import[] {
                 new Import(
-                    "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A", "java.lang.Character.UnicodeBlock", true),
-              })
-          .put(
-              "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D",
-              new Import[] {
-                new Import(
-                    "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D", "java.lang.Character.UnicodeBlock", true),
-              })
-          .put(
-              "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C",
-              new Import[] {
-                new Import(
-                    "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C", "java.lang.Character.UnicodeBlock", true),
-              })
-          .put(
-              "getSpaceBelow",
-              new Import[] {
-                new Import("getSpaceBelow", "javax.swing.text.StyleConstants", true),
-              })
-          .put(
-              "StringRefAddr",
-              new Import[] {
-                new Import("StringRefAddr", "javax.naming", false),
-              })
-          .put(
-              "OptionalLong",
-              new Import[] {
-                new Import("OptionalLong", "java.util", false),
-              })
-          .put(
-              "TYPE_4BYTE_ABGR_PRE",
-              new Import[] {
-                new Import("TYPE_4BYTE_ABGR_PRE", "java.awt.image.BufferedImage", true),
-              })
-          .put(
-              "IORInterceptor_3_0",
-              new Import[] {
-                new Import("IORInterceptor_3_0", "org.omg.PortableInterceptor", false),
-              })
-          .put(
-              "Separator",
-              new Import[] {
-                new Import("Separator", "javax.swing.JPopupMenu", false),
-                new Import("Separator", "javax.swing.JToolBar", false),
-              })
-          .put(
-              "DialogType",
-              new Import[] {
-                new Import("DialogType", "java.awt.JobAttributes", false),
-              })
-          .put(
-              "DOWN",
-              new Import[] {
-                new Import("DOWN", "java.awt.Event", true),
-              })
-          .put(
-              "PROPERTIES",
-              new Import[] {
-                new Import("PROPERTIES", "java.awt.image.ImageObserver", true),
-              })
-          .put(
-              "WINDOW_CLOSED",
-              new Import[] {
-                new Import("WINDOW_CLOSED", "java.awt.event.WindowEvent", true),
-              })
-          .put(
-              "IP_MULTICAST_IF2",
-              new Import[] {
-                new Import("IP_MULTICAST_IF2", "java.net.SocketOptions", true),
-              })
-          .put(
-              "INFO",
-              new Import[] {
-                new Import("INFO", "java.awt.SystemColor", true),
-                new Import("INFO", "java.util.logging.Level", true),
-                new Import("INFO", "javax.management.MBeanOperationInfo", true),
-              })
-          .put(
-              "DefaultTextUI",
-              new Import[] {
-                new Import("DefaultTextUI", "javax.swing.text", false),
-              })
-          .put(
-              "NARROW_FORMAT",
-              new Import[] {
-                new Import("NARROW_FORMAT", "java.util.Calendar", true),
-              })
-          .put(
-              "FileSystemException",
-              new Import[] {
-                new Import("FileSystemException", "java.nio.file", false),
-              })
-          .put(
-              "HTTP_NOT_MODIFIED",
-              new Import[] {
-                new Import("HTTP_NOT_MODIFIED", "java.net.HttpURLConnection", true),
-              })
-          .put(
-              "LEAD_DOTS",
-              new Import[] {
-                new Import("LEAD_DOTS", "javax.swing.text.TabStop", true),
-              })
-          .put(
-              "Underline",
-              new Import[] {
-                new Import("Underline", "javax.swing.text.StyleConstants", true),
-              })
-          .put(
-              "BLOCKQUOTE",
-              new Import[] {
-                new Import("BLOCKQUOTE", "javax.swing.text.html.HTML.Tag", true),
-              })
-          .put(
-              "ListenerNotFoundException",
-              new Import[] {
-                new Import("ListenerNotFoundException", "javax.management", false),
-              })
-          .put(
-              "Collections",
-              new Import[] {
-                new Import("Collections", "java.util", false),
-              })
-          .put(
-              "Override",
-              new Import[] {
-                new Import("Override", "java.lang", false),
-              })
-          .put(
-              "ENDOFF",
-              new Import[] {
-                new Import("ENDOFF", "java.util.jar.JarEntry", true),
-                new Import("ENDOFF", "java.util.jar.JarFile", true),
-                new Import("ENDOFF", "java.util.jar.JarInputStream", true),
-                new Import("ENDOFF", "java.util.jar.JarOutputStream", true),
-                new Import("ENDOFF", "java.util.zip.ZipEntry", true),
-                new Import("ENDOFF", "java.util.zip.ZipFile", true),
-                new Import("ENDOFF", "java.util.zip.ZipInputStream", true),
-                new Import("ENDOFF", "java.util.zip.ZipOutputStream", true),
-              })
-          .put(
-              "icSigAToB2Tag",
-              new Import[] {
-                new Import("icSigAToB2Tag", "java.awt.color.ICC_Profile", true),
-              })
-          .put(
-              "ProtectionParameter",
-              new Import[] {
-                new Import("ProtectionParameter", "java.security.KeyStore", false),
-              })
-          .put(
-              "AdapterNameHelper",
-              new Import[] {
-                new Import("AdapterNameHelper", "org.omg.PortableInterceptor", false),
-              })
-          .put(
-              "ObjectReferenceFactory",
-              new Import[] {
-                new Import("ObjectReferenceFactory", "org.omg.PortableInterceptor", false),
-              })
-          .put(
-              "ATTRIBUTE",
-              new Import[] {
-                new Import("ATTRIBUTE", "javax.xml.stream.XMLStreamConstants", true),
-              })
-          .put(
-              "MARGIN_CHANGED_PROPERTY",
-              new Import[] {
-                new Import("MARGIN_CHANGED_PROPERTY", "javax.swing.AbstractButton", true),
-              })
-          .put(
-              "META_DOWN_MASK",
-              new Import[] {
-                new Import("META_DOWN_MASK", "java.awt.event.InputEvent", true),
-              })
-          .put(
-              "getDefaultChooserPanels",
-              new Import[] {
-                new Import(
-                    "getDefaultChooserPanels",
-                    "javax.swing.colorchooser.ColorChooserComponentFactory",
+                    "JOB_CANCELED_BY_OPERATOR",
+                    "javax.print.attribute.standard.JobStateReason",
                     true),
               })
           .put(
-              "getDefaultQueue",
-              new Import[] {
-                new Import("getDefaultQueue", "javax.swing.text.LayoutQueue", true),
-              })
-          .put(
-              "SAXNotSupportedException",
-              new Import[] {
-                new Import("SAXNotSupportedException", "org.xml.sax", false),
-              })
-          .put(
-              "FLASH_OPTION",
-              new Import[] {
-                new Import("FLASH_OPTION", "javax.swing.DebugGraphics", true),
-              })
-          .put(
-              "EndTagType",
+              "DOCUMENT_ACCESS_ERROR",
               new Import[] {
                 new Import(
-                    "EndTagType", "javax.swing.text.DefaultStyledDocument.ElementSpec", true),
+                    "DOCUMENT_ACCESS_ERROR", "javax.print.attribute.standard.JobStateReason", true),
               })
           .put(
-              "FontSize",
+              "union",
               new Import[] {
-                new Import("FontSize", "javax.swing.text.StyleConstants", true),
+                new Import("union", "java.awt.geom.Rectangle2D", true),
+                new Import("union", "javax.management.ImmutableDescriptor", true),
               })
           .put(
-              "isDigit",
+              "PipedInputStream",
               new Import[] {
-                new Import("isDigit", "java.lang.Character", true),
+                new Import("PipedInputStream", "java.io", false),
               })
           .put(
-              "Objects",
+              "createLoweredBevelBorder",
               new Import[] {
-                new Import("Objects", "java.util", false),
+                new Import("createLoweredBevelBorder", "javax.swing.BorderFactory", true),
               })
           .put(
-              "BinaryRefAddr",
+              "getPlatformMXBeans",
               new Import[] {
-                new Import("BinaryRefAddr", "javax.naming", false),
+                new Import("getPlatformMXBeans", "java.lang.management.ManagementFactory", true),
               })
           .put(
-              "ServiceUIFactory",
+              "InsertHTMLTextAction",
               new Import[] {
-                new Import("ServiceUIFactory", "javax.print", false),
+                new Import("InsertHTMLTextAction", "javax.swing.text.html.HTMLEditorKit", false),
               })
           .put(
-              "JUSTIFICATION_NONE",
+              "DIVIDER",
               new Import[] {
-                new Import("JUSTIFICATION_NONE", "java.awt.font.TextAttribute", true),
+                new Import("DIVIDER", "javax.swing.JSplitPane", true),
               })
           .put(
-              "getAttributeKey",
+              "CONTINUE",
               new Import[] {
-                new Import("getAttributeKey", "javax.swing.text.html.HTML", true),
+                new Import("CONTINUE", "javax.sound.midi.ShortMessage", true),
               })
           .put(
-              "SecurityManager",
+              "getWindows",
               new Import[] {
-                new Import("SecurityManager", "java.lang", false),
+                new Import("getWindows", "java.awt.Window", true),
               })
           .put(
-              "withCachedThreadPool",
+              "EDGE_STITCH_RIGHT",
               new Import[] {
-                new Import(
-                    "withCachedThreadPool", "java.nio.channels.AsynchronousChannelGroup", true),
+                new Import("EDGE_STITCH_RIGHT", "javax.print.attribute.standard.Finishings", true),
               })
           .put(
-              "MISCELLANEOUS_SYMBOLS",
+              "WindowEvent",
               new Import[] {
-                new Import("MISCELLANEOUS_SYMBOLS", "java.lang.Character.UnicodeBlock", true),
+                new Import("WindowEvent", "java.awt.event", false),
               })
           .put(
-              "ALL_STYLES",
+              "Forward",
               new Import[] {
-                new Import("ALL_STYLES", "java.util.Calendar", true),
+                new Import("Forward", "javax.swing.text.Position.Bias", true),
               })
           .put(
-              "comparingByValue",
+              "getLoginTimeout",
               new Import[] {
-                new Import("comparingByValue", "java.util.Map.Entry", true),
+                new Import("getLoginTimeout", "java.sql.DriverManager", true),
               })
           .put(
-              "StandardProtocolFamily",
+              "BevelBorderUIResource",
               new Import[] {
-                new Import("StandardProtocolFamily", "java.net", false),
+                new Import("BevelBorderUIResource", "javax.swing.plaf.BorderUIResource", false),
               })
           .put(
-              "CODEBASE",
+              "ColorAttribute",
               new Import[] {
-                new Import("CODEBASE", "javax.swing.text.html.HTML.Attribute", true),
+                new Import("ColorAttribute", "javax.swing.text.AttributeSet", false),
               })
           .put(
-              "unmappableForLength",
+              "VK_FINAL",
               new Import[] {
-                new Import("unmappableForLength", "java.nio.charset.CoderResult", true),
+                new Import("VK_FINAL", "java.awt.event.KeyEvent", true),
               })
           .put(
-              "TimerTask",
+              "wrap",
               new Import[] {
-                new Import("TimerTask", "java.util", false),
+                new Import("wrap", "java.nio.ByteBuffer", true),
+                new Import("wrap", "java.nio.CharBuffer", true),
+                new Import("wrap", "java.nio.DoubleBuffer", true),
+                new Import("wrap", "java.nio.FloatBuffer", true),
+                new Import("wrap", "java.nio.IntBuffer", true),
+                new Import("wrap", "java.nio.LongBuffer", true),
+                new Import("wrap", "java.nio.ShortBuffer", true),
               })
           .put(
-              "UnmarshalException",
+              "MOUSE_ENTERED",
               new Import[] {
-                new Import("UnmarshalException", "java.rmi", false),
-                new Import("UnmarshalException", "javax.xml.bind", false),
+                new Import("MOUSE_ENTERED", "java.awt.event.MouseEvent", true),
               })
           .put(
-              "DHKey",
+              "PrinterURI",
               new Import[] {
-                new Import("DHKey", "javax.crypto.interfaces", false),
+                new Import("PrinterURI", "javax.print.attribute.standard", false),
               })
           .put(
-              "MANUAL",
+              "SINGLE_TREE_SELECTION",
               new Import[] {
-                new Import("MANUAL", "javax.print.attribute.standard.MediaTray", true),
+                new Import("SINGLE_TREE_SELECTION", "javax.swing.tree.TreeSelectionModel", true),
               })
           .put(
-              "AbstractDoubleSpliterator",
+              "STATEMENT",
               new Import[] {
-                new Import("AbstractDoubleSpliterator", "java.util.Spliterators", false),
+                new Import("STATEMENT", "java.awt.PageAttributes.MediaType", true),
               })
           .put(
-              "Preferences",
+              "isProxyClass",
               new Import[] {
-                new Import("Preferences", "java.util.prefs", false),
+                new Import("isProxyClass", "java.lang.reflect.Proxy", true),
               })
           .put(
-              "DATATYPE_DOUBLE",
+              "HTTP_PROXY_AUTH",
               new Import[] {
-                new Import("DATATYPE_DOUBLE", "javax.imageio.metadata.IIOMetadataFormat", true),
+                new Import("HTTP_PROXY_AUTH", "java.net.HttpURLConnection", true),
               })
           .put(
-              "BORDER_BOTTOM",
+              "EXITED",
               new Import[] {
-                new Import("BORDER_BOTTOM", "javax.swing.text.html.CSS.Attribute", true),
+                new Import("EXITED", "javax.swing.event.HyperlinkEvent.EventType", true),
               })
           .put(
-              "SHORT_STANDALONE",
+              "ColorSpace",
               new Import[] {
-                new Import("SHORT_STANDALONE", "java.util.Calendar", true),
+                new Import("ColorSpace", "java.awt.color", false),
               })
           .put(
-              "ConfirmationCallback",
+              "KHAROSHTHI",
               new Import[] {
-                new Import("ConfirmationCallback", "javax.security.auth.callback", false),
+                new Import("KHAROSHTHI", "java.lang.Character.UnicodeBlock", true),
               })
           .put(
-              "SimpleScriptContext",
+              "PCM_SIGNED",
               new Import[] {
-                new Import("SimpleScriptContext", "javax.script", false),
+                new Import("PCM_SIGNED", "javax.sound.sampled.AudioFormat.Encoding", true),
               })
           .put(
-              "LocaleNameProvider",
+              "PrintJobAttributeEvent",
               new Import[] {
-                new Import("LocaleNameProvider", "java.util.spi", false),
+                new Import("PrintJobAttributeEvent", "javax.print.event", false),
               })
           .put(
-              "ALIGN_BAR",
+              "icSigCmyData",
               new Import[] {
-                new Import("ALIGN_BAR", "javax.swing.text.TabStop", true),
+                new Import("icSigCmyData", "java.awt.color.ICC_Profile", true),
               })
           .put(
-              "SecurityException",
+              "ListView",
               new Import[] {
-                new Import("SecurityException", "java.lang", false),
+                new Import("ListView", "javax.swing.text.html", false),
               })
           .put(
-              "parse",
+              "Dialog",
               new Import[] {
-                new Import("parse", "java.net.HttpCookie", true),
-                new Import("parse", "java.time.Duration", true),
-                new Import("parse", "java.time.Instant", true),
-                new Import("parse", "java.time.LocalDate", true),
-                new Import("parse", "java.time.LocalDateTime", true),
-                new Import("parse", "java.time.LocalTime", true),
-                new Import("parse", "java.time.MonthDay", true),
-                new Import("parse", "java.time.OffsetDateTime", true),
-                new Import("parse", "java.time.OffsetTime", true),
-                new Import("parse", "java.time.Period", true),
-                new Import("parse", "java.time.Year", true),
-                new Import("parse", "java.time.YearMonth", true),
-                new Import("parse", "java.time.ZonedDateTime", true),
-                new Import("parse", "java.util.Date", true),
-                new Import("parse", "java.util.Locale.LanguageRange", true),
-                new Import("parse", "java.util.logging.Level", true),
+                new Import("Dialog", "java.awt", false),
               })
           .put(
-              "IllegalComponentStateException",
+              "FORMAT_DEFAULT",
               new Import[] {
-                new Import("IllegalComponentStateException", "java.awt", false),
+                new Import("FORMAT_DEFAULT", "java.util.ResourceBundle.Control", true),
               })
           .put(
-              "UShortSeqHelper",
+              "MEDIA_TYPE",
               new Import[] {
-                new Import("UShortSeqHelper", "org.omg.CORBA", false),
+                new Import("MEDIA_TYPE", "javax.xml.transform.OutputKeys", true),
               })
           .put(
-              "VK_SEMICOLON",
-              new Import[] {
-                new Import("VK_SEMICOLON", "java.awt.event.KeyEvent", true),
-              })
-          .put(
-              "SHA512_256",
-              new Import[] {
-                new Import("SHA512_256", "java.security.spec.MGF1ParameterSpec", true),
-              })
-          .put(
-              "OUTPUT_AREA_FULL",
+              "ACCESSIBLE_VALUE_PROPERTY",
               new Import[] {
                 new Import(
-                    "OUTPUT_AREA_FULL", "javax.print.attribute.standard.PrinterStateReason", true),
+                    "ACCESSIBLE_VALUE_PROPERTY", "javax.accessibility.AccessibleContext", true),
               })
           .put(
-              "SampleModel",
+              "enumeration",
               new Import[] {
-                new Import("SampleModel", "java.awt.image", false),
+                new Import("enumeration", "java.util.Collections", true),
               })
           .put(
-              "isDefined",
+              "getStaticAttribute",
               new Import[] {
-                new Import("isDefined", "java.lang.Character", true),
+                new Import("getStaticAttribute", "javax.swing.text.StyleContext", true),
               })
           .put(
-              "FilteredImageSource",
+              "Short",
               new Import[] {
-                new Import("FilteredImageSource", "java.awt.image", false),
+                new Import("Short", "java.lang", false),
               })
           .put(
-              "StreamDescriptionProperty",
+              "setUseCache",
               new Import[] {
-                new Import("StreamDescriptionProperty", "javax.swing.text.Document", true),
+                new Import("setUseCache", "javax.imageio.ImageIO", true),
               })
           .put(
-              "SAXParserFactory",
+              "UNCOLLATED",
               new Import[] {
-                new Import("SAXParserFactory", "javax.xml.parsers", false),
+                new Import("UNCOLLATED", "javax.print.attribute.standard.SheetCollate", true),
               })
           .put(
-              "AclNotFoundException",
-              new Import[] {
-                new Import("AclNotFoundException", "java.security.acl", false),
-              })
-          .put(
-              "SynthSpinnerUI",
-              new Import[] {
-                new Import("SynthSpinnerUI", "javax.swing.plaf.synth", false),
-              })
-          .put(
-              "IIOByteBuffer",
-              new Import[] {
-                new Import("IIOByteBuffer", "javax.imageio.stream", false),
-              })
-          .put(
-              "HTTP_RESET",
-              new Import[] {
-                new Import("HTTP_RESET", "java.net.HttpURLConnection", true),
-              })
-          .put(
-              "inactive",
-              new Import[] {
-                new Import("inactive", "java.rmi.activation.Activatable", true),
-              })
-          .put(
-              "ComponentInputMapUIResource",
-              new Import[] {
-                new Import("ComponentInputMapUIResource", "javax.swing.plaf", false),
-              })
-          .put(
-              "OutputDeviceAssigned",
-              new Import[] {
-                new Import("OutputDeviceAssigned", "javax.print.attribute.standard", false),
-              })
-          .put(
-              "MacSpi",
-              new Import[] {
-                new Import("MacSpi", "javax.crypto", false),
-              })
-          .put(
-              "getEncoder",
-              new Import[] {
-                new Import("getEncoder", "java.util.Base64", true),
-              })
-          .put(
-              "icSigColorantTableTag",
-              new Import[] {
-                new Import("icSigColorantTableTag", "java.awt.color.ICC_Profile", true),
-              })
-          .put(
-              "ERROR_OPTION",
-              new Import[] {
-                new Import("ERROR_OPTION", "javax.swing.JFileChooser", true),
-              })
-          .put(
-              "SIMPLIFIED_CHINESE",
-              new Import[] {
-                new Import("SIMPLIFIED_CHINESE", "java.util.Locale", true),
-              })
-          .put(
-              "InputEvent",
-              new Import[] {
-                new Import("InputEvent", "java.awt.event", false),
-              })
-          .put(
-              "join",
-              new Import[] {
-                new Import("join", "java.lang.String", true),
-              })
-          .put(
-              "NONUPDATABLE_VIEW_SYNC",
-              new Import[] {
-                new Import("NONUPDATABLE_VIEW_SYNC", "javax.sql.rowset.spi.SyncProvider", true),
-              })
-          .put(
-              "SerializablePermission",
-              new Import[] {
-                new Import("SerializablePermission", "java.io", false),
-              })
-          .put(
-              "FETCH_UNKNOWN",
-              new Import[] {
-                new Import("FETCH_UNKNOWN", "java.sql.ResultSet", true),
-              })
-          .put(
-              "RemoteServer",
-              new Import[] {
-                new Import("RemoteServer", "java.rmi.server", false),
-              })
-          .put(
-              "getMenuBackground",
-              new Import[] {
-                new Import("getMenuBackground", "javax.swing.plaf.metal.MetalLookAndFeel", true),
-              })
-          .put(
-              "BATAK",
-              new Import[] {
-                new Import("BATAK", "java.lang.Character.UnicodeBlock", true),
-              })
-          .put(
-              "Selector",
-              new Import[] {
-                new Import("Selector", "java.nio.channels", false),
-              })
-          .put(
-              "AbortPolicy",
-              new Import[] {
-                new Import("AbortPolicy", "java.util.concurrent.ThreadPoolExecutor", false),
-              })
-          .put(
-              "_tk_ulonglong",
-              new Import[] {
-                new Import("_tk_ulonglong", "org.omg.CORBA.TCKind", true),
-              })
-          .put(
-              "IS_CLOSED_PROPERTY",
-              new Import[] {
-                new Import("IS_CLOSED_PROPERTY", "javax.swing.JInternalFrame", true),
-              })
-          .put(
-              "DefaultFocusTraversalPolicy",
-              new Import[] {
-                new Import("DefaultFocusTraversalPolicy", "java.awt", false),
-              })
-          .put(
-              "doubleToLongBits",
-              new Import[] {
-                new Import("doubleToLongBits", "java.lang.Double", true),
-              })
-          .put(
-              "compareUnsigned",
-              new Import[] {
-                new Import("compareUnsigned", "java.lang.Integer", true),
-                new Import("compareUnsigned", "java.lang.Long", true),
-              })
-          .put(
-              "getPlatformManagementInterfaces",
+              "getMemoryManagerMXBeans",
               new Import[] {
                 new Import(
-                    "getPlatformManagementInterfaces",
-                    "java.lang.management.ManagementFactory",
+                    "getMemoryManagerMXBeans", "java.lang.management.ManagementFactory", true),
+              })
+          .put(
+              "Optional",
+              new Import[] {
+                new Import("Optional", "java.util", false),
+              })
+          .put(
+              "DefaultSingleSelectionModel",
+              new Import[] {
+                new Import("DefaultSingleSelectionModel", "javax.swing", false),
+              })
+          .put(
+              "ServantLocatorPOA",
+              new Import[] {
+                new Import("ServantLocatorPOA", "org.omg.PortableServer", false),
+              })
+          .put(
+              "VALUE_DITHER_ENABLE",
+              new Import[] {
+                new Import("VALUE_DITHER_ENABLE", "java.awt.RenderingHints", true),
+              })
+          .put(
+              "SUNDANESE",
+              new Import[] {
+                new Import("SUNDANESE", "java.lang.Character.UnicodeBlock", true),
+              })
+          .put(
+              "ButtonUI",
+              new Import[] {
+                new Import("ButtonUI", "javax.swing.plaf", false),
+              })
+          .put(
+              "MOUSE_LAST",
+              new Import[] {
+                new Import("MOUSE_LAST", "java.awt.event.MouseEvent", true),
+              })
+          .put(
+              "INVOICE",
+              new Import[] {
+                new Import("INVOICE", "java.awt.PageAttributes.MediaType", true),
+                new Import("INVOICE", "javax.print.attribute.standard.MediaSizeName", true),
+                new Import("INVOICE", "javax.print.attribute.standard.MediaSize.Other", true),
+              })
+          .put(
+              "ValueHandlerMultiFormat",
+              new Import[] {
+                new Import("ValueHandlerMultiFormat", "javax.rmi.CORBA", false),
+              })
+          .put(
+              "State",
+              new Import[] {
+                new Import("State", "java.lang.Thread", false),
+                new Import("State", "javax.swing.plaf.nimbus", false),
+                new Import("State", "org.omg.PortableServer.POAManagerPackage", false),
+              })
+          .put(
+              "JMXConnectorServerFactory",
+              new Import[] {
+                new Import("JMXConnectorServerFactory", "javax.management.remote", false),
+              })
+          .put(
+              "PLAIN_DIALOG",
+              new Import[] {
+                new Import("PLAIN_DIALOG", "javax.swing.JRootPane", true),
+              })
+          .put(
+              "RowSetListener",
+              new Import[] {
+                new Import("RowSetListener", "javax.sql", false),
+              })
+          .put(
+              "icSigNamedColorClass",
+              new Import[] {
+                new Import("icSigNamedColorClass", "java.awt.color.ICC_Profile", true),
+              })
+          .put(
+              "_DynFixedStub",
+              new Import[] {
+                new Import("_DynFixedStub", "org.omg.DynamicAny", false),
+              })
+          .put(
+              "RoleUnresolved",
+              new Import[] {
+                new Import("RoleUnresolved", "javax.management.relation", false),
+              })
+          .put(
+              "StringBuilder",
+              new Import[] {
+                new Import("StringBuilder", "java.lang", false),
+              })
+          .put(
+              "PrinterIOException",
+              new Import[] {
+                new Import("PrinterIOException", "java.awt.print", false),
+              })
+          .put(
+              "RuntimePermission",
+              new Import[] {
+                new Import("RuntimePermission", "java.lang", false),
+              })
+          .put(
+              "CertStoreSpi",
+              new Import[] {
+                new Import("CertStoreSpi", "java.security.cert", false),
+              })
+          .put(
+              "TERTIARY",
+              new Import[] {
+                new Import("TERTIARY", "java.text.Collator", true),
+              })
+          .put(
+              "newPlatformMXBeanProxy",
+              new Import[] {
+                new Import(
+                    "newPlatformMXBeanProxy", "java.lang.management.ManagementFactory", true),
+              })
+          .put(
+              "IllegalCharsetNameException",
+              new Import[] {
+                new Import("IllegalCharsetNameException", "java.nio.charset", false),
+              })
+          .put(
+              "emptyList",
+              new Import[] {
+                new Import("emptyList", "java.util.Collections", true),
+              })
+          .put(
+              "setDefaultRequestProperty",
+              new Import[] {
+                new Import("setDefaultRequestProperty", "java.net.URLConnection", true),
+              })
+          .put(
+              "MalformedParametersException",
+              new Import[] {
+                new Import("MalformedParametersException", "java.lang.reflect", false),
+              })
+          .put(
+              "SynthToolBarUI",
+              new Import[] {
+                new Import("SynthToolBarUI", "javax.swing.plaf.synth", false),
+              })
+          .put(
+              "CENTER_BASELINE",
+              new Import[] {
+                new Import("CENTER_BASELINE", "java.awt.Font", true),
+                new Import("CENTER_BASELINE", "java.awt.font.GraphicAttribute", true),
+              })
+          .put(
+              "WHITE",
+              new Import[] {
+                new Import("WHITE", "java.awt.Color", true),
+              })
+          .put(
+              "STATE_FACTORIES",
+              new Import[] {
+                new Import("STATE_FACTORIES", "javax.naming.Context", true),
+              })
+          .put(
+              "OCTOBER",
+              new Import[] {
+                new Import("OCTOBER", "java.util.Calendar", true),
+                new Import("OCTOBER", "javax.xml.datatype.DatatypeConstants", true),
+              })
+          .put(
+              "ImageObserver",
+              new Import[] {
+                new Import("ImageObserver", "java.awt.image", false),
+              })
+          .put(
+              "DoubleSeqHelper",
+              new Import[] {
+                new Import("DoubleSeqHelper", "org.omg.CORBA", false),
+              })
+          .put(
+              "KeyStore",
+              new Import[] {
+                new Import("KeyStore", "java.security", false),
+              })
+          .put(
+              "MultiOptionPaneUI",
+              new Import[] {
+                new Import("MultiOptionPaneUI", "javax.swing.plaf.multi", false),
+              })
+          .put(
+              "isHidden",
+              new Import[] {
+                new Import("isHidden", "java.nio.file.Files", true),
+              })
+          .put(
+              "rangeClosed",
+              new Import[] {
+                new Import("rangeClosed", "java.util.stream.IntStream", true),
+                new Import("rangeClosed", "java.util.stream.LongStream", true),
+              })
+          .put(
+              "FileSystemProvider",
+              new Import[] {
+                new Import("FileSystemProvider", "java.nio.file.spi", false),
+              })
+          .put(
+              "SupportedOptions",
+              new Import[] {
+                new Import("SupportedOptions", "javax.annotation.processing", false),
+              })
+          .put(
+              "tk_struct",
+              new Import[] {
+                new Import("tk_struct", "org.omg.CORBA.TCKind", true),
+              })
+          .put(
+              "JMenu",
+              new Import[] {
+                new Import("JMenu", "javax.swing", false),
+              })
+          .put(
+              "isRoleStatus",
+              new Import[] {
+                new Import("isRoleStatus", "javax.management.relation.RoleStatus", true),
+              })
+          .put(
+              "NamingContextExtPOA",
+              new Import[] {
+                new Import("NamingContextExtPOA", "org.omg.CosNaming", false),
+              })
+          .put(
+              "SHA1",
+              new Import[] {
+                new Import("SHA1", "java.security.spec.MGF1ParameterSpec", true),
+                new Import("SHA1", "javax.xml.crypto.dsig.DigestMethod", true),
+              })
+          .put(
+              "MultiTabbedPaneUI",
+              new Import[] {
+                new Import("MultiTabbedPaneUI", "javax.swing.plaf.multi", false),
+              })
+          .put(
+              "_HOLDING",
+              new Import[] {
+                new Import("_HOLDING", "org.omg.PortableServer.POAManagerPackage.State", true),
+              })
+          .put(
+              "BasicFileChooserUI",
+              new Import[] {
+                new Import("BasicFileChooserUI", "javax.swing.plaf.basic", false),
+              })
+          .put(
+              "SSLKeyException",
+              new Import[] {
+                new Import("SSLKeyException", "javax.net.ssl", false),
+              })
+          .put(
+              "normalize",
+              new Import[] {
+                new Import("normalize", "java.text.Normalizer", true),
+              })
+          .put(
+              "LocatorImpl",
+              new Import[] {
+                new Import("LocatorImpl", "org.xml.sax.helpers", false),
+              })
+          .put(
+              "IncompleteAnnotationException",
+              new Import[] {
+                new Import("IncompleteAnnotationException", "java.lang.annotation", false),
+              })
+          .put(
+              "write",
+              new Import[] {
+                new Import("write", "java.nio.file.Files", true),
+                new Import("write", "javax.imageio.ImageIO", true),
+                new Import("write", "javax.sound.midi.MidiSystem", true),
+                new Import("write", "javax.sound.sampled.AudioSystem", true),
+                new Import("write", "org.omg.CORBA.AnySeqHelper", true),
+                new Import("write", "org.omg.CORBA.BooleanSeqHelper", true),
+                new Import("write", "org.omg.CORBA.CharSeqHelper", true),
+                new Import("write", "org.omg.CORBA.CompletionStatusHelper", true),
+                new Import("write", "org.omg.CORBA.CurrentHelper", true),
+                new Import("write", "org.omg.CORBA.DefinitionKindHelper", true),
+                new Import("write", "org.omg.CORBA.DoubleSeqHelper", true),
+                new Import("write", "org.omg.CORBA.FieldNameHelper", true),
+                new Import("write", "org.omg.CORBA.FloatSeqHelper", true),
+                new Import("write", "org.omg.CORBA.IDLTypeHelper", true),
+                new Import("write", "org.omg.CORBA.IdentifierHelper", true),
+                new Import("write", "org.omg.CORBA.LongLongSeqHelper", true),
+                new Import("write", "org.omg.CORBA.LongSeqHelper", true),
+                new Import("write", "org.omg.CORBA.NameValuePairHelper", true),
+                new Import("write", "org.omg.CORBA.ObjectHelper", true),
+                new Import("write", "org.omg.CORBA.OctetSeqHelper", true),
+                new Import("write", "org.omg.CORBA.ParameterModeHelper", true),
+                new Import("write", "org.omg.CORBA.PolicyErrorCodeHelper", true),
+                new Import("write", "org.omg.CORBA.PolicyErrorHelper", true),
+                new Import("write", "org.omg.CORBA.PolicyHelper", true),
+                new Import("write", "org.omg.CORBA.PolicyListHelper", true),
+                new Import("write", "org.omg.CORBA.PolicyTypeHelper", true),
+                new Import("write", "org.omg.CORBA.RepositoryIdHelper", true),
+                new Import("write", "org.omg.CORBA.ServiceDetailHelper", true),
+                new Import("write", "org.omg.CORBA.ServiceInformationHelper", true),
+                new Import("write", "org.omg.CORBA.SetOverrideTypeHelper", true),
+                new Import("write", "org.omg.CORBA.ShortSeqHelper", true),
+                new Import("write", "org.omg.CORBA.StringSeqHelper", true),
+                new Import("write", "org.omg.CORBA.StringValueHelper", true),
+                new Import("write", "org.omg.CORBA.StructMemberHelper", true),
+                new Import("write", "org.omg.CORBA.ULongLongSeqHelper", true),
+                new Import("write", "org.omg.CORBA.ULongSeqHelper", true),
+                new Import("write", "org.omg.CORBA.UShortSeqHelper", true),
+                new Import("write", "org.omg.CORBA.UnionMemberHelper", true),
+                new Import("write", "org.omg.CORBA.UnknownUserExceptionHelper", true),
+                new Import("write", "org.omg.CORBA.ValueBaseHelper", true),
+                new Import("write", "org.omg.CORBA.ValueMemberHelper", true),
+                new Import("write", "org.omg.CORBA.VersionSpecHelper", true),
+                new Import("write", "org.omg.CORBA.VisibilityHelper", true),
+                new Import("write", "org.omg.CORBA.WCharSeqHelper", true),
+                new Import("write", "org.omg.CORBA.WStringSeqHelper", true),
+                new Import("write", "org.omg.CORBA.WStringValueHelper", true),
+                new Import("write", "org.omg.CORBA.WrongTransactionHelper", true),
+                new Import("write", "org.omg.CosNaming.BindingHelper", true),
+                new Import("write", "org.omg.CosNaming.BindingIteratorHelper", true),
+                new Import("write", "org.omg.CosNaming.BindingListHelper", true),
+                new Import("write", "org.omg.CosNaming.BindingTypeHelper", true),
+                new Import("write", "org.omg.CosNaming.IstringHelper", true),
+                new Import("write", "org.omg.CosNaming.NameComponentHelper", true),
+                new Import("write", "org.omg.CosNaming.NameHelper", true),
+                new Import("write", "org.omg.CosNaming.NamingContextExtHelper", true),
+                new Import("write", "org.omg.CosNaming.NamingContextHelper", true),
+                new Import(
+                    "write", "org.omg.CosNaming.NamingContextExtPackage.AddressHelper", true),
+                new Import(
+                    "write",
+                    "org.omg.CosNaming.NamingContextExtPackage.InvalidAddressHelper",
+                    true),
+                new Import(
+                    "write", "org.omg.CosNaming.NamingContextExtPackage.StringNameHelper", true),
+                new Import(
+                    "write", "org.omg.CosNaming.NamingContextExtPackage.URLStringHelper", true),
+                new Import(
+                    "write", "org.omg.CosNaming.NamingContextPackage.AlreadyBoundHelper", true),
+                new Import(
+                    "write", "org.omg.CosNaming.NamingContextPackage.CannotProceedHelper", true),
+                new Import(
+                    "write", "org.omg.CosNaming.NamingContextPackage.InvalidNameHelper", true),
+                new Import("write", "org.omg.CosNaming.NamingContextPackage.NotEmptyHelper", true),
+                new Import("write", "org.omg.CosNaming.NamingContextPackage.NotFoundHelper", true),
+                new Import(
+                    "write", "org.omg.CosNaming.NamingContextPackage.NotFoundReasonHelper", true),
+                new Import("write", "org.omg.DynamicAny.AnySeqHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynAnyFactoryHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynAnyHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynAnySeqHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynArrayHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynEnumHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynFixedHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynSequenceHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynStructHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynUnionHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynValueHelper", true),
+                new Import("write", "org.omg.DynamicAny.FieldNameHelper", true),
+                new Import("write", "org.omg.DynamicAny.NameDynAnyPairHelper", true),
+                new Import("write", "org.omg.DynamicAny.NameDynAnyPairSeqHelper", true),
+                new Import("write", "org.omg.DynamicAny.NameValuePairHelper", true),
+                new Import("write", "org.omg.DynamicAny.NameValuePairSeqHelper", true),
+                new Import(
+                    "write",
+                    "org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCodeHelper",
+                    true),
+                new Import("write", "org.omg.DynamicAny.DynAnyPackage.InvalidValueHelper", true),
+                new Import("write", "org.omg.DynamicAny.DynAnyPackage.TypeMismatchHelper", true),
+                new Import("write", "org.omg.IOP.CodecFactoryHelper", true),
+                new Import("write", "org.omg.IOP.ComponentIdHelper", true),
+                new Import("write", "org.omg.IOP.IORHelper", true),
+                new Import("write", "org.omg.IOP.MultipleComponentProfileHelper", true),
+                new Import("write", "org.omg.IOP.ProfileIdHelper", true),
+                new Import("write", "org.omg.IOP.ServiceContextHelper", true),
+                new Import("write", "org.omg.IOP.ServiceContextListHelper", true),
+                new Import("write", "org.omg.IOP.ServiceIdHelper", true),
+                new Import("write", "org.omg.IOP.TaggedComponentHelper", true),
+                new Import("write", "org.omg.IOP.TaggedProfileHelper", true),
+                new Import("write", "org.omg.IOP.CodecFactoryPackage.UnknownEncodingHelper", true),
+                new Import("write", "org.omg.IOP.CodecPackage.FormatMismatchHelper", true),
+                new Import("write", "org.omg.IOP.CodecPackage.InvalidTypeForEncodingHelper", true),
+                new Import("write", "org.omg.IOP.CodecPackage.TypeMismatchHelper", true),
+                new Import("write", "org.omg.Messaging.SyncScopeHelper", true),
+                new Import("write", "org.omg.PortableInterceptor.AdapterManagerIdHelper", true),
+                new Import("write", "org.omg.PortableInterceptor.AdapterNameHelper", true),
+                new Import("write", "org.omg.PortableInterceptor.AdapterStateHelper", true),
+                new Import("write", "org.omg.PortableInterceptor.CurrentHelper", true),
+                new Import("write", "org.omg.PortableInterceptor.ForwardRequestHelper", true),
+                new Import("write", "org.omg.PortableInterceptor.IORInterceptor_3_0Helper", true),
+                new Import("write", "org.omg.PortableInterceptor.InvalidSlotHelper", true),
+                new Import("write", "org.omg.PortableInterceptor.ORBIdHelper", true),
+                new Import("write", "org.omg.PortableInterceptor.ObjectIdHelper", true),
+                new Import(
+                    "write", "org.omg.PortableInterceptor.ObjectReferenceFactoryHelper", true),
+                new Import(
+                    "write", "org.omg.PortableInterceptor.ObjectReferenceTemplateHelper", true),
+                new Import(
+                    "write", "org.omg.PortableInterceptor.ObjectReferenceTemplateSeqHelper", true),
+                new Import("write", "org.omg.PortableInterceptor.ServerIdHelper", true),
+                new Import(
+                    "write",
+                    "org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateNameHelper",
+                    true),
+                new Import(
+                    "write",
+                    "org.omg.PortableInterceptor.ORBInitInfoPackage.InvalidNameHelper",
+                    true),
+                new Import(
+                    "write", "org.omg.PortableInterceptor.ORBInitInfoPackage.ObjectIdHelper", true),
+                new Import("write", "org.omg.PortableServer.CurrentHelper", true),
+                new Import("write", "org.omg.PortableServer.ForwardRequestHelper", true),
+                new Import("write", "org.omg.PortableServer.POAHelper", true),
+                new Import("write", "org.omg.PortableServer.ServantActivatorHelper", true),
+                new Import("write", "org.omg.PortableServer.ServantLocatorHelper", true),
+                new Import("write", "org.omg.PortableServer.CurrentPackage.NoContextHelper", true),
+                new Import(
+                    "write",
+                    "org.omg.PortableServer.POAManagerPackage.AdapterInactiveHelper",
+                    true),
+                new Import(
+                    "write", "org.omg.PortableServer.POAPackage.AdapterAlreadyExistsHelper", true),
+                new Import(
+                    "write", "org.omg.PortableServer.POAPackage.AdapterNonExistentHelper", true),
+                new Import("write", "org.omg.PortableServer.POAPackage.InvalidPolicyHelper", true),
+                new Import("write", "org.omg.PortableServer.POAPackage.NoServantHelper", true),
+                new Import(
+                    "write", "org.omg.PortableServer.POAPackage.ObjectAlreadyActiveHelper", true),
+                new Import(
+                    "write", "org.omg.PortableServer.POAPackage.ObjectNotActiveHelper", true),
+                new Import(
+                    "write", "org.omg.PortableServer.POAPackage.ServantAlreadyActiveHelper", true),
+                new Import(
+                    "write", "org.omg.PortableServer.POAPackage.ServantNotActiveHelper", true),
+                new Import("write", "org.omg.PortableServer.POAPackage.WrongAdapterHelper", true),
+                new Import("write", "org.omg.PortableServer.POAPackage.WrongPolicyHelper", true),
+              })
+          .put(
+              "CountedCompleter",
+              new Import[] {
+                new Import("CountedCompleter", "java.util.concurrent", false),
+              })
+          .put(
+              "IMPLIED",
+              new Import[] {
+                new Import("IMPLIED", "javax.swing.text.html.HTML.Tag", true),
+                new Import("IMPLIED", "javax.swing.text.html.HTMLEditorKit.ParserCallback", true),
+                new Import("IMPLIED", "javax.swing.text.html.parser.DTDConstants", true),
+              })
+          .put(
+              "PGPData",
+              new Import[] {
+                new Import("PGPData", "javax.xml.crypto.dsig.keyinfo", false),
+              })
+          .put(
+              "MultiPopupMenuUI",
+              new Import[] {
+                new Import("MultiPopupMenuUI", "javax.swing.plaf.multi", false),
+              })
+          .put(
+              "BufferStrategy",
+              new Import[] {
+                new Import("BufferStrategy", "java.awt.image", false),
+              })
+          .put(
+              "EmptyBorderUIResource",
+              new Import[] {
+                new Import("EmptyBorderUIResource", "javax.swing.plaf.BorderUIResource", false),
+              })
+          .put(
+              "UNREGISTRATION_NOTIFICATION",
+              new Import[] {
+                new Import(
+                    "UNREGISTRATION_NOTIFICATION",
+                    "javax.management.MBeanServerNotification",
                     true),
               })
           .put(
-              "BORDER",
+              "notifyAction",
               new Import[] {
-                new Import("BORDER", "javax.swing.text.html.CSS.Attribute", true),
-                new Import("BORDER", "javax.swing.text.html.HTML.Attribute", true),
+                new Import("notifyAction", "javax.swing.JTextField", true),
+                new Import("notifyAction", "javax.swing.SwingUtilities", true),
               })
           .put(
-              "VALUE_ANTIALIAS_ON",
+              "altMetafactory",
               new Import[] {
-                new Import("VALUE_ANTIALIAS_ON", "java.awt.RenderingHints", true),
+                new Import("altMetafactory", "java.lang.invoke.LambdaMetafactory", true),
               })
           .put(
-              "HTTP_CREATED",
+              "TrustManager",
               new Import[] {
-                new Import("HTTP_CREATED", "java.net.HttpURLConnection", true),
+                new Import("TrustManager", "javax.net.ssl", false),
               })
           .put(
-              "TAG_GDEF",
+              "IMPLEMENTATION_URL",
               new Import[] {
-                new Import("TAG_GDEF", "java.awt.font.OpenType", true),
+                new Import("IMPLEMENTATION_URL", "java.util.jar.Attributes.Name", true),
               })
           .put(
-              "StampedLock",
+              "SelectableChannel",
               new Import[] {
-                new Import("StampedLock", "java.util.concurrent.locks", false),
+                new Import("SelectableChannel", "java.nio.channels", false),
               })
           .put(
-              "Inflater",
+              "Era",
               new Import[] {
-                new Import("Inflater", "java.util.zip", false),
+                new Import("Era", "java.time.chrono", false),
               })
           .put(
-              "BoxedValueHelper",
+              "NMTOKEN",
               new Import[] {
-                new Import("BoxedValueHelper", "org.omg.CORBA.portable", false),
+                new Import("NMTOKEN", "javax.swing.text.html.parser.DTDConstants", true),
               })
           .put(
-              "COLUMN_WIDTH_PROPERTY",
+              "ScrollPane",
               new Import[] {
-                new Import("COLUMN_WIDTH_PROPERTY", "javax.swing.table.TableColumn", true),
+                new Import("ScrollPane", "java.awt", false),
               })
           .put(
-              "DropTargetDropEvent",
+              "IntBuffer",
               new Import[] {
-                new Import("DropTargetDropEvent", "java.awt.dnd", false),
+                new Import("IntBuffer", "java.nio", false),
               })
           .put(
-              "LIST_DIRECTORY",
+              "_ADD_OVERRIDE",
               new Import[] {
-                new Import("LIST_DIRECTORY", "java.nio.file.attribute.AclEntryPermission", true),
+                new Import("_ADD_OVERRIDE", "org.omg.CORBA.SetOverrideType", true),
               })
           .put(
-              "getInteriorRectangle",
+              "REDCOMPONENT",
               new Import[] {
-                new Import("getInteriorRectangle", "javax.swing.border.AbstractBorder", true),
+                new Import("REDCOMPONENT", "java.awt.color.ICC_ProfileRGB", true),
               })
           .put(
-              "WritePendingException",
+              "AdapterStateHelper",
               new Import[] {
-                new Import("WritePendingException", "java.nio.channels", false),
+                new Import("AdapterStateHelper", "org.omg.PortableInterceptor", false),
               })
           .put(
-              "procedureColumnOut",
+              "INITIAL_SELECTION_VALUE_PROPERTY",
               new Import[] {
-                new Import("procedureColumnOut", "java.sql.DatabaseMetaData", true),
+                new Import("INITIAL_SELECTION_VALUE_PROPERTY", "javax.swing.JOptionPane", true),
               })
           .put(
-              "KeyManagementException",
-              new Import[] {
-                new Import("KeyManagementException", "java.security", false),
-              })
-          .put(
-              "ElementScanner8",
-              new Import[] {
-                new Import("ElementScanner8", "javax.lang.model.util", false),
-              })
-          .put(
-              "ElementScanner7",
-              new Import[] {
-                new Import("ElementScanner7", "javax.lang.model.util", false),
-              })
-          .put(
-              "ALIGN",
-              new Import[] {
-                new Import("ALIGN", "javax.swing.text.html.HTML.Attribute", true),
-              })
-          .put(
-              "createRaster",
-              new Import[] {
-                new Import("createRaster", "java.awt.image.Raster", true),
-              })
-          .put(
-              "ElementScanner6",
-              new Import[] {
-                new Import("ElementScanner6", "javax.lang.model.util", false),
-              })
-          .put(
-              "BindingType",
-              new Import[] {
-                new Import("BindingType", "javax.xml.ws", false),
-                new Import("BindingType", "org.omg.CosNaming", false),
-              })
-          .put(
-              "TEXT_CHANGED_PROPERTY",
-              new Import[] {
-                new Import("TEXT_CHANGED_PROPERTY", "javax.swing.AbstractButton", true),
-              })
-          .put(
-              "BACKGROUND_POSITION",
-              new Import[] {
-                new Import("BACKGROUND_POSITION", "javax.swing.text.html.CSS.Attribute", true),
-              })
-          .put(
-              "IDREF",
-              new Import[] {
-                new Import("IDREF", "javax.swing.text.html.parser.DTDConstants", true),
-              })
-          .put(
-              "BindingTypeHolder",
-              new Import[] {
-                new Import("BindingTypeHolder", "org.omg.CosNaming", false),
-              })
-          .put(
-              "VIEWPORT",
-              new Import[] {
-                new Import("VIEWPORT", "javax.accessibility.AccessibleRole", true),
-                new Import("VIEWPORT", "javax.swing.ScrollPaneConstants", true),
-                new Import("VIEWPORT", "javax.swing.plaf.synth.Region", true),
-              })
-          .put(
-              "CryptoPrimitive",
-              new Import[] {
-                new Import("CryptoPrimitive", "java.security", false),
-              })
-          .put(
-              "DatagramChannel",
-              new Import[] {
-                new Import("DatagramChannel", "java.nio.channels", false),
-              })
-          .put(
-              "Deque",
-              new Import[] {
-                new Import("Deque", "java.util", false),
-              })
-          .put(
-              "Annotation",
-              new Import[] {
-                new Import("Annotation", "java.lang.annotation", false),
-                new Import("Annotation", "java.text", false),
-              })
-          .put(
-              "NamingSecurityException",
-              new Import[] {
-                new Import("NamingSecurityException", "javax.naming", false),
-              })
-          .put(
-              "Panel",
-              new Import[] {
-                new Import("Panel", "java.awt", false),
-              })
-          .put(
-              "InputMethodRequests",
-              new Import[] {
-                new Import("InputMethodRequests", "java.awt.im", false),
-              })
-          .put(
-              "ThreadFactory",
-              new Import[] {
-                new Import("ThreadFactory", "java.util.concurrent", false),
-              })
-          .put(
-              "LETTER",
-              new Import[] {
-                new Import("LETTER", "java.awt.PageAttributes.MediaType", true),
-                new Import("LETTER", "javax.print.attribute.standard.MediaSize.NA", true),
-              })
-          .put(
-              "XPathType",
-              new Import[] {
-                new Import("XPathType", "javax.xml.crypto.dsig.spec", false),
-              })
-          .put(
-              "ActionEvent",
-              new Import[] {
-                new Import("ActionEvent", "java.awt.event", false),
-              })
-          .put(
-              "ofEpochMilli",
-              new Import[] {
-                new Import("ofEpochMilli", "java.time.Instant", true),
-              })
-          .put(
-              "OBJECT_SCOPE",
-              new Import[] {
-                new Import("OBJECT_SCOPE", "javax.naming.directory.SearchControls", true),
-                new Import("OBJECT_SCOPE", "javax.naming.event.EventContext", true),
-              })
-          .put(
-              "VALUE",
-              new Import[] {
-                new Import("VALUE", "javax.swing.text.html.HTML.Attribute", true),
-              })
-          .put(
-              "getAccessibleAt",
-              new Import[] {
-                new Import("getAccessibleAt", "javax.swing.SwingUtilities", true),
-              })
-          .put(
-              "AccessException",
-              new Import[] {
-                new Import("AccessException", "java.rmi", false),
-              })
-          .put(
-              "DiscardPolicy",
-              new Import[] {
-                new Import("DiscardPolicy", "java.util.concurrent.ThreadPoolExecutor", false),
-              })
-          .put(
-              "JAXB_CONTEXT_FACTORY",
-              new Import[] {
-                new Import("JAXB_CONTEXT_FACTORY", "javax.xml.bind.JAXBContext", true),
-              })
-          .put(
-              "LdapReferralException",
-              new Import[] {
-                new Import("LdapReferralException", "javax.naming.ldap", false),
-              })
-          .put(
-              "DOMStructure",
-              new Import[] {
-                new Import("DOMStructure", "javax.xml.crypto.dom", false),
-              })
-          .put(
-              "Lookup",
-              new Import[] {
-                new Import("Lookup", "java.lang.invoke.MethodHandles", false),
-              })
-          .put(
-              "MINUTE",
-              new Import[] {
-                new Import("MINUTE", "java.text.DateFormat.Field", true),
-                new Import("MINUTE", "java.util.Calendar", true),
-              })
-          .put(
-              "VK_NONCONVERT",
-              new Import[] {
-                new Import("VK_NONCONVERT", "java.awt.event.KeyEvent", true),
-              })
-          .put(
-              "BLIT_SCROLL_MODE",
-              new Import[] {
-                new Import("BLIT_SCROLL_MODE", "javax.swing.JViewport", true),
-              })
-          .put(
-              "BufferUnderflowException",
-              new Import[] {
-                new Import("BufferUnderflowException", "java.nio", false),
-              })
-          .put(
-              "EXTSIZ",
-              new Import[] {
-                new Import("EXTSIZ", "java.util.jar.JarEntry", true),
-                new Import("EXTSIZ", "java.util.jar.JarFile", true),
-                new Import("EXTSIZ", "java.util.jar.JarInputStream", true),
-                new Import("EXTSIZ", "java.util.jar.JarOutputStream", true),
-                new Import("EXTSIZ", "java.util.zip.ZipEntry", true),
-                new Import("EXTSIZ", "java.util.zip.ZipFile", true),
-                new Import("EXTSIZ", "java.util.zip.ZipInputStream", true),
-                new Import("EXTSIZ", "java.util.zip.ZipOutputStream", true),
-              })
-          .put(
-              "LOCHDR",
-              new Import[] {
-                new Import("LOCHDR", "java.util.jar.JarEntry", true),
-                new Import("LOCHDR", "java.util.jar.JarFile", true),
-                new Import("LOCHDR", "java.util.jar.JarInputStream", true),
-                new Import("LOCHDR", "java.util.jar.JarOutputStream", true),
-                new Import("LOCHDR", "java.util.zip.ZipEntry", true),
-                new Import("LOCHDR", "java.util.zip.ZipFile", true),
-                new Import("LOCHDR", "java.util.zip.ZipInputStream", true),
-                new Import("LOCHDR", "java.util.zip.ZipOutputStream", true),
-              })
-          .put(
-              "Tool",
-              new Import[] {
-                new Import("Tool", "javax.tools", false),
-              })
-          .put(
-              "JoinFractureDirection",
+              "OPTICAL_CHARACTER_RECOGNITION",
               new Import[] {
                 new Import(
-                    "JoinFractureDirection",
-                    "javax.swing.text.DefaultStyledDocument.ElementSpec",
+                    "OPTICAL_CHARACTER_RECOGNITION", "java.lang.Character.UnicodeBlock", true),
+              })
+          .put(
+              "NO_DATA_ALLOWED_ERR",
+              new Import[] {
+                new Import("NO_DATA_ALLOWED_ERR", "org.w3c.dom.DOMException", true),
+              })
+          .put(
+              "FTP",
+              new Import[] {
+                new Import(
+                    "FTP", "javax.print.attribute.standard.ReferenceUriSchemesSupported", true),
+              })
+          .put(
+              "AWTEventListener",
+              new Import[] {
+                new Import("AWTEventListener", "java.awt.event", false),
+              })
+          .put(
+              "ISO_C9_ENVELOPE",
+              new Import[] {
+                new Import("ISO_C9_ENVELOPE", "java.awt.PageAttributes.MediaType", true),
+              })
+          .put(
+              "CITE",
+              new Import[] {
+                new Import("CITE", "javax.swing.text.html.HTML.Tag", true),
+              })
+          .put(
+              "SortKey",
+              new Import[] {
+                new Import("SortKey", "javax.naming.ldap", false),
+                new Import("SortKey", "javax.swing.RowSorter", false),
+              })
+          .put(
+              "selectionEndParagraphAction",
+              new Import[] {
+                new Import(
+                    "selectionEndParagraphAction", "javax.swing.text.DefaultEditorKit", true),
+              })
+          .put(
+              "deleteNextCharAction",
+              new Import[] {
+                new Import("deleteNextCharAction", "javax.swing.text.DefaultEditorKit", true),
+              })
+          .put(
+              "GridLayout",
+              new Import[] {
+                new Import("GridLayout", "java.awt", false),
+              })
+          .put(
+              "TooManyListenersException",
+              new Import[] {
+                new Import("TooManyListenersException", "java.util", false),
+              })
+          .put(
+              "SynthToolTipUI",
+              new Import[] {
+                new Import("SynthToolTipUI", "javax.swing.plaf.synth", false),
+              })
+          .put(
+              "NA_10X14_ENVELOPE",
+              new Import[] {
+                new Import("NA_10X14_ENVELOPE", "java.awt.PageAttributes.MediaType", true),
+                new Import(
+                    "NA_10X14_ENVELOPE", "javax.print.attribute.standard.MediaSizeName", true),
+              })
+          .put(
+              "StartTlsResponse",
+              new Import[] {
+                new Import("StartTlsResponse", "javax.naming.ldap", false),
+              })
+          .put(
+              "LETTER_NUMBER",
+              new Import[] {
+                new Import("LETTER_NUMBER", "java.lang.Character", true),
+              })
+          .put(
+              "ORANGE",
+              new Import[] {
+                new Import("ORANGE", "java.awt.Color", true),
+              })
+          .put(
+              "ModelMBeanNotificationInfo",
+              new Import[] {
+                new Import("ModelMBeanNotificationInfo", "javax.management.modelmbean", false),
+              })
+          .put(
+              "SaslServerFactory",
+              new Import[] {
+                new Import("SaslServerFactory", "javax.security.sasl", false),
+              })
+          .put(
+              "PrintJobAttributeSet",
+              new Import[] {
+                new Import("PrintJobAttributeSet", "javax.print.attribute", false),
+              })
+          .put(
+              "BeanContextEvent",
+              new Import[] {
+                new Import("BeanContextEvent", "java.beans.beancontext", false),
+              })
+          .put(
+              "PHAISTOS_DISC",
+              new Import[] {
+                new Import("PHAISTOS_DISC", "java.lang.Character.UnicodeBlock", true),
+              })
+          .put(
+              "CONTROLLER_FOR",
+              new Import[] {
+                new Import("CONTROLLER_FOR", "javax.accessibility.AccessibleRelation", true),
+              })
+          .put(
+              "InvalidAttributeValueException",
+              new Import[] {
+                new Import("InvalidAttributeValueException", "javax.management", false),
+                new Import("InvalidAttributeValueException", "javax.naming.directory", false),
+              })
+          .put(
+              "parseLong",
+              new Import[] {
+                new Import("parseLong", "java.lang.Long", true),
+                new Import("parseLong", "javax.xml.bind.DatatypeConverter", true),
+              })
+          .put(
+              "LambdaMetafactory",
+              new Import[] {
+                new Import("LambdaMetafactory", "java.lang.invoke", false),
+              })
+          .put(
+              "EXPONENT",
+              new Import[] {
+                new Import("EXPONENT", "java.text.NumberFormat.Field", true),
+              })
+          .put(
+              "getDesktop",
+              new Import[] {
+                new Import("getDesktop", "java.awt.Desktop", true),
+              })
+          .put(
+              "nullsFirst",
+              new Import[] {
+                new Import("nullsFirst", "java.util.Comparator", true),
+              })
+          .put(
+              "BYZANTINE_MUSICAL_SYMBOLS",
+              new Import[] {
+                new Import("BYZANTINE_MUSICAL_SYMBOLS", "java.lang.Character.UnicodeBlock", true),
+              })
+          .put(
+              "FileStoreAttributeView",
+              new Import[] {
+                new Import("FileStoreAttributeView", "java.nio.file.attribute", false),
+              })
+          .put(
+              "getIntegerAttributeValue",
+              new Import[] {
+                new Import("getIntegerAttributeValue", "javax.swing.text.html.HTML", true),
+              })
+          .put(
+              "IstringHelper",
+              new Import[] {
+                new Import("IstringHelper", "org.omg.CosNaming", false),
+              })
+          .put(
+              "SCHEMA_SYSTEM_ID",
+              new Import[] {
+                new Import("SCHEMA_SYSTEM_ID", "javax.sql.rowset.WebRowSet", true),
+              })
+          .put(
+              "VK_KP_LEFT",
+              new Import[] {
+                new Import("VK_KP_LEFT", "java.awt.event.KeyEvent", true),
+              })
+          .put(
+              "COMPRESS",
+              new Import[] {
+                new Import("COMPRESS", "javax.print.attribute.standard.Compression", true),
+              })
+          .put(
+              "TIMESTAMP",
+              new Import[] {
+                new Import("TIMESTAMP", "java.sql.Types", true),
+              })
+          .put(
+              "UPPER_LEFT_CORNER",
+              new Import[] {
+                new Import("UPPER_LEFT_CORNER", "javax.swing.ScrollPaneConstants", true),
+              })
+          .put(
+              "_COMPLETED_MAYBE",
+              new Import[] {
+                new Import("_COMPLETED_MAYBE", "org.omg.CORBA.CompletionStatus", true),
+              })
+          .put(
+              "WHITE_SPACE",
+              new Import[] {
+                new Import("WHITE_SPACE", "javax.swing.text.html.CSS.Attribute", true),
+              })
+          .put(
+              "SynthStyleFactory",
+              new Import[] {
+                new Import("SynthStyleFactory", "javax.swing.plaf.synth", false),
+              })
+          .put(
+              "XMLResolver",
+              new Import[] {
+                new Import("XMLResolver", "javax.xml.stream", false),
+              })
+          .put(
+              "ImageView",
+              new Import[] {
+                new Import("ImageView", "javax.swing.text.html", false),
+              })
+          .put(
+              "OBJECT_RENAMED",
+              new Import[] {
+                new Import("OBJECT_RENAMED", "javax.naming.event.NamingEvent", true),
+              })
+          .put(
+              "getRuntime",
+              new Import[] {
+                new Import("getRuntime", "java.lang.Runtime", true),
+              })
+          .put(
+              "JANUARY",
+              new Import[] {
+                new Import("JANUARY", "java.util.Calendar", true),
+                new Import("JANUARY", "javax.xml.datatype.DatatypeConstants", true),
+              })
+          .put(
+              "counting",
+              new Import[] {
+                new Import("counting", "java.util.stream.Collectors", true),
+              })
+          .put(
+              "UNSUPPORTED_DOCUMENT_FORMAT",
+              new Import[] {
+                new Import(
+                    "UNSUPPORTED_DOCUMENT_FORMAT",
+                    "javax.print.attribute.standard.JobStateReason",
                     true),
               })
           .put(
-              "Receiver",
+              "JULIAN_DAY",
               new Import[] {
-                new Import("Receiver", "javax.sound.midi", false),
+                new Import("JULIAN_DAY", "java.time.temporal.JulianFields", true),
               })
           .put(
-              "icSigPreview1Tag",
+              "comparingLong",
               new Import[] {
-                new Import("icSigPreview1Tag", "java.awt.color.ICC_Profile", true),
+                new Import("comparingLong", "java.util.Comparator", true),
               })
           .put(
-              "beginWordAction",
+              "swap",
               new Import[] {
-                new Import("beginWordAction", "javax.swing.text.DefaultEditorKit", true),
+                new Import("swap", "java.util.Collections", true),
               })
           .put(
-              "icSigHlsData",
+              "TEXT_AREA",
               new Import[] {
-                new Import("icSigHlsData", "java.awt.color.ICC_Profile", true),
+                new Import("TEXT_AREA", "javax.swing.plaf.synth.Region", true),
               })
           .put(
-              "FONT_WEIGHT",
+              "ByteHolder",
               new Import[] {
-                new Import("FONT_WEIGHT", "javax.swing.text.html.CSS.Attribute", true),
+                new Import("ByteHolder", "org.omg.CORBA", false),
               })
           .put(
-              "EntityResolver",
-              new Import[] {
-                new Import("EntityResolver", "org.xml.sax", false),
-              })
-          .put(
-              "OBJECT",
-              new Import[] {
-                new Import("OBJECT", "javax.swing.text.html.HTML.Tag", true),
-              })
-          .put(
-              "Double",
-              new Import[] {
-                new Import("Double", "java.awt.geom.Arc2D", false),
-                new Import("Double", "java.awt.geom.CubicCurve2D", false),
-                new Import("Double", "java.awt.geom.Ellipse2D", false),
-                new Import("Double", "java.awt.geom.Line2D", false),
-                new Import("Double", "java.awt.geom.Path2D", false),
-                new Import("Double", "java.awt.geom.Point2D", false),
-                new Import("Double", "java.awt.geom.QuadCurve2D", false),
-                new Import("Double", "java.awt.geom.Rectangle2D", false),
-                new Import("Double", "java.awt.geom.RoundRectangle2D", false),
-                new Import("Double", "java.lang", false),
-              })
-          .put(
-              "EXTSIG",
-              new Import[] {
-                new Import("EXTSIG", "java.util.jar.JarEntry", true),
-                new Import("EXTSIG", "java.util.jar.JarFile", true),
-                new Import("EXTSIG", "java.util.jar.JarInputStream", true),
-                new Import("EXTSIG", "java.util.jar.JarOutputStream", true),
-                new Import("EXTSIG", "java.util.zip.ZipEntry", true),
-                new Import("EXTSIG", "java.util.zip.ZipFile", true),
-                new Import("EXTSIG", "java.util.zip.ZipInputStream", true),
-                new Import("EXTSIG", "java.util.zip.ZipOutputStream", true),
-              })
-          .put(
-              "CredentialNotFoundException",
-              new Import[] {
-                new Import("CredentialNotFoundException", "javax.security.auth.login", false),
-              })
-          .put(
-              "UTC_TIME",
-              new Import[] {
-                new Import("UTC_TIME", "java.util.SimpleTimeZone", true),
-              })
-          .put(
-              "getURLContext",
-              new Import[] {
-                new Import("getURLContext", "javax.naming.spi.NamingManager", true),
-              })
-          .put(
-              "setIcon",
-              new Import[] {
-                new Import("setIcon", "javax.swing.text.StyleConstants", true),
-              })
-          .put(
-              "SC_SERIALIZABLE",
-              new Import[] {
-                new Import("SC_SERIALIZABLE", "java.io.ObjectStreamConstants", true),
-              })
-          .put(
-              "DEFAULT_CLASS_LOADER_NAME",
+              "privilegedCallableUsingCurrentClassLoader",
               new Import[] {
                 new Import(
-                    "DEFAULT_CLASS_LOADER_NAME",
-                    "javax.management.remote.JMXConnectorServerFactory",
+                    "privilegedCallableUsingCurrentClassLoader",
+                    "java.util.concurrent.Executors",
                     true),
               })
           .put(
-              "forwardAction",
+              "getImageReaders",
               new Import[] {
-                new Import("forwardAction", "javax.swing.text.DefaultEditorKit", true),
+                new Import("getImageReaders", "javax.imageio.ImageIO", true),
               })
           .put(
-              "GSSCredential",
+              "tick",
               new Import[] {
-                new Import("GSSCredential", "org.ietf.jgss", false),
+                new Import("tick", "java.time.Clock", true),
               })
           .put(
-              "WINDOW_LAST",
+              "RootPaneUI",
               new Import[] {
-                new Import("WINDOW_LAST", "java.awt.event.WindowEvent", true),
+                new Import("RootPaneUI", "javax.swing.plaf", false),
               })
           .put(
-              "KeyStroke",
+              "RMISecurityManager",
               new Import[] {
-                new Import("KeyStroke", "javax.swing", false),
+                new Import("RMISecurityManager", "java.rmi", false),
               })
           .put(
-              "setInitialContextFactoryBuilder",
+              "DoubleBinaryOperator",
               new Import[] {
-                new Import(
-                    "setInitialContextFactoryBuilder", "javax.naming.spi.NamingManager", true),
+                new Import("DoubleBinaryOperator", "java.util.function", false),
               })
           .put(
-              "setLogStream",
+              "RelationTypeSupport",
               new Import[] {
-                new Import("setLogStream", "java.sql.DriverManager", true),
-                new Import("setLogStream", "javax.swing.DebugGraphics", true),
+                new Import("RelationTypeSupport", "javax.management.relation", false),
               })
           .put(
-              "ofHoursMinutesSeconds",
+              "ServiceInformation",
               new Import[] {
-                new Import("ofHoursMinutesSeconds", "java.time.ZoneOffset", true),
+                new Import("ServiceInformation", "org.omg.CORBA", false),
               })
           .put(
-              "Dictionary",
+              "UnsupportedCharsetException",
               new Import[] {
-                new Import("Dictionary", "java.util", false),
+                new Import("UnsupportedCharsetException", "java.nio.charset", false),
               })
           .put(
-              "DragGestureEvent",
+              "ImagingOpException",
               new Import[] {
-                new Import("DragGestureEvent", "java.awt.dnd", false),
+                new Import("ImagingOpException", "java.awt.image", false),
               })
           .put(
-              "LineListener",
+              "REAL",
               new Import[] {
-                new Import("LineListener", "javax.sound.sampled", false),
+                new Import("REAL", "java.sql.Types", true),
               })
           .put(
-              "LineUnavailableException",
+              "SpringLayout",
               new Import[] {
-                new Import("LineUnavailableException", "javax.sound.sampled", false),
+                new Import("SpringLayout", "javax.swing", false),
               })
           .put(
-              "PrinterException",
+              "SCROLLBARS_HORIZONTAL_ONLY",
               new Import[] {
-                new Import("PrinterException", "java.awt.print", false),
+                new Import("SCROLLBARS_HORIZONTAL_ONLY", "java.awt.TextArea", true),
               })
           .put(
-              "LastOwnerException",
+              "VALUE_ALPHA_INTERPOLATION_DEFAULT",
               new Import[] {
-                new Import("LastOwnerException", "java.security.acl", false),
+                new Import("VALUE_ALPHA_INTERPOLATION_DEFAULT", "java.awt.RenderingHints", true),
               })
           .put(
-              "getLocalBounds",
+              "ColorConstants",
               new Import[] {
-                new Import("getLocalBounds", "javax.swing.SwingUtilities", true),
+                new Import("ColorConstants", "javax.swing.text.StyleConstants", false),
               })
           .put(
-              "InlineView",
+              "flushCaches",
               new Import[] {
-                new Import("InlineView", "javax.swing.text.html", false),
+                new Import("flushCaches", "java.beans.Introspector", true),
               })
           .put(
-              "BeanContextSupport",
+              "flashCount",
               new Import[] {
-                new Import("BeanContextSupport", "java.beans.beancontext", false),
+                new Import("flashCount", "javax.swing.DebugGraphics", true),
               })
           .put(
-              "WindowConstants",
+              "updateComponentTreeUI",
               new Import[] {
-                new Import("WindowConstants", "javax.swing", false),
+                new Import("updateComponentTreeUI", "javax.swing.SwingUtilities", true),
               })
           .put(
-              "ThreadInfo",
+              "icSigPreview2Tag",
               new Import[] {
-                new Import("ThreadInfo", "java.lang.management", false),
+                new Import("icSigPreview2Tag", "java.awt.color.ICC_Profile", true),
               })
           .put(
-              "NetworkChannel",
+              "RenderedImageFactory",
               new Import[] {
-                new Import("NetworkChannel", "java.nio.channels", false),
+                new Import("RenderedImageFactory", "java.awt.image.renderable", false),
               })
           .put(
-              "DPCM",
+              "createStrokeBorder",
               new Import[] {
-                new Import("DPCM", "javax.print.attribute.ResolutionSyntax", true),
+                new Import("createStrokeBorder", "javax.swing.BorderFactory", true),
               })
           .put(
-              "getLoopbackAddress",
+              "LayerPainter",
               new Import[] {
-                new Import("getLoopbackAddress", "java.net.InetAddress", true),
+                new Import("LayerPainter", "javax.swing.text.LayeredHighlighter", false),
               })
           .put(
-              "console",
+              "GZIPInputStream",
               new Import[] {
-                new Import("console", "java.lang.System", true),
+                new Import("GZIPInputStream", "java.util.zip", false),
               })
           .put(
-              "Comment",
+              "withInitial",
               new Import[] {
-                new Import("Comment", "javax.xml.stream.events", false),
-                new Import("Comment", "org.w3c.dom", false),
+                new Import("withInitial", "java.lang.ThreadLocal", true),
               })
           .put(
-              "DoubleHolder",
+              "TRANSACTION_READ_COMMITTED",
               new Import[] {
-                new Import("DoubleHolder", "org.omg.CORBA", false),
+                new Import("TRANSACTION_READ_COMMITTED", "java.sql.Connection", true),
               })
           .put(
-              "SINGLEFRAMEDONE",
+              "XAER_OUTSIDE",
               new Import[] {
-                new Import("SINGLEFRAMEDONE", "java.awt.image.ImageConsumer", true),
+                new Import("XAER_OUTSIDE", "javax.transaction.xa.XAException", true),
               })
           .put(
-              "ChoiceFormat",
+              "tableIndexHashed",
               new Import[] {
-                new Import("ChoiceFormat", "java.text", false),
+                new Import("tableIndexHashed", "java.sql.DatabaseMetaData", true),
               })
           .put(
-              "isWrapperInstance",
+              "endWordAction",
               new Import[] {
-                new Import("isWrapperInstance", "java.lang.invoke.MethodHandleProxies", true),
+                new Import("endWordAction", "javax.swing.text.DefaultEditorKit", true),
               })
           .put(
-              "control",
+              "LINEAR_B_IDEOGRAMS",
               new Import[] {
-                new Import("control", "java.awt.SystemColor", true),
+                new Import("LINEAR_B_IDEOGRAMS", "java.lang.Character.UnicodeBlock", true),
               })
           .put(
-              "OrientationRequestedType",
+              "APRIL",
               new Import[] {
-                new Import("OrientationRequestedType", "java.awt.PageAttributes", false),
+                new Import("APRIL", "java.util.Calendar", true),
+                new Import("APRIL", "javax.xml.datatype.DatatypeConstants", true),
               })
           .put(
-              "AbstractListModel",
+              "Invalid",
               new Import[] {
-                new Import("AbstractListModel", "javax.swing", false),
+                new Import("Invalid", "org.omg.CORBA.DynAnyPackage", false),
               })
           .put(
-              "BUGINESE",
+              "TAG_BSLN",
               new Import[] {
-                new Import("BUGINESE", "java.lang.Character.UnicodeBlock", true),
+                new Import("TAG_BSLN", "java.awt.font.OpenType", true),
               })
           .put(
-              "TrustedCertificateEntry",
+              "systemRoot",
               new Import[] {
-                new Import("TrustedCertificateEntry", "java.security.KeyStore", false),
+                new Import("systemRoot", "java.util.prefs.Preferences", true),
               })
           .put(
-              "FileImageInputStream",
+              "createTempDirectory",
               new Import[] {
-                new Import("FileImageInputStream", "javax.imageio.stream", false),
+                new Import("createTempDirectory", "java.nio.file.Files", true),
               })
           .put(
-              "Size2DSyntax",
+              "PrimitiveIterator",
               new Import[] {
-                new Import("Size2DSyntax", "javax.print.attribute", false),
+                new Import("PrimitiveIterator", "java.util", false),
               })
           .put(
-              "OBJECT_NOT_EXIST",
+              "CTX_RESTRICT_SCOPE",
               new Import[] {
-                new Import("OBJECT_NOT_EXIST", "org.omg.CORBA", false),
+                new Import("CTX_RESTRICT_SCOPE", "org.omg.CORBA", false),
               })
           .put(
-              "VK_STOP",
+              "AlphaComposite",
               new Import[] {
-                new Import("VK_STOP", "java.awt.event.KeyEvent", true),
+                new Import("AlphaComposite", "java.awt", false),
               })
           .put(
-              "ENABLED",
+              "CertificateRevokedException",
               new Import[] {
-                new Import("ENABLED", "javax.accessibility.AccessibleState", true),
-                new Import("ENABLED", "javax.swing.DefaultButtonModel", true),
-                new Import("ENABLED", "javax.swing.plaf.synth.SynthConstants", true),
+                new Import("CertificateRevokedException", "java.security.cert", false),
               })
           .put(
-              "SimpleFileVisitor",
+              "isHighSurrogate",
               new Import[] {
-                new Import("SimpleFileVisitor", "java.nio.file", false),
+                new Import("isHighSurrogate", "java.lang.Character", true),
               })
           .put(
-              "AccessibleEditableText",
+              "InternalFrameBorder",
               new Import[] {
-                new Import("AccessibleEditableText", "javax.accessibility", false),
+                new Import("InternalFrameBorder", "javax.swing.plaf.metal.MetalBorders", false),
               })
           .put(
-              "NameComponent",
+              "AudioFileFormat",
               new Import[] {
-                new Import("NameComponent", "org.omg.CosNaming", false),
+                new Import("AudioFileFormat", "javax.sound.sampled", false),
               })
           .put(
-              "MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A",
+              "InvalidTypeForEncoding",
               new Import[] {
-                new Import(
-                    "MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A",
-                    "java.lang.Character.UnicodeBlock",
-                    true),
+                new Import("InvalidTypeForEncoding", "org.omg.IOP.CodecPackage", false),
               })
           .put(
-              "AttributeChangeNotificationFilter",
+              "getSystemJavaCompiler",
               new Import[] {
-                new Import("AttributeChangeNotificationFilter", "javax.management", false),
+                new Import("getSystemJavaCompiler", "javax.tools.ToolProvider", true),
               })
           .put(
-              "X500PrivateCredential",
+              "OTHER_SYMBOL",
               new Import[] {
-                new Import("X500PrivateCredential", "javax.security.auth.x500", false),
+                new Import("OTHER_SYMBOL", "java.lang.Character", true),
               })
           .put(
-              "MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B",
+              "ClassCastException",
               new Import[] {
-                new Import(
-                    "MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B",
-                    "java.lang.Character.UnicodeBlock",
-                    true),
+                new Import("ClassCastException", "java.lang", false),
               })
           .put(
-              "ForwardingJavaFileObject",
+              "ObjectReferenceTemplate",
               new Import[] {
-                new Import("ForwardingJavaFileObject", "javax.tools", false),
+                new Import("ObjectReferenceTemplate", "org.omg.PortableInterceptor", false),
               })
           .put(
-              "SecureClassLoader",
+              "TargetedNotification",
               new Import[] {
-                new Import("SecureClassLoader", "java.security", false),
+                new Import("TargetedNotification", "javax.management.remote", false),
               })
           .put(
-              "TONER_LOW",
+              "walk",
               new Import[] {
-                new Import("TONER_LOW", "javax.print.attribute.standard.PrinterStateReason", true),
+                new Import("walk", "java.nio.file.Files", true),
               })
           .put(
-              "WEDNESDAY",
+              "TAI_XUAN_JING_SYMBOLS",
               new Import[] {
-                new Import("WEDNESDAY", "java.util.Calendar", true),
-              })
-          .put(
-              "ObjectFactory",
-              new Import[] {
-                new Import("ObjectFactory", "javax.naming.spi", false),
-              })
-          .put(
-              "NormalizedStringAdapter",
-              new Import[] {
-                new Import("NormalizedStringAdapter", "javax.xml.bind.annotation.adapters", false),
-              })
-          .put(
-              "X509KeyManager",
-              new Import[] {
-                new Import("X509KeyManager", "javax.net.ssl", false),
-              })
-          .put(
-              "BALINESE",
-              new Import[] {
-                new Import("BALINESE", "java.lang.Character.UnicodeBlock", true),
-              })
-          .put(
-              "TimeUnit",
-              new Import[] {
-                new Import("TimeUnit", "java.util.concurrent", false),
-              })
-          .put(
-              "RUNTIME_MXBEAN_NAME",
-              new Import[] {
-                new Import("RUNTIME_MXBEAN_NAME", "java.lang.management.ManagementFactory", true),
-              })
-          .put(
-              "VK_LEFT_PARENTHESIS",
-              new Import[] {
-                new Import("VK_LEFT_PARENTHESIS", "java.awt.event.KeyEvent", true),
-              })
-          .put(
-              "LayoutStyle",
-              new Import[] {
-                new Import("LayoutStyle", "javax.swing", false),
-              })
-          .put(
-              "Wrapper",
-              new Import[] {
-                new Import("Wrapper", "java.sql", false),
-              })
-          .put(
-              "FieldBorder",
-              new Import[] {
-                new Import("FieldBorder", "javax.swing.plaf.basic.BasicBorders", false),
-              })
-          .put(
-              "PSpecified",
-              new Import[] {
-                new Import("PSpecified", "javax.crypto.spec.PSource", false),
-              })
-          .put(
-              "ARROW_BUTTON",
-              new Import[] {
-                new Import("ARROW_BUTTON", "javax.swing.plaf.synth.Region", true),
-              })
-          .put(
-              "not_context",
-              new Import[] {
-                new Import(
-                    "not_context", "org.omg.CosNaming.NamingContextPackage.NotFoundReason", true),
-              })
-          .put(
-              "StartTagType",
-              new Import[] {
-                new Import(
-                    "StartTagType", "javax.swing.text.DefaultStyledDocument.ElementSpec", true),
-              })
-          .put(
-              "COMPONENT_SHOWN",
-              new Import[] {
-                new Import("COMPONENT_SHOWN", "java.awt.event.ComponentEvent", true),
-              })
-          .put(
-              "POSTURE_REGULAR",
-              new Import[] {
-                new Import("POSTURE_REGULAR", "java.awt.font.TextAttribute", true),
-              })
-          .put(
-              "APPROVE_BUTTON_MNEMONIC_CHANGED_PROPERTY",
-              new Import[] {
-                new Import(
-                    "APPROVE_BUTTON_MNEMONIC_CHANGED_PROPERTY", "javax.swing.JFileChooser", true),
-              })
-          .put(
-              "LongStream",
-              new Import[] {
-                new Import("LongStream", "java.util.stream", false),
-              })
-          .put(
-              "setSharedInstance",
-              new Import[] {
-                new Import("setSharedInstance", "javax.swing.PopupFactory", true),
-              })
-          .put(
-              "DocumentFilter",
-              new Import[] {
-                new Import("DocumentFilter", "javax.swing.text", false),
-              })
-          .put(
-              "ImageCapabilities",
-              new Import[] {
-                new Import("ImageCapabilities", "java.awt", false),
-              })
-          .put(
-              "NA_8X10",
-              new Import[] {
-                new Import("NA_8X10", "javax.print.attribute.standard.MediaSizeName", true),
-                new Import("NA_8X10", "javax.print.attribute.standard.MediaSize.NA", true),
-              })
-          .put(
-              "MultiDocPrintService",
-              new Import[] {
-                new Import("MultiDocPrintService", "javax.print", false),
-              })
-          .put(
-              "AttributedCharacterIterator",
-              new Import[] {
-                new Import("AttributedCharacterIterator", "java.text", false),
-              })
-          .put(
-              "URLStreamHandler",
-              new Import[] {
-                new Import("URLStreamHandler", "java.net", false),
-              })
-          .put(
-              "ForcedBreakWeight",
-              new Import[] {
-                new Import("ForcedBreakWeight", "javax.swing.text.View", true),
-              })
-          .put(
-              "doAs",
-              new Import[] {
-                new Import("doAs", "javax.security.auth.Subject", true),
-              })
-          .put(
-              "scanForPlugins",
-              new Import[] {
-                new Import("scanForPlugins", "javax.imageio.ImageIO", true),
-              })
-          .put(
-              "ContextNotEmptyException",
-              new Import[] {
-                new Import("ContextNotEmptyException", "javax.naming", false),
-              })
-          .put(
-              "BasicToolBarSeparatorUI",
-              new Import[] {
-                new Import("BasicToolBarSeparatorUI", "javax.swing.plaf.basic", false),
-              })
-          .put(
-              "WrongAdapterHelper",
-              new Import[] {
-                new Import("WrongAdapterHelper", "org.omg.PortableServer.POAPackage", false),
-              })
-          .put(
-              "ParserDelegator",
-              new Import[] {
-                new Import("ParserDelegator", "javax.swing.text.html.parser", false),
-              })
-          .put(
-              "VK_CIRCUMFLEX",
-              new Import[] {
-                new Import("VK_CIRCUMFLEX", "java.awt.event.KeyEvent", true),
-              })
-          .put(
-              "intersects",
-              new Import[] {
-                new Import("intersects", "java.awt.geom.Path2D", true),
-              })
-          .put(
-              "HTTP_REQ_TOO_LONG",
-              new Import[] {
-                new Import("HTTP_REQ_TOO_LONG", "java.net.HttpURLConnection", true),
-              })
-          .put(
-              "UnknownError",
-              new Import[] {
-                new Import("UnknownError", "java.lang", false),
-              })
-          .put(
-              "MARKER_WASTE_ALMOST_FULL",
-              new Import[] {
-                new Import(
-                    "MARKER_WASTE_ALMOST_FULL",
-                    "javax.print.attribute.standard.PrinterStateReason",
-                    true),
-              })
-          .put(
-              "XMLFilter",
-              new Import[] {
-                new Import("XMLFilter", "org.xml.sax", false),
-              })
-          .put(
-              "AttributeValueExp",
-              new Import[] {
-                new Import("AttributeValueExp", "javax.management", false),
-              })
-          .put(
-              "HashAttributeSet",
-              new Import[] {
-                new Import("HashAttributeSet", "javax.print.attribute", false),
-              })
-          .put(
-              "EMBEDS_PROPERTY",
-              new Import[] {
-                new Import("EMBEDS_PROPERTY", "javax.accessibility.AccessibleRelation", true),
-              })
-          .put(
-              "BASELINE",
-              new Import[] {
-                new Import("BASELINE", "java.awt.GridBagConstraints", true),
-                new Import("BASELINE", "javax.swing.SpringLayout", true),
-              })
-          .put(
-              "INTERNAL_FRAME_LAST",
-              new Import[] {
-                new Import("INTERNAL_FRAME_LAST", "javax.swing.event.InternalFrameEvent", true),
-              })
-          .put(
-              "ItalicAction",
-              new Import[] {
-                new Import("ItalicAction", "javax.swing.text.StyledEditorKit", false),
-              })
-          .put(
-              "SignatureValue",
-              new Import[] {
-                new Import("SignatureValue", "javax.xml.crypto.dsig.XMLSignature", false),
-              })
-          .put(
-              "BasicCaret",
-              new Import[] {
-                new Import("BasicCaret", "javax.swing.plaf.basic.BasicTextUI", false),
-              })
-          .put(
-              "firstInMonth",
-              new Import[] {
-                new Import("firstInMonth", "java.time.temporal.TemporalAdjusters", true),
-              })
-          .put(
-              "INV_IDENT",
-              new Import[] {
-                new Import("INV_IDENT", "org.omg.CORBA", false),
-              })
-          .put(
-              "checkedSet",
-              new Import[] {
-                new Import("checkedSet", "java.util.Collections", true),
-              })
-          .put(
-              "ConcurrentHashMap",
-              new Import[] {
-                new Import("ConcurrentHashMap", "java.util.concurrent", false),
-              })
-          .put(
-              "DISPOSE_ON_CLOSE",
-              new Import[] {
-                new Import("DISPOSE_ON_CLOSE", "javax.swing.WindowConstants", true),
-              })
-          .put(
-              "SynthContext",
-              new Import[] {
-                new Import("SynthContext", "javax.swing.plaf.synth", false),
-              })
-          .put(
-              "DocumentParser",
-              new Import[] {
-                new Import("DocumentParser", "javax.swing.text.html.parser", false),
-              })
-          .put(
-              "THREAD_MXBEAN_NAME",
-              new Import[] {
-                new Import("THREAD_MXBEAN_NAME", "java.lang.management.ManagementFactory", true),
-              })
-          .put(
-              "XAException",
-              new Import[] {
-                new Import("XAException", "javax.transaction.xa", false),
-              })
-          .put(
-              "UnknownHostException",
-              new Import[] {
-                new Import("UnknownHostException", "java.net", false),
-                new Import("UnknownHostException", "java.rmi", false),
-              })
-          .put(
-              "InvalidAttributeIdentifierException",
-              new Import[] {
-                new Import("InvalidAttributeIdentifierException", "javax.naming.directory", false),
-              })
-          .put(
-              "getRowEnd",
-              new Import[] {
-                new Import("getRowEnd", "javax.swing.text.Utilities", true),
-              })
-          .put(
-              "dumpStack",
-              new Import[] {
-                new Import("dumpStack", "java.lang.Thread", true),
-              })
-          .put(
-              "getBreakLocation",
-              new Import[] {
-                new Import("getBreakLocation", "javax.swing.text.Utilities", true),
-              })
-          .put(
-              "MEETEI_MAYEK_EXTENSIONS",
-              new Import[] {
-                new Import("MEETEI_MAYEK_EXTENSIONS", "java.lang.Character.UnicodeBlock", true),
-              })
-          .put(
-              "MBeanServerInvocationHandler",
-              new Import[] {
-                new Import("MBeanServerInvocationHandler", "javax.management", false),
-              })
-          .put(
-              "SearchResult",
-              new Import[] {
-                new Import("SearchResult", "javax.naming.directory", false),
-              })
-          .put(
-              "INTERNAL_FRAME_OPENED",
-              new Import[] {
-                new Import("INTERNAL_FRAME_OPENED", "javax.swing.event.InternalFrameEvent", true),
-              })
-          .put(
-              "newWorkStealingPool",
-              new Import[] {
-                new Import("newWorkStealingPool", "java.util.concurrent.Executors", true),
-              })
-          .put(
-              "XmlMixed",
-              new Import[] {
-                new Import("XmlMixed", "javax.xml.bind.annotation", false),
-              })
-          .put(
-              "PlainView",
-              new Import[] {
-                new Import("PlainView", "javax.swing.text", false),
-              })
-          .put(
-              "OPEN",
-              new Import[] {
-                new Import("OPEN", "java.awt.geom.Arc2D", true),
-                new Import("OPEN", "javax.sound.sampled.LineEvent.Type", true),
-              })
-          .put(
-              "SeekableByteChannel",
-              new Import[] {
-                new Import("SeekableByteChannel", "java.nio.channels", false),
-              })
-          .put(
-              "UShortSeqHolder",
-              new Import[] {
-                new Import("UShortSeqHolder", "org.omg.CORBA", false),
-              })
-          .put(
-              "StrikeThrough",
-              new Import[] {
-                new Import("StrikeThrough", "javax.swing.text.StyleConstants", true),
-              })
-          .put(
-              "plainTextFlavor",
-              new Import[] {
-                new Import("plainTextFlavor", "java.awt.datatransfer.DataFlavor", true),
-              })
-          .put(
-              "MARCH",
-              new Import[] {
-                new Import("MARCH", "java.util.Calendar", true),
-                new Import("MARCH", "javax.xml.datatype.DatatypeConstants", true),
-              })
-          .put(
-              "MILLISECOND",
-              new Import[] {
-                new Import("MILLISECOND", "java.text.DateFormat.Field", true),
-                new Import("MILLISECOND", "java.util.Calendar", true),
-              })
-          .put(
-              "SpinnerListModel",
-              new Import[] {
-                new Import("SpinnerListModel", "javax.swing", false),
-              })
-          .put(
-              "PrintServiceAttributeSet",
-              new Import[] {
-                new Import("PrintServiceAttributeSet", "javax.print.attribute", false),
-              })
-          .put(
-              "Validator",
-              new Import[] {
-                new Import("Validator", "javax.xml.bind", false),
-                new Import("Validator", "javax.xml.validation", false),
-              })
-          .put(
-              "getSubject",
-              new Import[] {
-                new Import("getSubject", "javax.security.auth.Subject", true),
-              })
-          .put(
-              "ROUND_HALF_UP",
-              new Import[] {
-                new Import("ROUND_HALF_UP", "java.math.BigDecimal", true),
-              })
-          .put(
-              "DynEnumHelper",
-              new Import[] {
-                new Import("DynEnumHelper", "org.omg.DynamicAny", false),
-              })
-          .put(
-              "ServantLocatorHelper",
-              new Import[] {
-                new Import("ServantLocatorHelper", "org.omg.PortableServer", false),
-              })
-          .put(
-              "BooleanHolder",
-              new Import[] {
-                new Import("BooleanHolder", "org.omg.CORBA", false),
-              })
-          .put(
-              "isNaN",
-              new Import[] {
-                new Import("isNaN", "java.lang.Double", true),
-                new Import("isNaN", "java.lang.Float", true),
-              })
-          .put(
-              "ReadPendingException",
-              new Import[] {
-                new Import("ReadPendingException", "java.nio.channels", false),
-              })
-          .put(
-              "IdUniquenessPolicyOperations",
-              new Import[] {
-                new Import("IdUniquenessPolicyOperations", "org.omg.PortableServer", false),
-              })
-          .put(
-              "WritableRenderedImage",
-              new Import[] {
-                new Import("WritableRenderedImage", "java.awt.image", false),
-              })
-          .put(
-              "CollationKey",
-              new Import[] {
-                new Import("CollationKey", "java.text", false),
-              })
-          .put(
-              "DESERET",
-              new Import[] {
-                new Import("DESERET", "java.lang.Character.UnicodeBlock", true),
-              })
-          .put(
-              "inForkJoinPool",
-              new Import[] {
-                new Import("inForkJoinPool", "java.util.concurrent.ForkJoinTask", true),
-              })
-          .put(
-              "ALT_DOWN_MASK",
-              new Import[] {
-                new Import("ALT_DOWN_MASK", "java.awt.event.InputEvent", true),
-              })
-          .put(
-              "ORIENTATION_PROPERTY",
-              new Import[] {
-                new Import("ORIENTATION_PROPERTY", "javax.swing.JSplitPane", true),
-              })
-          .put(
-              "XMLValidateContext",
-              new Import[] {
-                new Import("XMLValidateContext", "javax.xml.crypto.dsig", false),
-              })
-          .put(
-              "getWriterFormatNames",
-              new Import[] {
-                new Import("getWriterFormatNames", "javax.imageio.ImageIO", true),
-              })
-          .put(
-              "sinh",
-              new Import[] {
-                new Import("sinh", "java.lang.Math", true),
-                new Import("sinh", "java.lang.StrictMath", true),
-              })
-          .put(
-              "JobAttributes",
-              new Import[] {
-                new Import("JobAttributes", "java.awt", false),
-              })
-          .put(
-              "SaslClientFactory",
-              new Import[] {
-                new Import("SaslClientFactory", "javax.security.sasl", false),
-              })
-          .put(
-              "InvalidSeq",
-              new Import[] {
-                new Import("InvalidSeq", "org.omg.CORBA.DynAnyPackage", false),
-              })
-          .put(
-              "BasicGraphicsUtils",
-              new Import[] {
-                new Import("BasicGraphicsUtils", "javax.swing.plaf.basic", false),
-              })
-          .put(
-              "USE_ALL_BEANINFO",
-              new Import[] {
-                new Import("USE_ALL_BEANINFO", "java.beans.Introspector", true),
-              })
-          .put(
-              "numberOfLeadingZeros",
-              new Import[] {
-                new Import("numberOfLeadingZeros", "java.lang.Integer", true),
-                new Import("numberOfLeadingZeros", "java.lang.Long", true),
-              })
-          .put(
-              "ReferralException",
-              new Import[] {
-                new Import("ReferralException", "javax.naming", false),
-              })
-          .put(
-              "InsertBreakAction",
-              new Import[] {
-                new Import("InsertBreakAction", "javax.swing.text.DefaultEditorKit", false),
-              })
-          .put(
-              "_dk_Alias",
-              new Import[] {
-                new Import("_dk_Alias", "org.omg.CORBA.DefinitionKind", true),
-              })
-          .put(
-              "BasicDesktopIconUI",
-              new Import[] {
-                new Import("BasicDesktopIconUI", "javax.swing.plaf.basic", false),
-              })
-          .put(
-              "getMenuItemCheckIcon",
-              new Import[] {
-                new Import("getMenuItemCheckIcon", "javax.swing.plaf.basic.BasicIconFactory", true),
-                new Import("getMenuItemCheckIcon", "javax.swing.plaf.metal.MetalIconFactory", true),
-              })
-          .put(
-              "FileAttributeView",
-              new Import[] {
-                new Import("FileAttributeView", "java.nio.file.attribute", false),
-              })
-          .put(
-              "CANCEL_OPTION",
-              new Import[] {
-                new Import("CANCEL_OPTION", "javax.swing.JFileChooser", true),
-                new Import("CANCEL_OPTION", "javax.swing.JOptionPane", true),
-              })
-          .put(
-              "scrollbar",
-              new Import[] {
-                new Import("scrollbar", "java.awt.SystemColor", true),
-              })
-          .put(
-              "Action",
-              new Import[] {
-                new Import("Action", "java.awt.Desktop", false),
-                new Import("Action", "javax.swing", false),
-                new Import("Action", "javax.xml.ws", false),
-              })
-          .put(
-              "ENV_PERSONAL",
-              new Import[] {
-                new Import("ENV_PERSONAL", "java.awt.PageAttributes.MediaType", true),
-              })
-          .put(
-              "AdapterManagerIdHelper",
-              new Import[] {
-                new Import("AdapterManagerIdHelper", "org.omg.PortableInterceptor", false),
-              })
-          .put(
-              "PAINT_EVENT_MASK",
-              new Import[] {
-                new Import("PAINT_EVENT_MASK", "java.awt.AWTEvent", true),
-              })
-          .put(
-              "DefaultDesktopManager",
-              new Import[] {
-                new Import("DefaultDesktopManager", "javax.swing", false),
-              })
-          .put(
-              "MenuListener",
-              new Import[] {
-                new Import("MenuListener", "javax.swing.event", false),
-              })
-          .put(
-              "MidiEvent",
-              new Import[] {
-                new Import("MidiEvent", "javax.sound.midi", false),
-              })
-          .put(
-              "Channels",
-              new Import[] {
-                new Import("Channels", "java.nio.channels", false),
-              })
-          .put(
-              "SIGNATURE_VERSION",
-              new Import[] {
-                new Import("SIGNATURE_VERSION", "java.util.jar.Attributes.Name", true),
-              })
-          .put(
-              "NODE_DELETED",
-              new Import[] {
-                new Import("NODE_DELETED", "org.w3c.dom.UserDataHandler", true),
-              })
-          .put(
-              "Proxy",
-              new Import[] {
-                new Import("Proxy", "java.lang.reflect", false),
-                new Import("Proxy", "java.net", false),
-              })
-          .put(
-              "selectionEndAction",
-              new Import[] {
-                new Import("selectionEndAction", "javax.swing.text.DefaultEditorKit", true),
-              })
-          .put(
-              "TEXT_HTML_UTF_16LE",
-              new Import[] {
-                new Import("TEXT_HTML_UTF_16LE", "javax.print.DocFlavor.BYTE_ARRAY", true),
-                new Import("TEXT_HTML_UTF_16LE", "javax.print.DocFlavor.INPUT_STREAM", true),
-                new Import("TEXT_HTML_UTF_16LE", "javax.print.DocFlavor.URL", true),
-              })
-          .put(
-              "TC_ENDBLOCKDATA",
-              new Import[] {
-                new Import("TC_ENDBLOCKDATA", "java.io.ObjectStreamConstants", true),
-              })
-          .put(
-              "SPACE_SEPARATOR",
-              new Import[] {
-                new Import("SPACE_SEPARATOR", "java.lang.Character", true),
-              })
-          .put(
-              "icSigHsvData",
-              new Import[] {
-                new Import("icSigHsvData", "java.awt.color.ICC_Profile", true),
-              })
-          .put(
-              "setDefaultCommandMap",
-              new Import[] {
-                new Import("setDefaultCommandMap", "javax.activation.CommandMap", true),
-              })
-          .put(
-              "addPropertyChangeListener",
-              new Import[] {
-                new Import("addPropertyChangeListener", "javax.swing.UIManager", true),
-              })
-          .put(
-              "BASIC_LATIN",
-              new Import[] {
-                new Import("BASIC_LATIN", "java.lang.Character.UnicodeBlock", true),
-              })
-          .put(
-              "getAncestorOfClass",
-              new Import[] {
-                new Import("getAncestorOfClass", "javax.swing.SwingUtilities", true),
-              })
-          .put(
-              "HTTPBinding",
-              new Import[] {
-                new Import("HTTPBinding", "javax.xml.ws.http", false),
-              })
-          .put(
-              "ServantRetentionPolicyValue",
-              new Import[] {
-                new Import("ServantRetentionPolicyValue", "org.omg.PortableServer", false),
-              })
-          .put(
-              "PutField",
-              new Import[] {
-                new Import("PutField", "java.io.ObjectOutputStream", false),
-              })
-          .put(
-              "MemoryType",
-              new Import[] {
-                new Import("MemoryType", "java.lang.management", false),
-              })
-          .put(
-              "IllegalMonitorStateException",
-              new Import[] {
-                new Import("IllegalMonitorStateException", "java.lang", false),
-              })
-          .put(
-              "Principal",
-              new Import[] {
-                new Import("Principal", "java.security", false),
-                new Import("Principal", "org.omg.CORBA", false),
-              })
-          .put(
-              "GridBagConstraints",
-              new Import[] {
-                new Import("GridBagConstraints", "java.awt", false),
-              })
-          .put(
-              "DefaultButtonModel",
-              new Import[] {
-                new Import("DefaultButtonModel", "javax.swing", false),
-              })
-          .put(
-              "InsetsUIResource",
-              new Import[] {
-                new Import("InsetsUIResource", "javax.swing.plaf", false),
-              })
-          .put(
-              "listRoots",
-              new Import[] {
-                new Import("listRoots", "java.io.File", true),
-              })
-          .put(
-              "INPUT",
-              new Import[] {
-                new Import("INPUT", "javax.swing.text.html.HTML.Tag", true),
-              })
-          .put(
-              "getRuntimeMXBean",
-              new Import[] {
-                new Import("getRuntimeMXBean", "java.lang.management.ManagementFactory", true),
-              })
-          .put(
-              "SELECTED_RAW_TEXT_HIGHLIGHT",
-              new Import[] {
-                new Import("SELECTED_RAW_TEXT_HIGHLIGHT", "java.awt.im.InputMethodHighlight", true),
-              })
-          .put(
-              "getCurrencyInstance",
-              new Import[] {
-                new Import("getCurrencyInstance", "java.text.NumberFormat", true),
-              })
-          .put(
-              "FOCUS_PAINTED_CHANGED_PROPERTY",
-              new Import[] {
-                new Import("FOCUS_PAINTED_CHANGED_PROPERTY", "javax.swing.AbstractButton", true),
-              })
-          .put(
-              "NA_LETTER_WHITE",
-              new Import[] {
-                new Import("NA_LETTER_WHITE", "javax.print.attribute.standard.MediaName", true),
-              })
-          .put(
-              "RMISocketFactory",
-              new Import[] {
-                new Import("RMISocketFactory", "java.rmi.server", false),
-              })
-          .put(
-              "setDouble",
-              new Import[] {
-                new Import("setDouble", "java.lang.reflect.Array", true),
-              })
-          .put(
-              "NO_ROLE_WITH_NAME",
-              new Import[] {
-                new Import("NO_ROLE_WITH_NAME", "javax.management.relation.RoleStatus", true),
-              })
-          .put(
-              "AssertionError",
-              new Import[] {
-                new Import("AssertionError", "java.lang", false),
-              })
-          .put(
-              "AccessibleExtendedComponent",
-              new Import[] {
-                new Import("AccessibleExtendedComponent", "javax.accessibility", false),
-              })
-          .put(
-              "AnySeqHolder",
-              new Import[] {
-                new Import("AnySeqHolder", "org.omg.CORBA", false),
-              })
-          .put(
-              "JSlider",
-              new Import[] {
-                new Import("JSlider", "javax.swing", false),
-              })
-          .put(
-              "MultiSeparatorUI",
-              new Import[] {
-                new Import("MultiSeparatorUI", "javax.swing.plaf.multi", false),
-              })
-          .put(
-              "tertiaryOrder",
-              new Import[] {
-                new Import("tertiaryOrder", "java.text.CollationElementIterator", true),
-              })
-          .put(
-              "TC_CLASS",
-              new Import[] {
-                new Import("TC_CLASS", "java.io.ObjectStreamConstants", true),
-              })
-          .put(
-              "HORIZONTAL_SCROLLBAR_NEVER",
-              new Import[] {
-                new Import("HORIZONTAL_SCROLLBAR_NEVER", "javax.swing.ScrollPaneConstants", true),
-              })
-          .put(
-              "DynArray",
-              new Import[] {
-                new Import("DynArray", "org.omg.CORBA", false),
-                new Import("DynArray", "org.omg.DynamicAny", false),
-              })
-          .put(
-              "DONE",
-              new Import[] {
-                new Import("DONE", "java.text.BreakIterator", true),
-                new Import("DONE", "java.text.CharacterIterator", true),
-              })
-          .put(
-              "IMG",
-              new Import[] {
-                new Import("IMG", "javax.swing.text.html.HTML.Tag", true),
-              })
-          .put(
-              "Channel",
-              new Import[] {
-                new Import("Channel", "java.nio.channels", false),
-              })
-          .put(
-              "AclEntry",
-              new Import[] {
-                new Import("AclEntry", "java.nio.file.attribute", false),
-                new Import("AclEntry", "java.security.acl", false),
-              })
-          .put(
-              "TIME_WITH_TIMEZONE",
-              new Import[] {
-                new Import("TIME_WITH_TIMEZONE", "java.sql.Types", true),
-              })
-          .put(
-              "DOMLocator",
-              new Import[] {
-                new Import("DOMLocator", "javax.xml.transform.dom", false),
-                new Import("DOMLocator", "org.w3c.dom", false),
-              })
-          .put(
-              "TimerNotification",
-              new Import[] {
-                new Import("TimerNotification", "javax.management.timer", false),
-              })
-          .put(
-              "SynthTextAreaUI",
-              new Import[] {
-                new Import("SynthTextAreaUI", "javax.swing.plaf.synth", false),
-              })
-          .put(
-              "DSAPrivateKeySpec",
-              new Import[] {
-                new Import("DSAPrivateKeySpec", "java.security.spec", false),
-              })
-          .put(
-              "PUSH_BUTTON",
-              new Import[] {
-                new Import("PUSH_BUTTON", "javax.accessibility.AccessibleRole", true),
-              })
-          .put(
-              "WHEN_ANCESTOR_OF_FOCUSED_COMPONENT",
-              new Import[] {
-                new Import("WHEN_ANCESTOR_OF_FOCUSED_COMPONENT", "javax.swing.JComponent", true),
-              })
-          .put(
-              "NMTOKENS",
-              new Import[] {
-                new Import("NMTOKENS", "javax.swing.text.html.parser.DTDConstants", true),
-              })
-          .put(
-              "ShortBufferException",
-              new Import[] {
-                new Import("ShortBufferException", "javax.crypto", false),
-              })
-          .put(
-              "ArrayStoreException",
-              new Import[] {
-                new Import("ArrayStoreException", "java.lang", false),
-              })
-          .put(
-              "JOB_CANCELED_BY_USER",
-              new Import[] {
-                new Import(
-                    "JOB_CANCELED_BY_USER", "javax.print.attribute.standard.JobStateReason", true),
-              })
-          .put(
-              "IS_MAXIMUM_PROPERTY",
-              new Import[] {
-                new Import("IS_MAXIMUM_PROPERTY", "javax.swing.JInternalFrame", true),
-              })
-          .put(
-              "HTTP_CLIENT_TIMEOUT",
-              new Import[] {
-                new Import("HTTP_CLIENT_TIMEOUT", "java.net.HttpURLConnection", true),
-              })
-          .put(
-              "IMG_BORDER",
-              new Import[] {
-                new Import("IMG_BORDER", "javax.swing.text.html.HTMLEditorKit", true),
-              })
-          .put(
-              "EntityDeclaration",
-              new Import[] {
-                new Import("EntityDeclaration", "javax.xml.stream.events", false),
-              })
-          .put(
-              "TEXT_HTML_HOST",
-              new Import[] {
-                new Import("TEXT_HTML_HOST", "javax.print.DocFlavor.BYTE_ARRAY", true),
-                new Import("TEXT_HTML_HOST", "javax.print.DocFlavor.INPUT_STREAM", true),
-                new Import("TEXT_HTML_HOST", "javax.print.DocFlavor.URL", true),
-              })
-          .put(
-              "MetalInternalFrameUI",
-              new Import[] {
-                new Import("MetalInternalFrameUI", "javax.swing.plaf.metal", false),
-              })
-          .put(
-              "getAttribute",
-              new Import[] {
-                new Import("getAttribute", "java.nio.file.Files", true),
-                new Import("getAttribute", "javax.swing.text.html.CSS", true),
-              })
-          .put(
-              "arrayElementSetter",
-              new Import[] {
-                new Import("arrayElementSetter", "java.lang.invoke.MethodHandles", true),
-              })
-          .put(
-              "AclEntryFlag",
-              new Import[] {
-                new Import("AclEntryFlag", "java.nio.file.attribute", false),
-              })
-          .put(
-              "ServantActivatorPOA",
-              new Import[] {
-                new Import("ServantActivatorPOA", "org.omg.PortableServer", false),
-              })
-          .put(
-              "textText",
-              new Import[] {
-                new Import("textText", "java.awt.SystemColor", true),
-              })
-          .put(
-              "ChangeListener",
-              new Import[] {
-                new Import("ChangeListener", "javax.swing.event", false),
-              })
-          .put(
-              "EAST",
-              new Import[] {
-                new Import("EAST", "java.awt.BorderLayout", true),
-                new Import("EAST", "java.awt.GridBagConstraints", true),
-                new Import("EAST", "javax.swing.SpringLayout", true),
-                new Import("EAST", "javax.swing.SwingConstants", true),
-              })
-          .put(
-              "setAll",
-              new Import[] {
-                new Import("setAll", "java.util.Arrays", true),
-              })
-          .put(
-              "INDETERMINATE",
-              new Import[] {
-                new Import("INDETERMINATE", "javax.accessibility.AccessibleState", true),
-                new Import("INDETERMINATE", "javax.xml.datatype.DatatypeConstants", true),
-              })
-          .put(
-              "TEXT_HTML_UTF_16",
-              new Import[] {
-                new Import("TEXT_HTML_UTF_16", "javax.print.DocFlavor.BYTE_ARRAY", true),
-                new Import("TEXT_HTML_UTF_16", "javax.print.DocFlavor.INPUT_STREAM", true),
-                new Import("TEXT_HTML_UTF_16", "javax.print.DocFlavor.URL", true),
-              })
-          .put(
-              "BORDER_BOTTOM_COLOR",
-              new Import[] {
-                new Import("BORDER_BOTTOM_COLOR", "javax.swing.text.html.CSS.Attribute", true),
-              })
-          .put(
-              "getProperty",
-              new Import[] {
-                new Import("getProperty", "java.awt.Toolkit", true),
-                new Import("getProperty", "java.lang.System", true),
-                new Import("getProperty", "java.security.Security", true),
-              })
-          .put(
-              "CLOB",
-              new Import[] {
-                new Import("CLOB", "java.sql.Types", true),
-              })
-          .put(
-              "CENOFF",
-              new Import[] {
-                new Import("CENOFF", "java.util.jar.JarEntry", true),
-                new Import("CENOFF", "java.util.jar.JarFile", true),
-                new Import("CENOFF", "java.util.jar.JarInputStream", true),
-                new Import("CENOFF", "java.util.jar.JarOutputStream", true),
-                new Import("CENOFF", "java.util.zip.ZipEntry", true),
-                new Import("CENOFF", "java.util.zip.ZipFile", true),
-                new Import("CENOFF", "java.util.zip.ZipInputStream", true),
-                new Import("CENOFF", "java.util.zip.ZipOutputStream", true),
-              })
-          .put(
-              "LogicalHandler",
-              new Import[] {
-                new Import("LogicalHandler", "javax.xml.ws.handler", false),
-              })
-          .put(
-              "setBeanInfoSearchPath",
-              new Import[] {
-                new Import("setBeanInfoSearchPath", "java.beans.Introspector", true),
-              })
-          .put(
-              "AsynchronousServerSocketChannel",
-              new Import[] {
-                new Import("AsynchronousServerSocketChannel", "java.nio.channels", false),
-              })
-          .put(
-              "importedKeySetNull",
-              new Import[] {
-                new Import("importedKeySetNull", "java.sql.DatabaseMetaData", true),
-              })
-          .put(
-              "FileNameExtensionFilter",
-              new Import[] {
-                new Import("FileNameExtensionFilter", "javax.swing.filechooser", false),
-              })
-          .put(
-              "XmlSchemaType",
-              new Import[] {
-                new Import("XmlSchemaType", "javax.xml.bind.annotation", false),
-              })
-          .put(
-              "IOR",
-              new Import[] {
-                new Import("IOR", "org.omg.IOP", false),
-              })
-          .put(
-              "FileDescriptor",
-              new Import[] {
-                new Import("FileDescriptor", "java.io", false),
-              })
-          .put(
-              "ChangeEvent",
-              new Import[] {
-                new Import("ChangeEvent", "javax.swing.event", false),
-              })
-          .put(
-              "TreeCellEditor",
-              new Import[] {
-                new Import("TreeCellEditor", "javax.swing.tree", false),
-              })
-          .put(
-              "DHPrivateKeySpec",
-              new Import[] {
-                new Import("DHPrivateKeySpec", "javax.crypto.spec", false),
-              })
-          .put(
-              "X500Principal",
-              new Import[] {
-                new Import("X500Principal", "javax.security.auth.x500", false),
-              })
-          .put(
-              "DEFAULT_OBJECT_MODEL_URI",
-              new Import[] {
-                new Import("DEFAULT_OBJECT_MODEL_URI", "javax.xml.xpath.XPathFactory", true),
-              })
-          .put(
-              "WEIGHT_MEDIUM",
-              new Import[] {
-                new Import("WEIGHT_MEDIUM", "java.awt.font.TextAttribute", true),
-              })
-          .put(
-              "REF_invokeInterface",
-              new Import[] {
-                new Import("REF_invokeInterface", "java.lang.invoke.MethodHandleInfo", true),
-              })
-          .put(
-              "LogManager",
-              new Import[] {
-                new Import("LogManager", "java.util.logging", false),
+                new Import("TAI_XUAN_JING_SYMBOLS", "java.lang.Character.UnicodeBlock", true),
               })
           .build();
 }
