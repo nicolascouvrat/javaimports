@@ -1,6 +1,5 @@
-// Test that we still add imports to the best we can even when extending a class of which we cannot
-// find the parent
-package com.nikodoko.javaimports.testdata.besteffort2;
+// Test that we add imports to the best of our abilities when we can't resolve everything
+package besteffort;
 
 public class Test extends Base {
   Map<String, String> test;

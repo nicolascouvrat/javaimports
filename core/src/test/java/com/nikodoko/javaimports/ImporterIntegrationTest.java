@@ -74,7 +74,9 @@ public class ImporterIntegrationTest {
           inputs.put(pkgName, pkg);
         }
 
-        pkg.files.put(fileName, contents);
+        // In order to support multiple folders, authorize the following naming pattern: a-B.java ->
+        // a/B.java
+        pkg.files.put(fileName.replace("-", "/"), contents);
         if (extension.equals(inputExtension)) {
           pkg.target = fileName;
         }

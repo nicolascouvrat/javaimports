@@ -11,6 +11,7 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import com.nikodoko.javaimports.parser.ParserOptions;
+import com.nikodoko.javaimports.resolver.Resolvers;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.IOError;
 import java.io.IOException;
@@ -102,15 +103,14 @@ public final class Importer {
       return applyFixes(f, javaCode, r);
     }
 
+    // Files in a same package can be in a different folder (if we are resolving a test file for
+    // example) and the siblings we've added so far are only the ones found in the same folder.
+    // If other files in the package contain identifiers that also are in the standard library, we
+    // want to resolve them before so as to avoid adding uneeded imports, so we need to add both the
+    // stdlib provider and the resolver at the same time.
     fixer.addStdlibProvider(StdlibProviders.java8());
+    fixer.addResolver(Resolvers.basedOnEnvironment(filename));
 
-    r = fixer.tryToFix();
-
-    if (r.done()) {
-      return applyFixes(f, javaCode, r);
-    }
-
-    // Do one last ditch effort
     return applyFixes(f, javaCode, fixer.lastTryToFix());
   }
 

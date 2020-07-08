@@ -1,0 +1,16 @@
+// Test that we add imports to the best of our abilities when we can't resolve everything
+package besteffort;import java.util.ArrayList;import java.util.List;import static com.google.common.base.Preconditions.checkArgument;
+
+public class Test extends Base {
+  Map<String, String> test;
+
+  private List<Structure> function() {
+    List<Structure> l = new ArrayList<>();
+    checkArgument(l != null, "error");
+    for (int i = 0; i < 10; i++) {
+      l.add(baseGenerator(i));
+    }
+
+    return l;
+  }
+}

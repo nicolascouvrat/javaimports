@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.testdata.withpackage;
+package besteffort;
 
 public class Base {
   Structure baseGenerator(int i) {

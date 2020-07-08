@@ -1,8 +1,8 @@
 // Check that duplicates are removed
-package main;
+package duplicate;
 
 import java.util.List;
-import java.util.List     ;
+
 import java.util.ArrayList;
 
 class Test {}

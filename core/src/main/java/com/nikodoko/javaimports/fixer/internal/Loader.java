@@ -5,11 +5,14 @@ import com.nikodoko.javaimports.parser.ClassHierarchies;
 import com.nikodoko.javaimports.parser.ClassHierarchy;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.resolver.Resolver;
+import com.nikodoko.javaimports.resolver.Resolvers;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -21,6 +24,7 @@ public class Loader {
   private StdlibProvider stdlib = StdlibProviders.empty();
   private Map<String, Import> candidates = new HashMap<>();
   private LoadResult result = new LoadResult();
+  private Resolver resolver = Resolvers.empty();
   private ParsedFile file;
 
   private Loader(ParsedFile file) {
@@ -41,6 +45,13 @@ public class Loader {
 
   public void addStdlibProvider(StdlibProvider provider) {
     this.stdlib = provider;
+  }
+
+  public void addResolver(Resolver resolver) {
+    this.resolver = resolver;
+    // The resolver lets us find not only the siblings in the same folder, but also the siblings in
+    // other folders of the same project
+    this.siblings = resolver.filesInPackage(file.packageName());
   }
 
   /** Returns the list of candidates found by this loader */
@@ -65,6 +76,7 @@ public class Loader {
 
     addSiblingImportsAsCandidates();
     addStdlibCandidates();
+    addExternalCandidates();
   }
 
   private void resolveAllJavaLang() {
@@ -76,6 +88,15 @@ public class Loader {
     }
 
     result.unresolved = difference(result.unresolved, inJavaLang);
+  }
+
+  private void addExternalCandidates() {
+    for (String identifier : result.unresolved) {
+      Optional<Import> maybeCandidate = resolver.find(identifier);
+      if (maybeCandidate.isPresent()) {
+        candidates.put(identifier, maybeCandidate.get());
+      }
+    }
   }
 
   private void addStdlibCandidates() {

@@ -1,0 +1,3 @@
+package withotherpackages.other;
+
+public class OtherClass {}

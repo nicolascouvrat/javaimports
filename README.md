@@ -29,8 +29,10 @@ Options:
 2. fetching imports from the standard java library (defined
    [here](https://docs.oracle.com/javase/8/docs/api/allclasses-noframe.html) for java 8 for
    instance).
+3. fetching imports from other files in the same project
 
-For now, the only version of the standard library supported is Java 8.
+For now, the only version of the standard library supported is Java 8. Steps after **3.** use
+build-system-specific information, and currently only support Maven.
 
 ## Credit
 

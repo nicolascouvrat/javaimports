@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.testdata.withpackage;
+package withpackage;
 
 public class Structure {
   private int i;
