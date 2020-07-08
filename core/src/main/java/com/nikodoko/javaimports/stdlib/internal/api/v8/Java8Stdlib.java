@@ -83,6 +83,58 @@ public class Java8Stdlib implements Stdlib {
     if (classes != null) {
       return classes;
     }
+    classes = Java8StdlibChunk19.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk20.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk21.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk22.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk23.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk24.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk25.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk26.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk27.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk28.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk29.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk30.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
+    classes = Java8StdlibChunk31.CLASSES.get(identifier);
+    if (classes != null) {
+      return classes;
+    }
     return null;
   }
 }
