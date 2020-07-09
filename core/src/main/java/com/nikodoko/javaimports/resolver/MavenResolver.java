@@ -7,10 +7,12 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import com.nikodoko.javaimports.parser.ParserOptions;
+import java.io.FileReader;
 import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -99,6 +101,37 @@ public class MavenResolver implements Resolver {
         importsForIdentifier.add(i);
         importsByIdentifier.put(i.i.name(), importsForIdentifier);
       }
+    }
+  }
+
+  private List<MavenDependency> findAllDependencies() {
+    MavenDependencyFinder finder = new MavenDependencyFinder();
+    scanPom(root, finder);
+
+    Path target = root.getParent();
+    while (target != null && !finder.allFound()) {
+      if (!hasPom(target)) {
+        break;
+      }
+
+      scanPom(target, finder);
+      target = target.getParent();
+    }
+
+    return finder.result();
+  }
+
+  private boolean hasPom(Path directory) {
+    Path pom = Paths.get(directory.toString(), "pom.xml");
+    return Files.exists(pom);
+  }
+
+  private void scanPom(Path directory, MavenDependencyFinder finder) {
+    Path pom = Paths.get(directory.toString(), "pom.xml");
+    try (FileReader reader = new FileReader(pom.toFile())) {
+      finder.scan(reader);
+    } catch (IOException e) {
+      throw new IOError(e);
     }
   }
 
