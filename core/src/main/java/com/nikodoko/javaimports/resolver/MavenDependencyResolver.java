@@ -12,6 +12,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 class MavenDependencyResolver {
+  private static final String SUBCLASS_SEPARATOR = "$";
   final Path fileBeingResolved;
   final Path repository;
 
@@ -41,6 +42,7 @@ class MavenDependencyResolver {
     try (JarInputStream in = new JarInputStream(new FileInputStream(jar.toString()))) {
       JarEntry entry;
       while ((entry = in.getNextJarEntry()) != null) {
+        // XXX: this will get all classes, including private and protected ones
         if (entry.getName().endsWith(".class")) {
           Import i = parseImport(Paths.get(entry.getName()));
           imports.add(ImportWithDistance.of(i, jar, fileBeingResolved));
@@ -54,7 +56,15 @@ class MavenDependencyResolver {
   private Import parseImport(Path jarEntry) {
     String pkg = jarEntry.getParent().toString().replace("/", ".");
     String name = Files.getNameWithoutExtension(jarEntry.getFileName().toString());
-    return new Import(pkg, name, false);
+    if (!name.contains(SUBCLASS_SEPARATOR)) {
+      return new Import(pkg, name, false);
+    }
+
+    // Make the subclass addressable by its name
+    String extraPkg =
+        name.substring(0, name.lastIndexOf(SUBCLASS_SEPARATOR)).replace(SUBCLASS_SEPARATOR, ".");
+    String subclassName = name.substring(name.lastIndexOf(SUBCLASS_SEPARATOR) + 1, name.length());
+    return new Import(String.join(".", pkg, extraPkg), subclassName, false);
   }
 
   private Path relativePath(MavenDependency dependency) {
