@@ -1,18 +1,25 @@
 package com.nikodoko.javaimports.resolver;
 
-import com.google.common.io.Files;
 import com.nikodoko.javaimports.parser.Import;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 class MavenDependencyResolver {
   private static final String SUBCLASS_SEPARATOR = "$";
+  // Supports "exotic" versioning, like guava's "26.0-jre"
+  private static final Pattern VERSION_REGEX =
+      Pattern.compile("(?:\\S+)?(?<version>\\d+(?:\\.\\d+)+)(?:\\S+)?");
   final Path fileBeingResolved;
   final Path repository;
 
@@ -32,9 +39,7 @@ class MavenDependencyResolver {
 
   private List<ImportWithDistance> resolveDependency(MavenDependency dependency)
       throws IOException {
-    Path relative = relativePath(dependency);
-    Path dependencyJar = Paths.get(repository.toString(), relative.toString());
-    return scanJar(dependencyJar);
+    return scanJar(jarPath(dependency));
   }
 
   private List<ImportWithDistance> scanJar(Path jar) throws IOException {
@@ -55,7 +60,8 @@ class MavenDependencyResolver {
 
   private Import parseImport(Path jarEntry) {
     String pkg = jarEntry.getParent().toString().replace("/", ".");
-    String name = Files.getNameWithoutExtension(jarEntry.getFileName().toString());
+    String filename = jarEntry.getFileName().toString();
+    String name = filename.substring(0, filename.lastIndexOf("."));
     if (!name.contains(SUBCLASS_SEPARATOR)) {
       return new Import(pkg, name, false);
     }
@@ -67,15 +73,32 @@ class MavenDependencyResolver {
     return new Import(String.join(".", pkg, extraPkg), subclassName, false);
   }
 
-  private Path relativePath(MavenDependency dependency) {
+  private Path jarPath(MavenDependency dependency) throws IOException {
+    Path dependencyRepository =
+        Paths.get(
+            repository.toString(), dependency.groupId.replace(".", "/"), dependency.artifactId);
+    String version = dependency.version;
+    if (!dependency.hasPlainVersion()) {
+      version = getLatestAvailableVersion(dependencyRepository).name;
+    }
+
     return Paths.get(
-        dependency.groupId.replace(".", "/"),
-        dependency.artifactId,
-        dependency.version,
-        jarName(dependency.artifactId, dependency.version));
+        dependencyRepository.toString(), version, jarName(dependency.artifactId, version));
   }
 
   private String jarName(String artifactId, String version) {
     return String.format("%s-%s.jar", artifactId, version);
+  }
+
+  private MavenDependencyVersion getLatestAvailableVersion(Path dependencyRepository)
+      throws IOException {
+    List<MavenDependencyVersion> versions =
+        Files.find(dependencyRepository, 1, (path, attributes) -> Files.isDirectory(path))
+            .map(p -> MavenDependencyVersion.of(p.getFileName().toString()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
+
+    return Collections.max(versions);
   }
 }

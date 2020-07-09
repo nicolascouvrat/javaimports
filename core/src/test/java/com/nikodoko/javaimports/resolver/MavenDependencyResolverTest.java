@@ -49,4 +49,20 @@ class MavenDependencyResolverTest {
 
     assertThat(got).containsExactlyElementsIn(expected);
   }
+
+  @Test
+  void testDependencyWithoutPlainVersionIsResolvedToLatest() throws Exception {
+    List<ImportWithDistance> expected =
+        ImmutableList.of(
+            new ImportWithDistance(new Import("com.mycompany.app.App", "Subclass", false), 6),
+            new ImportWithDistance(
+                new Import("com.mycompany.app.App.Subclass", "Subsubclass", false), 6),
+            new ImportWithDistance(new Import("com.mycompany.app", "App", false), 6));
+
+    List<ImportWithDistance> got =
+        resolver.resolve(
+            ImmutableList.of(new MavenDependency("com.mycompany.app", "a-dependency", null)));
+
+    assertThat(got).containsExactlyElementsIn(expected);
+  }
 }
