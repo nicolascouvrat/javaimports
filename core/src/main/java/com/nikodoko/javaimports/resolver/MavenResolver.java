@@ -82,6 +82,24 @@ public class MavenResolver implements Resolver {
         importsByIdentifier.put(i.i.name(), importsForIdentifier);
       }
     }
+
+    for (ImportWithDistance i : extractImportsInDependencies()) {
+      List<ImportWithDistance> importsForIdentifier =
+          importsByIdentifier.getOrDefault(i.i.name(), new ArrayList<>());
+      importsForIdentifier.add(i);
+      importsByIdentifier.put(i.i.name(), importsForIdentifier);
+    }
+  }
+
+  private List<ImportWithDistance> extractImportsInDependencies() {
+    try {
+      Path repository = Paths.get(System.getProperty("user.home"), ".m2/repository");
+      MavenDependencyResolver resolver = new MavenDependencyResolver(fileBeingResolved, repository);
+      List<MavenDependency> dependencies = findAllDependencies();
+      return resolver.resolve(dependencies);
+    } catch (IOException e) {
+      throw new IOError(e);
+    }
   }
 
   private List<MavenDependency> findAllDependencies() {
