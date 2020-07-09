@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MavenDependencyVersion {
+public class MavenDependencyVersion implements Comparable<MavenDependencyVersion> {
   // Supports "exotic" versioning, like guava's "26.0-jre"
   private static final Pattern VERSION_REGEX =
       Pattern.compile("(?:\\D+)?(?<versionNumber>\\d+(?:\\.\\d+)+)(?:\\D+)?");
@@ -41,6 +41,22 @@ public class MavenDependencyVersion {
 
     MavenDependencyVersion v = (MavenDependencyVersion) o;
     return Objects.equals(v.name, name) && Objects.equals(v.number, number);
+  }
+
+  @Override
+  public int compareTo(MavenDependencyVersion other) {
+    String[] numbers = number.split("\\.");
+    String[] otherNumbers = other.number.split("\\.");
+    int maxLength = Math.max(numbers.length, otherNumbers.length);
+    for (int i = 0; i < maxLength; i++) {
+      Integer number = i < numbers.length ? Integer.parseInt(numbers[i]) : 0;
+      Integer otherNumber = i < otherNumbers.length ? Integer.parseInt(otherNumbers[i]) : 0;
+      Integer res = number.compareTo(otherNumber);
+
+      if (res != 0) return res;
+    }
+
+    return 0;
   }
 
   @Override
