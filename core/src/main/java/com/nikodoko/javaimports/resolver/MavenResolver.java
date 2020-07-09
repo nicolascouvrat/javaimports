@@ -30,26 +30,6 @@ public class MavenResolver implements Resolver {
     Path path;
   }
 
-  private static class ImportWithDistance implements Comparable<ImportWithDistance> {
-    Import i;
-    // The distance to an imports is defined as the length of the relative path between the file
-    // being resolved and the directory containing this import.
-    int distance;
-
-    @Override
-    public int compareTo(ImportWithDistance other) {
-      if (other.distance == distance) {
-        return 0;
-      }
-
-      if (distance > other.distance) {
-        return 1;
-      }
-
-      return -1;
-    }
-  }
-
   private final Path root;
   private final Path fileBeingResolved;
   private Map<String, List<ImportWithDistance>> importsByIdentifier = new HashMap<>();
@@ -150,17 +130,11 @@ public class MavenResolver implements Resolver {
   private List<ImportWithDistance> extractImports(JavaFile file) {
     List<ImportWithDistance> imports = new ArrayList<>();
     for (String identifier : file.contents.topLevelDeclarations()) {
-      ImportWithDistance toAdd = new ImportWithDistance();
-      toAdd.i = new Import(identifier, file.contents.packageName(), false);
-      toAdd.distance = distance(fileBeingResolved, file.path);
-      imports.add(toAdd);
+      Import i = new Import(identifier, file.contents.packageName(), false);
+      imports.add(ImportWithDistance.of(i, file.path, fileBeingResolved));
     }
 
     return imports;
-  }
-
-  private int distance(Path from, Path to) {
-    return from.relativize(to).toString().split("/").length;
   }
 
   private JavaFile parseFile(Path path) {
