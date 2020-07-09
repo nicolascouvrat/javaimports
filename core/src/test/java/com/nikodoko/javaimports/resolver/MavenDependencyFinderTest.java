@@ -66,6 +66,36 @@ public class MavenDependencyFinderTest {
     assertThat(finder.result()).containsExactlyElementsIn(expected);
   }
 
+  @Test
+  void testDependenciesUsingParametersAreNotComplete() throws Exception {
+    MavenDependencyFinder finder = new MavenDependencyFinder();
+    String[] pom =
+        new String[] {
+          "<project>",
+          " <modelVersion>4.0.0</modelVersion>",
+          " <groupId>com.nikodoko.javaimports</groupId>",
+          " <artifactId>javaimports-parent</artifactId>",
+          " <packaging>pom</packaging>",
+          " <version>0.2-SNAPSHOT</version>",
+          " <dependencies>",
+          "   <dependency>",
+          "     <groupId>com.google.guava</groupId>",
+          "     <artifactId>guava</artifactId>",
+          "     <version>${guava.version}</version>",
+          "   </dependency>",
+          " </dependencies>",
+          "</project>",
+        };
+    List<MavenDependency> expected =
+        ImmutableList.of(new MavenDependency("com.google.guava", "guava", "${guava.version}"));
+    try (StringReader reader = getReader(pom)) {
+      finder.scan(reader);
+    }
+
+    assertThat(finder.allFound()).isFalse();
+    assertThat(finder.result()).containsExactlyElementsIn(expected);
+  }
+
   private static StringReader getReader(String[] pom) {
     return new StringReader(String.join("\n", pom) + "\n");
   }

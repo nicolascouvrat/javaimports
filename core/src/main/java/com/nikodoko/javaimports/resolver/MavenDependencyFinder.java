@@ -25,7 +25,7 @@ class MavenDependencyFinder {
           new MavenDependency(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
       dependencies.add(dependency);
 
-      if (!dependency.isComplete()) {
+      if (!dependency.hasPlainVersion()) {
         ok = false;
       }
     }

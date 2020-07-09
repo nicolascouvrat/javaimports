@@ -1,16 +1,23 @@
 package com.nikodoko.javaimports.resolver;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.MoreObjects;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MavenDependency {
+  private static final Pattern parameterPattern = Pattern.compile("\\$\\{(?<parameter>\\S+)\\}");
   final String groupId;
   final String artifactId;
   final String version;
 
   MavenDependency(String groupId, String artifactId, String version) {
+    checkNotNull(groupId, "maven dependency does not accept a null groupId");
+    checkNotNull(artifactId, "maven dependency does not accept a null artifactId");
     this.groupId = groupId;
     this.artifactId = artifactId;
     this.version = version;
@@ -20,8 +27,13 @@ public class MavenDependency {
     return Paths.get(groupId.replace("\\.", "/"), artifactId, version);
   }
 
-  boolean isComplete() {
-    return groupId != null && artifactId != null && version != null;
+  boolean hasPlainVersion() {
+    if (version == null) {
+      return false;
+    }
+
+    Matcher m = parameterPattern.matcher(version);
+    return !m.matches();
   }
 
   @Override
