@@ -25,7 +25,7 @@ class MavenDependencyResolverTest {
   @Test
   void testDependencyWithPlainVersionIsResolved() throws Exception {
     List<ImportWithDistance> expected =
-        ImmutableList.of(new ImportWithDistance(new Import("com.mycompany.app", "App", false), 6));
+        ImmutableList.of(new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
 
     List<ImportWithDistance> got =
         resolver.resolve(
@@ -38,10 +38,10 @@ class MavenDependencyResolverTest {
   void testSubclassIsResolved() throws Exception {
     List<ImportWithDistance> expected =
         ImmutableList.of(
-            new ImportWithDistance(new Import("com.mycompany.app.App", "Subclass", false), 6),
+            new ImportWithDistance(new Import("Subclass", "com.mycompany.app.App", false), 6),
             new ImportWithDistance(
-                new Import("com.mycompany.app.App.Subclass", "Subsubclass", false), 6),
-            new ImportWithDistance(new Import("com.mycompany.app", "App", false), 6));
+                new Import("Subsubclass", "com.mycompany.app.App.Subclass", false), 6),
+            new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
 
     List<ImportWithDistance> got =
         resolver.resolve(
@@ -54,10 +54,10 @@ class MavenDependencyResolverTest {
   void testDependencyWithoutPlainVersionIsResolvedToLatest() throws Exception {
     List<ImportWithDistance> expected =
         ImmutableList.of(
-            new ImportWithDistance(new Import("com.mycompany.app.App", "Subclass", false), 6),
+            new ImportWithDistance(new Import("Subclass", "com.mycompany.app.App", false), 6),
             new ImportWithDistance(
-                new Import("com.mycompany.app.App.Subclass", "Subsubclass", false), 6),
-            new ImportWithDistance(new Import("com.mycompany.app", "App", false), 6));
+                new Import("Subsubclass", "com.mycompany.app.App.Subclass", false), 6),
+            new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
 
     List<ImportWithDistance> got =
         resolver.resolve(

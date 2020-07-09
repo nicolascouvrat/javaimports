@@ -63,14 +63,14 @@ class MavenDependencyResolver {
     String filename = jarEntry.getFileName().toString();
     String name = filename.substring(0, filename.lastIndexOf("."));
     if (!name.contains(SUBCLASS_SEPARATOR)) {
-      return new Import(pkg, name, false);
+      return new Import(name, pkg, false);
     }
 
     // Make the subclass addressable by its name
     String extraPkg =
         name.substring(0, name.lastIndexOf(SUBCLASS_SEPARATOR)).replace(SUBCLASS_SEPARATOR, ".");
     String subclassName = name.substring(name.lastIndexOf(SUBCLASS_SEPARATOR) + 1, name.length());
-    return new Import(String.join(".", pkg, extraPkg), subclassName, false);
+    return new Import(subclassName, String.join(".", pkg, extraPkg), false);
   }
 
   private Path jarPath(MavenDependency dependency) throws IOException {
