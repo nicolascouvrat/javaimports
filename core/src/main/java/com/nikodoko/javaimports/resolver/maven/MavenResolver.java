@@ -10,7 +10,6 @@ import com.nikodoko.javaimports.parser.ParserOptions;
 import com.nikodoko.javaimports.resolver.ImportWithDistance;
 import com.nikodoko.javaimports.resolver.Resolver;
 import java.io.FileReader;
-import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MavenResolver implements Resolver {
   private static class JavaFile {
@@ -46,7 +44,7 @@ public class MavenResolver implements Resolver {
   @Override
   public Set<ParsedFile> filesInPackage(String packageName) {
     if (!isInitialized) {
-      init();
+      safeInit();
     }
 
     Set<ParsedFile> files = new HashSet<>();
@@ -62,7 +60,7 @@ public class MavenResolver implements Resolver {
   @Override
   public Optional<Import> find(String identifier) {
     if (!isInitialized) {
-      init();
+      safeInit();
     }
 
     List<ImportWithDistance> imports = importsByIdentifier.get(identifier);
@@ -73,8 +71,19 @@ public class MavenResolver implements Resolver {
     return Optional.of(Collections.min(imports).i);
   }
 
-  private void init() {
-    filesInProject = javaFilesNotBeingResolved().map(this::parseFile).collect(Collectors.toList());
+  private void safeInit() {
+    try {
+      init();
+    } catch (Exception e) {
+      // TODO: decide what to do here
+      e.printStackTrace();
+    }
+  }
+
+  private void init() throws IOException, ImporterException {
+    for (Path javaFile : javaFilesNotBeingResolved()) {
+      filesInProject.add(parseFile(javaFile));
+    }
 
     for (JavaFile file : filesInProject) {
       for (ImportWithDistance i : extractImports(file)) {
@@ -93,18 +102,14 @@ public class MavenResolver implements Resolver {
     }
   }
 
-  private List<ImportWithDistance> extractImportsInDependencies() {
-    try {
-      Path repository = Paths.get(System.getProperty("user.home"), ".m2/repository");
-      MavenDependencyResolver resolver = new MavenDependencyResolver(fileBeingResolved, repository);
-      List<MavenDependency> dependencies = findAllDependencies();
-      return resolver.resolve(dependencies);
-    } catch (IOException e) {
-      throw new IOError(e);
-    }
+  private List<ImportWithDistance> extractImportsInDependencies() throws IOException {
+    Path repository = Paths.get(System.getProperty("user.home"), ".m2/repository");
+    MavenDependencyResolver resolver = new MavenDependencyResolver(fileBeingResolved, repository);
+    List<MavenDependency> dependencies = findAllDependencies();
+    return resolver.resolve(dependencies);
   }
 
-  private List<MavenDependency> findAllDependencies() {
+  private List<MavenDependency> findAllDependencies() throws IOException {
     MavenDependencyFinder finder = new MavenDependencyFinder();
     scanPom(root, finder);
 
@@ -126,25 +131,20 @@ public class MavenResolver implements Resolver {
     return Files.exists(pom);
   }
 
-  private void scanPom(Path directory, MavenDependencyFinder finder) {
+  private void scanPom(Path directory, MavenDependencyFinder finder) throws IOException {
     Path pom = Paths.get(directory.toString(), "pom.xml");
     try (FileReader reader = new FileReader(pom.toFile())) {
       finder.scan(reader);
-    } catch (IOException e) {
-      throw new IOError(e);
     }
   }
 
-  private Stream<Path> javaFilesNotBeingResolved() {
-    try {
-      return Files.find(
-          root,
-          100,
-          (path, attributes) ->
-              path.toString().endsWith(".java") && !path.equals(fileBeingResolved));
-    } catch (IOException e) {
-      throw new IOError(e);
-    }
+  private List<Path> javaFilesNotBeingResolved() throws IOException {
+    return Files.find(
+            root,
+            100,
+            (path, attributes) ->
+                path.toString().endsWith(".java") && !path.equals(fileBeingResolved))
+        .collect(Collectors.toList());
   }
 
   private List<ImportWithDistance> extractImports(JavaFile file) {
@@ -157,15 +157,11 @@ public class MavenResolver implements Resolver {
     return imports;
   }
 
-  private JavaFile parseFile(Path path) {
-    try {
-      String source = new String(Files.readAllBytes(path), UTF_8);
-      JavaFile file = new JavaFile();
-      file.contents = new Parser(ParserOptions.builder().debug(false).build()).parse(path, source);
-      file.path = path;
-      return file;
-    } catch (IOException | ImporterException e) {
-      throw new RuntimeException(e);
-    }
+  private JavaFile parseFile(Path path) throws IOException, ImporterException {
+    String source = new String(Files.readAllBytes(path), UTF_8);
+    JavaFile file = new JavaFile();
+    file.contents = new Parser(ParserOptions.builder().debug(false).build()).parse(path, source);
+    file.path = path;
+    return file;
   }
 }
