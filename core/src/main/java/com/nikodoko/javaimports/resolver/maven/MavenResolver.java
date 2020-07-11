@@ -105,6 +105,8 @@ public class MavenResolver implements Resolver {
       importsForIdentifier.add(i);
       importsByIdentifier.put(i.i.name(), importsForIdentifier);
     }
+
+    isInitialized = true;
   }
 
   private List<ImportWithDistance> extractImportsInDependencies() throws IOException {
