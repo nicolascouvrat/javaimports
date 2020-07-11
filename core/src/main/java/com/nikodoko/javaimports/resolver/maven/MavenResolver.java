@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver;
+package com.nikodoko.javaimports.resolver.maven;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -7,6 +7,8 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import com.nikodoko.javaimports.parser.ParserOptions;
+import com.nikodoko.javaimports.resolver.ImportWithDistance;
+import com.nikodoko.javaimports.resolver.Resolver;
 import java.io.FileReader;
 import java.io.IOError;
 import java.io.IOException;
@@ -36,7 +38,7 @@ public class MavenResolver implements Resolver {
   private List<JavaFile> filesInProject = new ArrayList<>();
   private boolean isInitialized = false;
 
-  MavenResolver(Path root, Path fileBeingResolved) {
+  public MavenResolver(Path root, Path fileBeingResolved) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
   }

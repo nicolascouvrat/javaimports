@@ -5,18 +5,18 @@ import com.nikodoko.javaimports.parser.Import;
 import java.nio.file.Path;
 import java.util.Objects;
 
-class ImportWithDistance implements Comparable<ImportWithDistance> {
-  final Import i;
+public class ImportWithDistance implements Comparable<ImportWithDistance> {
+  public final Import i;
   // The distance to an imports is defined as the length of the relative path between the file
   // being resolved and the directory containing this import.
-  final int distance;
+  public final int distance;
 
-  ImportWithDistance(Import i, int distance) {
+  public ImportWithDistance(Import i, int distance) {
     this.i = i;
     this.distance = distance;
   }
 
-  static ImportWithDistance of(Import i, Path in, Path from) {
+  public static ImportWithDistance of(Import i, Path in, Path from) {
     return new ImportWithDistance(i, distance(from, in));
   }
 

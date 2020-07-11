@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver;
+package com.nikodoko.javaimports.resolver.maven;
 
 import static com.google.common.truth.Truth8.assertThat;
 

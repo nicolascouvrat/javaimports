@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver;
+package com.nikodoko.javaimports.resolver.maven;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

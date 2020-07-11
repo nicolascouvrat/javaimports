@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver;
+package com.nikodoko.javaimports.resolver.maven;
 
 import static com.google.common.truth.Truth8.assertThat;
 
@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.truth.Truth;
 import com.nikodoko.javaimports.parser.Import;
+import com.nikodoko.javaimports.resolver.Resolver;
+import com.nikodoko.javaimports.resolver.Resolvers;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
 import com.nikodoko.packagetest.Module;

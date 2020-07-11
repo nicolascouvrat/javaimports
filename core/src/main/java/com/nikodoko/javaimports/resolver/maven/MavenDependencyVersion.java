@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver;
+package com.nikodoko.javaimports.resolver.maven;
 
 import com.google.common.base.MoreObjects;
 import java.util.Objects;

@@ -1,6 +1,7 @@
-package com.nikodoko.javaimports.resolver;
+package com.nikodoko.javaimports.resolver.maven;
 
 import com.nikodoko.javaimports.parser.Import;
+import com.nikodoko.javaimports.resolver.ImportWithDistance;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
