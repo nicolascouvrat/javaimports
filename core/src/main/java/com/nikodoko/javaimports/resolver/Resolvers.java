@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.resolver;
 
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.resolver.maven.MavenResolver;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
