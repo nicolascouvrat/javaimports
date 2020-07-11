@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.fixer;
 
+import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.fixer.internal.LoadResult;
 import com.nikodoko.javaimports.fixer.internal.Loader;
 import com.nikodoko.javaimports.parser.ClassExtender;
@@ -19,12 +20,12 @@ import java.util.stream.Collectors;
  */
 public class Fixer {
   private ParsedFile file;
-  private FixerOptions options;
+  private Options options;
   private static Logger log = Logger.getLogger(Fixer.class.getName());
 
   private Loader loader;
 
-  private Fixer(ParsedFile file, FixerOptions options) {
+  private Fixer(ParsedFile file, Options options) {
     this.file = file;
     this.options = options;
     this.loader = Loader.of(file);
@@ -36,7 +37,7 @@ public class Fixer {
    * @param file the source file to fix
    * @param options the fixer's options
    */
-  public static Fixer init(ParsedFile file, FixerOptions options) {
+  public static Fixer init(ParsedFile file, Options options) {
     return new Fixer(file, options);
   }
 

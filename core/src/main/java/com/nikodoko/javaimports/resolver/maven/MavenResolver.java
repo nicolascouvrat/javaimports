@@ -3,10 +3,10 @@ package com.nikodoko.javaimports.resolver.maven;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.nikodoko.javaimports.ImporterException;
+import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
-import com.nikodoko.javaimports.parser.ParserOptions;
 import com.nikodoko.javaimports.resolver.ImportWithDistance;
 import com.nikodoko.javaimports.resolver.Resolver;
 import java.io.FileReader;
@@ -160,7 +160,7 @@ public class MavenResolver implements Resolver {
   private JavaFile parseFile(Path path) throws IOException, ImporterException {
     String source = new String(Files.readAllBytes(path), UTF_8);
     JavaFile file = new JavaFile();
-    file.contents = new Parser(ParserOptions.builder().debug(false).build()).parse(path, source);
+    file.contents = new Parser(Options.defaults()).parse(path, source);
     file.path = path;
     return file;
   }

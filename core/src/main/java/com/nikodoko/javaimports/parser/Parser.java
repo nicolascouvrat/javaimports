@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
 import com.nikodoko.javaimports.ImporterException;
+import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.internal.UnresolvedIdentifierScanner;
 import java.io.IOError;
 import java.io.IOException;
@@ -31,7 +32,7 @@ import org.openjdk.tools.javac.util.Log;
  * as classes extending another class not declared in the same file.
  */
 public class Parser {
-  private ParserOptions options;
+  private Options options;
   private static Logger log = Logger.getLogger(Parser.class.getName());
 
   /**
@@ -39,7 +40,7 @@ public class Parser {
    *
    * @param options its options
    */
-  public Parser(ParserOptions options) {
+  public Parser(Options options) {
     this.options = options;
   }
 

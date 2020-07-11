@@ -5,12 +5,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.Range;
 import com.nikodoko.javaimports.fixer.Fixer;
-import com.nikodoko.javaimports.fixer.FixerOptions;
 import com.nikodoko.javaimports.fixer.Result;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
-import com.nikodoko.javaimports.parser.ParserOptions;
 import com.nikodoko.javaimports.resolver.Resolvers;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.IOError;
@@ -31,12 +29,12 @@ import java.util.stream.Collectors;
  * using various approaches.
  */
 public final class Importer {
-  private ImporterOptions options;
+  private Options options;
   private Parser parser;
 
   /** An {@code Importer} constructor with default options */
   public Importer() {
-    this(ImporterOptions.defaults());
+    this(Options.defaults());
   }
 
   /**
@@ -44,17 +42,9 @@ public final class Importer {
    *
    * @param options its options.
    */
-  public Importer(ImporterOptions options) {
+  public Importer(Options options) {
     this.options = options;
-    this.parser = new Parser(parserOptions(options));
-  }
-
-  private static ParserOptions parserOptions(ImporterOptions opts) {
-    return ParserOptions.builder().debug(opts.debug()).build();
-  }
-
-  private static FixerOptions fixerOptions(ImporterOptions opts) {
-    return FixerOptions.builder().debug(opts.debug()).build();
+    this.parser = new Parser(options);
   }
 
   /**
@@ -82,7 +72,7 @@ public final class Importer {
       throws ImporterException {
     ParsedFile f = parser.parse(filename, javaCode);
 
-    Fixer fixer = Fixer.init(f, fixerOptions(options));
+    Fixer fixer = Fixer.init(f, options);
     // Initial run with the current file only.
     Result r = fixer.tryToFix();
 

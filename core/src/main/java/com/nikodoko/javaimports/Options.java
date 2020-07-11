@@ -1,10 +1,10 @@
 package com.nikodoko.javaimports;
 
 /** {@link Importer} options */
-public class ImporterOptions {
+public class Options {
   boolean debug;
 
-  public ImporterOptions(boolean debug) {
+  public Options(boolean debug) {
     this.debug = debug;
   }
 
@@ -23,8 +23,8 @@ public class ImporterOptions {
       return this;
     }
 
-    public ImporterOptions build() {
-      return new ImporterOptions(debug);
+    public Options build() {
+      return new Options(debug);
     }
   }
 
@@ -33,7 +33,7 @@ public class ImporterOptions {
   }
 
   /** Default options */
-  public static ImporterOptions defaults() {
+  public static Options defaults() {
     return builder().debug(false).build();
   }
 }
