@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -110,13 +111,31 @@ public class MavenResolver implements Resolver {
   }
 
   private List<ImportWithDistance> extractImportsInDependencies() throws IOException {
-    Path repository = Paths.get(System.getProperty("user.home"), ".m2/repository");
-    MavenDependencyResolver resolver = new MavenDependencyResolver(fileBeingResolved, repository);
     List<MavenDependency> dependencies = findAllDependencies();
     if (options.debug()) {
-      log.info("found dependencies: " + dependencies.toString());
+      log.info(String.format("found %d dependencies: %s", dependencies.size(), dependencies));
     }
-    return resolver.resolve(dependencies);
+
+    List<ImportWithDistance> imports = new ArrayList<>();
+    for (MavenDependency dependency : dependencies) {
+      imports.addAll(resolveDependency(dependency));
+    }
+
+    return imports;
+  }
+
+  private List<ImportWithDistance> resolveDependency(MavenDependency dependency) {
+    Path repository = Paths.get(System.getProperty("user.home"), ".m2/repository");
+    MavenDependencyResolver resolver = new MavenDependencyResolver(fileBeingResolved, repository);
+    try {
+      return resolver.resolve(dependency);
+    } catch (Exception e) {
+      if (options.debug()) {
+        log.log(Level.INFO, String.format("could not resolve dependency %s", dependency), e);
+      }
+
+      return new ArrayList<>();
+    }
   }
 
   private List<MavenDependency> findAllDependencies() throws IOException {

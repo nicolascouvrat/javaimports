@@ -29,8 +29,7 @@ class MavenDependencyResolverTest {
         ImmutableList.of(new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
 
     List<ImportWithDistance> got =
-        resolver.resolve(
-            ImmutableList.of(new MavenDependency("com.mycompany.app", "a-dependency", "1.0")));
+        resolver.resolve(new MavenDependency("com.mycompany.app", "a-dependency", "1.0"));
 
     assertThat(got).containsExactlyElementsIn(expected);
   }
@@ -45,8 +44,7 @@ class MavenDependencyResolverTest {
             new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
 
     List<ImportWithDistance> got =
-        resolver.resolve(
-            ImmutableList.of(new MavenDependency("com.mycompany.app", "a-dependency", "2.0")));
+        resolver.resolve(new MavenDependency("com.mycompany.app", "a-dependency", "2.0"));
 
     assertThat(got).containsExactlyElementsIn(expected);
   }
@@ -61,8 +59,7 @@ class MavenDependencyResolverTest {
             new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
 
     List<ImportWithDistance> got =
-        resolver.resolve(
-            ImmutableList.of(new MavenDependency("com.mycompany.app", "a-dependency", null)));
+        resolver.resolve(new MavenDependency("com.mycompany.app", "a-dependency", null));
 
     assertThat(got).containsExactlyElementsIn(expected);
   }

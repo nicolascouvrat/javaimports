@@ -29,17 +29,7 @@ class MavenDependencyResolver {
     this.repository = repository;
   }
 
-  List<ImportWithDistance> resolve(List<MavenDependency> dependencies) throws IOException {
-    List<ImportWithDistance> imports = new ArrayList<>();
-    for (MavenDependency dependency : dependencies) {
-      imports.addAll(resolveDependency(dependency));
-    }
-
-    return imports;
-  }
-
-  private List<ImportWithDistance> resolveDependency(MavenDependency dependency)
-      throws IOException {
+  List<ImportWithDistance> resolve(MavenDependency dependency) throws IOException {
     return scanJar(jarPath(dependency));
   }
 
