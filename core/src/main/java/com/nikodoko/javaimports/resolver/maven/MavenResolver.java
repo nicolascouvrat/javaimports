@@ -22,9 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MavenResolver implements Resolver {
+  private static Logger log = Logger.getLogger(Parser.class.getName());
+
   private static class JavaFile {
     ParsedFile contents;
     Path path;
@@ -32,13 +35,15 @@ public class MavenResolver implements Resolver {
 
   private final Path root;
   private final Path fileBeingResolved;
+  private final Options options;
   private Map<String, List<ImportWithDistance>> importsByIdentifier = new HashMap<>();
   private List<JavaFile> filesInProject = new ArrayList<>();
   private boolean isInitialized = false;
 
-  public MavenResolver(Path root, Path fileBeingResolved) {
+  public MavenResolver(Path root, Path fileBeingResolved, Options options) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
+    this.options = options;
   }
 
   @Override
@@ -106,6 +111,9 @@ public class MavenResolver implements Resolver {
     Path repository = Paths.get(System.getProperty("user.home"), ".m2/repository");
     MavenDependencyResolver resolver = new MavenDependencyResolver(fileBeingResolved, repository);
     List<MavenDependency> dependencies = findAllDependencies();
+    if (options.debug()) {
+      log.info("found dependencies: " + dependencies.toString());
+    }
     return resolver.resolve(dependencies);
   }
 

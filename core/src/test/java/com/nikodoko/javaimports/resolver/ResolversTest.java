@@ -4,6 +4,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.resolver.maven.MavenResolver;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
@@ -26,7 +27,7 @@ public class ResolversTest {
     Exported project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver got = Resolvers.basedOnEnvironment(target);
+    Resolver got = Resolvers.basedOnEnvironment(target, Options.defaults());
     assertThat(got).isInstanceOf(MavenResolver.class);
     project.cleanup();
   }

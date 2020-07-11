@@ -5,6 +5,7 @@ import static com.google.common.truth.Truth8.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.truth.Truth;
+import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.resolver.Resolver;
 import com.nikodoko.javaimports.resolver.Resolvers;
@@ -37,7 +38,7 @@ public class MavenResolverTest {
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target);
+    Resolver resolver = Resolvers.basedOnEnvironment(target, Options.defaults());
     assertThat(resolver.find("Second")).hasValue(new Import("Second", "test.module.second", false));
   }
 
@@ -54,7 +55,7 @@ public class MavenResolverTest {
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target);
+    Resolver resolver = Resolvers.basedOnEnvironment(target, Options.defaults());
     assertThat(resolver.find("Main")).isEmpty();
   }
 
@@ -73,7 +74,7 @@ public class MavenResolverTest {
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target);
+    Resolver resolver = Resolvers.basedOnEnvironment(target, Options.defaults());
     assertThat(resolver.find("Second")).hasValue(new Import("Second", "test.module.second", false));
   }
 
@@ -92,7 +93,7 @@ public class MavenResolverTest {
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target);
+    Resolver resolver = Resolvers.basedOnEnvironment(target, Options.defaults());
     Truth.assertThat(resolver.filesInPackage("test.module")).hasSize(1);
   }
 }

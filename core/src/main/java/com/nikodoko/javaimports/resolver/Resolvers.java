@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.resolver;
 
+import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.resolver.maven.MavenResolver;
@@ -27,12 +28,12 @@ public class Resolvers {
     return new DummyResolver();
   }
 
-  public static Resolver basedOnEnvironment(Path filename) {
+  public static Resolver basedOnEnvironment(Path filename, Options options) {
     Path current = filename.getParent();
     while (current != null) {
       Path potentialPom = Paths.get(current.toString(), "pom.xml");
       if (Files.exists(potentialPom)) {
-        return new MavenResolver(current, filename);
+        return new MavenResolver(current, filename, options);
       }
 
       current = current.getParent();

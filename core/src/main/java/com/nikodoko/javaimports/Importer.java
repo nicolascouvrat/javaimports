@@ -99,7 +99,7 @@ public final class Importer {
     // want to resolve them before so as to avoid adding uneeded imports, so we need to add both the
     // stdlib provider and the resolver at the same time.
     fixer.addStdlibProvider(StdlibProviders.java8());
-    fixer.addResolver(Resolvers.basedOnEnvironment(filename));
+    fixer.addResolver(Resolvers.basedOnEnvironment(filename, options));
 
     return applyFixes(f, javaCode, fixer.lastTryToFix());
   }
