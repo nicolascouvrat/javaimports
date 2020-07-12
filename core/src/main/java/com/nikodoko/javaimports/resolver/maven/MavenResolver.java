@@ -128,10 +128,15 @@ public class MavenResolver implements Resolver {
     Path repository = Paths.get(System.getProperty("user.home"), ".m2/repository");
     MavenDependencyResolver resolver = new MavenDependencyResolver(fileBeingResolved, repository);
     try {
-      return resolver.resolve(dependency);
+      Path location = resolver.resolve(dependency);
+      if (options.debug()) {
+        log.info(String.format("looking for dependency %s at %s", dependency, location));
+      }
+
+      return resolver.load(location);
     } catch (Exception e) {
       if (options.debug()) {
-        log.log(Level.INFO, String.format("could not resolve dependency %s", dependency), e);
+        log.log(Level.WARNING, String.format("could not resolve dependency %s", dependency), e);
       }
 
       return new ArrayList<>();

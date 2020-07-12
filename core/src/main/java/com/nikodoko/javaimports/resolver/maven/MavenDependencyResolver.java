@@ -29,8 +29,8 @@ class MavenDependencyResolver {
     this.repository = repository;
   }
 
-  List<ImportWithDistance> resolve(MavenDependency dependency) throws IOException {
-    return scanJar(jarPath(dependency));
+  List<ImportWithDistance> load(Path dependency) throws IOException {
+    return scanJar(dependency);
   }
 
   private List<ImportWithDistance> scanJar(Path jar) throws IOException {
@@ -64,7 +64,7 @@ class MavenDependencyResolver {
     return new Import(subclassName, String.join(".", pkg, extraPkg), false);
   }
 
-  private Path jarPath(MavenDependency dependency) throws IOException {
+  public Path resolve(MavenDependency dependency) throws IOException {
     Path dependencyRepository =
         Paths.get(
             repository.toString(), dependency.groupId.replace(".", "/"), dependency.artifactId);
