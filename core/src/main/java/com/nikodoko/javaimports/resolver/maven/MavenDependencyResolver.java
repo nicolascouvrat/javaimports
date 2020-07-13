@@ -39,6 +39,7 @@ class MavenDependencyResolver {
       JarEntry entry;
       while ((entry = in.getNextJarEntry()) != null) {
         // XXX: this will get all classes, including private and protected ones
+        // TODO: properly handle module-class.class
         if (entry.getName().endsWith(".class")) {
           Import i = parseImport(Paths.get(entry.getName()));
           imports.add(ImportWithDistance.of(i, jar, fileBeingResolved));

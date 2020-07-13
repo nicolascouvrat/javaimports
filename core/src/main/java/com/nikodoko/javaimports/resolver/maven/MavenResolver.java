@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.resolver.maven;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
@@ -17,7 +18,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,11 +29,6 @@ import java.util.stream.Collectors;
 public class MavenResolver implements Resolver {
   private static Logger log = Logger.getLogger(Parser.class.getName());
 
-  private static class JavaFile {
-    ParsedFile contents;
-    Path path;
-  }
-
   private final Path root;
   private final Path fileBeingResolved;
   private final Options options;
@@ -41,26 +36,23 @@ public class MavenResolver implements Resolver {
   private List<JavaFile> filesInProject = new ArrayList<>();
   private boolean isInitialized = false;
 
+  private final MavenProjectScanner scanner;
+
   public MavenResolver(Path root, Path fileBeingResolved, Options options) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
+    this.scanner = MavenProjectScanner.withRoot(root).excluding(fileBeingResolved);
   }
 
   @Override
   public Set<ParsedFile> filesInPackage(String packageName) {
-    if (!isInitialized) {
-      safeInit();
+    MavenProjectScanner.Result scan = scanner.scanFilesInPackage(packageName);
+    if (options.debug()) {
+      log.info(String.format("scanned files in package %s: %s", packageName, scan));
     }
 
-    Set<ParsedFile> files = new HashSet<>();
-    for (JavaFile file : filesInProject) {
-      if (file.contents.packageName().equals(packageName)) {
-        files.add(file.contents);
-      }
-    }
-
-    return files;
+    return Sets.newHashSet(scan.files);
   }
 
   @Override
