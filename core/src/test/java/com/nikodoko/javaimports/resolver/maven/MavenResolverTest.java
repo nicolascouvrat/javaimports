@@ -37,7 +37,7 @@ public class MavenResolverTest {
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target, Options.defaults());
+    Resolver resolver = Resolvers.basedOnEnvironment(target, "test.module", Options.defaults());
     assertThat(resolver.find("Second")).hasValue(new Import("Second", "test.module.second", false));
   }
 
@@ -54,7 +54,7 @@ public class MavenResolverTest {
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target, Options.defaults());
+    Resolver resolver = Resolvers.basedOnEnvironment(target, "test.module", Options.defaults());
     assertThat(resolver.find("Main")).isEmpty();
   }
 
@@ -73,7 +73,7 @@ public class MavenResolverTest {
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target, Options.defaults());
+    Resolver resolver = Resolvers.basedOnEnvironment(target, "test.module", Options.defaults());
     assertThat(resolver.find("Second")).hasValue(new Import("Second", "test.module.second", false));
   }
 }

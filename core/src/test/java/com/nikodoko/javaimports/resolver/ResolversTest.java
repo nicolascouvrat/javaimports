@@ -27,7 +27,7 @@ public class ResolversTest {
     Exported project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver got = Resolvers.basedOnEnvironment(target, Options.defaults());
+    Resolver got = Resolvers.basedOnEnvironment(target, "test.module", Options.defaults());
     assertThat(got).isInstanceOf(MavenResolver.class);
     project.cleanup();
   }

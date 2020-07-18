@@ -9,6 +9,7 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import com.nikodoko.javaimports.resolver.ImportWithDistance;
+import com.nikodoko.javaimports.resolver.PackageDistance;
 import com.nikodoko.javaimports.resolver.Resolver;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,14 +36,17 @@ public class MavenResolver implements Resolver {
   private Map<String, List<ImportWithDistance>> importsByIdentifier = new HashMap<>();
   private List<JavaFile> filesInProject = new ArrayList<>();
   private boolean isInitialized = false;
+  private final PackageDistance distance;
 
   private final MavenProjectScanner scanner;
 
-  public MavenResolver(Path root, Path fileBeingResolved, Options options) {
+  public MavenResolver(
+      Path root, Path fileBeingResolved, String pkgBeingResolved, Options options) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
     this.scanner = MavenProjectScanner.withRoot(root).excluding(fileBeingResolved);
+    this.distance = PackageDistance.from(pkgBeingResolved);
   }
 
   @Override
@@ -177,7 +181,7 @@ public class MavenResolver implements Resolver {
     List<ImportWithDistance> imports = new ArrayList<>();
     for (String identifier : file.contents.topLevelDeclarations()) {
       Import i = new Import(identifier, file.contents.packageName(), false);
-      imports.add(ImportWithDistance.of(i, file.path, fileBeingResolved));
+      imports.add(new ImportWithDistance(i, distance.to(file.contents.packageName())));
     }
 
     return imports;

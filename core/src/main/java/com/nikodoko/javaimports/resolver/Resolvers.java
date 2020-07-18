@@ -28,12 +28,12 @@ public class Resolvers {
     return new DummyResolver();
   }
 
-  public static Resolver basedOnEnvironment(Path filename, Options options) {
+  public static Resolver basedOnEnvironment(Path filename, String pkg, Options options) {
     Path current = filename.getParent();
     while (current != null) {
       Path potentialPom = Paths.get(current.toString(), "pom.xml");
       if (Files.exists(potentialPom)) {
-        return new MavenResolver(current, filename, options);
+        return new MavenResolver(current, filename, pkg, options);
       }
 
       current = current.getParent();

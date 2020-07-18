@@ -3,18 +3,18 @@ package com.nikodoko.javaimports.resolver;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-class PackageDistance {
+public class PackageDistance {
   private final Path reference;
 
   private PackageDistance(Path reference) {
     this.reference = reference;
   }
 
-  static PackageDistance from(String pkg) {
+  public static PackageDistance from(String pkg) {
     return new PackageDistance(toPath(pkg));
   }
 
-  int to(String pkg) {
+  public int to(String pkg) {
     Path to = toPath(pkg);
     return distance(reference, to);
   }
