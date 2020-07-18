@@ -37,7 +37,7 @@ public class MavenProjectScannerTest {
     MavenProjectScanner.Result got = scanner.scanFilesInPackage("test.module");
 
     assertThat(got.files).hasSize(2);
-    assertThat(got.errors).hasSize(0);
+    assertThat(got.errors).isEmpty();
   }
 
   @Test
@@ -48,7 +48,6 @@ public class MavenProjectScannerTest {
             ImmutableMap.of(
                 "Main.java",
                 "package test.module; public class Main {}",
-                // same package despite being in another folder
                 "second/Second.java",
                 "package test.module.second; public class Second {}"));
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
@@ -60,7 +59,9 @@ public class MavenProjectScannerTest {
     assertThat(got.files).hasSize(0);
     assertThat(got.errors).hasSize(0);
 
-    // TODO: test scanAll
+    got = scanner.scanAllFiles();
+    assertThat(got.files).hasSize(1);
+    assertThat(got.errors).isEmpty();
   }
 
   @Test
@@ -75,7 +76,6 @@ public class MavenProjectScannerTest {
                 "package test.module; public class Other {}",
                 "Invalid.java",
                 "this is not valid java code",
-                // same package despite being in another folder
                 "second/Second.java",
                 "package test.module.second; public class Second {}"));
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
@@ -87,6 +87,8 @@ public class MavenProjectScannerTest {
     assertThat(got.files).hasSize(1);
     assertThat(got.errors).hasSize(1);
 
-    // TODO: test scanAll
+    got = scanner.scanAllFiles();
+    assertThat(got.files).hasSize(2);
+    assertThat(got.errors).hasSize(1);
   }
 }

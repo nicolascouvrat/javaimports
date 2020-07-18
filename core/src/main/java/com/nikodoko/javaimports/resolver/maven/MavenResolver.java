@@ -88,7 +88,7 @@ public class MavenResolver implements Resolver {
     }
 
     for (JavaFile file : filesInProject) {
-      for (ImportWithDistance i : extractImports(file)) {
+      for (ImportWithDistance i : extractImports(file.contents)) {
         List<ImportWithDistance> importsForIdentifier =
             importsByIdentifier.getOrDefault(i.i.name(), new ArrayList<>());
         importsForIdentifier.add(i);
@@ -177,11 +177,11 @@ public class MavenResolver implements Resolver {
         .collect(Collectors.toList());
   }
 
-  private List<ImportWithDistance> extractImports(JavaFile file) {
+  private List<ImportWithDistance> extractImports(ParsedFile file) {
     List<ImportWithDistance> imports = new ArrayList<>();
-    for (String identifier : file.contents.topLevelDeclarations()) {
-      Import i = new Import(identifier, file.contents.packageName(), false);
-      imports.add(new ImportWithDistance(i, distance.to(file.contents.packageName())));
+    for (String identifier : file.topLevelDeclarations()) {
+      Import i = new Import(identifier, file.packageName(), false);
+      imports.add(new ImportWithDistance(i, distance.to(file.packageName())));
     }
 
     return imports;

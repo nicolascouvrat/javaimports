@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.resolver.maven;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.Iterables;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.ParsedFile;
@@ -63,12 +64,12 @@ class MavenProjectScanner {
     return new Result(files.getOrDefault(pkg, new HashSet<>()), errors);
   }
 
-  Set<JavaFile> scanAllFiles() throws ProjectScannerException {
+  Result scanAllFiles() throws ProjectScannerException {
     if (!scanCompleted) {
       scan();
     }
 
-    return new HashSet<>();
+    return new Result(Iterables.concat(files.values()), errors);
   }
 
   private void scan() {
