@@ -1,7 +1,5 @@
 package com.nikodoko.javaimports.resolver.maven;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
@@ -25,7 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class MavenResolver implements Resolver {
   private static Logger log = Logger.getLogger(Parser.class.getName());
@@ -34,7 +31,6 @@ public class MavenResolver implements Resolver {
   private final Path fileBeingResolved;
   private final Options options;
   private Map<String, List<ImportWithDistance>> importsByIdentifier = new HashMap<>();
-  private List<JavaFile> filesInProject = new ArrayList<>();
   private boolean isInitialized = false;
   private final PackageDistance distance;
 
@@ -169,15 +165,6 @@ public class MavenResolver implements Resolver {
     }
   }
 
-  private List<Path> javaFilesNotBeingResolved() throws IOException {
-    return Files.find(
-            root,
-            100,
-            (path, attributes) ->
-                path.toString().endsWith(".java") && !path.equals(fileBeingResolved))
-        .collect(Collectors.toList());
-  }
-
   private List<ImportWithDistance> extractImports(ParsedFile file) {
     List<ImportWithDistance> imports = new ArrayList<>();
     for (String identifier : file.topLevelDeclarations()) {
@@ -186,13 +173,5 @@ public class MavenResolver implements Resolver {
     }
 
     return imports;
-  }
-
-  private JavaFile parseFile(Path path) throws IOException, ImporterException {
-    String source = new String(Files.readAllBytes(path), UTF_8);
-    JavaFile file = new JavaFile();
-    file.contents = new Parser(Options.defaults()).parse(path, source);
-    file.path = path;
-    return file;
   }
 }
