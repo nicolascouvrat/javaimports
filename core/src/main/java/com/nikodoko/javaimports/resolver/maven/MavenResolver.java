@@ -83,12 +83,13 @@ public class MavenResolver implements Resolver {
   }
 
   private void init() throws IOException, ImporterException {
-    for (Path javaFile : javaFilesNotBeingResolved()) {
-      filesInProject.add(parseFile(javaFile));
+    MavenProjectScanner.Result scan = scanner.scanAllFiles();
+    if (options.debug()) {
+      log.info(String.format("scanned all files: %s", scan));
     }
 
-    for (JavaFile file : filesInProject) {
-      for (ImportWithDistance i : extractImports(file.contents)) {
+    for (ParsedFile file : scan.files) {
+      for (ImportWithDistance i : extractImports(file)) {
         List<ImportWithDistance> importsForIdentifier =
             importsByIdentifier.getOrDefault(i.i.name(), new ArrayList<>());
         importsForIdentifier.add(i);

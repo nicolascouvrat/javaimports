@@ -64,7 +64,7 @@ class MavenProjectScanner {
     return new Result(files.getOrDefault(pkg, new HashSet<>()), errors);
   }
 
-  Result scanAllFiles() throws ProjectScannerException {
+  Result scanAllFiles() {
     if (!scanCompleted) {
       scan();
     }
