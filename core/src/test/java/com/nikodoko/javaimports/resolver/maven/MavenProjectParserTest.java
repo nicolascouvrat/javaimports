@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class MavenProjectScannerTest {
+public class MavenProjectParserTest {
   Exported project;
 
   @AfterEach
@@ -33,11 +33,12 @@ public class MavenProjectScannerTest {
                 "package test.module; public class Second {}"));
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
 
-    MavenProjectScanner scanner = MavenProjectScanner.withRoot(project.root());
-    MavenProjectScanner.Result got = scanner.scanFilesInPackage("test.module");
+    MavenProjectParser parser = MavenProjectParser.withRoot(project.root());
+    MavenProjectParser.Result got = parser.parseAll();
 
-    assertThat(got.files).hasSize(2);
     assertThat(got.errors).isEmpty();
+    assertThat(got.project.filesInPackage("test.module")).hasSize(2);
+    assertThat(got.project.allFiles()).hasSize(2);
   }
 
   @Test
@@ -53,14 +54,11 @@ public class MavenProjectScannerTest {
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    MavenProjectScanner scanner = MavenProjectScanner.withRoot(project.root()).excluding(target);
-    MavenProjectScanner.Result got = scanner.scanFilesInPackage("test.module");
+    MavenProjectParser parser = MavenProjectParser.withRoot(project.root()).excluding(target);
+    MavenProjectParser.Result got = parser.parseAll();
 
-    assertThat(got.files).hasSize(0);
-    assertThat(got.errors).hasSize(0);
-
-    got = scanner.scanAllFiles();
-    assertThat(got.files).hasSize(1);
+    assertThat(got.project.filesInPackage("test.module")).isEmpty();
+    assertThat(got.project.allFiles()).hasSize(1);
     assertThat(got.errors).isEmpty();
   }
 
@@ -81,14 +79,11 @@ public class MavenProjectScannerTest {
     project = Export.of(Kind.MAVEN, ImmutableList.of(module));
     Path target = project.file(module.name(), "Main.java").get();
 
-    MavenProjectScanner scanner = MavenProjectScanner.withRoot(project.root()).excluding(target);
-    MavenProjectScanner.Result got = scanner.scanFilesInPackage("test.module");
+    MavenProjectParser parser = MavenProjectParser.withRoot(project.root()).excluding(target);
+    MavenProjectParser.Result got = parser.parseAll();
 
-    assertThat(got.files).hasSize(1);
-    assertThat(got.errors).hasSize(1);
-
-    got = scanner.scanAllFiles();
-    assertThat(got.files).hasSize(2);
+    assertThat(got.project.filesInPackage("test.module")).hasSize(1);
+    assertThat(got.project.allFiles()).hasSize(2);
     assertThat(got.errors).hasSize(1);
   }
 }

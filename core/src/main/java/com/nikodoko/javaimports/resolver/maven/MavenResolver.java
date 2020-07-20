@@ -7,6 +7,7 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import com.nikodoko.javaimports.resolver.ImportWithDistance;
+import com.nikodoko.javaimports.resolver.JavaProject;
 import com.nikodoko.javaimports.resolver.PackageDistance;
 import com.nikodoko.javaimports.resolver.Resolver;
 import java.io.FileReader;
@@ -34,25 +35,22 @@ public class MavenResolver implements Resolver {
   private boolean isInitialized = false;
   private final PackageDistance distance;
 
-  private final MavenProjectScanner scanner;
+  // XXX
+  private JavaProject project;
+  private boolean projectIsParsed = false;
 
   public MavenResolver(
       Path root, Path fileBeingResolved, String pkgBeingResolved, Options options) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
-    this.scanner = MavenProjectScanner.withRoot(root).excluding(fileBeingResolved);
     this.distance = PackageDistance.from(pkgBeingResolved);
   }
 
   @Override
   public Set<ParsedFile> filesInPackage(String packageName) {
-    MavenProjectScanner.Result scan = scanner.scanFilesInPackage(packageName);
-    if (options.debug()) {
-      log.info(String.format("scanned files in package %s: %s", packageName, scan));
-    }
-
-    return Sets.newHashSet(scan.files);
+    parseProjectIfNeeded();
+    return Sets.newHashSet(project.filesInPackage(packageName));
   }
 
   @Override
@@ -79,12 +77,9 @@ public class MavenResolver implements Resolver {
   }
 
   private void init() throws IOException, ImporterException {
-    MavenProjectScanner.Result scan = scanner.scanAllFiles();
-    if (options.debug()) {
-      log.info(String.format("scanned all files: %s", scan));
-    }
+    parseProjectIfNeeded();
 
-    for (ParsedFile file : scan.files) {
+    for (ParsedFile file : project.allFiles()) {
       for (ImportWithDistance i : extractImports(file)) {
         List<ImportWithDistance> importsForIdentifier =
             importsByIdentifier.getOrDefault(i.i.name(), new ArrayList<>());
@@ -101,6 +96,21 @@ public class MavenResolver implements Resolver {
     }
 
     isInitialized = true;
+  }
+
+  private void parseProjectIfNeeded() {
+    if (projectIsParsed) {
+      return;
+    }
+
+    MavenProjectParser parser = MavenProjectParser.withRoot(root).excluding(fileBeingResolved);
+    MavenProjectParser.Result parsed = parser.parseAll();
+    if (options.debug()) {
+      log.info(String.format("parsed project: %s", parsed));
+    }
+
+    project = parsed.project;
+    projectIsParsed = true;
   }
 
   private List<ImportWithDistance> extractImportsInDependencies() throws IOException {
