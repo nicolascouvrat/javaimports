@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.resolver.maven;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
@@ -106,7 +107,10 @@ public class MavenResolver implements Resolver {
     MavenProjectParser parser = MavenProjectParser.withRoot(root).excluding(fileBeingResolved);
     MavenProjectParser.Result parsed = parser.parseAll();
     if (options.debug()) {
-      log.info(String.format("parsed project: %s", parsed));
+      log.info(
+          String.format(
+              "parsed project (total of %d files): %s",
+              Iterables.size(parsed.project.allFiles()), parsed));
     }
 
     project = parsed.project;
