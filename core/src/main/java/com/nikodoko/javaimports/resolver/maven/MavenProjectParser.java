@@ -11,11 +11,8 @@ import com.nikodoko.javaimports.resolver.JavaProject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 class MavenProjectParser {
   static final class Result {
@@ -35,14 +32,13 @@ class MavenProjectParser {
     }
   }
 
-  private final Path root;
-  private final List<Path> excluded = new ArrayList<>();
+  private final MavenProjectFinder finder;
 
   private final List<MavenProjectParserException> errors = new ArrayList<>();
   private final JavaProject project = new JavaProject();
 
   private MavenProjectParser(Path root) {
-    this.root = root;
+    this.finder = MavenProjectFinder.withRoot(root);
   }
 
   static MavenProjectParser withRoot(Path root) {
@@ -50,7 +46,7 @@ class MavenProjectParser {
   }
 
   MavenProjectParser excluding(Path... files) {
-    this.excluded.addAll(Arrays.asList(files));
+    finder.exclude(files);
     return this;
   }
 
@@ -64,15 +60,11 @@ class MavenProjectParser {
 
   private List<Path> tryToFindAllFiles() {
     try {
-      return Files.find(root, 100, this::nonExcludedJavaFile).collect(Collectors.toList());
+      return finder.findAll();
     } catch (IOException e) {
       errors.add(new MavenProjectParserException("could not find files", e));
       return new ArrayList<>();
     }
-  }
-
-  private boolean nonExcludedJavaFile(Path path, BasicFileAttributes attr) {
-    return path.toString().endsWith(".java") && !excluded.contains(path);
   }
 
   private void tryToParse(Path path) {

@@ -42,7 +42,7 @@ public class MavenProjectParserTest {
   }
 
   @Test
-  void testScannerIgnoresExcludedFiles() throws Exception {
+  void testExcludedFilesAreIgnored() throws Exception {
     Module module =
         new Module(
             "test.module",
@@ -63,7 +63,7 @@ public class MavenProjectParserTest {
   }
 
   @Test
-  void testScannerDoesItsBestDespiteErrors() throws Exception {
+  void testDoesItsBestDespiteErrors() throws Exception {
     Module module =
         new Module(
             "test.module",
