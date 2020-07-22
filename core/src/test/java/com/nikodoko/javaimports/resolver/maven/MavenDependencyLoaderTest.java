@@ -12,15 +12,15 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class MavenDependencyResolverTest {
-  static final URL repositoryURL = MavenDependencyResolverTest.class.getResource("/testrepository");
-  MavenDependencyResolver resolver;
+class MavenDependencyLoaderTest {
+  static final URL repositoryURL = MavenDependencyLoaderTest.class.getResource("/testrepository");
+  MavenDependencyLoader resolver;
 
   @BeforeEach
   void setup() throws Exception {
     Path repository = Paths.get(repositoryURL.toURI());
     Path reference = repository;
-    resolver = new MavenDependencyResolver(reference, repository);
+    resolver = new MavenDependencyLoader(reference, repository);
   }
 
   @Test

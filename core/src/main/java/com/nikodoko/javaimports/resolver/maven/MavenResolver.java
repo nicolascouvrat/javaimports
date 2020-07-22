@@ -133,7 +133,7 @@ public class MavenResolver implements Resolver {
 
   private List<ImportWithDistance> resolveDependency(MavenDependency dependency) {
     Path repository = Paths.get(System.getProperty("user.home"), ".m2/repository");
-    MavenDependencyResolver resolver = new MavenDependencyResolver(fileBeingResolved, repository);
+    MavenDependencyLoader resolver = new MavenDependencyLoader(fileBeingResolved, repository);
     try {
       Path location = resolver.resolve(dependency);
       if (options.debug()) {
