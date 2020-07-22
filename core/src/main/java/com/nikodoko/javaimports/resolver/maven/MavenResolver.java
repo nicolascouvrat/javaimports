@@ -11,9 +11,7 @@ import com.nikodoko.javaimports.resolver.ImportWithDistance;
 import com.nikodoko.javaimports.resolver.JavaProject;
 import com.nikodoko.javaimports.resolver.PackageDistance;
 import com.nikodoko.javaimports.resolver.Resolver;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -39,6 +37,7 @@ public class MavenResolver implements Resolver {
   // XXX
   private JavaProject project;
   private boolean projectIsParsed = false;
+  private final MavenDependencyFinder dependencyFinder;
 
   public MavenResolver(
       Path root, Path fileBeingResolved, String pkgBeingResolved, Options options) {
@@ -46,6 +45,7 @@ public class MavenResolver implements Resolver {
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
     this.distance = PackageDistance.from(pkgBeingResolved);
+    this.dependencyFinder = new MavenDependencyFinder();
   }
 
   @Override
@@ -118,7 +118,7 @@ public class MavenResolver implements Resolver {
   }
 
   private List<ImportWithDistance> extractImportsInDependencies() throws IOException {
-    List<MavenDependency> dependencies = findAllDependencies();
+    List<MavenDependency> dependencies = dependencyFinder.findAll(root);
     if (options.debug()) {
       log.info(String.format("found %d dependencies: %s", dependencies.size(), dependencies));
     }
@@ -147,35 +147,6 @@ public class MavenResolver implements Resolver {
       }
 
       return new ArrayList<>();
-    }
-  }
-
-  private List<MavenDependency> findAllDependencies() throws IOException {
-    MavenDependencyFinder finder = new MavenDependencyFinder();
-    scanPom(root, finder);
-
-    Path target = root.getParent();
-    while (target != null && !finder.allFound()) {
-      if (!hasPom(target)) {
-        break;
-      }
-
-      scanPom(target, finder);
-      target = target.getParent();
-    }
-
-    return finder.result();
-  }
-
-  private boolean hasPom(Path directory) {
-    Path pom = Paths.get(directory.toString(), "pom.xml");
-    return Files.exists(pom);
-  }
-
-  private void scanPom(Path directory, MavenDependencyFinder finder) throws IOException {
-    Path pom = Paths.get(directory.toString(), "pom.xml");
-    try (FileReader reader = new FileReader(pom.toFile())) {
-      finder.scan(reader);
     }
   }
 
