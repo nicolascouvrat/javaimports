@@ -56,7 +56,7 @@ public class MavenDependencyFinderTest {
         ImmutableList.of(new MavenDependency("com.google.guava", "guava", "${guava.version}"));
 
     List<MavenDependency> got = finder.findAll(tmp);
-    assertThat(finder.result()).containsExactlyElementsIn(expected);
+    assertThat(got).containsExactlyElementsIn(expected);
   }
 
   static Consumer<Model> basicPom() {

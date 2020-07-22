@@ -1,8 +1,7 @@
 package com.nikodoko.javaimports.resolver.maven;
 
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,8 +15,24 @@ class MavenDependencyFinder {
   private List<MavenDependency> dependencies = new ArrayList<>();
   private boolean allFound = false;
 
-  void scan(Reader reader) throws IOException {
-    Model model = new DefaultModelReader().read(reader, null);
+  List<MavenDependency> findAll(Path moduleRoot) throws IOException {
+    Path target = moduleRoot;
+    while (!allFound && hasPom(target)) {
+      scanPom(target);
+      target = target.getParent();
+    }
+
+    return dependencies;
+  }
+
+  private boolean hasPom(Path directory) {
+    Path pom = Paths.get(directory.toString(), "pom.xml");
+    return Files.exists(pom);
+  }
+
+  private void scanPom(Path directory) throws IOException {
+    File pom = Paths.get(directory.toString(), "pom.xml").toFile();
+    Model model = new DefaultModelReader().read(pom, null);
     List<Dependency> deps = model.getDependencies();
     scanDependencies(deps);
   }
@@ -35,41 +50,5 @@ class MavenDependencyFinder {
     }
 
     allFound = ok;
-  }
-
-  boolean allFound() {
-    return allFound;
-  }
-
-  List<MavenDependency> result() {
-    return dependencies;
-  }
-
-  List<MavenDependency> findAll(Path moduleRoot) throws IOException {
-    scanPom(moduleRoot);
-
-    Path target = moduleRoot.getParent();
-    while (target != null && !allFound) {
-      if (!hasPom(target)) {
-        break;
-      }
-
-      scanPom(target);
-      target = target.getParent();
-    }
-
-    return dependencies;
-  }
-
-  private boolean hasPom(Path directory) {
-    Path pom = Paths.get(directory.toString(), "pom.xml");
-    return Files.exists(pom);
-  }
-
-  private void scanPom(Path directory) throws IOException {
-    Path pom = Paths.get(directory.toString(), "pom.xml");
-    try (FileReader reader = new FileReader(pom.toFile())) {
-      scan(reader);
-    }
   }
 }
