@@ -14,11 +14,9 @@ import java.util.jar.JarInputStream;
 class MavenDependencyLoader {
   private static final String SUBCLASS_SEPARATOR = "$";
   final Path fileBeingResolved;
-  final MavenDependencyResolver resolver;
 
-  MavenDependencyLoader(Path fileBeingResolved, Path repository) {
+  MavenDependencyLoader(Path fileBeingResolved) {
     this.fileBeingResolved = fileBeingResolved;
-    this.resolver = MavenDependencyResolver.withRepository(repository);
   }
 
   List<ImportWithDistance> load(Path dependency) throws IOException {
@@ -55,9 +53,5 @@ class MavenDependencyLoader {
         name.substring(0, name.lastIndexOf(SUBCLASS_SEPARATOR)).replace(SUBCLASS_SEPARATOR, ".");
     String subclassName = name.substring(name.lastIndexOf(SUBCLASS_SEPARATOR) + 1, name.length());
     return new Import(subclassName, String.join(".", pkg, extraPkg), false);
-  }
-
-  public Path resolve(MavenDependency dependency) throws IOException {
-    return resolver.resolve(dependency);
   }
 }

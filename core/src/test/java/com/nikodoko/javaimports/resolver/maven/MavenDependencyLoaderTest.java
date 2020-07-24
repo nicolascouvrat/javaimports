@@ -14,13 +14,16 @@ import org.junit.jupiter.api.Test;
 
 class MavenDependencyLoaderTest {
   static final URL repositoryURL = MavenDependencyLoaderTest.class.getResource("/testrepository");
-  MavenDependencyLoader resolver;
+  // TODO split between loader and resolver
+  MavenDependencyLoader loader;
+  MavenDependencyResolver resolver;
 
   @BeforeEach
   void setup() throws Exception {
     Path repository = Paths.get(repositoryURL.toURI());
     Path reference = repository;
-    resolver = new MavenDependencyLoader(reference, repository);
+    loader = new MavenDependencyLoader(reference);
+    resolver = MavenDependencyResolver.withRepository(repository);
   }
 
   @Test
@@ -29,7 +32,7 @@ class MavenDependencyLoaderTest {
         ImmutableList.of(new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
 
     List<ImportWithDistance> got =
-        resolver.load(
+        loader.load(
             resolver.resolve(new MavenDependency("com.mycompany.app", "a-dependency", "1.0")));
 
     assertThat(got).containsExactlyElementsIn(expected);
@@ -45,7 +48,7 @@ class MavenDependencyLoaderTest {
             new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
 
     List<ImportWithDistance> got =
-        resolver.load(
+        loader.load(
             resolver.resolve(new MavenDependency("com.mycompany.app", "a-dependency", "2.0")));
 
     assertThat(got).containsExactlyElementsIn(expected);
@@ -61,7 +64,7 @@ class MavenDependencyLoaderTest {
             new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
 
     List<ImportWithDistance> got =
-        resolver.load(
+        loader.load(
             resolver.resolve(new MavenDependency("com.mycompany.app", "a-dependency", null)));
 
     assertThat(got).containsExactlyElementsIn(expected);
