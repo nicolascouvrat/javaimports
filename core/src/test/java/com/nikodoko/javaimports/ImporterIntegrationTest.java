@@ -6,14 +6,13 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.fail;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
+import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
 import com.nikodoko.packagetest.Module;
-import com.nikodoko.packagetest.exporters.Kind;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,7 +39,7 @@ public class ImporterIntegrationTest {
   @Parameters(name = "{index}: {0}")
   public static Iterable<Object[]> data() throws Exception {
     class PkgInfo {
-      public Map<String, String> files = new HashMap<>();
+      public List<Module.File> files = new ArrayList<>();
       public String target = "";
     }
 
@@ -76,7 +75,7 @@ public class ImporterIntegrationTest {
 
         // In order to support multiple folders, authorize the following naming pattern: a-B.java ->
         // a/B.java
-        pkg.files.put(fileName.replace("-", "/"), contents);
+        pkg.files.add(Module.file(fileName.replace("-", "/"), contents));
         if (extension.equals(inputExtension)) {
           pkg.target = fileName;
         }
@@ -90,10 +89,12 @@ public class ImporterIntegrationTest {
 
     List<Object[]> testData = new ArrayList<>();
     for (Map.Entry<String, PkgInfo> entry : inputs.entrySet()) {
+      Module.File[] moduleFiles = new Module.File[entry.getValue().files.size()];
       testData.add(
           new Object[] {
             entry.getValue().target, // target name
-            new Module(entry.getKey(), entry.getValue().files), // test module
+            Module.named(entry.getKey())
+                .containing(entry.getValue().files.toArray(moduleFiles)), // test module
             outputs.get(entry.getKey()) // output contents
           });
     }
@@ -114,7 +115,7 @@ public class ImporterIntegrationTest {
 
   @Before
   public void setup() throws Exception {
-    this.testPkg = Export.of(Kind.MAVEN, ImmutableList.of(module));
+    this.testPkg = Export.of(BuildSystem.MAVEN, module);
   }
 
   @After

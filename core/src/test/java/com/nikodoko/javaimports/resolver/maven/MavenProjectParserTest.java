@@ -2,12 +2,10 @@ package com.nikodoko.javaimports.resolver.maven;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
 import com.nikodoko.packagetest.Module;
-import com.nikodoko.packagetest.exporters.Kind;
 import java.nio.file.Path;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -23,15 +21,12 @@ public class MavenProjectParserTest {
   @Test
   void testFindFilesOfSamePackageInDifferentFolder() throws Exception {
     Module module =
-        new Module(
-            "test.module",
-            ImmutableMap.of(
-                "Main.java",
-                "package test.module; public class Main {}",
-                // same package despite being in another folder
-                "second/Second.java",
-                "package test.module; public class Second {}"));
-    project = Export.of(Kind.MAVEN, ImmutableList.of(module));
+        Module.named("test.module")
+            .containing(
+                Module.file("Main.java", "package test.module; public class Main {}"),
+                // same package despite being in a different folder
+                Module.file("second/Second.java", "package test.module; public class Second {}"));
+    project = Export.of(BuildSystem.MAVEN, module);
 
     MavenProjectParser parser = MavenProjectParser.withRoot(project.root());
     MavenProjectParser.Result got = parser.parseAll();
@@ -44,14 +39,12 @@ public class MavenProjectParserTest {
   @Test
   void testExcludedFilesAreIgnored() throws Exception {
     Module module =
-        new Module(
-            "test.module",
-            ImmutableMap.of(
-                "Main.java",
-                "package test.module; public class Main {}",
-                "second/Second.java",
-                "package test.module.second; public class Second {}"));
-    project = Export.of(Kind.MAVEN, ImmutableList.of(module));
+        Module.named("test.module")
+            .containing(
+                Module.file("Main.java", "package test.module; public class Main {}"),
+                Module.file(
+                    "second/Second.java", "package test.module.second; public class Second {}"));
+    project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
     MavenProjectParser parser = MavenProjectParser.withRoot(project.root()).excluding(target);
@@ -65,18 +58,14 @@ public class MavenProjectParserTest {
   @Test
   void testDoesItsBestDespiteErrors() throws Exception {
     Module module =
-        new Module(
-            "test.module",
-            ImmutableMap.of(
-                "Main.java",
-                "package test.module; public class Main {}",
-                "Other.java",
-                "package test.module; public class Other {}",
-                "Invalid.java",
-                "this is not valid java code",
-                "second/Second.java",
-                "package test.module.second; public class Second {}"));
-    project = Export.of(Kind.MAVEN, ImmutableList.of(module));
+        Module.named("test.module")
+            .containing(
+                Module.file("Main.java", "package test.module; public class Main {}"),
+                Module.file("Other.java", "package test.module; public class Other {}"),
+                Module.file("Invalid.java", "this is not valid java code"),
+                Module.file(
+                    "second/Second.java", "package test.module.second; public class Second {}"));
+    project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
     MavenProjectParser parser = MavenProjectParser.withRoot(project.root()).excluding(target);
