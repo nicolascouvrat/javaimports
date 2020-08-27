@@ -36,6 +36,7 @@
     <jqwik.version>1.3.0</jqwik.version>
     <javapackagetest.version>0.2</javapackagetest.version>
     <mavencore.version>3.6.3</mavencore.version>
+    <gitcommitidplugin.version>4.0.2</gitcommitidplugin.version>
   </properties>
 
   <dependencyManagement>
@@ -63,6 +64,11 @@
         <groupId>com.google.googlejavaformat</groupId>
         <artifactId>google-java-format</artifactId>
         <version>${googlejavaformat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>${gitcommitidplugin.version}</version>
       </dependency>
       <!-- Test dependencies -->
       <dependency>
