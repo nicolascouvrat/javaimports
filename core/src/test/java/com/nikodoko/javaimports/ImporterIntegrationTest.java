@@ -13,9 +13,9 @@ import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
 import com.nikodoko.packagetest.Module;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +32,8 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class ImporterIntegrationTest {
+  private static final URL repositoryURL =
+      ImporterIntegrationTest.class.getResource("/testrepository");
   private static final Path dataPath = Paths.get("com/nikodoko/javaimports/testdata");
   private static final String outputExtension = "output";
   private static final String inputExtension = "input";
@@ -94,7 +96,9 @@ public class ImporterIntegrationTest {
           new Object[] {
             entry.getValue().target, // target name
             Module.named(entry.getKey())
-                .containing(entry.getValue().files.toArray(moduleFiles)), // test module
+                .containing(entry.getValue().files.toArray(moduleFiles))
+                .dependingOn(
+                    Module.dependency("com.mycompany.app", "a-dependency", "1.0")), // test module
             outputs.get(entry.getKey()) // output contents
           });
     }
@@ -128,14 +132,16 @@ public class ImporterIntegrationTest {
     Path main = testPkg.file(module.name(), target).get();
     try {
       String input = new String(Files.readAllBytes(main), UTF_8);
-      String output = new Importer().addUsedImports(main, input);
+      Options opts =
+          Options.builder().debug(false).repository(Paths.get(repositoryURL.toURI())).build();
+      String output = new Importer(opts).addUsedImports(main, input);
       assertWithMessage("bad output for " + module.name()).that(output).isEqualTo(expected);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);
       }
       fail();
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
       fail();
     }
