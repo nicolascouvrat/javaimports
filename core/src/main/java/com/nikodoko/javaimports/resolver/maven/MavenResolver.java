@@ -35,9 +35,13 @@ public class MavenResolver implements Resolver {
   private final PackageDistance distance;
 
   // XXX
+  private static final Path DEFAULT_REPOSITORY =
+      Paths.get(System.getProperty("user.home"), ".m2/repository");
   private JavaProject project;
   private boolean projectIsParsed = false;
+  // TODO: maybe don't save this
   private final MavenDependencyFinder dependencyFinder;
+  private final Path repository;
 
   public MavenResolver(
       Path root, Path fileBeingResolved, String pkgBeingResolved, Options options) {
@@ -46,6 +50,8 @@ public class MavenResolver implements Resolver {
     this.options = options;
     this.distance = PackageDistance.from(pkgBeingResolved);
     this.dependencyFinder = new MavenDependencyFinder();
+    this.repository =
+        options.repository().isPresent() ? options.repository().get() : DEFAULT_REPOSITORY;
   }
 
   @Override
@@ -132,7 +138,6 @@ public class MavenResolver implements Resolver {
   }
 
   private List<ImportWithDistance> resolveDependency(MavenDependency dependency) {
-    Path repository = Paths.get(System.getProperty("user.home"), ".m2/repository");
     MavenDependencyResolver resolver = MavenDependencyResolver.withRepository(repository);
     MavenDependencyLoader loader = new MavenDependencyLoader(fileBeingResolved);
     try {

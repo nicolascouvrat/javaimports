@@ -1,11 +1,21 @@
 package com.nikodoko.javaimports;
 
+import java.nio.file.Path;
+import java.util.Optional;
+
 /** {@link Importer} options */
 public class Options {
   boolean debug;
+  Optional<Path> repository;
 
-  public Options(boolean debug) {
+  public Options(boolean debug, Optional<Path> repository) {
     this.debug = debug;
+    this.repository = repository;
+  }
+
+  /** Specific directory to use as a dependency repository */
+  public Optional<Path> repository() {
+    return repository;
   }
 
   /** Whether to run the {@code Importer} in debug mode */
@@ -15,6 +25,7 @@ public class Options {
 
   public static class Builder {
     boolean debug;
+    Path repository;
 
     public Builder() {}
 
@@ -23,8 +34,13 @@ public class Options {
       return this;
     }
 
+    public Builder repository(Path repository) {
+      this.repository = repository;
+      return this;
+    }
+
     public Options build() {
-      return new Options(debug);
+      return new Options(debug, Optional.ofNullable(repository));
     }
   }
 
