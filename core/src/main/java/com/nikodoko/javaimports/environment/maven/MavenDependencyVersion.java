@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver.maven;
+package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MavenDependencyVersion implements Comparable<MavenDependencyVersion> {
+class MavenDependencyVersion implements Comparable<MavenDependencyVersion> {
   // Supports "exotic" versioning, like guava's "26.0-jre"
   private static final Pattern VERSION_REGEX =
       Pattern.compile("(?:\\D+)?(?<versionNumber>\\d+(?:\\.\\d+)+)(?:\\D+)?");

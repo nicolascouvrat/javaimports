@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver.maven;
+package com.nikodoko.javaimports.environment.maven;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -9,7 +9,8 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MavenDependency {
+/** Encapsulates a Maven dependency. */
+class MavenDependency {
   private static final Pattern parameterPattern = Pattern.compile("\\$\\{(?<parameter>\\S+)\\}");
   final String groupId;
   final String artifactId;

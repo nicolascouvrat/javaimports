@@ -1,0 +1,6 @@
+// Test that external dependencies are resolved
+package withexternaldependency;
+
+class Test {
+  App app;
+}

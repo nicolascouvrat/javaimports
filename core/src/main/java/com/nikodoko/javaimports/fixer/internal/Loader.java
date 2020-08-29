@@ -1,12 +1,12 @@
 package com.nikodoko.javaimports.fixer.internal;
 
+import com.nikodoko.javaimports.environment.Environment;
+import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.ClassHierarchies;
 import com.nikodoko.javaimports.parser.ClassHierarchy;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.resolver.Resolver;
-import com.nikodoko.javaimports.resolver.Resolvers;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class Loader {
   private StdlibProvider stdlib = StdlibProviders.empty();
   private Map<String, Import> candidates = new HashMap<>();
   private LoadResult result = new LoadResult();
-  private Resolver resolver = Resolvers.empty();
+  private Environment environment = Environments.empty();
   private ParsedFile file;
 
   private Loader(ParsedFile file) {
@@ -47,11 +47,12 @@ public class Loader {
     this.stdlib = provider;
   }
 
-  public void addResolver(Resolver resolver) {
-    this.resolver = resolver;
-    // The resolver lets us find not only the siblings in the same folder, but also the siblings in
+  public void addEnvironment(Environment environment) {
+    this.environment = environment;
+    // The environment lets us find not only the siblings in the same folder, but also the siblings
+    // in
     // other folders of the same project
-    this.siblings = resolver.filesInPackage(file.packageName());
+    this.siblings = environment.filesInPackage(file.packageName());
   }
 
   /** Returns the list of candidates found by this loader */
@@ -92,7 +93,7 @@ public class Loader {
 
   private void addExternalCandidates() {
     for (String identifier : result.unresolved) {
-      Optional<Import> maybeCandidate = resolver.find(identifier);
+      Optional<Import> maybeCandidate = environment.search(identifier);
       if (maybeCandidate.isPresent()) {
         candidates.put(identifier, maybeCandidate.get());
       }

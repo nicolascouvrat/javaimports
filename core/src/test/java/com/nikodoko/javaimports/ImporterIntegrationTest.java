@@ -6,17 +6,16 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.fail;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
+import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
 import com.nikodoko.packagetest.Module;
-import com.nikodoko.packagetest.exporters.Kind;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,6 +32,8 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class ImporterIntegrationTest {
+  private static final URL repositoryURL =
+      ImporterIntegrationTest.class.getResource("/testrepository");
   private static final Path dataPath = Paths.get("com/nikodoko/javaimports/testdata");
   private static final String outputExtension = "output";
   private static final String inputExtension = "input";
@@ -40,7 +41,7 @@ public class ImporterIntegrationTest {
   @Parameters(name = "{index}: {0}")
   public static Iterable<Object[]> data() throws Exception {
     class PkgInfo {
-      public Map<String, String> files = new HashMap<>();
+      public List<Module.File> files = new ArrayList<>();
       public String target = "";
     }
 
@@ -76,7 +77,7 @@ public class ImporterIntegrationTest {
 
         // In order to support multiple folders, authorize the following naming pattern: a-B.java ->
         // a/B.java
-        pkg.files.put(fileName.replace("-", "/"), contents);
+        pkg.files.add(Module.file(fileName.replace("-", "/"), contents));
         if (extension.equals(inputExtension)) {
           pkg.target = fileName;
         }
@@ -90,10 +91,14 @@ public class ImporterIntegrationTest {
 
     List<Object[]> testData = new ArrayList<>();
     for (Map.Entry<String, PkgInfo> entry : inputs.entrySet()) {
+      Module.File[] moduleFiles = new Module.File[entry.getValue().files.size()];
       testData.add(
           new Object[] {
             entry.getValue().target, // target name
-            new Module(entry.getKey(), entry.getValue().files), // test module
+            Module.named(entry.getKey())
+                .containing(entry.getValue().files.toArray(moduleFiles))
+                .dependingOn(
+                    Module.dependency("com.mycompany.app", "a-dependency", "1.0")), // test module
             outputs.get(entry.getKey()) // output contents
           });
     }
@@ -114,7 +119,7 @@ public class ImporterIntegrationTest {
 
   @Before
   public void setup() throws Exception {
-    this.testPkg = Export.of(Kind.MAVEN, ImmutableList.of(module));
+    this.testPkg = Export.of(BuildSystem.MAVEN, module);
   }
 
   @After
@@ -127,14 +132,16 @@ public class ImporterIntegrationTest {
     Path main = testPkg.file(module.name(), target).get();
     try {
       String input = new String(Files.readAllBytes(main), UTF_8);
-      String output = new Importer().addUsedImports(main, input);
+      Options opts =
+          Options.builder().debug(false).repository(Paths.get(repositoryURL.toURI())).build();
+      String output = new Importer(opts).addUsedImports(main, input);
       assertWithMessage("bad output for " + module.name()).that(output).isEqualTo(expected);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);
       }
       fail();
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
       fail();
     }
