@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class MavenDependencyResolver {
+class MavenDependencyResolver {
   private final Path repository;
 
   private MavenDependencyResolver(Path repository) {
