@@ -17,9 +17,9 @@ import java.util.List;
 class MavenProjectParser {
   static final class Result {
     final JavaProject project;
-    final Iterable<MavenProjectParserException> errors;
+    final Iterable<MavenEnvironmentException> errors;
 
-    Result(Iterable<MavenProjectParserException> errors, JavaProject project) {
+    Result(Iterable<MavenEnvironmentException> errors, JavaProject project) {
       this.errors = errors;
       this.project = project;
     }
@@ -34,7 +34,7 @@ class MavenProjectParser {
 
   private final MavenProjectFinder finder;
 
-  private final List<MavenProjectParserException> errors = new ArrayList<>();
+  private final List<MavenEnvironmentException> errors = new ArrayList<>();
   private final JavaProject project = new JavaProject();
 
   private MavenProjectParser(Path root) {
@@ -62,7 +62,7 @@ class MavenProjectParser {
     try {
       return finder.findAll();
     } catch (IOException e) {
-      errors.add(new MavenProjectParserException("could not find files", e));
+      errors.add(new MavenEnvironmentException("could not find files", e));
       return new ArrayList<>();
     }
   }
@@ -71,7 +71,7 @@ class MavenProjectParser {
     try {
       parseFile(path);
     } catch (IOException | ImporterException e) {
-      errors.add(new MavenProjectParserException("could not parse file at " + path.toString(), e));
+      errors.add(new MavenEnvironmentException("could not parse file at " + path.toString(), e));
     }
   }
 

@@ -116,7 +116,7 @@ public class MavenResolver implements Resolver {
   }
 
   private List<Import> extractImportsInDependencies() throws IOException {
-    List<MavenDependency> dependencies = dependencyFinder.findAll(root);
+    List<MavenDependency> dependencies = dependencyFinder.findAll(root).dependencies;
     if (options.debug()) {
       log.info(String.format("found %d dependencies: %s", dependencies.size(), dependencies));
     }

@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.resolver.maven;
 
+import com.google.common.base.MoreObjects;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,22 +13,43 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.DefaultModelReader;
 
 class MavenDependencyFinder {
-  private List<MavenDependency> dependencies = new ArrayList<>();
+  static final class Result {
+    final List<MavenDependency> dependencies = new ArrayList<>();
+    final List<MavenEnvironmentException> errors = new ArrayList<>();
+
+    public String toString() {
+      return MoreObjects.toStringHelper(this)
+          .add("dependencies", dependencies)
+          .add("errors", errors)
+          .toString();
+    }
+  }
+
+  private Result result = new Result();
   private boolean allFound = false;
 
-  List<MavenDependency> findAll(Path moduleRoot) throws IOException {
+  Result findAll(Path moduleRoot) {
     Path target = moduleRoot;
     while (!allFound && hasPom(target)) {
-      scanPom(target);
+      tryToScanPom(target);
       target = target.getParent();
     }
 
-    return dependencies;
+    return result;
   }
 
   private boolean hasPom(Path directory) {
     Path pom = Paths.get(directory.toString(), "pom.xml");
     return Files.exists(pom);
+  }
+
+  private void tryToScanPom(Path directory) {
+    try {
+      scanPom(directory);
+    } catch (IOException e) {
+      result.errors.add(
+          new MavenEnvironmentException(String.format("could not scan pom in %s", directory), e));
+    }
   }
 
   private void scanPom(Path directory) throws IOException {
@@ -42,7 +64,7 @@ class MavenDependencyFinder {
     for (Dependency dep : deps) {
       MavenDependency dependency =
           new MavenDependency(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
-      dependencies.add(dependency);
+      result.dependencies.add(dependency);
 
       if (!dependency.hasPlainVersion()) {
         ok = false;

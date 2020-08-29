@@ -3,8 +3,8 @@ package com.nikodoko.javaimports.resolver.maven;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class MavenDependencyFinderTest {
 
   @BeforeEach
   void setup() throws Exception {
-    tmp = Files.createTempDir().toPath();
+    tmp = Files.createTempDirectory("");
   }
 
   @Test
@@ -29,8 +29,9 @@ public class MavenDependencyFinderTest {
     MavenDependencyFinder finder = new MavenDependencyFinder();
     write(basicPom());
 
-    List<MavenDependency> got = finder.findAll(tmp);
-    assertThat(got).isEmpty();
+    MavenDependencyFinder.Result got = finder.findAll(tmp);
+    assertThat(got.dependencies).isEmpty();
+    assertThat(got.errors).isEmpty();
   }
 
   @Test
@@ -44,8 +45,9 @@ public class MavenDependencyFinderTest {
         ImmutableList.of(
             new MavenDependency("com.google.guava", "guava", "28.1-jre"),
             new MavenDependency("com.google.truth", "truth", "1.0.1"));
-    List<MavenDependency> got = finder.findAll(tmp);
-    assertThat(got).containsExactlyElementsIn(expected);
+    MavenDependencyFinder.Result got = finder.findAll(tmp);
+    assertThat(got.dependencies).containsExactlyElementsIn(expected);
+    assertThat(got.errors).isEmpty();
   }
 
   @Test
@@ -55,8 +57,18 @@ public class MavenDependencyFinderTest {
     List<MavenDependency> expected =
         ImmutableList.of(new MavenDependency("com.google.guava", "guava", "${guava.version}"));
 
-    List<MavenDependency> got = finder.findAll(tmp);
-    assertThat(got).containsExactlyElementsIn(expected);
+    MavenDependencyFinder.Result got = finder.findAll(tmp);
+    assertThat(got.dependencies).containsExactlyElementsIn(expected);
+    assertThat(got.errors).isEmpty();
+  }
+
+  @Test
+  void testThatFinderDoesNotCrashOnInvalidPom() throws Exception {
+    Files.write(Paths.get(tmp.toString(), "pom.xml"), "this is not a valid pom!".getBytes());
+
+    MavenDependencyFinder.Result got = new MavenDependencyFinder().findAll(tmp);
+    assertThat(got.dependencies).isEmpty();
+    assertThat(got.errors).hasSize(1);
   }
 
   static Consumer<Model> basicPom() {
