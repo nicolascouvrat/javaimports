@@ -4,7 +4,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.nikodoko.javaimports.parser.Import;
-import com.nikodoko.javaimports.resolver.ImportWithDistance;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,16 +21,15 @@ class MavenDependencyLoaderTest {
   void setup() throws Exception {
     Path repository = Paths.get(repositoryURL.toURI());
     Path reference = repository;
-    loader = new MavenDependencyLoader(reference);
+    loader = new MavenDependencyLoader();
     resolver = MavenDependencyResolver.withRepository(repository);
   }
 
   @Test
   void testDependencyWithPlainVersionIsResolved() throws Exception {
-    List<ImportWithDistance> expected =
-        ImmutableList.of(new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
+    List<Import> expected = ImmutableList.of(new Import("App", "com.mycompany.app", false));
 
-    List<ImportWithDistance> got =
+    List<Import> got =
         loader.load(
             resolver.resolve(new MavenDependency("com.mycompany.app", "a-dependency", "1.0")));
 
@@ -40,14 +38,13 @@ class MavenDependencyLoaderTest {
 
   @Test
   void testSubclassIsResolved() throws Exception {
-    List<ImportWithDistance> expected =
+    List<Import> expected =
         ImmutableList.of(
-            new ImportWithDistance(new Import("Subclass", "com.mycompany.app.App", false), 6),
-            new ImportWithDistance(
-                new Import("Subsubclass", "com.mycompany.app.App.Subclass", false), 6),
-            new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
+            new Import("Subclass", "com.mycompany.app.App", false),
+            new Import("Subsubclass", "com.mycompany.app.App.Subclass", false),
+            new Import("App", "com.mycompany.app", false));
 
-    List<ImportWithDistance> got =
+    List<Import> got =
         loader.load(
             resolver.resolve(new MavenDependency("com.mycompany.app", "a-dependency", "2.0")));
 
@@ -56,14 +53,13 @@ class MavenDependencyLoaderTest {
 
   @Test
   void testDependencyWithoutPlainVersionIsResolvedToLatest() throws Exception {
-    List<ImportWithDistance> expected =
+    List<Import> expected =
         ImmutableList.of(
-            new ImportWithDistance(new Import("Subclass", "com.mycompany.app.App", false), 6),
-            new ImportWithDistance(
-                new Import("Subsubclass", "com.mycompany.app.App.Subclass", false), 6),
-            new ImportWithDistance(new Import("App", "com.mycompany.app", false), 6));
+            new Import("Subclass", "com.mycompany.app.App", false),
+            new Import("Subsubclass", "com.mycompany.app.App.Subclass", false),
+            new Import("App", "com.mycompany.app", false));
 
-    List<ImportWithDistance> got =
+    List<Import> got =
         loader.load(
             resolver.resolve(new MavenDependency("com.mycompany.app", "a-dependency", null)));
 

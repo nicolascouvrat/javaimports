@@ -139,15 +139,21 @@ public class MavenResolver implements Resolver {
 
   private List<ImportWithDistance> resolveDependency(MavenDependency dependency) {
     MavenDependencyResolver resolver = MavenDependencyResolver.withRepository(repository);
-    MavenDependencyLoader loader = new MavenDependencyLoader(fileBeingResolved);
+    MavenDependencyLoader loader = new MavenDependencyLoader();
     try {
       Path location = resolver.resolve(dependency);
       if (options.debug()) {
         log.info(String.format("looking for dependency %s at %s", dependency, location));
       }
 
-      return loader.load(location);
+      List<ImportWithDistance> imports = new ArrayList<>();
+      for (Import loaded : loader.load(location)) {
+        imports.add(new ImportWithDistance(loaded, distance.to(loaded.qualifier())));
+      }
+
+      return imports;
     } catch (Exception e) {
+      // No matter what happens, we don't want to fail the whole importing process just for that.
       if (options.debug()) {
         log.log(Level.WARNING, String.format("could not resolve dependency %s", dependency), e);
       }

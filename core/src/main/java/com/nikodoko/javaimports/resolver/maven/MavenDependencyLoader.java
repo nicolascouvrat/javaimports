@@ -1,7 +1,6 @@
 package com.nikodoko.javaimports.resolver.maven;
 
 import com.nikodoko.javaimports.parser.Import;
-import com.nikodoko.javaimports.resolver.ImportWithDistance;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,26 +12,20 @@ import java.util.jar.JarInputStream;
 
 class MavenDependencyLoader {
   private static final String SUBCLASS_SEPARATOR = "$";
-  final Path fileBeingResolved;
 
-  MavenDependencyLoader(Path fileBeingResolved) {
-    this.fileBeingResolved = fileBeingResolved;
-  }
-
-  List<ImportWithDistance> load(Path dependency) throws IOException {
+  List<Import> load(Path dependency) throws IOException {
     return scanJar(dependency);
   }
 
-  private List<ImportWithDistance> scanJar(Path jar) throws IOException {
-    List<ImportWithDistance> imports = new ArrayList<>();
+  private List<Import> scanJar(Path jar) throws IOException {
+    List<Import> imports = new ArrayList<>();
     try (JarInputStream in = new JarInputStream(new FileInputStream(jar.toString()))) {
       JarEntry entry;
       while ((entry = in.getNextJarEntry()) != null) {
         // XXX: this will get all classes, including private and protected ones
         // TODO: properly handle module-class.class
         if (entry.getName().endsWith(".class")) {
-          Import i = parseImport(Paths.get(entry.getName()));
-          imports.add(ImportWithDistance.of(i, jar, fileBeingResolved));
+          imports.add(parseImport(Paths.get(entry.getName())));
         }
       }
     }
