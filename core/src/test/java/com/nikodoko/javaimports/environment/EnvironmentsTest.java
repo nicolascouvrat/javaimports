@@ -11,7 +11,7 @@ import com.nikodoko.packagetest.Module;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
-public class ResolversTest {
+public class EnvironmentsTest {
   @Test
   void testBasedOnEnvironmentInMavenProject() throws Exception {
     Module module =
@@ -22,7 +22,7 @@ public class ResolversTest {
     Exported project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver got = Resolvers.basedOnEnvironment(target, "test.module", Options.defaults());
+    Environment got = Environments.autoSelect(target, "test.module", Options.defaults());
     assertThat(got).isInstanceOf(MavenEnvironment.class);
     project.cleanup();
   }

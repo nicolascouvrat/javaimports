@@ -3,9 +3,9 @@ package com.nikodoko.javaimports.environment.maven;
 import static com.google.common.truth.Truth8.assertThat;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.environment.Environment;
+import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.parser.Import;
-import com.nikodoko.javaimports.environment.Resolver;
-import com.nikodoko.javaimports.environment.Resolvers;
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
@@ -43,8 +43,9 @@ public class MavenEnvironmentTest {
     project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target, "test.module", Options.defaults());
-    assertThat(resolver.find("Second")).hasValue(new Import("Second", "test.module.second", false));
+    Environment environment = Environments.autoSelect(target, "test.module", Options.defaults());
+    assertThat(environment.search("Second"))
+        .hasValue(new Import("Second", "test.module.second", false));
   }
 
   @Test
@@ -58,8 +59,8 @@ public class MavenEnvironmentTest {
     project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target, "test.module", Options.defaults());
-    assertThat(resolver.find("Main")).isEmpty();
+    Environment environment = Environments.autoSelect(target, "test.module", Options.defaults());
+    assertThat(environment.search("Main")).isEmpty();
   }
 
   @Test
@@ -76,8 +77,9 @@ public class MavenEnvironmentTest {
     project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    Resolver resolver = Resolvers.basedOnEnvironment(target, "test.module", Options.defaults());
-    assertThat(resolver.find("Second")).hasValue(new Import("Second", "test.module.second", false));
+    Environment environment = Environments.autoSelect(target, "test.module", Options.defaults());
+    assertThat(environment.search("Second"))
+        .hasValue(new Import("Second", "test.module.second", false));
   }
 
   @Test
@@ -88,14 +90,14 @@ public class MavenEnvironmentTest {
             .dependingOn(Module.dependency("com.mycompany.app", "a-dependency", "1.0"));
     project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
-    Resolver resolver =
-        Resolvers.basedOnEnvironment(
+    Environment environment =
+        Environments.autoSelect(
             target, "test.module", Options.builder().repository(repository).build());
 
     // Assert that the 1.0 version of the dependency is indeed selected by checking that a class
     // only present in 2.0 is not found
     // TODO: enable
-    assertThat(resolver.find("App")).hasValue(new Import("App", "com.mycompany.app", false));
-    // assertThat(resolver.find("Subclass")).isEmpty();
+    assertThat(environment.search("App")).hasValue(new Import("App", "com.mycompany.app", false));
+    // assertThat(environment.search("Subclass")).isEmpty();
   }
 }

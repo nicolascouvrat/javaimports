@@ -5,8 +5,8 @@ import com.nikodoko.javaimports.parser.ParsedFile;
 import java.util.Optional;
 import java.util.Set;
 
-public interface Resolver {
-  Optional<Import> find(String identifier);
+public interface Environment {
+  Optional<Import> search(String identifier);
 
   Set<ParsedFile> filesInPackage(String packageName);
 }

@@ -4,12 +4,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.fixer.Fixer;
 import com.nikodoko.javaimports.fixer.Result;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
-import com.nikodoko.javaimports.environment.Resolvers;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.IOError;
 import java.io.IOException;
@@ -99,7 +99,7 @@ public final class Importer {
     // want to resolve them before so as to avoid adding uneeded imports, so we need to add both the
     // stdlib provider and the resolver at the same time.
     fixer.addStdlibProvider(StdlibProviders.java8());
-    fixer.addResolver(Resolvers.basedOnEnvironment(filename, f.packageName(), options));
+    fixer.addEnvironment(Environments.autoSelect(filename, f.packageName(), options));
 
     return applyFixes(f, javaCode, fixer.lastTryToFix());
   }

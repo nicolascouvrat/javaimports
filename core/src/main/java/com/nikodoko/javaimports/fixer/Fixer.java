@@ -1,12 +1,12 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.fixer.internal.LoadResult;
 import com.nikodoko.javaimports.fixer.internal.Loader;
 import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.environment.Resolver;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import java.util.HashSet;
 import java.util.Map;
@@ -61,8 +61,8 @@ public class Fixer {
     loader.addStdlibProvider(provider);
   }
 
-  public void addResolver(Resolver resolver) {
-    loader.addResolver(resolver);
+  public void addEnvironment(Environment resolver) {
+    loader.addEnvironment(resolver);
   }
 
   private Result loadAndTryToFix(boolean lastTry) {
