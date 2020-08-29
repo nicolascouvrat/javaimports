@@ -2,7 +2,6 @@ package com.nikodoko.javaimports.resolver.maven;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
@@ -10,7 +9,6 @@ import com.nikodoko.javaimports.parser.Parser;
 import com.nikodoko.javaimports.resolver.JavaProject;
 import com.nikodoko.javaimports.resolver.PackageDistance;
 import com.nikodoko.javaimports.resolver.Resolver;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,32 +21,28 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MavenResolver implements Resolver {
+public class MavenEnvironment implements Resolver {
   private static Logger log = Logger.getLogger(Parser.class.getName());
+  private static final Path DEFAULT_REPOSITORY =
+      Paths.get(System.getProperty("user.home"), ".m2/repository");
 
   private final Path root;
   private final Path fileBeingResolved;
   private final Options options;
-  private Map<String, Import> bestAvailableImports = new HashMap<>();
-  private boolean isInitialized = false;
   private final PackageDistance distance;
-
-  // XXX
-  private static final Path DEFAULT_REPOSITORY =
-      Paths.get(System.getProperty("user.home"), ".m2/repository");
-  private JavaProject project;
-  private boolean projectIsParsed = false;
-  // TODO: maybe don't save this
-  private final MavenDependencyFinder dependencyFinder;
   private final Path repository;
 
-  public MavenResolver(
+  private Map<String, Import> bestAvailableImports = new HashMap<>();
+  private JavaProject project;
+  private boolean projectIsParsed = false;
+  private boolean isInitialized = false;
+
+  public MavenEnvironment(
       Path root, Path fileBeingResolved, String pkgBeingResolved, Options options) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
     this.distance = PackageDistance.from(pkgBeingResolved);
-    this.dependencyFinder = new MavenDependencyFinder();
     this.repository =
         options.repository().isPresent() ? options.repository().get() : DEFAULT_REPOSITORY;
   }
@@ -62,22 +56,13 @@ public class MavenResolver implements Resolver {
   @Override
   public Optional<Import> find(String identifier) {
     if (!isInitialized) {
-      safeInit();
+      init();
     }
 
     return Optional.ofNullable(bestAvailableImports.get(identifier));
   }
 
-  private void safeInit() {
-    try {
-      init();
-    } catch (Exception e) {
-      // TODO: decide what to do here
-      e.printStackTrace();
-    }
-  }
-
-  private void init() throws IOException, ImporterException {
+  private void init() {
     parseProjectIfNeeded();
 
     List<Import> imports = extractImportsInDependencies();
@@ -115,30 +100,29 @@ public class MavenResolver implements Resolver {
     projectIsParsed = true;
   }
 
-  private List<Import> extractImportsInDependencies() throws IOException {
-    List<MavenDependency> dependencies = dependencyFinder.findAll(root).dependencies;
+  private List<Import> extractImportsInDependencies() {
+    MavenDependencyFinder.Result found = new MavenDependencyFinder().findAll(root);
     if (options.debug()) {
-      log.info(String.format("found %d dependencies: %s", dependencies.size(), dependencies));
+      log.info(String.format("found %d dependencies: %s", found.dependencies.size(), found));
     }
 
     List<Import> imports = new ArrayList<>();
-    for (MavenDependency dependency : dependencies) {
-      imports.addAll(resolveDependency(dependency));
+    for (MavenDependency dependency : found.dependencies) {
+      imports.addAll(resolveAndLoad(dependency));
     }
 
     return imports;
   }
 
-  private List<Import> resolveDependency(MavenDependency dependency) {
+  private List<Import> resolveAndLoad(MavenDependency dependency) {
     MavenDependencyResolver resolver = MavenDependencyResolver.withRepository(repository);
-    MavenDependencyLoader loader = new MavenDependencyLoader();
     try {
       Path location = resolver.resolve(dependency);
       if (options.debug()) {
         log.info(String.format("looking for dependency %s at %s", dependency, location));
       }
 
-      return loader.load(location);
+      return new MavenDependencyLoader().load(location);
     } catch (Exception e) {
       // No matter what happens, we don't want to fail the whole importing process just for that.
       if (options.debug()) {

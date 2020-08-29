@@ -3,7 +3,7 @@ package com.nikodoko.javaimports.resolver;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.nikodoko.javaimports.Options;
-import com.nikodoko.javaimports.resolver.maven.MavenResolver;
+import com.nikodoko.javaimports.resolver.maven.MavenEnvironment;
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
@@ -23,7 +23,7 @@ public class ResolversTest {
     Path target = project.file(module.name(), "Main.java").get();
 
     Resolver got = Resolvers.basedOnEnvironment(target, "test.module", Options.defaults());
-    assertThat(got).isInstanceOf(MavenResolver.class);
+    assertThat(got).isInstanceOf(MavenEnvironment.class);
     project.cleanup();
   }
 }

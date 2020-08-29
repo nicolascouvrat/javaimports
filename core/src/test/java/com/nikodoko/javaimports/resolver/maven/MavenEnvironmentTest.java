@@ -17,7 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MavenResolverTest {
+public class MavenEnvironmentTest {
   static final URL repositoryURL = MavenDependencyLoaderTest.class.getResource("/testrepository");
   Exported project;
   Path repository;

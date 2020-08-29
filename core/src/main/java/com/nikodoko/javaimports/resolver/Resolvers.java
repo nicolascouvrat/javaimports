@@ -3,7 +3,7 @@ package com.nikodoko.javaimports.resolver;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.resolver.maven.MavenResolver;
+import com.nikodoko.javaimports.resolver.maven.MavenEnvironment;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,7 +33,7 @@ public class Resolvers {
     while (current != null) {
       Path potentialPom = Paths.get(current.toString(), "pom.xml");
       if (Files.exists(potentialPom)) {
-        return new MavenResolver(current, filename, pkg, options);
+        return new MavenEnvironment(current, filename, pkg, options);
       }
 
       current = current.getParent();
