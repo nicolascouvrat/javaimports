@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/** Encapsulates all files in a Java project. */
 public class JavaProject {
   private Map<String, Set<ParsedFile>> filesByPackage = new HashMap<>();
 

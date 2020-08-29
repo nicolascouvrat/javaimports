@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+/** Loads a .jar, extracting all importable symbols. */
+// TODO: handle static imports
 class MavenDependencyLoader {
   private static final String SUBCLASS_SEPARATOR = "$";
 

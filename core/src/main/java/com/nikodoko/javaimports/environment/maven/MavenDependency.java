@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/** Encapsulates a Maven dependency. */
 class MavenDependency {
   private static final Pattern parameterPattern = Pattern.compile("\\$\\{(?<parameter>\\S+)\\}");
   final String groupId;

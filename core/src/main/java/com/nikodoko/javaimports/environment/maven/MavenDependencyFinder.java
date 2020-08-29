@@ -12,6 +12,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.DefaultModelReader;
 
+/** Finds all dependencies in a Maven project by parsing POM files. */
 class MavenDependencyFinder {
   static final class Result {
     final List<MavenDependency> dependencies = new ArrayList<>();

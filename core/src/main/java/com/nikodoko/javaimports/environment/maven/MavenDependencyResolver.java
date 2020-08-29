@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/** Resolves Maven dependencies to their location on disk. */
 class MavenDependencyResolver {
   private final Path repository;
 

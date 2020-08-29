@@ -5,15 +5,16 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.environment.JavaProject;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
-import com.nikodoko.javaimports.environment.JavaProject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Parses all java files in a given project. */
 class MavenProjectParser {
   static final class Result {
     final JavaProject project;

@@ -9,8 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO: this will find ALL java files, including in resource folder
-// should it be more restrictive?
+/** Finds all .java files in a project. */
+// TODO: this will find ALL java files, including in resource folder should it be more
+// restrictive?
 class MavenProjectFinder {
   private final Path root;
   private final List<Path> excluded = new ArrayList<>();

@@ -21,6 +21,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Encapsulates a Maven project environment, scanning project files and dependencies for importable
+ * symbols.
+ */
 public class MavenEnvironment implements Environment {
   private static Logger log = Logger.getLogger(Parser.class.getName());
   private static final Path DEFAULT_REPOSITORY =

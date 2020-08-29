@@ -3,6 +3,13 @@ package com.nikodoko.javaimports.environment;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Calculates the distance between two packages.
+ *
+ * <p>For example, {@code com.a.package} and {@code com.a.package.subpackage} have a distance of 1,
+ * {@code com.a.package} and {@code com.a} also have a distance of 1, and {@code com.a.package} and
+ * {@code net.another.package} have a distance of 6.
+ */
 public class PackageDistance {
   private final Path reference;
 
