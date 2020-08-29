@@ -7,7 +7,6 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
-import com.nikodoko.javaimports.resolver.ImportWithDistance;
 import com.nikodoko.javaimports.resolver.JavaProject;
 import com.nikodoko.javaimports.resolver.PackageDistance;
 import com.nikodoko.javaimports.resolver.Resolver;
@@ -30,7 +29,7 @@ public class MavenResolver implements Resolver {
   private final Path root;
   private final Path fileBeingResolved;
   private final Options options;
-  private Map<String, List<ImportWithDistance>> importsByIdentifier = new HashMap<>();
+  private Map<String, Import> bestAvailableImports = new HashMap<>();
   private boolean isInitialized = false;
   private final PackageDistance distance;
 
@@ -66,12 +65,7 @@ public class MavenResolver implements Resolver {
       safeInit();
     }
 
-    List<ImportWithDistance> imports = importsByIdentifier.get(identifier);
-    if (imports == null) {
-      return Optional.empty();
-    }
-
-    return Optional.of(Collections.min(imports).i);
+    return Optional.ofNullable(bestAvailableImports.get(identifier));
   }
 
   private void safeInit() {
@@ -86,20 +80,18 @@ public class MavenResolver implements Resolver {
   private void init() throws IOException, ImporterException {
     parseProjectIfNeeded();
 
+    List<Import> imports = extractImportsInDependencies();
     for (ParsedFile file : project.allFiles()) {
-      for (ImportWithDistance i : extractImports(file)) {
-        List<ImportWithDistance> importsForIdentifier =
-            importsByIdentifier.getOrDefault(i.i.name(), new ArrayList<>());
-        importsForIdentifier.add(i);
-        importsByIdentifier.put(i.i.name(), importsForIdentifier);
-      }
+      imports.addAll(extractImports(file));
     }
 
-    for (ImportWithDistance i : extractImportsInDependencies()) {
-      List<ImportWithDistance> importsForIdentifier =
-          importsByIdentifier.getOrDefault(i.i.name(), new ArrayList<>());
-      importsForIdentifier.add(i);
-      importsByIdentifier.put(i.i.name(), importsForIdentifier);
+    Collections.sort(imports, (a, b) -> distance.to(a.qualifier()) - distance.to(b.qualifier()));
+    for (Import i : imports) {
+      if (bestAvailableImports.containsKey(i.name())) {
+        continue;
+      }
+
+      bestAvailableImports.put(i.name(), i);
     }
 
     isInitialized = true;
@@ -123,13 +115,13 @@ public class MavenResolver implements Resolver {
     projectIsParsed = true;
   }
 
-  private List<ImportWithDistance> extractImportsInDependencies() throws IOException {
+  private List<Import> extractImportsInDependencies() throws IOException {
     List<MavenDependency> dependencies = dependencyFinder.findAll(root);
     if (options.debug()) {
       log.info(String.format("found %d dependencies: %s", dependencies.size(), dependencies));
     }
 
-    List<ImportWithDistance> imports = new ArrayList<>();
+    List<Import> imports = new ArrayList<>();
     for (MavenDependency dependency : dependencies) {
       imports.addAll(resolveDependency(dependency));
     }
@@ -137,7 +129,7 @@ public class MavenResolver implements Resolver {
     return imports;
   }
 
-  private List<ImportWithDistance> resolveDependency(MavenDependency dependency) {
+  private List<Import> resolveDependency(MavenDependency dependency) {
     MavenDependencyResolver resolver = MavenDependencyResolver.withRepository(repository);
     MavenDependencyLoader loader = new MavenDependencyLoader();
     try {
@@ -146,12 +138,7 @@ public class MavenResolver implements Resolver {
         log.info(String.format("looking for dependency %s at %s", dependency, location));
       }
 
-      List<ImportWithDistance> imports = new ArrayList<>();
-      for (Import loaded : loader.load(location)) {
-        imports.add(new ImportWithDistance(loaded, distance.to(loaded.qualifier())));
-      }
-
-      return imports;
+      return loader.load(location);
     } catch (Exception e) {
       // No matter what happens, we don't want to fail the whole importing process just for that.
       if (options.debug()) {
@@ -162,11 +149,10 @@ public class MavenResolver implements Resolver {
     }
   }
 
-  private List<ImportWithDistance> extractImports(ParsedFile file) {
-    List<ImportWithDistance> imports = new ArrayList<>();
+  private List<Import> extractImports(ParsedFile file) {
+    List<Import> imports = new ArrayList<>();
     for (String identifier : file.topLevelDeclarations()) {
-      Import i = new Import(identifier, file.packageName(), false);
-      imports.add(new ImportWithDistance(i, distance.to(file.packageName())));
+      imports.add(new Import(identifier, file.packageName(), false));
     }
 
     return imports;
