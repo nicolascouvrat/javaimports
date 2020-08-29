@@ -1,9 +1,9 @@
-package com.nikodoko.javaimports.resolver;
+package com.nikodoko.javaimports.environment;
 
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.resolver.maven.MavenEnvironment;
+import com.nikodoko.javaimports.environment.maven.MavenEnvironment;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

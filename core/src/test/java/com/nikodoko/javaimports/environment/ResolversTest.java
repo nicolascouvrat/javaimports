@@ -1,9 +1,9 @@
-package com.nikodoko.javaimports.resolver;
+package com.nikodoko.javaimports.environment;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.nikodoko.javaimports.Options;
-import com.nikodoko.javaimports.resolver.maven.MavenEnvironment;
+import com.nikodoko.javaimports.environment.maven.MavenEnvironment;
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;

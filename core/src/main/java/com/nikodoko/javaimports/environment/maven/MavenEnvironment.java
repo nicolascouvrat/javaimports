@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver.maven;
+package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -6,9 +6,9 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
-import com.nikodoko.javaimports.resolver.JavaProject;
-import com.nikodoko.javaimports.resolver.PackageDistance;
-import com.nikodoko.javaimports.resolver.Resolver;
+import com.nikodoko.javaimports.environment.JavaProject;
+import com.nikodoko.javaimports.environment.PackageDistance;
+import com.nikodoko.javaimports.environment.Resolver;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver.maven;
+package com.nikodoko.javaimports.environment.maven;
 
 import java.io.IOException;
 import java.nio.file.Files;

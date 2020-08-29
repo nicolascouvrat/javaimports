@@ -6,7 +6,7 @@ import com.nikodoko.javaimports.fixer.internal.Loader;
 import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.resolver.Resolver;
+import com.nikodoko.javaimports.environment.Resolver;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import java.util.HashSet;
 import java.util.Map;

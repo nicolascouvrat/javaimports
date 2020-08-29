@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver;
+package com.nikodoko.javaimports.environment;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

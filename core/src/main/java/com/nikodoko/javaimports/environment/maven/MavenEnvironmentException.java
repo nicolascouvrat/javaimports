@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver.maven;
+package com.nikodoko.javaimports.environment.maven;
 
 class MavenEnvironmentException extends Exception {
   MavenEnvironmentException(String msg, Exception cause) {

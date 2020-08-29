@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.resolver.maven;
+package com.nikodoko.javaimports.environment.maven;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -7,7 +7,7 @@ import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
-import com.nikodoko.javaimports.resolver.JavaProject;
+import com.nikodoko.javaimports.environment.JavaProject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

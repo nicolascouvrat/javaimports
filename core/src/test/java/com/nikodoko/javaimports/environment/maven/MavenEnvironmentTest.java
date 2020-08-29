@@ -1,11 +1,11 @@
-package com.nikodoko.javaimports.resolver.maven;
+package com.nikodoko.javaimports.environment.maven;
 
 import static com.google.common.truth.Truth8.assertThat;
 
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.parser.Import;
-import com.nikodoko.javaimports.resolver.Resolver;
-import com.nikodoko.javaimports.resolver.Resolvers;
+import com.nikodoko.javaimports.environment.Resolver;
+import com.nikodoko.javaimports.environment.Resolvers;
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;

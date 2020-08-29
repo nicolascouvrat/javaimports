@@ -9,7 +9,7 @@ import com.nikodoko.javaimports.fixer.Result;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
-import com.nikodoko.javaimports.resolver.Resolvers;
+import com.nikodoko.javaimports.environment.Resolvers;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.IOError;
 import java.io.IOException;
