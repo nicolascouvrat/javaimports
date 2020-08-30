@@ -4,7 +4,7 @@
   <groupId>com.nikodoko.javaimports</groupId>
   <artifactId>javaimports-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>1.0</version>
 
   <modules>
     <module>core</module>
@@ -22,7 +22,7 @@
     <url>http://github.com/nicolascouvrat/javaimports</url>
     <connection>scm:git:git://github.com/nicolascouvrat/javaimports</connection>
     <developerConnection>scm:git:ssh://git@github.com/nicolascouvrat/javaimports.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>javaimports-parent-1.0</tag>
   </scm>
 
   <properties>
