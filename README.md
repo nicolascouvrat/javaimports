@@ -4,6 +4,16 @@ Javaimports updates Java import lines, adding missing ones.
 
 ## Usage
 
+### From the CLI
+
+Run it with:
+
+```
+java -jar /path/to/javaimports-1.0-all-deps.jar <options> file
+```
+
+## Options
+
 ```
 Usage: javaimports [options] file
 
