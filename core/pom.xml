@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.nikodoko.javaimports</groupId>
     <artifactId>javaimports-parent</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>javaimports</artifactId>
