@@ -10,6 +10,7 @@ import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -32,8 +33,10 @@ import org.openjdk.tools.javac.util.Log;
  * as classes extending another class not declared in the same file.
  */
 public class Parser {
-  private Options options;
   private static Logger log = Logger.getLogger(Parser.class.getName());
+  private static final Clock clock = Clock.systemDefaultZone();
+
+  private Options options;
 
   /**
    * A {@code Parser} constructor.
@@ -51,6 +54,7 @@ public class Parser {
    * @throws ImporterException if the input cannot be parsed
    */
   public ParsedFile parse(final Path filename, final String javaCode) throws ImporterException {
+    long start = clock.millis();
     // Parse the code into a compilation unit containing the AST
     JCCompilationUnit unit = getCompilationUnit(filename.toString(), javaCode);
 
@@ -63,7 +67,7 @@ public class Parser {
     f.topScope(scanner.topScope());
     f.classHierarchy(scanner.topClass());
     if (options.debug()) {
-      log.info("completed parsing: " + f.toString());
+      log.info(String.format("completed parsing in %d ms: %s", clock.millis() - start, f));
     }
 
     return f;

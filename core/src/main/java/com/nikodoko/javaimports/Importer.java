@@ -14,12 +14,15 @@ import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +31,9 @@ import java.util.stream.Collectors;
  * using various approaches.
  */
 public final class Importer {
+  private static final Logger log = Logger.getLogger(Importer.class.getName());
+  private static final Clock clock = Clock.systemDefaultZone();
+
   private Options options;
   private Parser parser;
 
@@ -69,27 +75,34 @@ public final class Importer {
    */
   public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
-    ParsedFile f = parser.parse(filename, javaCode);
+    long start = clock.millis();
+    try {
+      ParsedFile f = parser.parse(filename, javaCode);
+      Result fixes = getFixes(filename, f);
+      return applyFixes(f, javaCode, fixes);
+    } finally {
+      log.log(Level.INFO, String.format("total time: %d ms", clock.millis() - start));
+    }
+  }
 
+  private Result getFixes(Path filename, ParsedFile f) throws ImporterException {
     Fixer fixer = Fixer.init(f, options);
     // Initial run with the current file only.
     Result r = fixer.tryToFix();
-
     if (r.done()) {
       // We cannot add any imports at this stage, as we need the package information for that. If we
       // are done, this should mean that the file is complete
       checkArgument(r.fixes().isEmpty(), "expected no fixes but found %s", r.fixes());
-      return applyFixes(f, javaCode, r);
+      return r;
     }
 
     // Add package information
     Set<ParsedFile> siblings = parseSiblings(filename);
     fixer.addSiblings(siblings);
-
     r = fixer.tryToFix();
 
     if (r.done()) {
-      return applyFixes(f, javaCode, r);
+      return r;
     }
 
     // Files in a same package can be in a different folder (if we are resolving a test file for
@@ -100,7 +113,7 @@ public final class Importer {
     fixer.addStdlibProvider(options.stdlib());
     fixer.addEnvironment(Environments.autoSelect(filename, f.packageName(), options));
 
-    return applyFixes(f, javaCode, fixer.lastTryToFix());
+    return fixer.lastTryToFix();
   }
 
   // Find and parse all java files in the directory of filename, excepting filename itself
