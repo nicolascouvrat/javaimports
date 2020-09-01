@@ -11,6 +11,7 @@ import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ public class MavenEnvironment implements Environment {
   private static Logger log = Logger.getLogger(Parser.class.getName());
   private static final Path DEFAULT_REPOSITORY =
       Paths.get(System.getProperty("user.home"), ".m2/repository");
+  private static final Clock clock = Clock.systemDefaultZone();
 
   private final Path root;
   private final Path fileBeingResolved;
@@ -69,6 +71,7 @@ public class MavenEnvironment implements Environment {
   private void init() {
     parseProjectIfNeeded();
 
+    long start = clock.millis();
     List<Import> imports = extractImportsInDependencies();
     for (ParsedFile file : project.allFiles()) {
       imports.addAll(extractImports(file));
@@ -84,20 +87,22 @@ public class MavenEnvironment implements Environment {
     }
 
     isInitialized = true;
+    log.log(Level.INFO, String.format("init completed in %d ms", clock.millis() - start));
   }
 
   private void parseProjectIfNeeded() {
     if (projectIsParsed) {
       return;
     }
+    long start = clock.millis();
 
     MavenProjectParser parser = MavenProjectParser.withRoot(root).excluding(fileBeingResolved);
     MavenProjectParser.Result parsed = parser.parseAll();
     if (options.debug()) {
       log.info(
           String.format(
-              "parsed project (total of %d files): %s",
-              Iterables.size(parsed.project.allFiles()), parsed));
+              "parsed project in %d ms (total of %d files): %s",
+              clock.millis() - start, Iterables.size(parsed.project.allFiles()), parsed));
     }
 
     project = parsed.project;
@@ -120,21 +125,29 @@ public class MavenEnvironment implements Environment {
 
   private List<Import> resolveAndLoad(MavenDependency dependency) {
     MavenDependencyResolver resolver = MavenDependencyResolver.withRepository(repository);
+    List<Import> imports = new ArrayList<>();
+    long start = clock.millis();
     try {
       Path location = resolver.resolve(dependency);
       if (options.debug()) {
         log.info(String.format("looking for dependency %s at %s", dependency, location));
       }
 
-      return new MavenDependencyLoader().load(location);
+      imports = new MavenDependencyLoader().load(location);
     } catch (Exception e) {
       // No matter what happens, we don't want to fail the whole importing process just for that.
       if (options.debug()) {
         log.log(Level.WARNING, String.format("could not resolve dependency %s", dependency), e);
       }
-
-      return new ArrayList<>();
+    } finally {
+      if (options.debug()) {
+        log.log(
+            Level.INFO,
+            String.format("loaded %d imports in %d ms", imports.size(), clock.millis() - start));
+      }
     }
+
+    return imports;
   }
 
   private List<Import> extractImports(ParsedFile file) {
