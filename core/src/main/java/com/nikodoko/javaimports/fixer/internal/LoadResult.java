@@ -8,6 +8,7 @@ import java.util.Set;
 public class LoadResult {
   public Set<String> unresolved;
   public Set<ClassExtender> orphans;
+  public Candidates candidates = new Candidates();
 
   public boolean isEmpty() {
     return unresolved.isEmpty() && orphans.isEmpty();

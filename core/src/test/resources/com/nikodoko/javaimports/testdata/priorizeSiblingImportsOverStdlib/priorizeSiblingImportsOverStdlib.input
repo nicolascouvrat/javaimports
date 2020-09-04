@@ -1,0 +1,6 @@
+// Test that sibling imports are given priority over the stdlib
+package priorizeSiblingImportsOverStdlib;
+
+class Test {
+  List<String> list;
+}

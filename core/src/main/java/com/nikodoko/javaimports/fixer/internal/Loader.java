@@ -9,7 +9,6 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -20,9 +19,13 @@ import java.util.Set;
  * are truly unresolved, and which classes are truly not extendable.
  */
 public class Loader {
+  // TODO: make this an enum
+  private static final int SIBLING_PRIORITY = 3;
+  private static final int STDLIB_PRIORITY = 2;
+  private static final int EXTERNAL_PRIORITY = 1;
+
   private Set<ParsedFile> siblings = new HashSet<>();
   private StdlibProvider stdlib = StdlibProviders.empty();
-  private Map<String, Import> candidates = new HashMap<>();
   private LoadResult result = new LoadResult();
   private Environment environment = Environments.empty();
   private ParsedFile file;
@@ -53,11 +56,6 @@ public class Loader {
     // in
     // other folders of the same project
     this.siblings = environment.filesInPackage(file.packageName());
-  }
-
-  /** Returns the list of candidates found by this loader */
-  public Map<String, Import> candidates() {
-    return candidates;
   }
 
   /** Returns the result of this loader */
@@ -95,19 +93,19 @@ public class Loader {
     for (String identifier : result.unresolved) {
       Optional<Import> maybeCandidate = environment.search(identifier);
       if (maybeCandidate.isPresent()) {
-        candidates.put(identifier, maybeCandidate.get());
+        result.candidates.add(EXTERNAL_PRIORITY, maybeCandidate.get());
       }
     }
   }
 
   private void addStdlibCandidates() {
     Map<String, Import> stdlibCandidates = stdlib.find(result.unresolved);
-    candidates.putAll(stdlibCandidates);
+    result.candidates.add(STDLIB_PRIORITY, stdlibCandidates.values());
   }
 
   private void addSiblingImportsAsCandidates() {
     for (ParsedFile sibling : siblings) {
-      candidates.putAll(sibling.imports());
+      result.candidates.add(SIBLING_PRIORITY, sibling.imports().values());
     }
   }
 

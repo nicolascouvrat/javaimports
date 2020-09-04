@@ -2,5 +2,5 @@
 package withexternaldependency;
 
 class Test {
-  App app;
+  Subclass app;
 }

@@ -139,7 +139,8 @@ public class ImporterIntegrationTest {
               .stdlib(
                   FakeStdlibProvider.of(
                       new Import("List", "java.util", false),
-                      new Import("ArrayList", "java.util", false)))
+                      new Import("ArrayList", "java.util", false),
+                      new Import("App", "java.fakeutil", false)))
               .build();
       String output = new Importer(opts).addUsedImports(main, input);
       assertWithMessage("bad output for " + module.name()).that(output).isEqualTo(expected);
