@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
+import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
@@ -133,7 +134,11 @@ public class ImporterIntegrationTest {
     try {
       String input = new String(Files.readAllBytes(main), UTF_8);
       Options opts =
-          Options.builder().debug(false).repository(Paths.get(repositoryURL.toURI())).build();
+          Options.builder()
+              .debug(false)
+              .repository(Paths.get(repositoryURL.toURI()))
+              .stdlib(StdlibProviders.java8())
+              .build();
       String output = new Importer(opts).addUsedImports(main, input);
       assertWithMessage("bad output for " + module.name()).that(output).isEqualTo(expected);
     } catch (ImporterException e) {

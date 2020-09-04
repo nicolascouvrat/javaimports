@@ -7,6 +7,7 @@ import com.google.googlejavaformat.java.FormatterException;
 import com.nikodoko.javaimports.Importer;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -102,7 +103,9 @@ public final class CLI {
       return 1;
     }
 
-    Options opts = Options.builder().debug(params.verbose()).build();
+    // TODO: make stdlib version a CLI option
+    Options opts =
+        Options.builder().debug(params.verbose()).stdlib(StdlibProviders.java8()).build();
     String fixed;
     try {
       fixed = new Importer(opts).addUsedImports(path, input);

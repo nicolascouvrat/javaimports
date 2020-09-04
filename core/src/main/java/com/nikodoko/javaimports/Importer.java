@@ -10,7 +10,6 @@ import com.nikodoko.javaimports.fixer.Result;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
-import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -98,7 +97,7 @@ public final class Importer {
     // If other files in the package contain identifiers that also are in the standard library, we
     // want to resolve them before so as to avoid adding uneeded imports, so we need to add both the
     // stdlib provider and the resolver at the same time.
-    fixer.addStdlibProvider(StdlibProviders.java8());
+    fixer.addStdlibProvider(options.stdlib());
     fixer.addEnvironment(Environments.autoSelect(filename, f.packageName(), options));
 
     return applyFixes(f, javaCode, fixer.lastTryToFix());

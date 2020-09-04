@@ -1,5 +1,7 @@
 package com.nikodoko.javaimports;
 
+import com.nikodoko.javaimports.stdlib.StdlibProvider;
+import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -7,25 +9,33 @@ import java.util.Optional;
 public class Options {
   boolean debug;
   Optional<Path> repository;
+  StdlibProvider stdlib;
 
-  public Options(boolean debug, Optional<Path> repository) {
+  public Options(boolean debug, Optional<Path> repository, StdlibProvider stdlib) {
     this.debug = debug;
     this.repository = repository;
+    this.stdlib = stdlib;
   }
 
-  /** Specific directory to use as a dependency repository */
+  /** Specific directory to use as a dependency repository. */
   public Optional<Path> repository() {
     return repository;
   }
 
-  /** Whether to run the {@code Importer} in debug mode */
+  /** Whether to run the {@code Importer} in debug mode. */
   public boolean debug() {
     return debug;
+  }
+
+  /** The standard library to use for this run. */
+  public StdlibProvider stdlib() {
+    return stdlib;
   }
 
   public static class Builder {
     boolean debug;
     Path repository;
+    StdlibProvider stdlib;
 
     public Builder() {}
 
@@ -39,8 +49,13 @@ public class Options {
       return this;
     }
 
+    public Builder stdlib(StdlibProvider stdlib) {
+      this.stdlib = stdlib;
+      return this;
+    }
+
     public Options build() {
-      return new Options(debug, Optional.ofNullable(repository));
+      return new Options(debug, Optional.ofNullable(repository), stdlib);
     }
   }
 
@@ -50,6 +65,6 @@ public class Options {
 
   /** Default options */
   public static Options defaults() {
-    return builder().debug(false).build();
+    return builder().debug(false).stdlib(StdlibProviders.empty()).build();
   }
 }
