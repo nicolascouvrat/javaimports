@@ -9,7 +9,8 @@ import static org.junit.Assert.fail;
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
-import com.nikodoko.javaimports.stdlib.StdlibProviders;
+import com.nikodoko.javaimports.parser.Import;
+import com.nikodoko.javaimports.stdlib.FakeStdlibProvider;
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
@@ -36,8 +37,6 @@ public class ImporterIntegrationTest {
   private static final URL repositoryURL =
       ImporterIntegrationTest.class.getResource("/testrepository");
   private static final Path dataPath = Paths.get("com/nikodoko/javaimports/testdata");
-  private static final String outputExtension = "output";
-  private static final String inputExtension = "input";
 
   @Parameters(name = "{index}: {0}")
   public static Iterable<Object[]> data() throws Exception {
@@ -65,7 +64,7 @@ public class ImporterIntegrationTest {
           contents = CharStreams.toString(new InputStreamReader(stream, UTF_8));
         }
 
-        if (extension.equals(outputExtension)) {
+        if (extension.equals("output")) {
           outputs.put(pkgName, contents);
           continue;
         }
@@ -79,7 +78,7 @@ public class ImporterIntegrationTest {
         // In order to support multiple folders, authorize the following naming pattern: a-B.java ->
         // a/B.java
         pkg.files.add(Module.file(fileName.replace("-", "/"), contents));
-        if (extension.equals(inputExtension)) {
+        if (extension.equals("input")) {
           pkg.target = fileName;
         }
       }
@@ -137,7 +136,10 @@ public class ImporterIntegrationTest {
           Options.builder()
               .debug(false)
               .repository(Paths.get(repositoryURL.toURI()))
-              .stdlib(StdlibProviders.java8())
+              .stdlib(
+                  FakeStdlibProvider.of(
+                      new Import("List", "java.util", false),
+                      new Import("ArrayList", "java.util", false)))
               .build();
       String output = new Importer(opts).addUsedImports(main, input);
       assertWithMessage("bad output for " + module.name()).that(output).isEqualTo(expected);
