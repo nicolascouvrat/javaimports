@@ -1,0 +1,7 @@
+package priorizeSiblingImportsOverStdlib;
+
+import a.custom.List;
+
+class Other {
+  List l;
+}

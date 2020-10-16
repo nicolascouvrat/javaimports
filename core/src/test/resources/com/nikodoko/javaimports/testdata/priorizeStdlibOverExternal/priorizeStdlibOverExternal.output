@@ -1,0 +1,6 @@
+// Test that stdlib is chosen in priority over external import with the same name
+package prioritizeStdlibOverExternal;import java.fakeutil.App;
+
+class Test {
+  App app;
+}

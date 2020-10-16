@@ -9,7 +9,7 @@ import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -87,11 +87,10 @@ public class Fixer {
     boolean allGood = true;
     Set<Import> fixes = new HashSet<>();
     LoadResult loaded = loader.result();
-    Map<String, Import> candidates = loader.candidates();
     for (String ident : loaded.unresolved) {
-      Import fix = candidates.get(ident);
-      if (fix != null) {
-        fixes.add(fix);
+      Optional<Import> maybeFix = loaded.candidates.get(ident);
+      if (maybeFix.isPresent()) {
+        fixes.add(maybeFix.get());
         continue;
       }
 
@@ -112,8 +111,9 @@ public class Fixer {
     // resolved orphan classes
     for (ClassExtender orphan : loaded.orphans) {
       for (String ident : orphan.notYetResolved()) {
-        if (candidates.get(ident) != null) {
-          fixes.add(candidates.get(ident));
+        Optional<Import> maybeFix = loaded.candidates.get(ident);
+        if (maybeFix.isPresent()) {
+          fixes.add(maybeFix.get());
         }
       }
     }
