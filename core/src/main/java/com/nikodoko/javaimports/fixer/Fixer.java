@@ -28,7 +28,7 @@ public class Fixer {
   private Fixer(ParsedFile file, Options options) {
     this.file = file;
     this.options = options;
-    this.loader = Loader.of(file);
+    this.loader = Loader.of(file, options);
   }
 
   /**
