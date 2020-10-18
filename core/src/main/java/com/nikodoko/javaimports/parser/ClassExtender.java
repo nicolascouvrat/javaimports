@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.parser;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.ClassSelector;
 import java.util.HashSet;
@@ -81,5 +82,13 @@ public class ClassExtender {
     }
 
     notYetResolved = unresolved;
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+        .add("toExtend", toExtend.name())
+        .add("nextSuperclass", nextSuperclass)
+        .toString();
   }
 }

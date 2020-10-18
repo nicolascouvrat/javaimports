@@ -142,6 +142,7 @@ public class ParsedFile {
         .add("topScope", topScope)
         .add("packageEndPos", packageEndPos)
         .add("duplicates", duplicates)
+        .add("classHierarchy", classHierarchy)
         .toString();
   }
 }

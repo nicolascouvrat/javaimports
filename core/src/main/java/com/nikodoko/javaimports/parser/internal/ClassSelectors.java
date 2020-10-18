@@ -81,5 +81,14 @@ public class ClassSelectors {
     public Optional<ClassSelector> next() {
       return Optional.ofNullable(next);
     }
+
+    @Override
+    public String toString() {
+      if (next == null) {
+        return selector;
+      }
+
+      return String.format("%s.%s", selector, next);
+    }
   }
 }
