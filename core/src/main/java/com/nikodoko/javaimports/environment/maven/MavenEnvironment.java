@@ -101,7 +101,7 @@ public class MavenEnvironment implements Environment {
     if (options.debug()) {
       log.info(
           String.format(
-              "parsed project in %d ms (total of %d files): %s",
+              "parsed project in %d ms (total of %d files)",
               clock.millis() - start, Iterables.size(parsed.project.allFiles())));
     }
 

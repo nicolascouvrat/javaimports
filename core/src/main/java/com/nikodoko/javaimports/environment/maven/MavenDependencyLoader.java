@@ -14,6 +14,7 @@ import java.util.jar.JarInputStream;
 // TODO: handle static imports
 class MavenDependencyLoader {
   private static final String SUBCLASS_SEPARATOR = "$";
+  private static final String JAVA_9_MODULE_INFO = "module-info.class";
 
   List<Import> load(Path dependency) throws IOException {
     return scanJar(dependency);
@@ -25,8 +26,7 @@ class MavenDependencyLoader {
       JarEntry entry;
       while ((entry = in.getNextJarEntry()) != null) {
         // XXX: this will get all classes, including private and protected ones
-        // TODO: properly handle module-class.class
-        if (entry.getName().endsWith(".class")) {
+        if (isValidImport(entry)) {
           imports.add(parseImport(Paths.get(entry.getName())));
         }
       }
@@ -48,5 +48,11 @@ class MavenDependencyLoader {
         name.substring(0, name.lastIndexOf(SUBCLASS_SEPARATOR)).replace(SUBCLASS_SEPARATOR, ".");
     String subclassName = name.substring(name.lastIndexOf(SUBCLASS_SEPARATOR) + 1, name.length());
     return new Import(subclassName, String.join(".", pkg, extraPkg), false);
+  }
+
+  // TODO: we could be smarter and parse the module-info file to know what to import and what to
+  // ignore.
+  private boolean isValidImport(JarEntry entry) {
+    return entry.getName().endsWith(".class") && !entry.getName().equals(JAVA_9_MODULE_INFO);
   }
 }
