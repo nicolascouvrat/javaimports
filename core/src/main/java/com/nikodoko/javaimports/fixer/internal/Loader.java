@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.fixer.internal;
 
+import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.parser.ClassExtender;
@@ -13,12 +14,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Uses additional information, such as files from the same package, to determine which identifiers
  * are truly unresolved, and which classes are truly not extendable.
  */
 public class Loader {
+  private static Logger log = Logger.getLogger(Loader.class.getName());
   // TODO: make this an enum
   private static final int SIBLING_PRIORITY = 3;
   private static final int STDLIB_PRIORITY = 2;
@@ -29,16 +32,17 @@ public class Loader {
   private LoadResult result = new LoadResult();
   private Environment environment = Environments.empty();
   private ParsedFile file;
+  private Options options;
 
-  private Loader(ParsedFile file) {
+  private Loader(ParsedFile file, Options options) {
     this.file = file;
     this.result.unresolved = file.notYetResolved();
     this.result.orphans = file.notFullyExtendedClasses();
   }
 
   /** Create a {@code Loader} for the given {@code file}. */
-  public static Loader of(ParsedFile file) {
-    return new Loader(file);
+  public static Loader of(ParsedFile file, Options options) {
+    return new Loader(file, options);
   }
 
   /** Add sibling files to the loader */
@@ -170,6 +174,7 @@ public class Loader {
     }
 
     ClassHierarchy combined = ClassHierarchies.combine(hierarchies);
+    log.info(String.format("extending %s with %s", toExtend, combined));
     toExtend.extendAsMuchAsPossibleUsing(combined);
   }
 }

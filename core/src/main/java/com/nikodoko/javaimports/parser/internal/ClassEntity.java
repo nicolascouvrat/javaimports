@@ -8,6 +8,9 @@ import javax.annotation.Nullable;
 
 /** A representation of Java class, with a name, members, and maybe a pointer to a parent class. */
 public class ClassEntity {
+  /** A special placeholder for entities that are in fact not a class. */
+  public static final ClassEntity NOT_A_CLASS = ClassEntity.named("NOT_A_CLASS");
+
   private final String name;
   private Set<String> members = new HashSet<>();
   @Nullable private final ClassSelector superclass;
