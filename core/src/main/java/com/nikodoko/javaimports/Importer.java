@@ -81,7 +81,9 @@ public final class Importer {
       Result fixes = getFixes(filename, f);
       return applyFixes(f, javaCode, fixes);
     } finally {
-      log.log(Level.INFO, String.format("total time: %d ms", clock.millis() - start));
+      if (options.debug()) {
+        log.log(Level.INFO, String.format("total time: %d ms", clock.millis() - start));
+      }
     }
   }
 
