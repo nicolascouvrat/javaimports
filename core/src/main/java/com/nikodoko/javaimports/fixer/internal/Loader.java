@@ -35,6 +35,7 @@ public class Loader {
     this.file = file;
     this.result.unresolved = file.notYetResolved();
     this.result.orphans = file.notFullyExtendedClasses();
+    this.options = options;
   }
 
   /** Create a {@code Loader} for the given {@code file}. */
@@ -169,7 +170,10 @@ public class Loader {
     }
 
     ClassHierarchy combined = ClassHierarchies.combine(hierarchies);
-    log.info(String.format("extending %s with %s", toExtend, combined));
+    if (options.debug()) {
+      log.info(String.format("extending %s with %s", toExtend, combined));
+    }
+
     toExtend.extendAsMuchAsPossibleUsing(combined);
   }
 }
