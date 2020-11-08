@@ -16,16 +16,16 @@ public class CandidatesTest {
 
   @Test
   void testHigherPriorityOverwritesLower() {
-    candidates.add(1, new Import("List", "java.util", false));
-    candidates.add(2, new Import("List", "a.dependency", false));
+    candidates.add(Candidates.Priority.EXTERNAL, new Import("List", "java.util", false));
+    candidates.add(Candidates.Priority.SIBLING, new Import("List", "a.dependency", false));
 
     assertThat(candidates.get("List")).hasValue(new Import("List", "a.dependency", false));
   }
 
   @Test
   void testLowerPriorityDoesNotOverwriteHigher() {
-    candidates.add(2, new Import("List", "a.dependency", false));
-    candidates.add(1, new Import("List", "java.util", false));
+    candidates.add(Candidates.Priority.SIBLING, new Import("List", "a.dependency", false));
+    candidates.add(Candidates.Priority.EXTERNAL, new Import("List", "java.util", false));
 
     assertThat(candidates.get("List")).hasValue(new Import("List", "a.dependency", false));
   }

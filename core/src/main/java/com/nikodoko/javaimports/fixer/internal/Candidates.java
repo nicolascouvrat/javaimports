@@ -6,25 +6,36 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Candidates {
+  /**
+   * Relative priorities of candidates: candidates found in siblings take precedence over those
+   * found in the stdlib, that then take precedence over external imports (found in third party
+   * dependencies).
+   */
+  public static enum Priority {
+    EXTERNAL,
+    STDLIB,
+    SIBLING;
+  }
+
   private static class Candidate {
-    int priority;
+    Priority p;
     Import i;
   }
 
   private Map<String, Candidate> candidates = new HashMap<>();
 
-  public void add(int priority, Iterable<Import> imports) {
+  public void add(Priority p, Iterable<Import> imports) {
     for (Import i : imports) {
-      add(priority, i);
+      add(p, i);
     }
   }
 
-  public void add(int priority, Import i) {
+  public void add(Priority p, Import i) {
     Candidate current = candidates.get(i.name());
-    if (current == null || current.priority < priority) {
+    if (current == null || current.p.compareTo(p) < 0) {
       Candidate better = new Candidate();
       better.i = i;
-      better.priority = priority;
+      better.p = p;
       candidates.put(i.name(), better);
     }
   }
