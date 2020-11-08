@@ -1,0 +1,7 @@
+// Test that we give up on class extension and add as many imports as we can if we cannot extend
+package addImportsEvenIfCannotExtend;import addImportsEvenIfCannotExtend.other.Other;import java.fakeutil.App;
+
+class Test extends ImpossibleToFind {
+  Other o;
+  App a;
+}

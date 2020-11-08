@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.fixer.internal;
 
+import com.google.common.collect.ImmutableSet;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
@@ -92,14 +93,14 @@ public class Loader {
   }
 
   private void addExternalCandidates() {
-    result.unresolved.stream()
+    allStillUnresolved().stream()
         .map(environment::search)
         .filter(Optional::isPresent)
         .forEach(candidate -> result.candidates.add(Candidates.Priority.EXTERNAL, candidate.get()));
   }
 
   private void addStdlibCandidates() {
-    Map<String, Import> stdlibCandidates = stdlib.find(result.unresolved);
+    Map<String, Import> stdlibCandidates = stdlib.find(allStillUnresolved());
     result.candidates.add(Candidates.Priority.STDLIB, stdlibCandidates.values());
   }
 
@@ -107,6 +108,16 @@ public class Loader {
     for (ParsedFile sibling : siblings) {
       result.candidates.add(Candidates.Priority.SIBLING, sibling.imports().values());
     }
+  }
+
+  private Set<String> allStillUnresolved() {
+    ImmutableSet.Builder builder = ImmutableSet.builder().addAll(result.unresolved);
+    for (ClassExtender orphan : result.orphans) {
+      builder.addAll(orphan.notYetResolved());
+    }
+
+    Set<String> all = builder.build();
+    return all;
   }
 
   // FIXME: this does not do anything about the situation where we import a class that we extend
