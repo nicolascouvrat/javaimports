@@ -103,6 +103,8 @@ public class MavenEnvironment implements Environment {
           String.format(
               "parsed project in %d ms (total of %d files)",
               clock.millis() - start, Iterables.size(parsed.project.allFiles())));
+
+      parsed.errors.forEach(e -> log.log(Level.WARNING, "error parsing project", e));
     }
 
     project = parsed.project;
