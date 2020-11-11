@@ -12,6 +12,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.openjdk.javax.tools.Diagnostic;
@@ -50,10 +51,13 @@ public class Parser {
   /**
    * Parse the given input (Java code) into a {@link ParsedFile}.
    *
+   * @return an optional containing the parsed file, or nothing if the input is empty or contains
+   *     only comments
    * @param javaCode the input code
    * @throws ImporterException if the input cannot be parsed
    */
-  public ParsedFile parse(final Path filename, final String javaCode) throws ImporterException {
+  public Optional<ParsedFile> parse(final Path filename, final String javaCode)
+      throws ImporterException {
     long start = clock.millis();
     // Parse the code into a compilation unit containing the AST
     JCCompilationUnit unit = getCompilationUnit(filename.toString(), javaCode);
@@ -70,7 +74,7 @@ public class Parser {
       log.info(String.format("completed parsing in %d ms: %s", clock.millis() - start, f));
     }
 
-    return f;
+    return Optional.of(f);
   }
 
   /** Return true if the diagnostic is an error diagnostic. */
