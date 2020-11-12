@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.fixer.internal;
 
+import com.google.common.collect.ImmutableSet;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
@@ -22,22 +23,20 @@ import java.util.logging.Logger;
  */
 public class Loader {
   private static Logger log = Logger.getLogger(Loader.class.getName());
-  // TODO: make this an enum
-  private static final int SIBLING_PRIORITY = 3;
-  private static final int STDLIB_PRIORITY = 2;
-  private static final int EXTERNAL_PRIORITY = 1;
 
   private Set<ParsedFile> siblings = new HashSet<>();
   private StdlibProvider stdlib = StdlibProviders.empty();
-  private LoadResult result = new LoadResult();
   private Environment environment = Environments.empty();
   private ParsedFile file;
   private Options options;
+
+  private LoadResult result = new LoadResult();
 
   private Loader(ParsedFile file, Options options) {
     this.file = file;
     this.result.unresolved = file.notYetResolved();
     this.result.orphans = file.notFullyExtendedClasses();
+    this.options = options;
   }
 
   /** Create a {@code Loader} for the given {@code file}. */
@@ -94,23 +93,31 @@ public class Loader {
   }
 
   private void addExternalCandidates() {
-    for (String identifier : result.unresolved) {
-      Optional<Import> maybeCandidate = environment.search(identifier);
-      if (maybeCandidate.isPresent()) {
-        result.candidates.add(EXTERNAL_PRIORITY, maybeCandidate.get());
-      }
-    }
+    allStillUnresolved().stream()
+        .map(environment::search)
+        .filter(Optional::isPresent)
+        .forEach(candidate -> result.candidates.add(Candidates.Priority.EXTERNAL, candidate.get()));
   }
 
   private void addStdlibCandidates() {
-    Map<String, Import> stdlibCandidates = stdlib.find(result.unresolved);
-    result.candidates.add(STDLIB_PRIORITY, stdlibCandidates.values());
+    Map<String, Import> stdlibCandidates = stdlib.find(allStillUnresolved());
+    result.candidates.add(Candidates.Priority.STDLIB, stdlibCandidates.values());
   }
 
   private void addSiblingImportsAsCandidates() {
     for (ParsedFile sibling : siblings) {
-      result.candidates.add(SIBLING_PRIORITY, sibling.imports().values());
+      result.candidates.add(Candidates.Priority.SIBLING, sibling.imports().values());
     }
+  }
+
+  private Set<String> allStillUnresolved() {
+    ImmutableSet.Builder builder = ImmutableSet.builder().addAll(result.unresolved);
+    for (ClassExtender orphan : result.orphans) {
+      builder.addAll(orphan.notYetResolved());
+    }
+
+    Set<String> all = builder.build();
+    return all;
   }
 
   // FIXME: this does not do anything about the situation where we import a class that we extend
@@ -174,7 +181,10 @@ public class Loader {
     }
 
     ClassHierarchy combined = ClassHierarchies.combine(hierarchies);
-    log.info(String.format("extending %s with %s", toExtend, combined));
+    if (options.debug()) {
+      log.info(String.format("extending %s with %s", toExtend, combined));
+    }
+
     toExtend.extendAsMuchAsPossibleUsing(combined);
   }
 }

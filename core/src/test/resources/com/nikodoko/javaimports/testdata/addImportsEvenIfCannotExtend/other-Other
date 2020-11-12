@@ -1,0 +1,3 @@
+package addImportsEvenIfCannotExtend.other;
+
+class Other {}
