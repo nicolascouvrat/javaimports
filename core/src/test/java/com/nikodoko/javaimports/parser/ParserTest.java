@@ -7,7 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,7 +17,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class ParserTest {
-  static String[][][] CASES = {
+  static Object[][][] CASES = {
     {
       {"methodBodyAndArguments"},
       {
@@ -31,6 +33,7 @@ public class ParserTest {
         "}",
       },
       {"b"},
+      {},
     },
     {
       {"forLoop"},
@@ -52,6 +55,7 @@ public class ParserTest {
         "}",
       },
       {"staticFunction", "i", "b", "e", "d"},
+      {},
     },
     {
       {"ifBlock"},
@@ -70,6 +74,7 @@ public class ParserTest {
         "}",
       },
       {"a", "b", "c"},
+      {},
     },
     {
       {"whileLoop"},
@@ -85,6 +90,7 @@ public class ParserTest {
         "}",
       },
       {"a"},
+      {},
     },
     {
       {"synchronizedBlock"},
@@ -101,6 +107,7 @@ public class ParserTest {
       },
       // The parser does not know about "this" and sees it as an unresolved symbol
       {"this", "a"},
+      {},
     },
     {
       {"doWhileLoop"},
@@ -116,6 +123,7 @@ public class ParserTest {
         "}",
       },
       {"a"},
+      {},
     },
     {
       {"annotation"},
@@ -129,6 +137,7 @@ public class ParserTest {
         "}",
       },
       {"SomeAnnotation"},
+      {},
     },
     {
       {"lambda"},
@@ -143,6 +152,7 @@ public class ParserTest {
         "}",
       },
       {"b", "Integer", "BiFunction"},
+      {},
     },
     {
       {"switchBlock"},
@@ -164,6 +174,7 @@ public class ParserTest {
         "}",
       },
       {"c"},
+      {},
     },
     {
       {"tryCatchFinally"},
@@ -185,6 +196,7 @@ public class ParserTest {
         "}",
       },
       {"SomeException", "Exception", "a", "b", "c", "e"},
+      {},
     },
     {
       {"tryWithResource"},
@@ -206,6 +218,7 @@ public class ParserTest {
         "}",
       },
       {"SomeException", "Exception", "a", "b", "c", "e", "r"},
+      {},
     },
     {
       {"localInheritence"},
@@ -238,6 +251,7 @@ public class ParserTest {
         "}",
       },
       {"b", "n"},
+      {},
     },
     {
       {"annotationParameters"},
@@ -252,6 +266,7 @@ public class ParserTest {
         "}",
       },
       {"Annotation", "Function"},
+      {},
     },
     {
       {"typeParameters"},
@@ -264,6 +279,7 @@ public class ParserTest {
         "  }",
         "}",
       },
+      {},
       {},
     },
     {
@@ -930,16 +946,18 @@ public class ParserTest {
         "Integer",
         "SafeVarargs",
       },
+      {},
     },
   };
 
   static Stream<Arguments> dataProvider() {
     ImmutableList.Builder<Arguments> builder = ImmutableList.builder();
-    for (String[][] inputOutput : CASES) {
-      String name = inputOutput[0][0];
-      String input = String.join("\n", inputOutput[1]) + "\n";
-      Set<String> expected = Sets.newHashSet(inputOutput[2]);
-      builder.add(Arguments.of(name, input, expected));
+    for (Object[][] inputOutput : CASES) {
+      String name = (String) inputOutput[0][0];
+      String input = String.join("\n", Arrays.stream(inputOutput[1]).toArray(String[]::new)) + "\n";
+      Set<String> expected = Sets.newHashSet(Arrays.stream(inputOutput[2]).toArray(String[]::new));
+      ClassEntity[] expectedClasses = Arrays.stream(inputOutput[3]).toArray(ClassEntity[]::new);
+      builder.add(Arguments.of(name, input, expected, expectedClasses));
     }
 
     return builder.build().stream();
@@ -956,7 +974,8 @@ public class ParserTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("dataProvider")
-  public void testParseFindsUnresolved(String name, String input, Set<String> expected)
+  public void testParseFindsUnresolved(
+      String name, String input, Set<String> expected, ClassEntity[] expectedClasses)
       throws Exception {
     Parser parser = new Parser(Options.defaults());
     ParsedFile got = null;
@@ -970,5 +989,8 @@ public class ParserTest {
     }
 
     assertThat(allUnresolvedIn(got)).containsExactlyElementsIn(expected);
+    if (expectedClasses.length > 0) {
+      // TODO: class hierarchy check
+    }
   }
 }
