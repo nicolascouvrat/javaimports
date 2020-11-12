@@ -961,7 +961,7 @@ public class ParserTest {
     Parser parser = new Parser(Options.defaults());
     ParsedFile got = null;
     try {
-      got = parser.parse(Paths.get("testfile/Test.java"), input);
+      got = parser.parse(Paths.get("testfile/Test.java"), input).get();
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);

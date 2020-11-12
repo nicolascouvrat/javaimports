@@ -61,6 +61,11 @@ public class Parser {
     long start = clock.millis();
     // Parse the code into a compilation unit containing the AST
     JCCompilationUnit unit = getCompilationUnit(filename.toString(), javaCode);
+    // A lot of what we do relies on having a package clause, consider the file empty if it does not
+    // have one.
+    if (unit.getPackageName() == null) {
+      return Optional.empty();
+    }
 
     // Scan the AST
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
