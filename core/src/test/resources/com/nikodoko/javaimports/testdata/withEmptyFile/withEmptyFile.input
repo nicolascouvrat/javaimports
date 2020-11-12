@@ -1,0 +1,6 @@
+// test that it works even if a file in the project is empty
+package withEmptyFile;
+
+class Test {
+  List l;
+}

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,9 +78,13 @@ public final class Importer {
       throws ImporterException {
     long start = clock.millis();
     try {
-      ParsedFile f = parser.parse(filename, javaCode);
-      Result fixes = getFixes(filename, f);
-      return applyFixes(f, javaCode, fixes);
+      Optional<ParsedFile> f = parser.parse(filename, javaCode);
+      if (f.isEmpty()) {
+        return javaCode;
+      }
+
+      Result fixes = getFixes(filename, f.get());
+      return applyFixes(f.get(), javaCode, fixes);
     } finally {
       if (options.debug()) {
         log.log(Level.INFO, String.format("total time: %d ms", clock.millis() - start));
@@ -146,7 +151,7 @@ public final class Importer {
     // rerunning the tool), but fail if one is wrong.
     for (Map.Entry<Path, String> source : sources.entrySet()) {
       try {
-        siblings.add(parser.parse(source.getKey(), source.getValue()));
+        parser.parse(source.getKey(), source.getValue()).ifPresent(siblings::add);
       } catch (ImporterException e) {
         exceptions.add(e);
       }

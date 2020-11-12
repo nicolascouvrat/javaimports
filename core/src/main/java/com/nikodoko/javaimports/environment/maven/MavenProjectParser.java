@@ -6,7 +6,6 @@ import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.environment.JavaProject;
-import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -78,7 +77,6 @@ class MavenProjectParser {
 
   private void parseFile(Path path) throws IOException, ImporterException {
     String source = new String(Files.readAllBytes(path), UTF_8);
-    ParsedFile file = new Parser(Options.defaults()).parse(path, source);
-    project.add(file);
+    new Parser(Options.defaults()).parse(path, source).ifPresent(project::add);
   }
 }
