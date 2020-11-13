@@ -2,7 +2,10 @@ package com.nikodoko.javaimports.parser;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.collect.TreeTraverser;
+import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /** Utility methods for {@link ClassHierarchy}. */
 public class ClassHierarchies {
@@ -30,5 +33,13 @@ public class ClassHierarchies {
     }
 
     return root;
+  }
+
+  public static Stream<ClassEntity> flatView(ClassHierarchy root) {
+    return TreeTraverser.using(ClassHierarchy::childs).preOrderTraversal(root).stream()
+        .map(ClassHierarchy::entity)
+        // Skip one because the root is not a proper class
+        // TODO: should we change that?
+        .skip(1);
   }
 }

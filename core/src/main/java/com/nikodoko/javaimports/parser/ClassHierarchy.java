@@ -40,6 +40,17 @@ public class ClassHierarchy {
     return new ClassHierarchy(parent, ClassEntity.NOT_A_CLASS);
   }
 
+  // NEW METHODS
+  Iterable<ClassHierarchy> childs() {
+    return childs.values();
+  }
+
+  ClassEntity entity() {
+    return entity;
+  }
+
+  // END NEW METHODS
+
   /**
    * Adds {@code childEntity} to the list of childs of this {@code ClassHierarchy}, and moves to
    * this new child node.
