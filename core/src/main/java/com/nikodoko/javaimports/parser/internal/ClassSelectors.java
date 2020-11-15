@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.parser.internal;
 
+import java.util.Objects;
 import java.util.Optional;
 import org.openjdk.tools.javac.tree.JCTree.JCExpression;
 import org.openjdk.tools.javac.tree.JCTree.JCFieldAccess;
@@ -80,6 +81,25 @@ public class ClassSelectors {
     @Override
     public Optional<ClassSelector> next() {
       return Optional.ofNullable(next);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.selector, this.next);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o == null) {
+        return false;
+      }
+
+      if (!(o instanceof Selector)) {
+        return false;
+      }
+
+      Selector that = (Selector) o;
+      return Objects.equals(this.selector, that.selector) && Objects.equals(this.next, that.next);
     }
 
     @Override

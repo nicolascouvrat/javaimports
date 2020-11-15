@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.parser.internal;
 
 import com.google.common.base.MoreObjects;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -58,5 +59,26 @@ public class ClassEntity {
         .add("members", members)
         .add("superclass", superclass)
         .toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
+
+    if (!(o instanceof ClassEntity)) {
+      return false;
+    }
+
+    ClassEntity that = (ClassEntity) o;
+    return Objects.equals(this.name, that.name)
+        && Objects.equals(this.members, that.members)
+        && Objects.equals(this.superclass, that.superclass);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.name, this.members, this.superclass);
   }
 }
