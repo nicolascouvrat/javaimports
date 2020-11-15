@@ -1,0 +1,5 @@
+package chainExtendClassInPackage;
+
+class B extends C {
+  void List() {}
+}

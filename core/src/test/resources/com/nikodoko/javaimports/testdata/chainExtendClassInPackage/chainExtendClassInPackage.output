@@ -1,0 +1,14 @@
+// Test that we can properly chain extensions
+package chainExtendClassInPackage;
+
+class A extends B {
+  void main() {
+    List();
+    ArrayList();
+    App();
+  }
+
+  static class D {
+    void App() {}
+  }
+}

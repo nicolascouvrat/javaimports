@@ -1,0 +1,5 @@
+package chainExtendClassInPackage;
+
+class C extends A.D {
+  void ArrayList() {}
+}

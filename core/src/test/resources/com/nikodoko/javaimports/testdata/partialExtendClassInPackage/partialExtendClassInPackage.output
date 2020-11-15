@@ -1,0 +1,9 @@
+// Test that we partially extend then complete with imports when we cannot find the missing class
+package partialExtendClassInPackage;import java.util.ArrayList;
+
+class A extends B {
+  void main() {
+    List();
+    ArrayList();
+  }
+}

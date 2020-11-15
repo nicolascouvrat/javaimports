@@ -1,0 +1,5 @@
+package partialExtendClassInPackage;
+
+class B extends C {
+  void List() {}
+}

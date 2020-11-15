@@ -1,0 +1,9 @@
+// Test that we partially extend then complete with imports when we cannot find the missing class
+package partialExtendClassInPackage;
+
+class A extends B {
+  void main() {
+    List();
+    ArrayList();
+  }
+}
