@@ -4,10 +4,14 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.parser.internal.ClassEntity;
+import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,7 +19,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class ParserTest {
-  static String[][][] CASES = {
+  static Object[][][] CASES = {
     {
       {"methodBodyAndArguments"},
       {
@@ -31,6 +35,7 @@ public class ParserTest {
         "}",
       },
       {"b"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("g", "f"))},
     },
     {
       {"forLoop"},
@@ -52,6 +57,7 @@ public class ParserTest {
         "}",
       },
       {"staticFunction", "i", "b", "e", "d"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"ifBlock"},
@@ -70,6 +76,7 @@ public class ParserTest {
         "}",
       },
       {"a", "b", "c"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"whileLoop"},
@@ -85,6 +92,7 @@ public class ParserTest {
         "}",
       },
       {"a"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"synchronizedBlock"},
@@ -101,6 +109,7 @@ public class ParserTest {
       },
       // The parser does not know about "this" and sees it as an unresolved symbol
       {"this", "a"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"doWhileLoop"},
@@ -116,6 +125,7 @@ public class ParserTest {
         "}",
       },
       {"a"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"annotation"},
@@ -129,6 +139,7 @@ public class ParserTest {
         "}",
       },
       {"SomeAnnotation"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"lambda"},
@@ -143,6 +154,7 @@ public class ParserTest {
         "}",
       },
       {"b", "Integer", "BiFunction"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"switchBlock"},
@@ -164,6 +176,7 @@ public class ParserTest {
         "}",
       },
       {"c"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"tryCatchFinally"},
@@ -185,6 +198,7 @@ public class ParserTest {
         "}",
       },
       {"SomeException", "Exception", "a", "b", "c", "e"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"tryWithResource"},
@@ -206,6 +220,7 @@ public class ParserTest {
         "}",
       },
       {"SomeException", "Exception", "a", "b", "c", "e", "r"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"localInheritence"},
@@ -238,6 +253,14 @@ public class ParserTest {
         "}",
       },
       {"b", "n"},
+      {
+        ClassEntity.named("Test").members(ImmutableSet.of("OtherChild", "Child", "Parent")),
+        ClassEntity.namedAndExtending("OtherChild", ClassSelectors.of("Child"))
+            .members(ImmutableSet.of("m")),
+        ClassEntity.namedAndExtending("Child", ClassSelectors.of("Parent"))
+            .members(ImmutableSet.of("f")),
+        ClassEntity.named("Parent").members(ImmutableSet.of("a", "p", "g", "h"))
+      },
     },
     {
       {"annotationParameters"},
@@ -252,6 +275,7 @@ public class ParserTest {
         "}",
       },
       {"Annotation", "Function"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
       {"typeParameters"},
@@ -265,6 +289,7 @@ public class ParserTest {
         "}",
       },
       {},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f", "R"))},
     },
     {
       {"realisticFile"},
@@ -930,16 +955,113 @@ public class ParserTest {
         "Integer",
         "SafeVarargs",
       },
+      {
+        ClassEntity.namedAndExtending("ImmutableSet", ClassSelectors.of("ImmutableCollection"))
+            .members(
+                ImmutableSet.of(
+                    "Builder",
+                    "E",
+                    "Indexed",
+                    "JdkBackedSetBuilderImpl",
+                    "RegularSetBuilderImpl",
+                    "SerializedForm",
+                    "SetBuilderImpl",
+                    "<init>",
+                    "SPLITERATOR_CHARACTERISTICS",
+                    "toImmutableSet",
+                    "of",
+                    "constructUnknownDuplication",
+                    "construct",
+                    "copyOf",
+                    "copyOfEnumSet",
+                    "isHashCodeFast",
+                    "equals",
+                    "hashCode",
+                    "iterator",
+                    "asList",
+                    "createAsList",
+                    "writeReplace",
+                    "builder",
+                    "builderWithExpectedSize",
+                    "rebuildHashTable",
+                    "MAX_TABLE_SIZE",
+                    "DESIRED_LOAD_FACTOR",
+                    "CUTOFF",
+                    "chooseTableSize",
+                    "HASH_FLOODING_FPP",
+                    "MAX_RUN_MULTIPLIER",
+                    "hashFloodingDetected",
+                    "maxRunBeforeFallback")),
+        ClassEntity.namedAndExtending("Indexed", ClassSelectors.of("ImmutableSet"))
+            .members(
+                ImmutableSet.of(
+                    "E",
+                    "get",
+                    "iterator",
+                    "spliterator",
+                    "forEach",
+                    "copyIntoArray",
+                    "createAsList")),
+        ClassEntity.named("SerializedForm")
+            .members(ImmutableSet.of("<init>", "elements", "readResolve", "serialVersionUID")),
+        ClassEntity.namedAndExtending(
+                "Builder", ClassSelectors.of("ImmutableCollection", "Builder"))
+            .members(
+                ImmutableSet.of(
+                    "<init>",
+                    "E",
+                    "impl",
+                    "forceCopy",
+                    "forceJdk",
+                    "copyIfNecessary",
+                    "copy",
+                    "add",
+                    "addAll",
+                    "combine",
+                    "build")),
+        ClassEntity.named("SetBuilderImpl")
+            .members(
+                ImmutableSet.of(
+                    "<init>",
+                    "E",
+                    "dedupedElements",
+                    "distinct",
+                    "ensureCapacity",
+                    "addDedupedElement",
+                    "add",
+                    "combine",
+                    "copy",
+                    "review",
+                    "build")),
+        ClassEntity.namedAndExtending("RegularSetBuilderImpl", ClassSelectors.of("SetBuilderImpl"))
+            .members(
+                ImmutableSet.of(
+                    "<init>",
+                    "E",
+                    "hashTable",
+                    "maxRunBeforeFallback",
+                    "expandTableThreshold",
+                    "hashCode",
+                    "ensureTableCapacity",
+                    "add",
+                    "copy",
+                    "review",
+                    "build")),
+        ClassEntity.namedAndExtending(
+                "JdkBackedSetBuilderImpl", ClassSelectors.of("SetBuilderImpl"))
+            .members(ImmutableSet.of("<init>", "E", "delegate", "add", "copy", "build"))
+      },
     },
   };
 
   static Stream<Arguments> dataProvider() {
     ImmutableList.Builder<Arguments> builder = ImmutableList.builder();
-    for (String[][] inputOutput : CASES) {
-      String name = inputOutput[0][0];
-      String input = String.join("\n", inputOutput[1]) + "\n";
-      Set<String> expected = Sets.newHashSet(inputOutput[2]);
-      builder.add(Arguments.of(name, input, expected));
+    for (Object[][] inputOutput : CASES) {
+      String name = (String) inputOutput[0][0];
+      String input = String.join("\n", Arrays.stream(inputOutput[1]).toArray(String[]::new)) + "\n";
+      Set<String> expected = Sets.newHashSet(Arrays.stream(inputOutput[2]).toArray(String[]::new));
+      ClassEntity[] expectedClasses = Arrays.stream(inputOutput[3]).toArray(ClassEntity[]::new);
+      builder.add(Arguments.of(name, input, expected, expectedClasses));
     }
 
     return builder.build().stream();
@@ -956,7 +1078,8 @@ public class ParserTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("dataProvider")
-  public void testParseFindsUnresolved(String name, String input, Set<String> expected)
+  public void testParseFindsUnresolved(
+      String name, String input, Set<String> expected, ClassEntity[] expectedClasses)
       throws Exception {
     Parser parser = new Parser(Options.defaults());
     ParsedFile got = null;
@@ -970,5 +1093,10 @@ public class ParserTest {
     }
 
     assertThat(allUnresolvedIn(got)).containsExactlyElementsIn(expected);
+    if (expectedClasses.length > 0) {
+      com.google.common.truth.Truth8.assertThat(got.classes())
+          .containsExactly(expectedClasses)
+          .inOrder();
+    }
   }
 }

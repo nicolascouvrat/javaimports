@@ -1,0 +1,8 @@
+// Check that we can extend a class if its superclass is in the package
+package extendClassInPackage;
+
+class Test extends Base {
+  void main() {
+    List();
+  }
+}

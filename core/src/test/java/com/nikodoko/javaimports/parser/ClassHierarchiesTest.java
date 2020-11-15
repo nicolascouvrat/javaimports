@@ -12,6 +12,7 @@ public class ClassHierarchiesTest {
   static ClassHierarchy leaf;
   static ClassEntity A = ClassEntity.named("A");
   static ClassEntity B = ClassEntity.named("B");
+  static ClassEntity C = ClassEntity.named("C");
   static ClassEntity C1 = ClassEntity.named("C1");
   static ClassEntity C2 = ClassEntity.named("C2");
 
@@ -19,8 +20,10 @@ public class ClassHierarchiesTest {
   // root
   // |
   // - A
-  //   |
-  //   - B
+  // | |
+  // | - B
+  // |
+  // - C
   //
   // leaf
   // |
@@ -28,11 +31,13 @@ public class ClassHierarchiesTest {
   // - C2
   @BeforeAll
   static void setupHierarchy() {
-    root = ClassHierarchies.root();
-
-    ClassHierarchy hierarchy = root;
+    ClassHierarchy hierarchy = ClassHierarchies.root();
+    root = hierarchy;
     hierarchy = hierarchy.moveTo(A);
     hierarchy = hierarchy.moveTo(B);
+    hierarchy = hierarchy.moveUp().get();
+    hierarchy = hierarchy.moveUp().get();
+    hierarchy = hierarchy.moveTo(C);
     hierarchy = hierarchy.moveToLeaf();
     leaf = hierarchy;
     hierarchy = hierarchy.moveTo(C1);
@@ -44,6 +49,7 @@ public class ClassHierarchiesTest {
   void testFound() {
     assertThat(root.find(ClassSelectors.of("A"))).hasValue(A);
     assertThat(root.find(ClassSelectors.of("A", "B"))).hasValue(B);
+    assertThat(root.find(ClassSelectors.of("C"))).hasValue(C);
   }
 
   @Test
@@ -53,8 +59,8 @@ public class ClassHierarchiesTest {
 
   @Test
   void testLeafNotReachableFromParent() {
-    assertThat(root.find(ClassSelectors.of("A", "B", "C1"))).isEmpty();
-    assertThat(root.find(ClassSelectors.of("A", "B", "C2"))).isEmpty();
+    assertThat(root.find(ClassSelectors.of("C", "C1"))).isEmpty();
+    assertThat(root.find(ClassSelectors.of("C", "C2"))).isEmpty();
   }
 
   @Test
@@ -71,5 +77,10 @@ public class ClassHierarchiesTest {
     assertThat(leaf.find(ClassSelectors.of("C2"))).hasValue(C2);
     assertThat(root.find(ClassSelectors.of("A"))).hasValue(A);
     assertThat(root.find(ClassSelectors.of("A", "B"))).hasValue(B);
+  }
+
+  @Test
+  void testFlatView() {
+    assertThat(ClassHierarchies.flatView(root)).containsExactly(A, B, C).inOrder();
   }
 }

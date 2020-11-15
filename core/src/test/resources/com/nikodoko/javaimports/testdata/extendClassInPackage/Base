@@ -1,0 +1,5 @@
+package extendClassInPackage;
+
+class Base {
+  void List() {}
+}

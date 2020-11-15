@@ -174,8 +174,10 @@ public class Loader {
   }
 
   private void extendUsingSiblings(ClassExtender toExtend) {
-    ClassHierarchy[] hierarchies = new ClassHierarchy[siblings.size()];
-    int i = 0;
+    ClassHierarchy[] hierarchies = new ClassHierarchy[siblings.size() + 1];
+    // Some siblings' classes might depend on classes defined in the file to fix
+    hierarchies[0] = file.classHierarchy();
+    int i = 1;
     for (ParsedFile sibling : siblings) {
       hierarchies[i++] = sibling.classHierarchy();
     }
