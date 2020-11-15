@@ -8,8 +8,7 @@ import com.nikodoko.javaimports.parser.internal.ClassSelector;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 
 /**
@@ -22,14 +21,15 @@ import java.util.Optional;
 public class ClassHierarchy {
   ClassHierarchy parent;
   ClassEntity entity;
-  Map<String, ClassHierarchy> childs;
+  // We want values to be presented in order of insertion
+  LinkedHashMap<String, ClassHierarchy> childs;
 
   private ClassHierarchy(ClassHierarchy parent, ClassEntity entity) {
     checkNotNull(entity);
 
     this.entity = entity;
     this.parent = parent;
-    this.childs = new HashMap<>();
+    this.childs = new LinkedHashMap<>();
   }
 
   static ClassHierarchy root() {
@@ -41,6 +41,7 @@ public class ClassHierarchy {
   }
 
   // NEW METHODS
+  /** This is guaranteed to return classes in the order they were declared. */
   Iterable<ClassHierarchy> childs() {
     return childs.values();
   }
