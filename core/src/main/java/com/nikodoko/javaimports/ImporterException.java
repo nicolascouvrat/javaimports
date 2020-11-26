@@ -4,8 +4,8 @@ import static java.util.Locale.ENGLISH;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.openjdk.javax.tools.Diagnostic;
-import org.openjdk.javax.tools.JavaFileObject;
+import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
 
 /** Exception class for importer errors */
 public class ImporterException extends Exception {

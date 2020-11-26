@@ -4,15 +4,15 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.Range;
 import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.Scope;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCImport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.openjdk.tools.javac.tree.JCTree.JCCompilationUnit;
-import org.openjdk.tools.javac.tree.JCTree.JCExpression;
-import org.openjdk.tools.javac.tree.JCTree.JCImport;
 
 /** An object representing a Java source file. */
 public class ParsedFile {
