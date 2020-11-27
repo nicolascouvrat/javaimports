@@ -179,6 +179,30 @@ public class ParserTest {
       {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
+      {"java14Switch"},
+      {
+        "package com.pkg.test;",
+        "class Test {",
+        "  public void f() {",
+        "    int a = 2;",
+        "    int b = switch (a) {",
+        "    case 1 -> {",
+        "      int c = 2;",
+        "      yield c;",
+        "    }",
+        "    case 2 -> {",
+        "      int d = c;",
+        "      yield d;",
+        "    }",
+        "    default -> 0;",
+        "    };",
+        "  }",
+        "}",
+      },
+      {"c"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+    },
+    {
       {"tryCatchFinally"},
       {
         "package com.pkg.test;",
@@ -1084,7 +1108,7 @@ public class ParserTest {
     Parser parser = new Parser(Options.defaults());
     ParsedFile got = null;
     try {
-      got = parser.parse(Paths.get("testfile/Test.java"), input).get();
+      got = parser.parse(Paths.get(name), input).get();
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);
