@@ -1,11 +1,11 @@
 package com.nikodoko.javaimports.parser.internal;
 
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCTypeApply;
 import java.util.Objects;
 import java.util.Optional;
-import org.openjdk.tools.javac.tree.JCTree.JCExpression;
-import org.openjdk.tools.javac.tree.JCTree.JCFieldAccess;
-import org.openjdk.tools.javac.tree.JCTree.JCIdent;
-import org.openjdk.tools.javac.tree.JCTree.JCTypeApply;
 
 /** Utility methods for {@link ClassSelector}. */
 public class ClassSelectors {
