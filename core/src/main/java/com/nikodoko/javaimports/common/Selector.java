@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -14,6 +15,7 @@ public final class Selector {
   private final LinkedList<Identifier> identifiers;
 
   private Selector(Collection<Identifier> identifiers) {
+    // TODO: assert that the size is at least one
     this.identifiers = new LinkedList<>(identifiers);
   }
 
@@ -25,6 +27,15 @@ public final class Selector {
     var l = new LinkedList<Identifier>();
     identifiers.forEach(s -> l.add(new Identifier(s)));
     return new Selector(l);
+  }
+
+  public Identifier identifier() {
+    return identifiers.getLast();
+  }
+
+  public Optional<Selector> expression() {
+    // TODO: implement
+    return null;
   }
 
   @Override
