@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.common;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -19,8 +20,12 @@ public final class Selector {
     this.identifiers = new LinkedList<>(identifiers);
   }
 
-  public static Selector of(String... identifiers) {
-    return of(Arrays.asList(identifiers));
+  /** Converts a sequence of one or more strings to a {@code Selector}. */
+  public static Selector of(String first, String... more) {
+    var identifiers = new ArrayList<String>();
+    identifiers.add(first);
+    identifiers.addAll(Arrays.asList(more));
+    return of(identifiers);
   }
 
   public static Selector of(Iterable<String> identifiers) {
@@ -29,6 +34,7 @@ public final class Selector {
     return new Selector(l);
   }
 
+  /** Returns the rightmost identifier of this {@code Selector}. */
   public Identifier identifier() {
     return identifiers.getLast();
   }
