@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A {@code Selector} describes a single java identifier or selector expression (list of identifiers
@@ -16,7 +17,11 @@ public final class Selector {
   private final LinkedList<Identifier> identifiers;
 
   private Selector(Collection<Identifier> identifiers) {
-    // TODO: assert that the size is at least one
+    if (identifiers.isEmpty()) {
+      throw new IllegalArgumentException(
+          "cannot construct selector from an empty list of identifiers");
+    }
+
     this.identifiers = new LinkedList<>(identifiers);
   }
 
@@ -41,6 +46,44 @@ public final class Selector {
 
   public Optional<Selector> expression() {
     // TODO: implement
+    return null;
+  }
+
+  /**
+   * Constructs a new {@code Selector} by joining this selector to {@code other}.
+   *
+   * <p>This requires the last identifier of this selector to be equal to the first identifier of
+   * the other, and the join will happen on that common identifier.
+   *
+   * <p>For example, if this selector represents {@code "a.b"}, then invoking this method with a
+   * selector representing {@code "b.c"} will return a path representing {@code "a.b.c"}
+   *
+   * @param other the selector to join to this selector
+   * @return the resulting selector
+   * @exception IllegalArgumentException if {@code other} cannot be joined to this {@code Selector}
+   */
+  public Selector join(Selector other) {
+    if (!other.identifiers.peekFirst().equals(identifiers.peekLast())) {
+      throw new IllegalArgumentException("cannot join these selectors");
+    }
+
+    var combined =
+        Stream.concat(identifiers.stream(), other.identifiers.stream().skip(1))
+            .collect(Collectors.toList());
+
+    return new Selector(combined);
+  }
+
+  public Selector subtract(Selector other) {
+    // var minuend = identifiers.descendingIterator();
+    // for (var identifier : other.identifiers.descendingIterator()) {
+    //   if (!minuend.hasNext() || !minuend.next().equals(identifier)) {
+    //     throw new IllegalArgumentException(
+    //         String.format("%s cannot be subtracted from %s", other, this));
+    //   }
+    // }
+
+    // var rest = new ArrayList<Identifier>();
     return null;
   }
 
