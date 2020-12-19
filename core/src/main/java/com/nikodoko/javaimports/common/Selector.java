@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,11 +44,6 @@ public final class Selector {
     return identifiers.getLast();
   }
 
-  public Optional<Selector> expression() {
-    // TODO: implement
-    return null;
-  }
-
   /**
    * Constructs a new {@code Selector} by joining this selector to {@code other}.
    *
@@ -56,7 +51,7 @@ public final class Selector {
    * the other, and the join will happen on that common identifier.
    *
    * <p>For example, if this selector represents {@code "a.b"}, then invoking this method with a
-   * selector representing {@code "b.c"} will return a path representing {@code "a.b.c"}
+   * selector representing {@code "b.c"} will return a path representing {@code "a.b.c"}.
    *
    * @param other the selector to join to this selector
    * @return the resulting selector
@@ -74,17 +69,40 @@ public final class Selector {
     return new Selector(combined);
   }
 
+  /**
+   * Constructs a new {@code Selector} by subtracting {@code other} from this selector.
+   *
+   * <p>This operation is the opposite of {@link #join(Selector)}, so {@code
+   * selector.join(other).subtract(other).equals(selector) == true}.
+   *
+   * <p>For example, if this selector represents {@code "a.b.c"}, then invoking this method with a
+   * selector representing {@code "b.c"} will return a path representing {@code "a.b"}.
+   *
+   * @param other the selector to subtract to this selector
+   * @return the resulting selector
+   * @exception IllegalArgumentException if {@code other} cannot be subtracted from this {@code
+   *     Selector}
+   */
   public Selector subtract(Selector other) {
-    // var minuend = identifiers.descendingIterator();
-    // for (var identifier : other.identifiers.descendingIterator()) {
-    //   if (!minuend.hasNext() || !minuend.next().equals(identifier)) {
-    //     throw new IllegalArgumentException(
-    //         String.format("%s cannot be subtracted from %s", other, this));
-    //   }
-    // }
+    if (!endsWith(other)) {
+      throw new IllegalArgumentException(
+          String.format("%s cannot be subtracted from %s", other, this));
+    }
 
-    // var rest = new ArrayList<Identifier>();
-    return null;
+    // The +1 is to keep the last common identifier
+    var cutoff = identifiers.size() - other.identifiers.size() + 1;
+    return new Selector(List.copyOf(identifiers.subList(0, cutoff)));
+  }
+
+  /** Returns true if this {@code Selector} ends with {@code other}. */
+  public boolean endsWith(Selector other) {
+    var thisLength = identifiers.size();
+    var otherLength = other.identifiers.size();
+    if (otherLength > thisLength) {
+      return false;
+    }
+
+    return identifiers.subList(thisLength - otherLength, thisLength).equals(other.identifiers);
   }
 
   @Override
