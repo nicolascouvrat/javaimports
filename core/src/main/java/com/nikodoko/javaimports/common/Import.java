@@ -4,16 +4,12 @@ import com.google.common.base.MoreObjects;
 import java.util.Objects;
 
 public final class Import {
-  private final Selector selector;
-  private final boolean isStatic;
+  public final Selector selector;
+  public final boolean isStatic;
 
   public Import(Selector selector, boolean isStatic) {
     this.selector = selector;
     this.isStatic = isStatic;
-  }
-
-  public Identifier identifier() {
-    return selector.identifier();
   }
 
   @Override

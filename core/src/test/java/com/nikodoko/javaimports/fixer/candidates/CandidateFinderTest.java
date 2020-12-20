@@ -7,6 +7,7 @@ import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.ImportProvider;
 import com.nikodoko.javaimports.common.Selector;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import net.jqwik.api.Arbitraries;
@@ -24,7 +25,7 @@ public class CandidateFinderTest {
   }
 
   @Example
-  void itShouldReturnImportsMatchingASelectorOfLength1() {
+  void itShouldReturnImportsMatchingASelectorOfLengthEqualToOne() {
     var finder = new CandidateFinder();
     finder.add(
         Candidate.Source.STDLIB,
@@ -33,6 +34,19 @@ public class CandidateFinderTest {
     assertThat(finder.find(Selector.of("MyClass")))
         .isEqualTo(
             Candidates.forSelector(Selector.of("MyClass"))
+                .add(new Candidate(importOf("com.myapp.MyClass"), Candidate.Source.STDLIB))
+                .build());
+  }
+
+  @Example
+  void itShouldReturnImportsMatchingASelectorOfLengthSuperiorToOne() {
+    var finder = new CandidateFinder();
+    finder.add(
+        Candidate.Source.STDLIB, providerOf("com.myapp.MyClass", "com.myapp.MyClass.Subclass"));
+
+    assertThat(finder.find(Selector.of("MyClass", "Subclass")))
+        .isEqualTo(
+            Candidates.forSelector(Selector.of("MyClass", "Subclass"))
                 .add(new Candidate(importOf("com.myapp.MyClass"), Candidate.Source.STDLIB))
                 .build());
   }
@@ -46,7 +60,8 @@ public class CandidateFinderTest {
     var importsByIdentifier = new HashMap<Identifier, List<Import>>();
     for (String statement : importStatements) {
       var i = importOf(statement);
-      var imports = importsByIdentifier.computeIfAbsent(i.identifier(), __ -> new ArrayList<>());
+      var imports =
+          importsByIdentifier.computeIfAbsent(i.selector.identifier(), __ -> new ArrayList<>());
       imports.add(i);
     }
 
@@ -58,6 +73,7 @@ public class CandidateFinderTest {
     var isStatic = statement.startsWith(STATIC);
     var trimmed = isStatic ? statement.substring(STATIC.length()) : statement;
     var fragments = trimmed.split("\\.");
-    return new Import(Selector.of(fragments), isStatic);
+    return new Import(
+        Selector.of(fragments[0], Arrays.copyOfRange(fragments, 1, fragments.length)), isStatic);
   }
 }
