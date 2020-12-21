@@ -5,6 +5,7 @@ import com.nikodoko.javaimports.parser.ClassHierarchies;
 import com.nikodoko.javaimports.parser.ClassHierarchy;
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.BlockTree;
+import com.sun.source.tree.CaseTree;
 import com.sun.source.tree.CatchTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -20,6 +21,7 @@ import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeParameterTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePathScanner;
+import com.sun.tools.javac.tree.JCTree.JCCase;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import java.util.Optional;
 import java.util.Set;
@@ -106,6 +108,18 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   @Override
   public Void visitCatch(CatchTree tree, Void v) {
     return withScope(super::visitCatch).apply(tree, v);
+  }
+
+  // Because "The scope of an enum constant C declared in an enum type T is the body of T, and
+  // any case label of a switch statement whose expression is of enum type T" (see
+  // https://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-6.3), we should ignore
+  // unknown symbols in case labels to avoid importing things we don't want to import.
+  // This is not ideal as there could be cases where we want to import whatever is used as label,
+  // but it's better to be conservative here (is this case, the import will have to be added by
+  // hand).
+  @Override
+  public Void visitCase(CaseTree tree, Void v) {
+    return scan(((JCCase) tree).stats, v);
   }
 
   // visitSwitch does not call visitBlock so has to be implemented separately
