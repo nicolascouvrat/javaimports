@@ -5,11 +5,12 @@ import com.nikodoko.javaimports.common.Selector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-class Candidates {
+public class Candidates {
   static final Candidates EMPTY = new Candidates(Map.of());
 
   private final Map<Selector, List<Candidate>> candidates;
@@ -28,6 +29,13 @@ class Candidates {
 
   static Builder forSelector(Selector s) {
     return new Builder(s);
+  }
+
+  public static Candidates merge(Candidates a, Candidates b) {
+    var combined = new HashMap<Selector, List<Candidate>>();
+    combined.putAll(a.candidates);
+    combined.putAll(b.candidates);
+    return new Candidates(combined);
   }
 
   @Override

@@ -1,12 +1,18 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.environment.Environment;
+import com.nikodoko.javaimports.fixer.candidates.BestCandidates;
+import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
+import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
+import com.nikodoko.javaimports.fixer.candidates.Candidates;
 import com.nikodoko.javaimports.fixer.internal.LoadResult;
 import com.nikodoko.javaimports.fixer.internal.Loader;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -115,6 +121,23 @@ public class Fixer {
     allUnresolved.addAll(loaded.unresolved);
     loaded.orphans.stream().forEach(o -> allUnresolved.addAll(o.notYetResolved()));
     return allUnresolved;
+  }
+
+  private Set<Import> findFixes(Set<String> unresolved, Collection<Import> current) {
+    var finder = new CandidateFinder();
+    var selectors = unresolved.stream().map(Selector::of).collect(Collectors.toList());
+    var candidates = selectors.stream().map(finder::find).reduce(Candidates::merge).get();
+    CandidateSelectionStrategy dummy = (cand, curr) -> new BestCandidates();
+    var best =
+        dummy.selectBest(
+            candidates, current.stream().map(Import::toNew).collect(Collectors.toList()));
+
+    return selectors.stream()
+        .map(best::forSelector)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .map(Import::fromNew)
+        .collect(Collectors.toSet());
   }
 
   /**
