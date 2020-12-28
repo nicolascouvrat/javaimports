@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class Candidates {
   static final Candidates EMPTY = new Candidates(Map.of());
@@ -19,10 +20,23 @@ public class Candidates {
     this.candidates = candidates;
   }
 
+  /**
+   * Returns a list of {@link Candidate} for this {@code selector}, or an empty list if none are
+   * present.
+   */
   List<Candidate> getFor(Selector selector) {
-    return null;
+    return candidates.getOrDefault(selector, new ArrayList<>());
   }
 
+  /**
+   * Returns all the selectors for which this {@code Candidates} contains one or more {@link
+   * Candidate}.
+   */
+  Set<Selector> selectors() {
+    return candidates.keySet();
+  }
+
+  /** Returns true if this {@code Candidates} does not contain any candidates. */
   boolean isEmpty() {
     return candidates.isEmpty();
   }
@@ -31,6 +45,10 @@ public class Candidates {
     return new Builder(s);
   }
 
+  /**
+   * Creates a new instance of {@code Candidates} containing all the candidates stored in {@code a}
+   * and {@code b}.
+   */
   public static Candidates merge(Candidates a, Candidates b) {
     var combined = new HashMap<Selector, List<Candidate>>();
     combined.putAll(a.candidates);

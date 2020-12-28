@@ -3,7 +3,6 @@ package com.nikodoko.javaimports.fixer;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.environment.Environment;
-import com.nikodoko.javaimports.fixer.candidates.BestCandidates;
 import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
 import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
 import com.nikodoko.javaimports.fixer.candidates.Candidates;
@@ -127,10 +126,8 @@ public class Fixer {
     var finder = new CandidateFinder();
     var selectors = unresolved.stream().map(Selector::of).collect(Collectors.toList());
     var candidates = selectors.stream().map(finder::find).reduce(Candidates::merge).get();
-    CandidateSelectionStrategy dummy = (cand, curr) -> new BestCandidates();
-    var best =
-        dummy.selectBest(
-            candidates, current.stream().map(Import::toNew).collect(Collectors.toList()));
+    CandidateSelectionStrategy dummy = cand -> null;
+    var best = dummy.selectBest(candidates);
 
     return selectors.stream()
         .map(best::forSelector)
