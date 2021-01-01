@@ -3,8 +3,9 @@ package com.nikodoko.javaimports.fixer;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.environment.Environment;
+import com.nikodoko.javaimports.fixer.candidates.BasicCandidateSelectionStrategy;
+import com.nikodoko.javaimports.fixer.candidates.Candidate;
 import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
-import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
 import com.nikodoko.javaimports.fixer.candidates.Candidates;
 import com.nikodoko.javaimports.fixer.internal.LoadResult;
 import com.nikodoko.javaimports.fixer.internal.Loader;
@@ -13,6 +14,7 @@ import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 public class Fixer {
   private ParsedFile file;
   private Options options;
+  private final CandidateFinder candidates;
   private static Logger log = Logger.getLogger(Fixer.class.getName());
 
   private Loader loader;
@@ -32,6 +35,7 @@ public class Fixer {
   private Fixer(ParsedFile file, Options options) {
     this.file = file;
     this.options = options;
+    this.candidates = new CandidateFinder();
     this.loader = Loader.of(file, options);
   }
 
@@ -59,14 +63,17 @@ public class Fixer {
             .collect(Collectors.toSet());
 
     loader.addSiblings(siblingsOfSamePackage);
+    siblingsOfSamePackage.stream().forEach(f -> candidates.add(Candidate.Source.SIBLING, f));
   }
 
   public void addStdlibProvider(StdlibProvider provider) {
     loader.addStdlibProvider(provider);
+    candidates.add(Candidate.Source.STDLIB, provider);
   }
 
   public void addEnvironment(Environment resolver) {
     loader.addEnvironment(resolver);
+    candidates.add(Candidate.Source.EXTERNAL, resolver);
   }
 
   private Result loadAndTryToFix(boolean lastTry) {
@@ -94,7 +101,8 @@ public class Fixer {
     }
 
     var unresolved = allUnresolved(loaded);
-    var fixes = findFixes(unresolved, loaded);
+    // var fixes = findFixes(unresolved, loaded);
+    var fixes = findFixes(unresolved, List.of());
     var allGood = fixes.size() == unresolved.size();
 
     if (allGood) {
@@ -123,11 +131,9 @@ public class Fixer {
   }
 
   private Set<Import> findFixes(Set<String> unresolved, Collection<Import> current) {
-    var finder = new CandidateFinder();
     var selectors = unresolved.stream().map(Selector::of).collect(Collectors.toList());
-    var candidates = selectors.stream().map(finder::find).reduce(Candidates::merge).get();
-    CandidateSelectionStrategy dummy = cand -> null;
-    var best = dummy.selectBest(candidates);
+    var candidates = selectors.stream().map(this.candidates::find).reduce(Candidates::merge).get();
+    var best = new BasicCandidateSelectionStrategy().selectBest(candidates);
 
     return selectors.stream()
         .map(best::forSelector)

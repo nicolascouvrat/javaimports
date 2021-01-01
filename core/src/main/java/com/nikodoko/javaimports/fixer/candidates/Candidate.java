@@ -4,8 +4,8 @@ import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.common.Import;
 import java.util.Objects;
 
-final class Candidate {
-  static enum Source {
+public final class Candidate {
+  public static enum Source {
     SIBLING,
     STDLIB,
     EXTERNAL;

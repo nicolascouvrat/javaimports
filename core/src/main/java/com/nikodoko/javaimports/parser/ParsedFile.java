@@ -2,12 +2,15 @@ package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.ImportProvider;
 import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.Scope;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCImport;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /** An object representing a Java source file. */
-public class ParsedFile {
+public class ParsedFile implements ImportProvider {
   // The name of the package to which this file belongs
   String packageName;
   // The imports in this file
@@ -138,6 +141,15 @@ public class ParsedFile {
 
   public Stream<ClassEntity> classes() {
     return ClassHierarchies.flatView(classHierarchy);
+  }
+
+  // TODO: remove
+  public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
+    if (!imports.containsKey(i.toString())) {
+      return List.of();
+    }
+
+    return List.of(imports.get(i.toString()).toNew());
   }
 
   /** Debugging support. */

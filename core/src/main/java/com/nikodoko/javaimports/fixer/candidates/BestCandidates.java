@@ -16,7 +16,7 @@ public class BestCandidates {
   }
 
   public Optional<Import> forSelector(Selector selector) {
-    return null;
+    return Optional.ofNullable(imports.get(selector));
   }
 
   static Builder builder() {

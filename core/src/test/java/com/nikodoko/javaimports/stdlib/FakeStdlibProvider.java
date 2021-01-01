@@ -1,7 +1,10 @@
 package com.nikodoko.javaimports.stdlib;
 
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.parser.Import;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FakeStdlibProvider implements StdlibProvider {
@@ -30,6 +33,16 @@ public class FakeStdlibProvider implements StdlibProvider {
     }
 
     return found;
+  }
+
+  @Override
+  public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
+    var found = imports.get(i.toString());
+    if (found == null) {
+      return List.of();
+    }
+
+    return List.of(found.toNew());
   }
 
   @Override
