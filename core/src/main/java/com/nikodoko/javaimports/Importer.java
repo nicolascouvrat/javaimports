@@ -80,6 +80,9 @@ public final class Importer {
     try {
       Optional<ParsedFile> f = parser.parse(filename, javaCode);
       if (f.isEmpty()) {
+        if (options.debug()) {
+          log.log(Level.WARNING, "file is empty");
+        }
         return javaCode;
       }
 
@@ -99,6 +102,9 @@ public final class Importer {
     if (r.done()) {
       // We cannot add any imports at this stage, as we need the package information for that. If we
       // are done, this should mean that the file is complete
+      if (options.debug()) {
+        log.log(Level.INFO, "file is complete");
+      }
       checkArgument(r.fixes().isEmpty(), "expected no fixes but found %s", r.fixes());
       return r;
     }

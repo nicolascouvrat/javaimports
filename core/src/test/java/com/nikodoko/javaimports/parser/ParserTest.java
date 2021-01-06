@@ -203,6 +203,46 @@ public class ParserTest {
       {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
+      // Because "The scope of an enum constant C declared in an enum type T is the body of T, and
+      // any case label of a switch statement whose expression is of enum type T" (see
+      // https://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-6.3), we should ignore
+      // unknown symbols in case labels to avoid importing things we don't want to import.
+      {"switchIgnoreCaseLabels"},
+      {
+        "package com.pkg.test;",
+        "class Test {",
+        "  public void f() {",
+        "    switch (a) {",
+        "    case b:",
+        "      int c = 2;",
+        "      break;",
+        "    }",
+        "  }",
+        "}",
+      },
+      {"a"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+    },
+    {
+      {"java14SwitchIgnoreCaseLabels"},
+      {
+        "package com.pkg.test;",
+        "class Test {",
+        "  public void f() {",
+        "    int r = switch (a) {",
+        "    case b -> {",
+        "      int c = 2;",
+        "      yield c;",
+        "    }",
+        "    default -> 0;",
+        "    };",
+        "  }",
+        "}",
+      },
+      {"a"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+    },
+    {
       {"tryCatchFinally"},
       {
         "package com.pkg.test;",
@@ -397,7 +437,8 @@ public class ParserTest {
         "  @SafeVarargs",
         "  public static <E> ImmutableSet<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E... others) {",
         "    checkArgument(",
-        "        others.length <= Integer.MAX_VALUE - 6, \"the total number of elements must fit in an int\");",
+        "        others.length <= Integer.MAX_VALUE - 6, \"the total number of elements must fit"
+            + " in an int\");",
         "    final int paramCount = 6;",
         "    Object[] elements = new Object[paramCount + others.length];",
         "    elements[0] = e1;",
@@ -410,7 +451,8 @@ public class ParserTest {
         "    return construct(elements.length, elements.length, elements);",
         "  }",
         "",
-        "  private static <E> ImmutableSet<E> constructUnknownDuplication(int n, Object... elements) {",
+        "  private static <E> ImmutableSet<E> constructUnknownDuplication(int n, Object..."
+            + " elements) {",
         "    return construct(",
         "        n,",
         "        Math.max(",
@@ -419,7 +461,8 @@ public class ParserTest {
         "        elements);",
         "  }",
         "",
-        "  private static <E> ImmutableSet<E> construct(int n, int expectedSize, Object... elements) {",
+        "  private static <E> ImmutableSet<E> construct(int n, int expectedSize, Object..."
+            + " elements) {",
         "    switch (n) {",
         "      case 0:",
         "        return of();",
@@ -701,14 +744,16 @@ public class ParserTest {
         "    }",
         "",
         "    SetBuilderImpl(SetBuilderImpl<E> toCopy) {",
-        "      this.dedupedElements = Arrays.copyOf(toCopy.dedupedElements, toCopy.dedupedElements.length);",
+        "      this.dedupedElements = Arrays.copyOf(toCopy.dedupedElements,"
+            + " toCopy.dedupedElements.length);",
         "      this.distinct = toCopy.distinct;",
         "    }",
         "",
         "    private void ensureCapacity(int minCapacity) {",
         "      if (minCapacity > dedupedElements.length) {",
         "        int newCapacity =",
-        "            ImmutableCollection.Builder.expandedCapacity(dedupedElements.length, minCapacity);",
+        "            ImmutableCollection.Builder.expandedCapacity(dedupedElements.length,"
+            + " minCapacity);",
         "        dedupedElements = Arrays.copyOf(dedupedElements, newCapacity);",
         "      }",
         "    }",
@@ -776,18 +821,21 @@ public class ParserTest {
         "      }",
         "    }",
         "    int startOfEndRun;",
-        "    for (startOfEndRun = hashTable.length - 1; startOfEndRun > endOfStartRun; startOfEndRun--) {",
+        "    for (startOfEndRun = hashTable.length - 1; startOfEndRun > endOfStartRun;"
+            + " startOfEndRun--) {",
         "      if (hashTable[startOfEndRun] == null) {",
         "        break;",
         "      }",
-        "      if (endOfStartRun + (hashTable.length - 1 - startOfEndRun) > maxRunBeforeFallback) {",
+        "      if (endOfStartRun + (hashTable.length - 1 - startOfEndRun) > maxRunBeforeFallback)"
+            + " {",
         "        return true;",
         "      }",
         "    }",
         "",
         "    int testBlockSize = maxRunBeforeFallback / 2;",
         "    blockLoop:",
-        "    for (int i = endOfStartRun + 1; i + testBlockSize <= startOfEndRun; i += testBlockSize) {",
+        "    for (int i = endOfStartRun + 1; i + testBlockSize <= startOfEndRun; i +="
+            + " testBlockSize) {",
         "      for (int j = 0; j < testBlockSize; j++) {",
         "        if (hashTable[i + j] == null) {",
         "          continue blockLoop;",
@@ -864,7 +912,8 @@ public class ParserTest {
         "        hashTable = rebuildHashTable(targetTableSize, dedupedElements, distinct);",
         "        maxRunBeforeFallback = maxRunBeforeFallback(targetTableSize);",
         "      }",
-        "      return hashFloodingDetected(hashTable) ? new JdkBackedSetBuilderImpl<E>(this) : this;",
+        "      return hashFloodingDetected(hashTable) ? new JdkBackedSetBuilderImpl<E>(this) :"
+            + " this;",
         "    }",
         "",
         "    @Override",
@@ -879,7 +928,8 @@ public class ParserTest {
         "              (distinct == dedupedElements.length)",
         "                  ? dedupedElements",
         "                  : Arrays.copyOf(dedupedElements, distinct);",
-        "          return new RegularImmutableSet<E>(elements, hashCode, hashTable, hashTable.length - 1);",
+        "          return new RegularImmutableSet<E>(elements, hashCode, hashTable,"
+            + " hashTable.length - 1);",
         "      }",
         "    }",
         "  }",
