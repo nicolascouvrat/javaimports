@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.environment.maven;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.JavaProject;
 import com.nikodoko.javaimports.environment.PackageDistance;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -66,6 +68,20 @@ public class MavenEnvironment implements Environment {
     }
 
     return Optional.ofNullable(bestAvailableImports.get(identifier));
+  }
+
+  @Override
+  public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
+    if (!isInitialized) {
+      init();
+    }
+
+    var best = bestAvailableImports.get(i.toString());
+    if (best == null) {
+      return List.of();
+    }
+
+    return List.of(best.toNew());
   }
 
   private void init() {

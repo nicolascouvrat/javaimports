@@ -1,8 +1,10 @@
 package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.common.Selector;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCImport;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /** An {@code Import} represents a single import statement. */
@@ -55,6 +57,25 @@ public class Import {
 
   public boolean isInJavaUtil() {
     return qualifier.equals("java.util");
+  }
+
+  // TODO: remove
+  public com.nikodoko.javaimports.common.Import toNew() {
+    var identifiers = new ArrayList<String>();
+    var fragments = qualifier.split("\\.");
+    for (var frag : fragments) {
+      identifiers.add(frag);
+    }
+    identifiers.add(name);
+    return new com.nikodoko.javaimports.common.Import(Selector.of(identifiers), isStatic);
+  }
+
+  public static Import fromNew(com.nikodoko.javaimports.common.Import i) {
+    var str = i.selector.toString();
+    var cutoff = str.lastIndexOf(".");
+    var qualifier = str.substring(0, cutoff);
+    var name = str.substring(cutoff + 1);
+    return new Import(name, qualifier, i.isStatic);
   }
 
   /** Creates a fully qualified import statement from this {@code Import} object. */

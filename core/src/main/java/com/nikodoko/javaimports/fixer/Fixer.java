@@ -1,14 +1,20 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.environment.Environment;
+import com.nikodoko.javaimports.fixer.candidates.BasicCandidateSelectionStrategy;
+import com.nikodoko.javaimports.fixer.candidates.Candidate;
+import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
+import com.nikodoko.javaimports.fixer.candidates.Candidates;
 import com.nikodoko.javaimports.fixer.internal.LoadResult;
 import com.nikodoko.javaimports.fixer.internal.Loader;
-import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -21,6 +27,7 @@ import java.util.stream.Collectors;
 public class Fixer {
   private ParsedFile file;
   private Options options;
+  private final CandidateFinder candidates;
   private static Logger log = Logger.getLogger(Fixer.class.getName());
 
   private Loader loader;
@@ -28,6 +35,7 @@ public class Fixer {
   private Fixer(ParsedFile file, Options options) {
     this.file = file;
     this.options = options;
+    this.candidates = new CandidateFinder();
     this.loader = Loader.of(file, options);
   }
 
@@ -55,14 +63,17 @@ public class Fixer {
             .collect(Collectors.toSet());
 
     loader.addSiblings(siblingsOfSamePackage);
+    siblingsOfSamePackage.stream().forEach(f -> candidates.add(Candidate.Source.SIBLING, f));
   }
 
   public void addStdlibProvider(StdlibProvider provider) {
     loader.addStdlibProvider(provider);
+    candidates.add(Candidate.Source.STDLIB, provider);
   }
 
   public void addEnvironment(Environment resolver) {
     loader.addEnvironment(resolver);
+    candidates.add(Candidate.Source.EXTERNAL, resolver);
   }
 
   private Result loadAndTryToFix(boolean lastTry) {
@@ -84,41 +95,52 @@ public class Fixer {
   // Gives up if all necessary imports cannot be found, except if it is a last try, in which case
   // the best possible incomplete list of fixes will be returned.
   private Result fix(boolean lastTry) {
-    boolean allGood = true;
-    Set<Import> fixes = new HashSet<>();
-    LoadResult loaded = loader.result();
-    for (String ident : loaded.unresolved) {
-      Optional<Import> maybeFix = loaded.candidates.get(ident);
-      if (maybeFix.isPresent()) {
-        fixes.add(maybeFix.get());
-        continue;
-      }
-
-      allGood = false;
-    }
-
-    // We have found all necessary fixes
-    if (allGood && loaded.orphans.isEmpty()) {
-      return Result.complete(fixes);
-    }
-
-    // This is not the last try, we can probably find more fixes next try
-    if (!lastTry) {
+    var loaded = loader.result();
+    if (!loaded.orphans.isEmpty() && !lastTry) {
       return Result.incomplete();
     }
 
-    // We did not find everything, do our best effort by trying to resolve anything we can in non
-    // resolved orphan classes
-    for (ClassExtender orphan : loaded.orphans) {
-      for (String ident : orphan.notYetResolved()) {
-        Optional<Import> maybeFix = loaded.candidates.get(ident);
-        if (maybeFix.isPresent()) {
-          fixes.add(maybeFix.get());
-        }
-      }
+    var unresolved = allUnresolved(loaded);
+    // var fixes = findFixes(unresolved, loaded);
+    var fixes = findFixes(unresolved, List.of());
+    var allGood = fixes.size() == unresolved.size();
+
+    if (allGood) {
+      return Result.complete(fixes);
     }
 
     return Result.incomplete(fixes);
+  }
+
+  private Set<Import> findFixes(Set<String> unresolved, LoadResult loaded) {
+    Set<Import> fixes =
+        unresolved.stream()
+            .map(loaded.candidates::get)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
+
+    return fixes;
+  }
+
+  private Set<String> allUnresolved(LoadResult loaded) {
+    var allUnresolved = new HashSet<String>();
+    allUnresolved.addAll(loaded.unresolved);
+    loaded.orphans.stream().forEach(o -> allUnresolved.addAll(o.notYetResolved()));
+    return allUnresolved;
+  }
+
+  private Set<Import> findFixes(Set<String> unresolved, Collection<Import> current) {
+    var selectors = unresolved.stream().map(Selector::of).collect(Collectors.toList());
+    var candidates = selectors.stream().map(this.candidates::find).reduce(Candidates::merge).get();
+    var best = new BasicCandidateSelectionStrategy().selectBest(candidates);
+
+    return selectors.stream()
+        .map(best::forSelector)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .map(Import::fromNew)
+        .collect(Collectors.toSet());
   }
 
   /**

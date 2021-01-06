@@ -1,8 +1,10 @@
 package com.nikodoko.javaimports.stdlib;
 
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.stdlib.internal.Stdlib;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,16 @@ public class BasicStdlibProvider implements StdlibProvider {
     }
 
     return candidates;
+  }
+
+  @Override
+  public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
+    var found = find(List.of(i.toString())).get(i.toString());
+    if (found == null) {
+      return List.of();
+    }
+
+    return List.of(found.toNew());
   }
 
   private void updateUsedPackages(Iterable<Import> imports) {

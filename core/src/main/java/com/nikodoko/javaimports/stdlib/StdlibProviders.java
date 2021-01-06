@@ -1,8 +1,11 @@
 package com.nikodoko.javaimports.stdlib;
 
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.stdlib.internal.api.v8.Java8Stdlib;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class StdlibProviders {
@@ -17,6 +20,11 @@ public class StdlibProviders {
     @Override
     public boolean isInJavaLang(String identifier) {
       return false;
+    }
+
+    @Override
+    public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
+      return List.of();
     }
   }
 
