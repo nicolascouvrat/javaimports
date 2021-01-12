@@ -10,17 +10,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Example;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
-import net.jqwik.api.Provide;
 
 public class CandidateFinderTest {
   @Property
-  boolean theDefaultCandidateFinderReturnsEmptyCandidates(
-      @ForAll("arbitrarySelector") Selector aSelector) {
+  boolean theDefaultCandidateFinderReturnsEmptyCandidates(@ForAll Selector aSelector) {
     return new CandidateFinder().find(aSelector).isEmpty();
   }
 
@@ -49,11 +45,6 @@ public class CandidateFinderTest {
             Candidates.forSelector(Selector.of("MyClass", "Subclass"))
                 .add(new Candidate(importOf("com.myapp.MyClass"), Candidate.Source.STDLIB))
                 .build());
-  }
-
-  @Provide
-  Arbitrary<Selector> arbitrarySelector() {
-    return Arbitraries.strings().all().list().ofMinSize(1).ofMaxSize(10).map(Selector::of);
   }
 
   static ImportProvider providerOf(String... importStatements) {
