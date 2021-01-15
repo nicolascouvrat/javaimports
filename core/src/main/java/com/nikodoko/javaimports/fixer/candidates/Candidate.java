@@ -11,8 +11,8 @@ public final class Candidate {
     EXTERNAL;
   }
 
-  final Import i;
-  final Source s;
+  public final Import i;
+  public final Source s;
 
   Candidate(Import i, Source s) {
     this.i = i;
