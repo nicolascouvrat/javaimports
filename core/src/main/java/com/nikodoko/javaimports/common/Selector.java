@@ -44,6 +44,15 @@ public final class Selector {
     return identifiers.getLast();
   }
 
+  // TODO: tentative API
+  public Selector combine(Selector other) {
+    var combined =
+        Stream.concat(identifiers.stream(), other.identifiers.stream())
+            .collect(Collectors.toList());
+
+    return new Selector(combined);
+  }
+
   /**
    * Constructs a new {@code Selector} by joining this selector to {@code other}.
    *

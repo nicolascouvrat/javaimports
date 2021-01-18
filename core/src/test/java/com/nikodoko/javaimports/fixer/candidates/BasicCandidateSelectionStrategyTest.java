@@ -1,39 +1,66 @@
 package com.nikodoko.javaimports.fixer.candidates;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.nikodoko.javaimports.common.CommonTestUtil.arbitraryImportEndingWith;
+import static com.nikodoko.javaimports.common.CommonTestUtil.arbitrarySelector;
 
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
-import org.junit.jupiter.api.Test;
+import java.util.List;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.Combinators;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
 
 public class BasicCandidateSelectionStrategyTest {
-  @Test
-  void itShouldSelectCandidatesAccordingToSource() {
-    var candidates =
-        Candidates.merge(
-            Candidates.forSelector(Selector.of("A"))
-                .add(
-                    new Candidate(
-                        new Import(Selector.of("com", "pkg", "A"), false), Candidate.Source.STDLIB),
-                    new Candidate(
-                        new Import(Selector.of("com", "another", "pkg", "A"), false),
-                        Candidate.Source.SIBLING))
-                .build(),
-            Candidates.forSelector(Selector.of("B"))
-                .add(
-                    new Candidate(
-                        new Import(Selector.of("com", "pkg", "B"), false), Candidate.Source.STDLIB),
-                    new Candidate(
-                        new Import(Selector.of("com", "another", "pkg", "B"), false),
-                        Candidate.Source.EXTERNAL))
-                .build());
+  static class SelectorAndImports {
+    final Selector selector;
+    final List<Import> imports;
 
-    var expected =
-        BestCandidates.builder()
-            .put(Selector.of("A"), new Import(Selector.of("com", "another", "pkg", "A"), false))
-            .put(Selector.of("B"), new Import(Selector.of("com", "pkg", "B"), false))
-            .build();
+    SelectorAndImports(Selector s, List<Import> i) {
+      selector = s;
+      imports = i;
+    }
+  }
+
+  @Property
+  void stdlibIsMoreRelevantThanExternal(@ForAll("endingWith") SelectorAndImports data) {
+    var stdlibCandidate = new Candidate(data.imports.get(0), Candidate.Source.STDLIB);
+    var externalCandidate = new Candidate(data.imports.get(1), Candidate.Source.EXTERNAL);
+    var candidates =
+        Candidates.forSelector(data.selector).add(stdlibCandidate, externalCandidate).build();
+    var expected = BestCandidates.builder().put(data.selector, stdlibCandidate.i).build();
+
     var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+
     assertThat(got).isEqualTo(expected);
+  }
+
+  @Property
+  void siblingsIsMoreRelevantThanStdlibOrExternal(@ForAll("endingWith") SelectorAndImports data) {
+    var stdlibCandidate = new Candidate(data.imports.get(0), Candidate.Source.STDLIB);
+    var externalCandidate = new Candidate(data.imports.get(1), Candidate.Source.EXTERNAL);
+    var siblingCandidate = new Candidate(data.imports.get(2), Candidate.Source.SIBLING);
+    var candidates =
+        Candidates.forSelector(data.selector)
+            .add(stdlibCandidate, externalCandidate, siblingCandidate)
+            .build();
+    var expected = BestCandidates.builder().put(data.selector, siblingCandidate.i).build();
+
+    var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+
+    assertThat(got).isEqualTo(expected);
+  }
+
+  @Provide
+  Arbitrary<SelectorAndImports> endingWith() {
+    return arbitrarySelector()
+        .flatMap(
+            sel ->
+                Combinators.combine(
+                        Arbitraries.of(sel), arbitraryImportEndingWith(sel).list().ofSize(10))
+                    .as(SelectorAndImports::new));
   }
 }
