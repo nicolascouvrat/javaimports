@@ -5,7 +5,7 @@ import net.jqwik.api.Arbitrary;
 import net.jqwik.api.providers.ArbitraryProvider;
 import net.jqwik.api.providers.TypeUsage;
 
-public class SelectorProvider implements ArbitraryProvider {
+public class ArbitrarySelectorProvider implements ArbitraryProvider {
   @Override
   public boolean canProvideFor(TypeUsage target) {
     return target.isOfType(Selector.class);
