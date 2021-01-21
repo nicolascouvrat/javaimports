@@ -6,6 +6,7 @@ import static com.nikodoko.javaimports.common.CommonTestUtil.arbitrarySelector;
 
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
+import java.util.Collections;
 import java.util.List;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
@@ -48,6 +49,25 @@ public class BasicCandidateSelectionStrategyTest {
             .add(stdlibCandidate, externalCandidate, siblingCandidate)
             .build();
     var expected = BestCandidates.builder().put(data.selector, siblingCandidate.i).build();
+
+    var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+
+    assertThat(got).isEqualTo(expected);
+  }
+
+  @Property
+  void shorterStdlibPathsAreMoreRelevantThanLongOnes(
+      @ForAll("endingWith") SelectorAndImports data) {
+    var shortest =
+        Collections.min(data.imports, (i1, i2) -> i1.selector.size() - i2.selector.size());
+    var candidates =
+        Candidates.forSelector(data.selector)
+            .add(
+                data.imports.stream()
+                    .map(i -> new Candidate(i, Candidate.Source.STDLIB))
+                    .toArray(Candidate[]::new))
+            .build();
+    var expected = BestCandidates.builder().put(data.selector, shortest).build();
 
     var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
 

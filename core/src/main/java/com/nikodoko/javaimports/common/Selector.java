@@ -54,6 +54,14 @@ public final class Selector {
   }
 
   /**
+   * Returns the number of identifiers the selector expression represented by this {@code Selector}
+   * contains.
+   */
+  public int size() {
+    return identifiers.size();
+  }
+
+  /**
    * Constructs a new {@code Selector} by joining this selector to {@code other}.
    *
    * <p>This requires the last identifier of this selector to be equal to the first identifier of
