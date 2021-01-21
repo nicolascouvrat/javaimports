@@ -122,6 +122,17 @@ public final class Selector {
     return identifiers.subList(thisLength - otherLength, thisLength).equals(other.identifiers);
   }
 
+  /** Returns true if this {@code Selector} starts wit {@code other}. */
+  public boolean startsWith(Selector other) {
+    var thisLength = identifiers.size();
+    var otherLength = other.identifiers.size();
+    if (otherLength > thisLength) {
+      return false;
+    }
+
+    return identifiers.subList(0, otherLength).equals(other.identifiers);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == null) {

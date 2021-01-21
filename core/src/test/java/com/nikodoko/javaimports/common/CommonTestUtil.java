@@ -7,12 +7,26 @@ import net.jqwik.api.Combinators;
 
 /** Test utilities for classes in the {@code common} package. */
 public class CommonTestUtil {
+  // TODO: deprecate after removing from selector test
   public static Arbitrary<List<String>> arbitraryIdentifiers() {
     return Arbitraries.strings().ascii().ofMinLength(1).list().ofMinSize(1).ofMaxSize(8);
   }
 
+  public static Arbitrary<List<String>> arbitraryIdentifiersOfSize(int minSize, int maxSize) {
+    return Arbitraries.strings()
+        .ascii()
+        .ofMinLength(1)
+        .list()
+        .ofMinSize(minSize)
+        .ofMaxSize(maxSize);
+  }
+
   public static Arbitrary<Selector> arbitrarySelector() {
-    return arbitraryIdentifiers().map(Selector::of);
+    return arbitrarySelectorOfSize(1, 8);
+  }
+
+  public static Arbitrary<Selector> arbitrarySelectorOfSize(int minSize, int maxSize) {
+    return arbitraryIdentifiersOfSize(minSize, maxSize).map(Selector::of);
   }
 
   public static Arbitrary<Import> arbitraryImportEndingWith(Selector tail) {

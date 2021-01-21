@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.fixer.candidates;
 import static com.google.common.truth.Truth.assertThat;
 import static com.nikodoko.javaimports.common.CommonTestUtil.arbitraryImportEndingWith;
 import static com.nikodoko.javaimports.common.CommonTestUtil.arbitrarySelector;
+import static com.nikodoko.javaimports.common.CommonTestUtil.arbitrarySelectorOfSize;
 
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
@@ -74,6 +75,28 @@ public class BasicCandidateSelectionStrategyTest {
     assertThat(got).isEqualTo(expected);
   }
 
+  @Property
+  void javaUtilIsMoreRelevantThanStdlibOfSameSize(
+      @ForAll("endingWith") SelectorAndImports data, @ForAll("ofSize2") Selector prefix) {
+    var stdlibImport =
+        new Import(prefix.combine(data.imports.get(0).selector), data.imports.get(0).isStatic);
+    var javaUtilImport =
+        new Import(
+            Selector.of("java", "util").combine(data.imports.get(0).selector),
+            data.imports.get(0).isStatic);
+    var candidates =
+        Candidates.forSelector(data.selector)
+            .add(
+                new Candidate(stdlibImport, Candidate.Source.STDLIB),
+                new Candidate(javaUtilImport, Candidate.Source.STDLIB))
+            .build();
+    var expected = BestCandidates.builder().put(data.selector, javaUtilImport).build();
+
+    var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+
+    assertThat(got).isEqualTo(expected);
+  }
+
   @Provide
   Arbitrary<SelectorAndImports> endingWith() {
     return arbitrarySelector()
@@ -82,5 +105,10 @@ public class BasicCandidateSelectionStrategyTest {
                 Combinators.combine(
                         Arbitraries.of(sel), arbitraryImportEndingWith(sel).list().ofSize(10))
                     .as(SelectorAndImports::new));
+  }
+
+  @Provide
+  Arbitrary<Selector> ofSize2() {
+    return arbitrarySelectorOfSize(2, 2);
   }
 }
