@@ -44,6 +44,14 @@ public final class Selector {
     return identifiers.getLast();
   }
 
+  /**
+   * Returns a {@code Selector} representing the scope in which the rightmos identifier of this
+   * {@code Selector} is.
+   */
+  public Selector scope() {
+    return new Selector(identifiers.subList(0, identifiers.size() - 1));
+  }
+
   // TODO: tentative API
   public Selector combine(Selector other) {
     var combined =

@@ -15,6 +15,7 @@ import net.jqwik.api.Combinators;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
+import net.jqwik.api.constraints.NotEmpty;
 
 public class BasicCandidateSelectionStrategyTest {
   static class SelectorAndImports {
@@ -91,6 +92,32 @@ public class BasicCandidateSelectionStrategyTest {
                 new Candidate(javaUtilImport, Candidate.Source.STDLIB))
             .build();
     var expected = BestCandidates.builder().put(data.selector, javaUtilImport).build();
+
+    var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+
+    assertThat(got).isEqualTo(expected);
+  }
+
+  @Property
+  void aCandidateIsMoreRelevantThanOthersOfSameSourceIfThereIsOneInSameScopeForAnotherSelector(
+      @ForAll Import pkg,
+      @ForAll Import other,
+      @ForAll @NotEmpty String a,
+      @ForAll @NotEmpty String b,
+      @ForAll Candidate.Source source) {
+    var aInPkg = new Import(pkg.selector.combine(Selector.of(a)), pkg.isStatic);
+    var aNotInPkg = new Import(other.selector.combine(Selector.of(a)), other.isStatic);
+    var bInPkg = new Import(pkg.selector.combine(Selector.of(b)), pkg.isStatic);
+    var candidatesForA =
+        Candidates.forSelector(Selector.of(a))
+            .add(new Candidate(aInPkg, source), new Candidate(aNotInPkg, source))
+            .build();
+    // source could be different here
+    var candidatesForB =
+        Candidates.forSelector(Selector.of(b)).add(new Candidate(bInPkg, source)).build();
+    var candidates = Candidates.merge(candidatesForA, candidatesForB);
+    var expected =
+        BestCandidates.builder().put(Selector.of(a), aInPkg).put(Selector.of(b), bInPkg).build();
 
     var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
 

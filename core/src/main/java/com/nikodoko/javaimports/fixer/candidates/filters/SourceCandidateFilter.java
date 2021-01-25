@@ -4,10 +4,10 @@ import com.nikodoko.javaimports.fixer.candidates.Candidate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class SourceCandidateFilter implements CandidateFilter {
+public class SourceCandidateFilter implements CandidateFilter {
   private final Candidate.Source source;
 
-  SourceCandidateFilter(Candidate.Source source) {
+  public SourceCandidateFilter(Candidate.Source source) {
     this.source = source;
   }
 

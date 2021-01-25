@@ -34,4 +34,10 @@ public class CommonTestUtil {
     var isStatic = Arbitraries.of(true, false);
     return Combinators.combine(selector, isStatic).as((s, i) -> new Import(s.combine(tail), i));
   }
+
+  public static Arbitrary<Import> arbitraryImport() {
+    var selector = arbitrarySelector();
+    var isStatic = Arbitraries.of(true, false);
+    return Combinators.combine(selector, isStatic).as(Import::new);
+  }
 }

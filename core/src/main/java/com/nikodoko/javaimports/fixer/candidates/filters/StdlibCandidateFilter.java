@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class StdlibCandidateFilter implements CandidateFilter {
+public class StdlibCandidateFilter implements CandidateFilter {
   private static final Selector JAVA_UTIL = Selector.of("java", "util");
 
   @Override

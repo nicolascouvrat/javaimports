@@ -4,10 +4,12 @@ import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.stdlib.internal.Stdlib;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BasicStdlibProvider implements StdlibProvider {
   private Stdlib stdlib;
@@ -48,12 +50,12 @@ public class BasicStdlibProvider implements StdlibProvider {
 
   @Override
   public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
-    var found = find(List.of(i.toString())).get(i.toString());
+    var found = stdlib.getClassesFor(i.toString());
     if (found == null) {
       return List.of();
     }
 
-    return List.of(found.toNew());
+    return Arrays.stream(found).map(Import::toNew).collect(Collectors.toList());
   }
 
   private void updateUsedPackages(Iterable<Import> imports) {
