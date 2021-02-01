@@ -45,6 +45,31 @@ public final class Selector {
   }
 
   /**
+   * Returns a {@code Selector} representing the scope in which the rightmos identifier of this
+   * {@code Selector} is.
+   */
+  public Selector scope() {
+    return new Selector(identifiers.subList(0, identifiers.size() - 1));
+  }
+
+  // TODO: tentative API
+  public Selector combine(Selector other) {
+    var combined =
+        Stream.concat(identifiers.stream(), other.identifiers.stream())
+            .collect(Collectors.toList());
+
+    return new Selector(combined);
+  }
+
+  /**
+   * Returns the number of identifiers the selector expression represented by this {@code Selector}
+   * contains.
+   */
+  public int size() {
+    return identifiers.size();
+  }
+
+  /**
    * Constructs a new {@code Selector} by joining this selector to {@code other}.
    *
    * <p>This requires the last identifier of this selector to be equal to the first identifier of
@@ -103,6 +128,17 @@ public final class Selector {
     }
 
     return identifiers.subList(thisLength - otherLength, thisLength).equals(other.identifiers);
+  }
+
+  /** Returns true if this {@code Selector} starts wit {@code other}. */
+  public boolean startsWith(Selector other) {
+    var thisLength = identifiers.size();
+    var otherLength = other.identifiers.size();
+    if (otherLength > thisLength) {
+      return false;
+    }
+
+    return identifiers.subList(0, otherLength).equals(other.identifiers);
   }
 
   @Override
