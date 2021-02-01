@@ -1,8 +1,7 @@
 package com.nikodoko.javaimports.fixer.candidates.filters;
 
-import com.nikodoko.javaimports.fixer.candidates.Candidate;
-import java.util.List;
+import com.nikodoko.javaimports.fixer.candidates.Candidates;
 
 public interface CandidateFilter {
-  List<Candidate> filter(List<Candidate> candidates);
+  Candidates filter(Candidates candidates);
 }

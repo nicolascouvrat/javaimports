@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Candidates {
-  static final Candidates EMPTY = new Candidates(Map.of());
+  public static final Candidates EMPTY = new Candidates(Map.of());
 
   private final Map<Selector, List<Candidate>> candidates;
 
@@ -24,7 +24,7 @@ public class Candidates {
    * Returns a list of {@link Candidate} for this {@code selector}, or an empty list if none are
    * present.
    */
-  List<Candidate> getFor(Selector selector) {
+  public List<Candidate> getFor(Selector selector) {
     return candidates.getOrDefault(selector, new ArrayList<>());
   }
 
@@ -32,16 +32,16 @@ public class Candidates {
    * Returns all the selectors for which this {@code Candidates} contains one or more {@link
    * Candidate}.
    */
-  Set<Selector> selectors() {
+  public Set<Selector> selectors() {
     return candidates.keySet();
   }
 
   /** Returns true if this {@code Candidates} does not contain any candidates. */
-  boolean isEmpty() {
+  public boolean isEmpty() {
     return candidates.isEmpty();
   }
 
-  static Builder forSelector(Selector s) {
+  public static Builder forSelector(Selector s) {
     return new Builder(s);
   }
 
@@ -80,7 +80,7 @@ public class Candidates {
     return MoreObjects.toStringHelper(this).add("candidates", candidates).toString();
   }
 
-  static class Builder {
+  public static class Builder {
     private final Selector selector;
     private List<Candidate> candidates = new ArrayList<>();
 
@@ -88,17 +88,17 @@ public class Candidates {
       this.selector = selector;
     }
 
-    Builder add(Collection<Candidate> candidates) {
+    public Builder add(Collection<Candidate> candidates) {
       this.candidates.addAll(candidates);
       return this;
     }
 
-    Builder add(Candidate... candidates) {
+    public Builder add(Candidate... candidates) {
       Collections.addAll(this.candidates, candidates);
       return this;
     }
 
-    Candidates build() {
+    public Candidates build() {
       return new Candidates(Map.of(selector, candidates));
     }
   }
