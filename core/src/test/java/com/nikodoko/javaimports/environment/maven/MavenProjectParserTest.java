@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.environment.maven;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.nikodoko.javaimports.Options;
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
@@ -28,7 +29,7 @@ public class MavenProjectParserTest {
                 Module.file("second/Second.java", "package test.module; public class Second {}"));
     project = Export.of(BuildSystem.MAVEN, module);
 
-    MavenProjectParser parser = MavenProjectParser.withRoot(project.root());
+    MavenProjectParser parser = new MavenProjectParser(project.root(), Options.defaults());
     MavenProjectParser.Result got = parser.parseAll();
 
     assertThat(got.errors).isEmpty();
@@ -47,7 +48,8 @@ public class MavenProjectParserTest {
     project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    MavenProjectParser parser = MavenProjectParser.withRoot(project.root()).excluding(target);
+    MavenProjectParser parser =
+        new MavenProjectParser(project.root(), Options.defaults()).excluding(target);
     MavenProjectParser.Result got = parser.parseAll();
 
     assertThat(got.project.filesInPackage("test.module")).isEmpty();
@@ -68,7 +70,8 @@ public class MavenProjectParserTest {
     project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    MavenProjectParser parser = MavenProjectParser.withRoot(project.root()).excluding(target);
+    MavenProjectParser parser =
+        new MavenProjectParser(project.root(), Options.defaults()).excluding(target);
     MavenProjectParser.Result got = parser.parseAll();
 
     assertThat(got.project.filesInPackage("test.module")).hasSize(1);

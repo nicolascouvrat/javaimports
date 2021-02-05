@@ -68,6 +68,8 @@ public class ImporterIntegrationTest {
                     new Import("List", "java.util", false),
                     new Import("ArrayList", "java.util", false),
                     new Import("App", "java.fakeutil", false)))
+            // speed up tests a bit
+            .numThreads(Runtime.getRuntime().availableProcessors())
             .build();
     String input = new String(Files.readAllBytes(main), UTF_8);
     try {
