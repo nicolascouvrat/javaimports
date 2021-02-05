@@ -6,12 +6,16 @@ import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.environment.JavaProject;
+import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /** Parses all java files in a given project. */
 class MavenProjectParser {
@@ -32,17 +36,26 @@ class MavenProjectParser {
     }
   }
 
+  // TODO: maybe abstract this to a utils class
+  static final class Pair<L, R> {
+    final L left;
+    final R right;
+
+    Pair(L left, R right) {
+      this.left = left;
+      this.right = right;
+    }
+  }
+
   private final MavenProjectFinder finder;
+  private final Options options;
 
   private final List<MavenEnvironmentException> errors = new ArrayList<>();
   private final JavaProject project = new JavaProject();
 
-  private MavenProjectParser(Path root) {
+  public MavenProjectParser(Path root, Options options) {
     this.finder = MavenProjectFinder.withRoot(root);
-  }
-
-  static MavenProjectParser withRoot(Path root) {
-    return new MavenProjectParser(root);
+    this.options = options;
   }
 
   MavenProjectParser excluding(Path... files) {
@@ -51,9 +64,24 @@ class MavenProjectParser {
   }
 
   Result parseAll() {
-    for (Path javaFile : tryToFindAllFiles()) {
-      tryToParse(javaFile);
-    }
+    var futures =
+        tryToFindAllFiles().stream()
+            .map(path -> CompletableFuture.supplyAsync(() -> tryToParse(path), options.executor()))
+            .collect(Collectors.toList());
+
+    CompletableFuture.allOf(futures.stream().toArray(CompletableFuture[]::new)).join();
+    futures.stream()
+        .map(CompletableFuture::join)
+        .forEach(
+            pair -> {
+              if (pair.left != null && pair.left.isPresent()) {
+                project.add(pair.left.get());
+              }
+
+              if (pair.right != null) {
+                errors.add(pair.right);
+              }
+            });
 
     return new Result(errors, project);
   }
@@ -63,20 +91,22 @@ class MavenProjectParser {
       return finder.findAll();
     } catch (IOException e) {
       errors.add(new MavenEnvironmentException("could not find files", e));
-      return new ArrayList<>();
+      return List.of();
     }
   }
 
-  private void tryToParse(Path path) {
+  private Pair<Optional<ParsedFile>, MavenEnvironmentException> tryToParse(Path path) {
     try {
-      parseFile(path);
+      var result = new Pair(parseFile(path), null);
+      return result;
     } catch (IOException | ImporterException e) {
-      errors.add(new MavenEnvironmentException("could not parse file at " + path.toString(), e));
+      return new Pair(
+          null, new MavenEnvironmentException("could not parse file at " + path.toString(), e));
     }
   }
 
-  private void parseFile(Path path) throws IOException, ImporterException {
+  private Optional<ParsedFile> parseFile(Path path) throws IOException, ImporterException {
     String source = new String(Files.readAllBytes(path), UTF_8);
-    new Parser(Options.defaults()).parse(path, source).ifPresent(project::add);
+    return new Parser(options).parse(path, source);
   }
 }

@@ -105,7 +105,11 @@ public final class CLI {
 
     // TODO: make stdlib version a CLI option
     Options opts =
-        Options.builder().debug(params.verbose()).stdlib(StdlibProviders.java8()).build();
+        Options.builder()
+            .debug(params.verbose())
+            .stdlib(StdlibProviders.java8())
+            .numThreads(8)
+            .build();
     String fixed;
     try {
       fixed = new Importer(opts).addUsedImports(path, input);

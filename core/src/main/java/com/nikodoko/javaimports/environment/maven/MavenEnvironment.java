@@ -9,7 +9,6 @@ import com.nikodoko.javaimports.environment.JavaProject;
 import com.nikodoko.javaimports.environment.PackageDistance;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
-import com.nikodoko.javaimports.parser.Parser;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
@@ -21,15 +20,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Encapsulates a Maven project environment, scanning project files and dependencies for importable
  * symbols.
  */
 public class MavenEnvironment implements Environment {
-  private static Logger log = Logger.getLogger(Parser.class.getName());
+  private static Logger log = Logger.getLogger(MavenEnvironment.class.getName());
   private static final Path DEFAULT_REPOSITORY =
       Paths.get(System.getProperty("user.home"), ".m2/repository");
   private static final Clock clock = Clock.systemDefaultZone();
@@ -112,7 +113,7 @@ public class MavenEnvironment implements Environment {
     }
     long start = clock.millis();
 
-    MavenProjectParser parser = MavenProjectParser.withRoot(root).excluding(fileBeingResolved);
+    MavenProjectParser parser = new MavenProjectParser(root, options).excluding(fileBeingResolved);
     MavenProjectParser.Result parsed = parser.parseAll();
     if (options.debug()) {
       log.info(
@@ -133,9 +134,15 @@ public class MavenEnvironment implements Environment {
       log.info(String.format("found %d dependencies: %s", found.dependencies.size(), found));
     }
 
+    var futures =
+        found.dependencies.stream()
+            .map(d -> CompletableFuture.supplyAsync(() -> resolveAndLoad(d), options.executor()))
+            .collect(Collectors.toList());
+
+    CompletableFuture.allOf(futures.stream().toArray(CompletableFuture[]::new)).join();
     List<Import> imports = new ArrayList<>();
-    for (MavenDependency dependency : found.dependencies) {
-      imports.addAll(resolveAndLoad(dependency));
+    for (var fut : futures) {
+      imports.addAll(fut.join());
     }
 
     return imports;
