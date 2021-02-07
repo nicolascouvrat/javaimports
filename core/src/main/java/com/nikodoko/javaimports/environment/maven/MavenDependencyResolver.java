@@ -21,7 +21,17 @@ class MavenDependencyResolver {
     return new MavenDependencyResolver(repository);
   }
 
-  Path resolve(MavenDependency dependency) throws IOException {
+  Path resolveJar(MavenDependency dependency) throws IOException {
+    var artifactPath = artifactPath(dependency);
+    return artifactPath.resolveSibling(artifactPath.getFileName() + ".jar");
+  }
+
+  Path resolvePom(MavenDependency dependency) throws IOException {
+    var artifactPath = artifactPath(dependency);
+    return artifactPath.resolveSibling(artifactPath.getFileName() + ".pom");
+  }
+
+  private Path artifactPath(MavenDependency dependency) throws IOException {
     Path dependencyRepository = directoryFor(dependency);
     String version = dependency.version;
     if (!dependency.hasPlainVersion()) {
@@ -29,7 +39,7 @@ class MavenDependencyResolver {
     }
 
     return Paths.get(
-        dependencyRepository.toString(), version, jarName(dependency.artifactId, version));
+        dependencyRepository.toString(), version, artifactName(dependency.artifactId, version));
   }
 
   private Path directoryFor(MavenDependency dependency) {
@@ -37,8 +47,8 @@ class MavenDependencyResolver {
         repository.toString(), dependency.groupId.replace(".", "/"), dependency.artifactId);
   }
 
-  private String jarName(String artifactId, String version) {
-    return String.format("%s-%s.jar", artifactId, version);
+  private String artifactName(String artifactId, String version) {
+    return String.format("%s-%s", artifactId, version);
   }
 
   private MavenDependencyVersion getLatestAvailableVersion(Path dependencyRepository)

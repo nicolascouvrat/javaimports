@@ -21,11 +21,13 @@ public class MavenDependencyResolverTest {
         Arguments.of(
             "A dependency with a plain version is found",
             new MavenDependency("com.mycompany.app", "a-dependency", "1.0"),
-            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar"),
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar",
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
         Arguments.of(
             "A dependency without plain version is resolved to latest",
             new MavenDependency("com.mycompany.app", "a-dependency", null),
-            "com/mycompany/app/a-dependency/2.0/a-dependency-2.0.jar"));
+            "com/mycompany/app/a-dependency/2.0/a-dependency-2.0.jar",
+            "com/mycompany/app/a-dependency/2.0/a-dependency-2.0.pom"));
   }
 
   @BeforeEach
@@ -36,9 +38,11 @@ public class MavenDependencyResolverTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("dependencyProvider")
-  void testResolveJar(String name, MavenDependency dependency, String relativePath)
+  void testResolveJar(String name, MavenDependency dependency, String jarPath, String pomPath)
       throws Exception {
-    var got = resolver.resolveJar(dependency);
-    assertThat(got).isEqualTo(repository.resolve(relativePath));
+    var jar = resolver.resolveJar(dependency);
+    var pom = resolver.resolvePom(dependency);
+    assertThat(jar).isEqualTo(repository.resolve(jarPath));
+    assertThat(pom).isEqualTo(repository.resolve(pomPath));
   }
 }
