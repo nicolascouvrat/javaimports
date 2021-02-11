@@ -87,7 +87,9 @@ public class ImporterIntegrationTest {
     Module module =
         Module.named(pkg.name)
             .containing(pkg.files.toArray(new Module.File[pkg.files.size()]))
-            .dependingOn(Module.dependency("com.mycompany.app", "a-dependency", "1.0"));
+            .dependingOn(
+                Module.dependency("com.mycompany.app", "a-dependency", "1.0"),
+                Module.dependency("com.mycompany.app", "an-empty-dependency", "1.0"));
     return Export.of(BuildSystem.MAVEN, module);
   }
 

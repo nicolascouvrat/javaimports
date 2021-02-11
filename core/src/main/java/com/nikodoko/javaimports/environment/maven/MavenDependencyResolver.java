@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.environment.maven;
 
+import com.google.common.base.MoreObjects;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +12,20 @@ import java.util.stream.Collectors;
 
 /** Resolves Maven dependencies to their location on disk. */
 class MavenDependencyResolver {
+  static class PrimaryArtifact {
+    final Path pom;
+    final Path jar;
+
+    PrimaryArtifact(Path pom, Path jar) {
+      this.pom = pom;
+      this.jar = jar;
+    }
+
+    public String toString() {
+      return MoreObjects.toStringHelper(this).add("pom", pom).add("jar", jar).toString();
+    }
+  }
+
   private final Path repository;
 
   private MavenDependencyResolver(Path repository) {
@@ -21,14 +36,11 @@ class MavenDependencyResolver {
     return new MavenDependencyResolver(repository);
   }
 
-  Path resolveJar(MavenDependency dependency) throws IOException {
+  PrimaryArtifact resolve(MavenDependency dependency) throws IOException {
     var artifactPath = artifactPath(dependency);
-    return artifactPath.resolveSibling(artifactPath.getFileName() + ".jar");
-  }
-
-  Path resolvePom(MavenDependency dependency) throws IOException {
-    var artifactPath = artifactPath(dependency);
-    return artifactPath.resolveSibling(artifactPath.getFileName() + ".pom");
+    return new PrimaryArtifact(
+        artifactPath.resolveSibling(artifactPath.getFileName() + ".pom"),
+        artifactPath.resolveSibling(artifactPath.getFileName() + ".jar"));
   }
 
   private Path artifactPath(MavenDependency dependency) throws IOException {

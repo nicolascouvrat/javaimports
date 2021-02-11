@@ -40,9 +40,8 @@ public class MavenDependencyResolverTest {
   @MethodSource("dependencyProvider")
   void testResolveJar(String name, MavenDependency dependency, String jarPath, String pomPath)
       throws Exception {
-    var jar = resolver.resolveJar(dependency);
-    var pom = resolver.resolvePom(dependency);
-    assertThat(jar).isEqualTo(repository.resolve(jarPath));
-    assertThat(pom).isEqualTo(repository.resolve(pomPath));
+    var got = resolver.resolve(dependency);
+    assertThat(got.jar).isEqualTo(repository.resolve(jarPath));
+    assertThat(got.pom).isEqualTo(repository.resolve(pomPath));
   }
 }
