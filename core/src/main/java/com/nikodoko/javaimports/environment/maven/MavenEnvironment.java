@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Encapsulates a Maven project environment, scanning project files and dependencies for importable
@@ -39,7 +40,7 @@ public class MavenEnvironment implements Environment {
   private final Path fileBeingResolved;
   private final Options options;
   private final PackageDistance distance;
-  private final Path repository;
+  private final MavenDependencyResolver resolver;
 
   private Map<String, Import> bestAvailableImports = new HashMap<>();
   private JavaProject project;
@@ -52,8 +53,9 @@ public class MavenEnvironment implements Environment {
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
     this.distance = PackageDistance.from(pkgBeingResolved);
-    this.repository =
+    var repository =
         options.repository().isPresent() ? options.repository().get() : DEFAULT_REPOSITORY;
+    this.resolver = MavenDependencyResolver.withRepository(repository);
   }
 
   @Override
@@ -129,36 +131,75 @@ public class MavenEnvironment implements Environment {
   }
 
   private List<Import> extractImportsInDependencies() {
-    MavenDependencyFinder.Result found = new MavenDependencyFinder().findAll(root);
-    if (options.debug()) {
-      log.info(String.format("found %d dependencies: %s", found.dependencies.size(), found));
-    }
+    MavenDependencyFinder.Result direct = new MavenDependencyFinder().findAll(root);
 
+    var versionlessDirectDependencies =
+        direct.dependencies.stream().map(d -> d.hideVersion()).collect(Collectors.toSet());
+    var loadedDirect = resolveAndLoad(direct.dependencies);
+    var indirectDependencies =
+        loadedDirect.stream()
+            // Limit to empty dependencies, and get their dependencies
+            // This is to better handle cases like org.junit.jupiter.junit-jupiter, that point to
+            // an empty jar and a pom which in turns points to the actual API
+            //
+            // Of course, we could get ALL transitives dependencies and this recursively until we
+            // get the full dependency graph (minus version conflicts), but this is not viable on
+            // big projects that quickly have a LOT of transitive dependencies. Since relying on
+            // these non-explicit dependencies is a bad practice anyway, we explicitely choose to
+            // not support it here.
+            .filter(d -> d.importables.isEmpty())
+            .flatMap(d -> d.dependencies.stream())
+            .map(d -> d.hideVersion())
+            .filter(d -> !versionlessDirectDependencies.contains(d))
+            .distinct()
+            .map(d -> d.showVersion())
+            .collect(Collectors.toList());
+    var loadedIndirect = resolveAndLoad(indirectDependencies);
+    if (options.debug()) {
+      log.info(
+          String.format("found %d direct dependencies: %s", direct.dependencies.size(), direct));
+      log.info(
+          String.format(
+              "found %d indirect dependencies: %s",
+              indirectDependencies.size(), indirectDependencies));
+    }
+    return Stream.concat(loadedDirect.stream(), loadedIndirect.stream())
+        .flatMap(d -> d.importables.stream())
+        .collect(Collectors.toList());
+  }
+
+  private static class LoadedDependency {
+    final List<Import> importables;
+    final List<MavenDependency> dependencies;
+
+    LoadedDependency(List<Import> importables, List<MavenDependency> dependencies) {
+      this.importables = importables;
+      this.dependencies = dependencies;
+    }
+  }
+
+  private List<LoadedDependency> resolveAndLoad(List<MavenDependency> dependencies) {
     var futures =
-        found.dependencies.stream()
+        dependencies.stream()
             .map(d -> CompletableFuture.supplyAsync(() -> resolveAndLoad(d), options.executor()))
             .collect(Collectors.toList());
 
     CompletableFuture.allOf(futures.stream().toArray(CompletableFuture[]::new)).join();
-    List<Import> imports = new ArrayList<>();
-    for (var fut : futures) {
-      imports.addAll(fut.join());
-    }
-
-    return imports;
+    return futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
   }
 
-  private List<Import> resolveAndLoad(MavenDependency dependency) {
-    MavenDependencyResolver resolver = MavenDependencyResolver.withRepository(repository);
-    List<Import> imports = new ArrayList<>();
+  private LoadedDependency resolveAndLoad(MavenDependency dependency) {
+    LoadedDependency loaded = new LoadedDependency(List.of(), List.of());
     long start = clock.millis();
     try {
-      Path location = resolver.resolve(dependency);
+      var location = resolver.resolve(dependency);
       if (options.debug()) {
         log.info(String.format("looking for dependency %s at %s", dependency, location));
       }
 
-      imports = new MavenDependencyLoader().load(location);
+      var importables = new MavenDependencyLoader().load(location.jar);
+      var dependencies = new MavenPomLoader().load(location.pom).dependencies;
+      loaded = new LoadedDependency(importables, dependencies);
     } catch (Exception e) {
       // No matter what happens, we don't want to fail the whole importing process just for that.
       if (options.debug()) {
@@ -168,11 +209,16 @@ public class MavenEnvironment implements Environment {
       if (options.debug()) {
         log.log(
             Level.INFO,
-            String.format("loaded %d imports in %d ms", imports.size(), clock.millis() - start));
+            String.format(
+                "loaded %d imports and %d additional dependencies in %d ms (%s)",
+                loaded.importables.size(),
+                loaded.dependencies.size(),
+                clock.millis() - start,
+                dependency));
       }
     }
 
-    return imports;
+    return loaded;
   }
 
   private List<Import> extractImports(ParsedFile file) {

@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.environment.maven;
 
+import com.google.common.base.MoreObjects;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +12,20 @@ import java.util.stream.Collectors;
 
 /** Resolves Maven dependencies to their location on disk. */
 class MavenDependencyResolver {
+  static class PrimaryArtifact {
+    final Path pom;
+    final Path jar;
+
+    PrimaryArtifact(Path pom, Path jar) {
+      this.pom = pom;
+      this.jar = jar;
+    }
+
+    public String toString() {
+      return MoreObjects.toStringHelper(this).add("pom", pom).add("jar", jar).toString();
+    }
+  }
+
   private final Path repository;
 
   private MavenDependencyResolver(Path repository) {
@@ -21,7 +36,14 @@ class MavenDependencyResolver {
     return new MavenDependencyResolver(repository);
   }
 
-  Path resolve(MavenDependency dependency) throws IOException {
+  PrimaryArtifact resolve(MavenDependency dependency) throws IOException {
+    var artifactPath = artifactPath(dependency);
+    return new PrimaryArtifact(
+        artifactPath.resolveSibling(artifactPath.getFileName() + ".pom"),
+        artifactPath.resolveSibling(artifactPath.getFileName() + ".jar"));
+  }
+
+  private Path artifactPath(MavenDependency dependency) throws IOException {
     Path dependencyRepository = directoryFor(dependency);
     String version = dependency.version;
     if (!dependency.hasPlainVersion()) {
@@ -29,7 +51,7 @@ class MavenDependencyResolver {
     }
 
     return Paths.get(
-        dependencyRepository.toString(), version, jarName(dependency.artifactId, version));
+        dependencyRepository.toString(), version, artifactName(dependency.artifactId, version));
   }
 
   private Path directoryFor(MavenDependency dependency) {
@@ -37,8 +59,8 @@ class MavenDependencyResolver {
         repository.toString(), dependency.groupId.replace(".", "/"), dependency.artifactId);
   }
 
-  private String jarName(String artifactId, String version) {
-    return String.format("%s-%s.jar", artifactId, version);
+  private String artifactName(String artifactId, String version) {
+    return String.format("%s-%s", artifactId, version);
   }
 
   private MavenDependencyVersion getLatestAvailableVersion(Path dependencyRepository)

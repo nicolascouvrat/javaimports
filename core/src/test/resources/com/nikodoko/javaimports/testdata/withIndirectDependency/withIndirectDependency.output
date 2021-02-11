@@ -1,0 +1,6 @@
+// Test that symbols can be found in indirect dependencies
+package withIndirectDependency;import com.mycompany.app.Indirect;
+
+class Test {
+  Indirect i;
+}
