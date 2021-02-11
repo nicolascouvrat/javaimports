@@ -138,6 +138,16 @@ public class MavenEnvironment implements Environment {
     var loadedDirect = resolveAndLoad(direct.dependencies);
     var indirectDependencies =
         loadedDirect.stream()
+            // Limit to empty dependencies, and get their dependencies
+            // This is to better handle cases like org.junit.jupiter.junit-jupiter, that point to
+            // an empty jar and a pom which in turns points to the actual API
+            //
+            // Of course, we could get ALL transitives dependencies and this recursively until we
+            // get the full dependency graph (minus version conflicts), but this is not viable on
+            // big projects that quickly have a LOT of transitive dependencies. Since relying on
+            // these non-explicit dependencies is a bad practice anyway, we explicitely choose to
+            // not support it here.
+            .filter(d -> d.importables.isEmpty())
             .flatMap(d -> d.dependencies.stream())
             .map(d -> d.hideVersion())
             .filter(d -> !versionlessDirectDependencies.contains(d))
@@ -200,8 +210,11 @@ public class MavenEnvironment implements Environment {
         log.log(
             Level.INFO,
             String.format(
-                "loaded %d imports and %d additional dependencies in %d ms",
-                loaded.importables.size(), loaded.dependencies.size(), clock.millis() - start));
+                "loaded %d imports and %d additional dependencies in %d ms (%s)",
+                loaded.importables.size(),
+                loaded.dependencies.size(),
+                clock.millis() - start,
+                dependency));
       }
     }
 
