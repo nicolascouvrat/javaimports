@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -134,11 +133,16 @@ public class MavenEnvironment implements Environment {
   private List<Import> extractImportsInDependencies() {
     MavenDependencyFinder.Result direct = new MavenDependencyFinder().findAll(root);
 
+    var versionlessDirectDependencies =
+        direct.dependencies.stream().map(d -> d.hideVersion()).collect(Collectors.toSet());
     var loadedDirect = resolveAndLoad(direct.dependencies);
     var indirectDependencies =
         loadedDirect.stream()
             .flatMap(d -> d.dependencies.stream())
-            .filter(d -> !containsIgnoringVersion(direct.dependencies, d))
+            .map(d -> d.hideVersion())
+            .filter(d -> !versionlessDirectDependencies.contains(d))
+            .distinct()
+            .map(d -> d.showVersion())
             .collect(Collectors.toList());
     var loadedIndirect = resolveAndLoad(indirectDependencies);
     if (options.debug()) {
@@ -152,17 +156,6 @@ public class MavenEnvironment implements Environment {
     return Stream.concat(loadedDirect.stream(), loadedIndirect.stream())
         .flatMap(d -> d.importables.stream())
         .collect(Collectors.toList());
-  }
-
-  private boolean containsIgnoringVersion(
-      List<MavenDependency> dependencies, MavenDependency dependency) {
-    return dependencies.stream()
-            .filter(
-                d ->
-                    Objects.equals(d.groupId, dependency.groupId)
-                        && Objects.equals(d.artifactId, dependency.artifactId))
-            .count()
-        != 0;
   }
 
   private static class LoadedDependency {

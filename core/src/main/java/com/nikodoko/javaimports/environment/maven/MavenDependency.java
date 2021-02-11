@@ -11,6 +11,38 @@ import java.util.regex.Pattern;
 
 /** Encapsulates a Maven dependency. */
 class MavenDependency {
+  static class Versionless {
+    final MavenDependency wrapped;
+
+    Versionless(MavenDependency dependency) {
+      this.wrapped = dependency;
+    }
+
+    MavenDependency showVersion() {
+      return wrapped;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o == null) {
+        return false;
+      }
+
+      if (!(o instanceof Versionless)) {
+        return false;
+      }
+
+      var that = (Versionless) o;
+      return Objects.equals(this.wrapped.groupId, that.wrapped.groupId)
+          && Objects.equals(this.wrapped.artifactId, that.wrapped.artifactId);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.wrapped.groupId, this.wrapped.artifactId);
+    }
+  }
+
   private static final Pattern parameterPattern = Pattern.compile("\\$\\{(?<parameter>\\S+)\\}");
   final String groupId;
   final String artifactId;
@@ -35,6 +67,10 @@ class MavenDependency {
 
     Matcher m = parameterPattern.matcher(version);
     return !m.matches();
+  }
+
+  Versionless hideVersion() {
+    return new Versionless(this);
   }
 
   @Override
