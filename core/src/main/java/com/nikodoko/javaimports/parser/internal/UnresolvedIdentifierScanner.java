@@ -21,11 +21,13 @@ import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeParameterTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePathScanner;
+import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCCase;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
 
 /**
@@ -98,10 +100,15 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   @Override
   public Void visitAnnotation(AnnotationTree tree, Void v) {
-    // Do not scan the annotation arguments, as something like
-    // @Annotation(param="value")
-    // Would produce a "param" identifier that we do not want
+    // When the annotation arguments contain assignments (like param="value"), do not scan the left
+    // hand side as it would produce identifiers we do not want.
+    var filteredArguments =
+        tree.getArguments().stream()
+            .map(expr -> expr instanceof JCAssign ? ((JCAssign) expr).getExpression() : expr)
+            .collect(Collectors.toList());
+
     Void r = scan(tree.getAnnotationType(), v);
+    r = scanAndReduce(filteredArguments, v, r);
     return r;
   }
 

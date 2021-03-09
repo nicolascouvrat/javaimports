@@ -327,7 +327,7 @@ public class ParserTest {
       },
     },
     {
-      {"annotationParameters"},
+      {"annotationParametersVariableNotImported"},
       {
         "package com.pkg.test;",
         "@Annotation(a=\"value\")",
@@ -339,6 +339,36 @@ public class ParserTest {
         "}",
       },
       {"Annotation", "Function"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+    },
+    {
+      {"annotationParametersExpressionImported"},
+      {
+        "package com.pkg.test;",
+        "@Annotation(a=b, c=d)",
+        "class Test {",
+        "  @Function",
+        "  public void f() {",
+        "    return 0;",
+        "  }",
+        "}",
+      },
+      {"Annotation", "Function", "b", "d"},
+      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+    },
+    {
+      {"annotationParametersIdentifierImported"},
+      {
+        "package com.pkg.test;",
+        "@Annotation(b)",
+        "class Test {",
+        "  @Function",
+        "  public void f() {",
+        "    return 0;",
+        "  }",
+        "}",
+      },
+      {"Annotation", "Function", "b"},
       {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
     },
     {
