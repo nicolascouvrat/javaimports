@@ -9,6 +9,11 @@ public class FakeStdlib implements Stdlib {
   private static final Map<String, Import[]> CLASSES =
       new ImmutableMap.Builder<String, Import[]>()
           .put(
+              "State",
+              new Import[] {
+                new Import("State", "java.lang.Thread", false),
+              })
+          .put(
               "Object",
               new Import[] {
                 new Import("Object", "java.lang", false),
