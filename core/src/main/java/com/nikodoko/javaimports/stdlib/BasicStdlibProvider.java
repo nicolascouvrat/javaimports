@@ -27,7 +27,9 @@ public class BasicStdlibProvider implements StdlibProvider {
     }
 
     for (Import match : matches) {
-      if (match.qualifier().startsWith("java.lang")) {
+      // We don't want to catch classes like java.lang.Thread.State, as those will need to be
+      // imported.
+      if (match.qualifier().equals("java.lang")) {
         return true;
       }
     }

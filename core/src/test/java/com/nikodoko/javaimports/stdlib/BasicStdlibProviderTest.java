@@ -56,4 +56,9 @@ class BasicStdlibProviderTest {
   void testIdentifierIsNotInJavaLang() {
     assertThat(stdlib.isInJavaLang("List")).isFalse();
   }
+
+  @Test
+  void testIdentifierInSubScopeOfJavaLangIsNotConsideredInJavaLang() {
+    assertThat(stdlib.isInJavaLang("State")).isFalse();
+  }
 }
