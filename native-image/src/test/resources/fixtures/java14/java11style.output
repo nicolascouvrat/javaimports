@@ -1,0 +1,16 @@
+package java11style;
+
+class Test {
+  static String value = "abc";
+
+  static void function() {
+    switch (value) {
+      case "bcd":
+        System.out.println("case");
+        break;
+      default:
+        System.out.println("default");
+        break;
+    }
+  }
+}

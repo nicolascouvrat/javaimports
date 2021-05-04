@@ -10,8 +10,7 @@
 
   <name>Javaimports</name>
 
-  <description>
-    A tool that updates Java source code import lines, adding missing ones.
+  <description> A tool that updates Java source code import lines, adding missing ones.
   </description>
 
   <dependencies>
@@ -68,8 +67,6 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
           <compilerArgs>
             <arg>--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
             <arg>--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
@@ -84,6 +81,7 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <skipTests>${skip.unit.tests}</skipTests>
           <includes>
             <include>**/*Properties.java</include>
             <include>**/*Test.java</include>

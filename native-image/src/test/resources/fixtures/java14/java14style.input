@@ -1,0 +1,14 @@
+package java14style;
+
+class Test {
+  static String value = "abc";
+
+  static void function() {
+    var str = switch (value) {
+      case "bcd" -> "case";
+      default -> "default";
+    };
+
+    System.out.println(str);
+  }
+}

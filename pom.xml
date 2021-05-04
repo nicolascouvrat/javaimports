@@ -36,6 +36,7 @@
     <javapackagetest.version>1.0</javapackagetest.version>
     <mavencore.version>3.6.3</mavencore.version>
     <gitcommitidplugin.version>4.0.2</gitcommitidplugin.version>
+    <graalvm.version>21.1.0</graalvm.version>
   </properties>
 
   <dependencyManagement>
@@ -105,6 +106,10 @@
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.7.0</version>
+          <configuration>
+            <source>${java.version}</source>
+            <target>${java.version}</target>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
@@ -112,6 +117,10 @@
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.0.0-M4</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
           <version>3.0.0-M4</version>
         </plugin>
       </plugins>
@@ -148,4 +157,18 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>native-image</id>
+      <modules>
+        <module>core</module>
+        <module>native-image</module>
+      </modules>
+      <properties>
+        <skip.unit.tests>true</skip.unit.tests>
+        <skip.compile>false</skip.compile>
+      </properties>
+    </profile>
+  </profiles>
 </project>
