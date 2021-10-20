@@ -1,16 +1,15 @@
-package java11style;
+package java14style;
 
 class Test {
   static String value = "abc";
 
-  static void function() {
-    switch (value) {
-      case "bcd":
-        System.out.println("case");
-        break;
-      default:
-        System.out.println("default");
-        break;
-    }
-  }
+  // Currently, native image for javaimports does not support source code > 11
+  // static void function() {
+  //   var str = switch (value) {
+  //     case "bcd" -> "case";
+  //     default -> "default";
+  //   };
+
+  //   System.out.println(str);
+  // }
 }

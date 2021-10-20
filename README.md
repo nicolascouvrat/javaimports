@@ -45,6 +45,27 @@ Options:
 For now, the only version of the standard library supported is Java 8. Steps after **3.** use
 build-system-specific information, and currently only support Maven.
 
+## Javaimports and `native-image` (experimental)
+
+Javaimports comes with experimental support for
+[`native-image`](https://www.graalvm.org/reference-manual/native-image/). This will considerably
+speed up execution of `javaimports` (including the formatting if not using `--fix-only`), especially
+in projects with few dependencies. 
+
+This comes at the price of version support: `javaimports` built with `native-image` will _not_
+support language features of versions > 11, such as Java 14's new `switch` statement. This is
+because `javaimports` (like `google-java-format`) relies on the parser provider by the jdk, and the
+Graal JDK used for `native-image` is Java 11.
+
+To compile `javaimports` with `native-image`, make sure you are using the right java version
+(`graalvm64-11.0.10` for example), then run `mvn package -Pnative-image`. You will find the
+executable in `native-image/target/javaimports-native-image`. To run it, you need to pass it the
+path to your java home, like so:
+
+```
+./javaimports-native-image -Djava.home=/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home [other flags] <file>"
+```
+
 ## Why `javaimports`?
 
 Before developing in Java, I used to work in Go, using VIM. During that time, I learned to love

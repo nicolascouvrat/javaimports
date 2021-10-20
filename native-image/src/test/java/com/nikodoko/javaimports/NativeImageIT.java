@@ -58,7 +58,6 @@ public class NativeImageIT {
   static Stream<Arguments> packageProvider() throws Exception {
     return getFilesPerTestPackage().entrySet().stream()
         .map(e -> testPackage(e.getKey(), e.getValue()))
-        .peek(p -> System.out.println(p.files))
         .map(p -> Arguments.of(p.name, p));
   }
 
