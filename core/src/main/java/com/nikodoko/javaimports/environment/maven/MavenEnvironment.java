@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -62,15 +61,6 @@ public class MavenEnvironment implements Environment {
   public Set<ParsedFile> filesInPackage(String packageName) {
     parseProjectIfNeeded();
     return Sets.newHashSet(project.filesInPackage(packageName));
-  }
-
-  @Override
-  public Optional<Import> search(String identifier) {
-    if (!isInitialized) {
-      init();
-    }
-
-    return Optional.ofNullable(bestAvailableImports.get(identifier));
   }
 
   @Override

@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.common;
 
+import java.util.Arrays;
 import java.util.List;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
@@ -39,5 +40,10 @@ public class CommonTestUtil {
     var selector = arbitrarySelector();
     var isStatic = Arbitraries.of(true, false);
     return Combinators.combine(selector, isStatic).as(Import::new);
+  }
+
+  public static Import anImport(String dotSelector) {
+    var identifiers = dotSelector.split("\\.");
+    return new Import(Selector.of(Arrays.asList(identifiers)), false);
   }
 }
