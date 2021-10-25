@@ -1,0 +1,89 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.nikodoko.javaimports</groupId>
+    <artifactId>javaimports-parent</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>javaimports-native-image</artifactId>
+
+  <name>Javaimports</name>
+
+  <description> A tool that updates Java source code import lines, adding missing ones.  </description>
+
+  <dependencies>
+    <!-- Maven Core -->
+    <dependency>
+      <groupId>com.nikodoko.javaimports</groupId>
+      <artifactId>javaimports</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.graalvm.sdk</groupId>
+      <artifactId>graal-sdk</artifactId>
+      <version>${graalvm.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.nikodoko.javapackagetest</groupId>
+      <artifactId>javapackagetest</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.graalvm.nativeimage</groupId>
+        <artifactId>native-image-maven-plugin</artifactId>
+        <version>${graalvm.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>native-image</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <skip>${skip.compile}</skip>
+          <mainClass>com.nikodoko.javaimports.cli.CLI</mainClass>
+          <imageName>${project.artifactId}</imageName>
+          <buildArgs>
+            --no-fallback
+          </buildArgs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
+
