@@ -112,17 +112,6 @@ public class Fixer {
     return Result.incomplete(fixes);
   }
 
-  private Set<Import> findFixes(Set<String> unresolved, LoadResult loaded) {
-    Set<Import> fixes =
-        unresolved.stream()
-            .map(loaded.candidates::get)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toSet());
-
-    return fixes;
-  }
-
   private Set<String> allUnresolved(LoadResult loaded) {
     var allUnresolved = new HashSet<String>();
     allUnresolved.addAll(loaded.unresolved);
