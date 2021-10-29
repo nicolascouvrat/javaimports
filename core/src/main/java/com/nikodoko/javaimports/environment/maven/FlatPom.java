@@ -1,9 +1,11 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.base.MoreObjects;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -16,16 +18,19 @@ class FlatPom {
   private List<MavenDependency> dependencies;
   private Map<MavenDependency.Versionless, String> versionByManagedDependencies;
   private Properties properties;
+  private Optional<Path> maybeParent;
 
   private FlatPom(
       List<MavenDependency> dependencies,
       List<MavenDependency> managedDependencies,
-      Properties properties) {
+      Properties properties,
+      Optional<Path> maybeParent) {
     this.dependencies = dependencies;
     this.versionByManagedDependencies =
         managedDependencies.stream()
             .collect(Collectors.toMap(MavenDependency::hideVersion, d -> d.version));
     this.properties = properties;
+    this.maybeParent = maybeParent;
     useManagedVersionWhenNeeded();
     substitutePropertiesWhenPossible();
   }
@@ -81,6 +86,7 @@ class FlatPom {
     var newProperties = new Properties(other.properties);
     properties.forEach((k, v) -> newProperties.setProperty((String) k, (String) v));
     this.properties = newProperties;
+    this.maybeParent = other.maybeParent;
     useManagedVersionWhenNeeded();
     substitutePropertiesWhenPossible();
   }
@@ -93,6 +99,14 @@ class FlatPom {
     return new Builder();
   }
 
+  Optional<Path> maybeParent() {
+    return maybeParent;
+  }
+
+  boolean hasParent() {
+    return maybeParent.isPresent();
+  }
+
   /**
    * Returns {@code true} if all dependencies have a well defined version, i.e. a version that is
    * neither null nor a reference to a property.
@@ -103,7 +117,10 @@ class FlatPom {
   }
 
   public String toString() {
-    return MoreObjects.toStringHelper(this).add("dependencies", dependencies).toString();
+    return MoreObjects.toStringHelper(this)
+        .add("dependencies", dependencies)
+        .add("maybeParent", maybeParent)
+        .toString();
   }
 
   private static class PropertyKeyExtractor {
@@ -133,6 +150,7 @@ class FlatPom {
     private List<MavenDependency> dependencies = new ArrayList<>();
     private List<MavenDependency> managedDependencies = new ArrayList<>();
     private Properties properties = new Properties();
+    private Optional<Path> maybeParent = Optional.empty();
 
     Builder dependencies(List<MavenDependency> dependencies) {
       this.dependencies = dependencies;
@@ -149,8 +167,13 @@ class FlatPom {
       return this;
     }
 
+    Builder maybeParent(Optional<Path> maybeParent) {
+      this.maybeParent = maybeParent;
+      return this;
+    }
+
     FlatPom build() {
-      return new FlatPom(dependencies, managedDependencies, properties);
+      return new FlatPom(dependencies, managedDependencies, properties, maybeParent);
     }
   }
 }

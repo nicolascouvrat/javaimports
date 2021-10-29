@@ -198,7 +198,7 @@ public class MavenEnvironment implements Environment {
       }
 
       var importables = new MavenDependencyLoader().load(location.jar);
-      var dependencies = new MavenPomLoader().load(location.pom).pom.dependencies();
+      var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
       loaded = new LoadedDependency(importables, dependencies);
     } catch (Exception e) {
       // No matter what happens, we don't want to fail the whole importing process just for that.

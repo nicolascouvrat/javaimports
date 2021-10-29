@@ -2,7 +2,9 @@ package com.nikodoko.javaimports.environment.maven;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
@@ -135,5 +137,18 @@ public class FlatPomTest {
     firstPom.merge(secondPom);
     assertThat(firstPom.isWellDefined()).isTrue();
     assertThat(firstPom.dependencies()).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void itInheritsParentWhenMerging() {
+    var firstPom =
+        FlatPom.builder()
+            .dependencies(List.of(new MavenDependency("com.nikodoko", "javaimports", null)))
+            .maybeParent(Optional.of(Paths.get("../pom.xml")))
+            .build();
+    var secondPom = FlatPom.builder().maybeParent(Optional.empty()).build();
+
+    firstPom.merge(secondPom);
+    assertThat(firstPom.maybeParent().isEmpty()).isTrue();
   }
 }
