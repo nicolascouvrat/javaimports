@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Finds all dependencies in a Maven project by parsing POM files. */
-// TODO: iterate over parent poms if the dependencies do not have a set version
-// TODO: handle dependency management
+// TODO: iterate over parent poms if the returned pom is not well defined
 class MavenDependencyFinder {
   static final class Result {
     final List<MavenDependency> dependencies = new ArrayList<>();
@@ -27,7 +26,7 @@ class MavenDependencyFinder {
 
   Result findAll(Path moduleRoot) {
     var loaded = new MavenPomLoader().load(moduleRoot.resolve(POM));
-    result.dependencies.addAll(loaded.dependencies);
+    result.dependencies.addAll(loaded.pom.dependencies());
     result.errors.addAll(loaded.errors);
 
     return result;

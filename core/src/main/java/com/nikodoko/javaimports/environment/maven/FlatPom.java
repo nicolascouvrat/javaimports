@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.environment.maven;
 
+import com.google.common.base.MoreObjects;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +100,10 @@ class FlatPom {
   boolean isWellDefined() {
     return dependencies.stream()
         .allMatch(d -> d.version != null && !PropertyKeyExtractor.isProperty(d.version));
+  }
+
+  public String toString() {
+    return MoreObjects.toStringHelper(this).add("dependencies", dependencies).toString();
   }
 
   private static class PropertyKeyExtractor {

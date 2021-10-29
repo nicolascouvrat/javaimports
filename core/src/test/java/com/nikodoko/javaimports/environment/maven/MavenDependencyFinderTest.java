@@ -51,7 +51,7 @@ public class MavenDependencyFinderTest {
   }
 
   @Test
-  void testDependenciesUsingParametersAreFound() throws Exception {
+  void testDependenciesUsingParametersAreFoundEvenIfNotResolved() throws Exception {
     MavenDependencyFinder finder = new MavenDependencyFinder();
     write(basicPom(), withDependencies("com.google.guava", "guava", "${guava.version}"));
     List<MavenDependency> expected =
@@ -60,6 +60,20 @@ public class MavenDependencyFinderTest {
     MavenDependencyFinder.Result got = finder.findAll(tmp);
     assertThat(got.dependencies).containsExactlyElementsIn(expected);
     assertThat(got.errors).isEmpty();
+  }
+
+  @Test
+  void testThatPropertiesAreResolvedInTheSameFile() throws Exception {
+    var finder = new MavenDependencyFinder();
+    write(
+        basicPom(),
+        withDependencies("com.google.guava", "guava", "${guava.version}"),
+        withProperty("guava.version", "28.1-jre"));
+    var expected = List.of(new MavenDependency("com.google.guava", "guava", "28.1-jre"));
+
+    var got = finder.findAll(tmp);
+    assertThat(got.errors).isEmpty();
+    assertThat(got.dependencies).containsExactlyElementsIn(expected);
   }
 
   @Test
@@ -91,6 +105,10 @@ public class MavenDependencyFinderTest {
     }
 
     return m -> m.setDependencies(deps);
+  }
+
+  static Consumer<Model> withProperty(String key, String value) {
+    return m -> m.addProperty(key, value);
   }
 
   void write(Consumer<Model>... options) throws Exception {
