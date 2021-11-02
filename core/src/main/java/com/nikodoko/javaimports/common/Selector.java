@@ -52,7 +52,7 @@ public final class Selector {
     return new Selector(identifiers.subList(0, identifiers.size() - 1));
   }
 
-  // TODO: tentative API
+  // TODO: tentative API, used only in test, should maybe be removed
   public Selector combine(Selector other) {
     var combined =
         Stream.concat(identifiers.stream(), other.identifiers.stream())

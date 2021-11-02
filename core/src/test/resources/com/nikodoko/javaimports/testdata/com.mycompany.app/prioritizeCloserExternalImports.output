@@ -1,0 +1,6 @@
+// Test that the closer external imports, in terms of relative path lengths, are used
+package com.mycompany.app;import com.mycompany.anotherapp.AnotherApp;
+
+class Test {
+  AnotherApp a;
+}

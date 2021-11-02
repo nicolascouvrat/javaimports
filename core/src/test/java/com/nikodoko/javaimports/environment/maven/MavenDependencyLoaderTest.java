@@ -34,7 +34,7 @@ class MavenDependencyLoaderTest {
             List.of(
                 new Import("App", "com.mycompany.app", false),
                 new Import("AnotherApp", "com.mycompany.anotherapp", false),
-                new Import("AnotherApp", "com.mycompany.app.another.app", false))),
+                new Import("AnotherApp", "com.mycompany.app.another.app.again", false))),
         Arguments.of(
             "Subclasses are found",
             "com/mycompany/app/a-dependency/2.0/a-dependency-2.0.jar",

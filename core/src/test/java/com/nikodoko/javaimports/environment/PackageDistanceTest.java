@@ -36,4 +36,12 @@ class PackageDistanceTest {
 
     assertThat(got).isEqualTo(6);
   }
+
+  @Test
+  void testDistanceToSiblingPackage() {
+    PackageDistance distance = PackageDistance.from("com.test.package");
+    int got = distance.to("com.test.otherpackage");
+
+    assertThat(got).isEqualTo(2);
+  }
 }
