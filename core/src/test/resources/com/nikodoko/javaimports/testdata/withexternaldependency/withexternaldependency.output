@@ -1,6 +1,6 @@
 // Test that external dependencies are resolved
-package withexternaldependency;import com.mycompany.app.App.Subclass;
+package withexternaldependency;import com.mycompany.anotherapp.AnotherApp;
 
 class Test {
-  Subclass app;
+  AnotherApp app;
 }
