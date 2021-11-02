@@ -5,10 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /** Resolves Maven dependencies to their location on disk. */
 class MavenDependencyResolver {
@@ -45,33 +41,40 @@ class MavenDependencyResolver {
 
   private Path artifactPath(MavenDependency dependency) throws IOException {
     Path dependencyRepository = directoryFor(dependency);
-    String version = dependency.version;
-    if (!dependency.hasPlainVersion()) {
-      version = getLatestAvailableVersion(dependencyRepository).name;
+    String version = dependency.version();
+    if (!dependency.hasWellDefinedVersion()) {
+      // If we get there, that means that we did not find enough information in the POM. We don't
+      // know what version is being used, so we just use the first one we find.
+      version = getFirstAvailableVersion(dependencyRepository);
     }
 
     return Paths.get(
-        dependencyRepository.toString(), version, artifactName(dependency.artifactId, version));
+        dependencyRepository.toString(), version, artifactName(dependency.artifactId(), version));
   }
 
   private Path directoryFor(MavenDependency dependency) {
     return Paths.get(
-        repository.toString(), dependency.groupId.replace(".", "/"), dependency.artifactId);
+        repository.toString(), dependency.groupId().replace(".", "/"), dependency.artifactId());
   }
 
   private String artifactName(String artifactId, String version) {
     return String.format("%s-%s", artifactId, version);
   }
 
-  private MavenDependencyVersion getLatestAvailableVersion(Path dependencyRepository)
-      throws IOException {
-    List<MavenDependencyVersion> versions =
-        Files.find(dependencyRepository, 1, (path, attributes) -> Files.isDirectory(path))
-            .map(p -> MavenDependencyVersion.of(p.getFileName().toString()))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toList());
+  private String getFirstAvailableVersion(Path dependencyRepository) throws IOException {
+    var maybeVersion =
+        Files.find(
+                dependencyRepository,
+                1,
+                (path, attributes) -> Files.isDirectory(path) && !path.equals(dependencyRepository))
+            .map(p -> p.getFileName().toString())
+            // We sort it to have a deterministic result in tests
+            .sorted()
+            .findFirst();
+    if (maybeVersion.isEmpty()) {
+      throw new RuntimeException("Did not find any available version in " + dependencyRepository);
+    }
 
-    return Collections.max(versions);
+    return maybeVersion.get();
   }
 }

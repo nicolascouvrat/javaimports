@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -28,7 +27,7 @@ class FlatPom {
     this.dependencies = dependencies;
     this.versionByManagedDependencies =
         managedDependencies.stream()
-            .collect(Collectors.toMap(MavenDependency::hideVersion, d -> d.version));
+            .collect(Collectors.toMap(MavenDependency::hideVersion, d -> d.version()));
     this.properties = properties;
     this.maybeParent = maybeParent;
     useManagedVersionWhenNeeded();
@@ -40,12 +39,12 @@ class FlatPom {
         dependencies.stream()
             .map(
                 d -> {
-                  if (d.version != null) {
+                  if (d.hasVersion()) {
                     return d;
                   }
 
                   var managedVersion = versionByManagedDependencies.get(d.hideVersion());
-                  return new MavenDependency(d.groupId, d.artifactId, managedVersion);
+                  return new MavenDependency(d.groupId(), d.artifactId(), managedVersion);
                 })
             .collect(Collectors.toList());
   }
@@ -55,7 +54,7 @@ class FlatPom {
         dependencies.stream()
             .map(
                 d -> {
-                  if (!PropertyKeyExtractor.isProperty(d.version)) {
+                  if (!d.hasPropertyReferenceVersion()) {
                     return d;
                   }
 
@@ -64,11 +63,9 @@ class FlatPom {
             .collect(Collectors.toList());
   }
 
-  private MavenDependency substitutePropertyIfPossible(MavenDependency dependency) {
-    var version =
-        properties.getProperty(
-            PropertyKeyExtractor.extract(dependency.version), dependency.version);
-    return new MavenDependency(dependency.groupId, dependency.artifactId, version);
+  private MavenDependency substitutePropertyIfPossible(MavenDependency d) {
+    var version = properties.getProperty(d.propertyReferencedByVersion(), d.version());
+    return new MavenDependency(d.groupId(), d.artifactId(), version);
   }
 
   /**
@@ -112,8 +109,7 @@ class FlatPom {
    * neither null nor a reference to a property.
    */
   boolean isWellDefined() {
-    return dependencies.stream()
-        .allMatch(d -> d.version != null && !PropertyKeyExtractor.isProperty(d.version));
+    return dependencies.stream().allMatch(MavenDependency::hasWellDefinedVersion);
   }
 
   public String toString() {
@@ -121,29 +117,6 @@ class FlatPom {
         .add("dependencies", dependencies)
         .add("maybeParent", maybeParent)
         .toString();
-  }
-
-  private static class PropertyKeyExtractor {
-    private static final Pattern PATTERN = Pattern.compile("\\$\\{(?<parameter>\\S+)\\}");
-
-    static boolean isProperty(String property) {
-      if (property == null) {
-        return false;
-      }
-
-      var m = PATTERN.matcher(property);
-      return m.matches();
-    }
-
-    static String extract(String property) {
-      if (!isProperty(property)) {
-        throw new IllegalArgumentException("Invalid property: " + property);
-      }
-
-      var m = PATTERN.matcher(property);
-      m.matches();
-      return m.group("parameter");
-    }
   }
 
   static class Builder {
