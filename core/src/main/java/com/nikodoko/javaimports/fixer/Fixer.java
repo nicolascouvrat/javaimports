@@ -122,7 +122,7 @@ public class Fixer {
   private Set<Import> findFixes(Set<String> unresolved, Collection<Import> current) {
     var selectors = unresolved.stream().map(Selector::of).collect(Collectors.toList());
     var candidates = selectors.stream().map(this.candidates::find).reduce(Candidates::merge).get();
-    var best = new BasicCandidateSelectionStrategy().selectBest(candidates);
+    var best = new BasicCandidateSelectionStrategy(file.pkg()).selectBest(candidates);
 
     return selectors.stream()
         .map(best::forSelector)

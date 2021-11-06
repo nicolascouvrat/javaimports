@@ -1,8 +1,15 @@
 package com.nikodoko.javaimports.fixer.candidates;
 
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.fixer.candidates.filters.CandidateFilters;
 
 public class BasicCandidateSelectionStrategy implements CandidateSelectionStrategy {
+  private final Selector pkg;
+
+  public BasicCandidateSelectionStrategy(Selector pkg) {
+    this.pkg = pkg;
+  }
+
   @Override
   public BestCandidates selectBest(Candidates candidates) {
     var filtered = bestSource(candidates);
@@ -20,7 +27,7 @@ public class BasicCandidateSelectionStrategy implements CandidateSelectionStrate
   }
 
   private Candidates sourceSpecificRules(Candidates candidates) {
-    return CandidateFilters.sourceSpecificRules().filter(candidates);
+    return CandidateFilters.sourceSpecificRules(pkg).filter(candidates);
   }
 
   private BestCandidates takeFirst(Candidates candidates) {

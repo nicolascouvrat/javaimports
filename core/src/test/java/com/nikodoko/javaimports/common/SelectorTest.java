@@ -9,7 +9,6 @@ import net.jqwik.api.Example;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
-import net.jqwik.api.constraints.NotEmpty;
 
 public class SelectorTest {
   @Property
@@ -26,7 +25,7 @@ public class SelectorTest {
   @Property
   void joinLeavesOriginalSelectorsUnchanged(
       @ForAll("identifiers") List<String> first,
-      @ForAll @NotEmpty String common,
+      @ForAll("identifier") String common,
       @ForAll("identifiers") List<String> last) {
     first.add(common);
     last.add(0, common);
@@ -43,7 +42,7 @@ public class SelectorTest {
 
   @Property
   void subtractLeavesOriginalSelectorsUnchanged(
-      @ForAll("identifiers") List<String> identifiers, @ForAll @NotEmpty String additional) {
+      @ForAll("identifiers") List<String> identifiers, @ForAll("identifier") String additional) {
     identifiers.add(additional);
     var tail = identifiers.stream().skip(identifiers.size() / 2).collect(Collectors.toList());
     var identifiersCopy = List.copyOf(identifiers);
@@ -75,7 +74,7 @@ public class SelectorTest {
 
   @Property
   void subtractIsOppositeOfJoin(
-      @ForAll("identifiers") List<String> identifiers, @ForAll @NotEmpty String additional) {
+      @ForAll("identifiers") List<String> identifiers, @ForAll("identifier") String additional) {
     identifiers.add(additional);
     var tail =
         Selector.of(identifiers.stream().skip(identifiers.size() / 2).collect(Collectors.toList()));
@@ -84,8 +83,65 @@ public class SelectorTest {
     assertThat(selector.subtract(tail).join(tail)).isEqualTo(selector);
   }
 
+  @Property
+  void distanceToSameSelectorIsZero(@ForAll Selector aSelector) {
+    var distance = Selector.Distance.from(aSelector);
+    var got = distance.to(aSelector);
+
+    assertThat(got).isEqualTo(0);
+  }
+
+  @Property
+  void distanceToChildSelectorIsEqualToSizeDelta(
+      @ForAll Selector aSelector, @ForAll Selector anotherSelector) {
+    var childSelector = aSelector.combine(anotherSelector);
+    var distance = Selector.Distance.from(aSelector);
+    var got = distance.to(childSelector);
+
+    assertThat(got).isEqualTo(childSelector.size() - aSelector.size());
+  }
+
+  @Property
+  void distanceToScopeIsOne(@ForAll("selectorWithScope") Selector aSelector) {
+    var distance = Selector.Distance.from(aSelector);
+    var got = distance.to(aSelector.scope());
+
+    assertThat(got).isEqualTo(1);
+  }
+
+  @Property
+  void distanceToSelectorInTheSameScopeIsTwo(
+      @ForAll("selectorWithScope") Selector aSelector, @ForAll("identifier") String additional) {
+    var sibling = aSelector.scope().combine(Selector.of(additional));
+    var distance = Selector.Distance.from(aSelector);
+    var got = distance.to(sibling);
+
+    assertThat(got).isEqualTo(sibling.equals(aSelector) ? 0 : 2);
+  }
+
+  @Example
+  void distanceToSelectorThatDoesNotShareACommonRootIsEqualToSumOfSizes(
+      @ForAll Selector aSelector, @ForAll Selector anotherSelector) {
+    var a = Selector.of("a").combine(aSelector);
+    var b = Selector.of("b").combine(anotherSelector);
+    var distance = Selector.Distance.from(a);
+    var got = distance.to(b);
+
+    assertThat(got).isEqualTo(aSelector.size() + anotherSelector.size() + 2);
+  }
+
   @Provide
   Arbitrary<List<String>> identifiers() {
-    return CommonTestUtil.arbitraryIdentifiers();
+    return CommonTestUtil.arbitraryIdentifiersOfSize(1, 8);
+  }
+
+  @Provide
+  Arbitrary<String> identifier() {
+    return CommonTestUtil.arbitraryIdentifier();
+  }
+
+  @Provide
+  Arbitrary<Selector> selectorWithScope() {
+    return CommonTestUtil.arbitrarySelectorOfSize(2, 8);
   }
 }

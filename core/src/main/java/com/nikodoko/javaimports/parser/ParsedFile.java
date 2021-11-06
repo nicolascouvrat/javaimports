@@ -4,12 +4,14 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.Range;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.ImportProvider;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.Scope;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCImport;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -101,6 +103,10 @@ public class ParsedFile implements ImportProvider {
   /** The package to which this {@code ParsedFile} belongs */
   public String packageName() {
     return packageName;
+  }
+
+  public Selector pkg() {
+    return Selector.of(Arrays.asList(packageName.split("\\.")));
   }
 
   /** An identifier:import map of imports in this {@code ParsedFile} */

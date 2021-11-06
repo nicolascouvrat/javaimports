@@ -1,5 +1,7 @@
 package com.nikodoko.javaimports.common;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +16,47 @@ import java.util.stream.Stream;
  * separated by a dot).
  */
 public final class Selector {
+  /**
+   * Calculates the distance between two {@link Selector}.
+   *
+   * <p>That distance is to be understood as the length of the relative path from one selector to
+   * the other.
+   *
+   * <p>For example, the selector representing {@code com.a.package} and the one representing {@code
+   * com.a.package.subpackage} have a distance of 1, {@code com.a.package} and {@code com.a} also
+   * have a distance of 1, and {@code com.a.package} and {@code net.another.package} have a distance
+   * of 6.
+   */
+  public static final class Distance {
+    private final Path reference;
+
+    private Distance(Path reference) {
+      this.reference = reference;
+    }
+
+    public static Distance from(Selector s) {
+      return new Distance(asPath(s));
+    }
+
+    private static Path asPath(Selector s) {
+      var referencePath =
+          s.identifiers.stream().map(Identifier::toString).collect(Collectors.joining("/"));
+      return Paths.get(referencePath);
+    }
+
+    public int to(Selector s) {
+      return distance(reference, asPath(s));
+    }
+
+    private int distance(Path from, Path to) {
+      if (from.equals(to)) {
+        return 0;
+      }
+
+      return from.relativize(to).getNameCount();
+    }
+  }
+
   private final LinkedList<Identifier> identifiers;
 
   private Selector(Collection<Identifier> identifiers) {
