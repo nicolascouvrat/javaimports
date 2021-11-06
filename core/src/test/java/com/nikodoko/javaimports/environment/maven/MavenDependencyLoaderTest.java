@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
 
 import com.google.common.collect.ImmutableList;
 import com.nikodoko.javaimports.parser.Import;
@@ -23,7 +24,6 @@ class MavenDependencyLoaderTest {
   @BeforeEach
   void setup() throws Exception {
     repository = Paths.get(repositoryURL.toURI());
-    loader = new MavenDependencyLoader();
   }
 
   static Stream<Arguments> jarPathProvider() {
@@ -32,31 +32,31 @@ class MavenDependencyLoaderTest {
             "Classes are found",
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar",
             List.of(
-                new Import("App", "com.mycompany.app", false),
-                new Import("AnotherApp", "com.mycompany.anotherapp", false),
-                new Import("AnotherApp", "com.mycompany.app.another.app.again", false))),
+                anImport("com.mycompany.app.App"),
+                anImport("com.mycompany.anotherapp.AnotherApp"),
+                anImport("com.mycompany.app.another.app.again.AnotherApp"))),
         Arguments.of(
             "Subclasses are found",
             "com/mycompany/app/a-dependency/2.0/a-dependency-2.0.jar",
             List.of(
-                new Import("Subclass", "com.mycompany.app.App", false),
-                new Import("Subsubclass", "com.mycompany.app.App.Subclass", false),
-                new Import("App", "com.mycompany.app", false))));
+                anImport("com.mycompany.app.App.Subclass"),
+                anImport("com.mycompany.app.App.Subclass.Subsubclass"),
+                anImport("com.mycompany.app.App"))));
   }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("jarPathProvider")
   void testDependencyLoading(String name, String jarPath, List<Import> expected) throws Exception {
-    var got = loader.load(repository.resolve(jarPath));
+    var got = MavenDependencyLoader.load(repository.resolve(jarPath));
     assertThat(got).containsExactlyElementsIn(expected);
   }
 
   @Test
   void testJava9DependencyIsResolved() throws Exception {
-    List<Import> expected = ImmutableList.of(new Import("App", "com.mycompany.app", false));
+    var expected = ImmutableList.of(anImport("com.mycompany.app.App"));
 
-    List<Import> got =
-        loader.load(
+    var got =
+        MavenDependencyLoader.load(
             repository.resolve(
                 "com/mycompany/app/a-java9-dependency/1.0/a-java9-dependency-1.0.jar"));
 

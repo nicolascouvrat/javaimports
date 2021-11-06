@@ -187,7 +187,10 @@ public class MavenEnvironment implements Environment {
         log.info(String.format("looking for dependency %s at %s", dependency, location));
       }
 
-      var importables = new MavenDependencyLoader().load(location.jar);
+      var importables =
+          MavenDependencyLoader.load(location.jar).stream()
+              .map(com.nikodoko.javaimports.parser.Import::fromNew)
+              .collect(Collectors.toList());
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
       loaded = new LoadedDependency(importables, dependencies);
     } catch (Exception e) {
