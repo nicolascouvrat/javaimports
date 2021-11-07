@@ -4,21 +4,18 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.JavaProject;
-import com.nikodoko.javaimports.environment.PackageDistance;
-import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -39,10 +36,9 @@ public class MavenEnvironment implements Environment {
   private final Path root;
   private final Path fileBeingResolved;
   private final Options options;
-  private final PackageDistance distance;
   private final MavenDependencyResolver resolver;
 
-  private Map<String, Import> bestAvailableImports = new HashMap<>();
+  private Map<Identifier, List<Import>> availableImports = new HashMap<>();
   private JavaProject project;
   private boolean projectIsParsed = false;
   private boolean isInitialized = false;
@@ -52,7 +48,6 @@ public class MavenEnvironment implements Environment {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
-    this.distance = PackageDistance.from(pkgBeingResolved);
     var repository =
         options.repository().isPresent() ? options.repository().get() : DEFAULT_REPOSITORY;
     this.resolver = MavenDependencyResolver.withRepository(repository);
@@ -65,46 +60,28 @@ public class MavenEnvironment implements Environment {
   }
 
   @Override
-  public Optional<Import> search(String identifier) {
+  public Collection<Import> findImports(Identifier i) {
     if (!isInitialized) {
       init();
     }
 
-    return Optional.ofNullable(bestAvailableImports.get(identifier));
-  }
-
-  @Override
-  public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
-    if (!isInitialized) {
-      init();
+    var found = new ArrayList<Import>();
+    found.addAll(availableImports.getOrDefault(i, List.of()));
+    for (var file : project.allFiles()) {
+      found.addAll(file.findImportables(i));
     }
 
-    var best = bestAvailableImports.get(i.toString());
-    if (best == null) {
-      return List.of();
-    }
-
-    return List.of(best.toNew());
+    return found;
   }
 
   private void init() {
     parseProjectIfNeeded();
 
-    long start = clock.millis();
-    List<Import> imports = extractImportsInDependencies();
-    for (ParsedFile file : project.allFiles()) {
-      imports.addAll(extractImports(file));
-    }
+    var start = clock.millis();
+    var imports = extractImportsInDependencies();
 
-    Collections.sort(imports, (a, b) -> distance.to(a.qualifier()) - distance.to(b.qualifier()));
-    for (Import i : imports) {
-      if (bestAvailableImports.containsKey(i.name())) {
-        continue;
-      }
-
-      bestAvailableImports.put(i.name(), i);
-    }
-
+    availableImports =
+        imports.stream().collect(Collectors.groupingBy(i -> i.selector.identifier()));
     isInitialized = true;
     log.log(Level.INFO, String.format("init completed in %d ms", clock.millis() - start));
   }
@@ -189,15 +166,15 @@ public class MavenEnvironment implements Environment {
   }
 
   private LoadedDependency resolveAndLoad(MavenDependency dependency) {
-    LoadedDependency loaded = new LoadedDependency(List.of(), List.of());
-    long start = clock.millis();
+    var loaded = new LoadedDependency(List.of(), List.of());
+    var start = clock.millis();
     try {
       var location = resolver.resolve(dependency);
       if (options.debug()) {
         log.info(String.format("looking for dependency %s at %s", dependency, location));
       }
 
-      var importables = new MavenDependencyLoader().load(location.jar);
+      var importables = MavenDependencyLoader.load(location.jar);
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
       loaded = new LoadedDependency(importables, dependencies);
     } catch (Exception e) {
@@ -219,14 +196,5 @@ public class MavenEnvironment implements Environment {
     }
 
     return loaded;
-  }
-
-  private List<Import> extractImports(ParsedFile file) {
-    List<Import> imports = new ArrayList<>();
-    for (String identifier : file.topLevelDeclarations()) {
-      imports.add(new Import(identifier, file.packageName(), false));
-    }
-
-    return imports;
   }
 }

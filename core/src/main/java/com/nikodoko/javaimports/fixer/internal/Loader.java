@@ -7,13 +7,10 @@ import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.ClassHierarchies;
 import com.nikodoko.javaimports.parser.ClassHierarchy;
-import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -75,10 +72,6 @@ public class Loader {
     resolveAllJavaLang();
     resolveUsingImports();
     resolveUsingSiblings();
-
-    addSiblingImportsAsCandidates();
-    addStdlibCandidates();
-    addExternalCandidates();
   }
 
   private void resolveAllJavaLang() {
@@ -90,24 +83,6 @@ public class Loader {
     }
 
     result.unresolved = difference(result.unresolved, inJavaLang);
-  }
-
-  private void addExternalCandidates() {
-    allStillUnresolved().stream()
-        .map(environment::search)
-        .filter(Optional::isPresent)
-        .forEach(candidate -> result.candidates.add(Candidates.Priority.EXTERNAL, candidate.get()));
-  }
-
-  private void addStdlibCandidates() {
-    Map<String, Import> stdlibCandidates = stdlib.find(allStillUnresolved());
-    result.candidates.add(Candidates.Priority.STDLIB, stdlibCandidates.values());
-  }
-
-  private void addSiblingImportsAsCandidates() {
-    for (ParsedFile sibling : siblings) {
-      result.candidates.add(Candidates.Priority.SIBLING, sibling.imports().values());
-    }
   }
 
   private Set<String> allStillUnresolved() {

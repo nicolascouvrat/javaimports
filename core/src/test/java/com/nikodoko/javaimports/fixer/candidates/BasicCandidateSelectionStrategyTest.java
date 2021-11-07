@@ -5,6 +5,7 @@ import static com.nikodoko.javaimports.common.CommonTestUtil.arbitraryImportEndi
 import static com.nikodoko.javaimports.common.CommonTestUtil.arbitrarySelector;
 import static com.nikodoko.javaimports.common.CommonTestUtil.arbitrarySelectorOfSize;
 
+import com.nikodoko.javaimports.common.CommonTestUtil;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import java.util.Collections;
@@ -15,7 +16,6 @@ import net.jqwik.api.Combinators;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
-import net.jqwik.api.constraints.NotEmpty;
 
 public class BasicCandidateSelectionStrategyTest {
   static class SelectorAndImports {
@@ -36,7 +36,8 @@ public class BasicCandidateSelectionStrategyTest {
         Candidates.forSelector(data.selector).add(stdlibCandidate, externalCandidate).build();
     var expected = BestCandidates.builder().put(data.selector, stdlibCandidate.i).build();
 
-    var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+    var got =
+        new BasicCandidateSelectionStrategy(Selector.of("a", "package")).selectBest(candidates);
 
     assertThat(got).isEqualTo(expected);
   }
@@ -52,7 +53,8 @@ public class BasicCandidateSelectionStrategyTest {
             .build();
     var expected = BestCandidates.builder().put(data.selector, siblingCandidate.i).build();
 
-    var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+    var got =
+        new BasicCandidateSelectionStrategy(Selector.of("a", "package")).selectBest(candidates);
 
     assertThat(got).isEqualTo(expected);
   }
@@ -71,7 +73,8 @@ public class BasicCandidateSelectionStrategyTest {
             .build();
     var expected = BestCandidates.builder().put(data.selector, shortest).build();
 
-    var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+    var got =
+        new BasicCandidateSelectionStrategy(Selector.of("a", "package")).selectBest(candidates);
 
     assertThat(got).isEqualTo(expected);
   }
@@ -93,7 +96,26 @@ public class BasicCandidateSelectionStrategyTest {
             .build();
     var expected = BestCandidates.builder().put(data.selector, javaUtilImport).build();
 
-    var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+    var got =
+        new BasicCandidateSelectionStrategy(Selector.of("a", "package")).selectBest(candidates);
+
+    assertThat(got).isEqualTo(expected);
+  }
+
+  @Property
+  void closerExternalCandidatesAreMoreRelevant(
+      @ForAll Import aPkg, @ForAll Import anotherPkg, @ForAll Selector aSelector) {
+    var anImport = new Import(aPkg.selector.combine(aSelector), aPkg.isStatic);
+    var anotherImport = new Import(anotherPkg.selector.combine(aSelector), anotherPkg.isStatic);
+    var candidates =
+        Candidates.forSelector(aSelector)
+            .add(
+                new Candidate(anImport, Candidate.Source.EXTERNAL),
+                new Candidate(anImport, Candidate.Source.EXTERNAL))
+            .build();
+    var expected = BestCandidates.builder().put(aSelector, anImport).build();
+
+    var got = new BasicCandidateSelectionStrategy(aPkg.selector).selectBest(candidates);
 
     assertThat(got).isEqualTo(expected);
   }
@@ -102,9 +124,10 @@ public class BasicCandidateSelectionStrategyTest {
   void aCandidateIsMoreRelevantThanOthersOfSameSourceIfThereIsOneInSameScopeForAnotherSelector(
       @ForAll Import pkg,
       @ForAll Import other,
-      @ForAll @NotEmpty String a,
-      @ForAll @NotEmpty String b,
-      @ForAll Candidate.Source source) {
+      @ForAll("identifier") String a,
+      @ForAll("identifier") String b,
+      @ForAll Candidate.Source source,
+      @ForAll Candidate.Source otherSource) {
     var aInPkg = new Import(pkg.selector.combine(Selector.of(a)), pkg.isStatic);
     var aNotInPkg = new Import(other.selector.combine(Selector.of(a)), other.isStatic);
     var bInPkg = new Import(pkg.selector.combine(Selector.of(b)), pkg.isStatic);
@@ -112,14 +135,14 @@ public class BasicCandidateSelectionStrategyTest {
         Candidates.forSelector(Selector.of(a))
             .add(new Candidate(aInPkg, source), new Candidate(aNotInPkg, source))
             .build();
-    // source could be different here
     var candidatesForB =
-        Candidates.forSelector(Selector.of(b)).add(new Candidate(bInPkg, source)).build();
+        Candidates.forSelector(Selector.of(b)).add(new Candidate(bInPkg, otherSource)).build();
     var candidates = Candidates.merge(candidatesForA, candidatesForB);
     var expected =
         BestCandidates.builder().put(Selector.of(a), aInPkg).put(Selector.of(b), bInPkg).build();
 
-    var got = new BasicCandidateSelectionStrategy().selectBest(candidates);
+    var got =
+        new BasicCandidateSelectionStrategy(Selector.of("a", "package")).selectBest(candidates);
 
     assertThat(got).isEqualTo(expected);
   }
@@ -137,5 +160,10 @@ public class BasicCandidateSelectionStrategyTest {
   @Provide
   Arbitrary<Selector> ofSize2() {
     return arbitrarySelectorOfSize(2, 2);
+  }
+
+  @Provide
+  Arbitrary<String> identifier() {
+    return CommonTestUtil.arbitraryIdentifier();
   }
 }

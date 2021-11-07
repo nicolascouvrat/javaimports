@@ -71,9 +71,9 @@ public class Fixer {
     candidates.add(Candidate.Source.STDLIB, provider);
   }
 
-  public void addEnvironment(Environment resolver) {
-    loader.addEnvironment(resolver);
-    candidates.add(Candidate.Source.EXTERNAL, resolver);
+  public void addEnvironment(Environment environment) {
+    loader.addEnvironment(environment);
+    candidates.add(Candidate.Source.EXTERNAL, environment);
   }
 
   private Result loadAndTryToFix(boolean lastTry) {
@@ -112,17 +112,6 @@ public class Fixer {
     return Result.incomplete(fixes);
   }
 
-  private Set<Import> findFixes(Set<String> unresolved, LoadResult loaded) {
-    Set<Import> fixes =
-        unresolved.stream()
-            .map(loaded.candidates::get)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toSet());
-
-    return fixes;
-  }
-
   private Set<String> allUnresolved(LoadResult loaded) {
     var allUnresolved = new HashSet<String>();
     allUnresolved.addAll(loaded.unresolved);
@@ -133,7 +122,7 @@ public class Fixer {
   private Set<Import> findFixes(Set<String> unresolved, Collection<Import> current) {
     var selectors = unresolved.stream().map(Selector::of).collect(Collectors.toList());
     var candidates = selectors.stream().map(this.candidates::find).reduce(Candidates::merge).get();
-    var best = new BasicCandidateSelectionStrategy().selectBest(candidates);
+    var best = new BasicCandidateSelectionStrategy(file.pkg()).selectBest(candidates);
 
     return selectors.stream()
         .map(best::forSelector)
