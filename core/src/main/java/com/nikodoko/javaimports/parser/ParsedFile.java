@@ -16,7 +16,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /** An object representing a Java source file. */
@@ -147,6 +149,17 @@ public class ParsedFile implements ImportProvider {
 
   public Stream<ClassEntity> classes() {
     return ClassHierarchies.flatView(classHierarchy);
+  }
+
+  // TODO: maybe have a SiblingFile with the below findImports, and make this the default
+  // findImports of ParsedFile
+  public Collection<com.nikodoko.javaimports.common.Import> findImportables(Identifier identifier) {
+    var topLevelImports =
+        topLevelDeclarations().stream()
+            .map(i -> new Import(i, packageName(), false))
+            .map(Import::toNew)
+            .collect(Collectors.groupingBy(i -> i.selector.identifier()));
+    return Optional.ofNullable(topLevelImports.get(identifier)).orElse(List.of());
   }
 
   // TODO: remove

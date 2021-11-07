@@ -71,9 +71,9 @@ public class Fixer {
     candidates.add(Candidate.Source.STDLIB, provider);
   }
 
-  public void addEnvironment(Environment resolver) {
-    loader.addEnvironment(resolver);
-    candidates.add(Candidate.Source.EXTERNAL, resolver);
+  public void addEnvironment(Environment environment) {
+    loader.addEnvironment(environment);
+    candidates.add(Candidate.Source.EXTERNAL, environment);
   }
 
   private Result loadAndTryToFix(boolean lastTry) {

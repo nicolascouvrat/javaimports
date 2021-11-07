@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.environment;
 
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.environment.maven.MavenEnvironment;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import java.nio.file.Files;
@@ -20,7 +21,7 @@ public class Environments {
     }
 
     @Override
-    public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
+    public Collection<Import> findImports(Identifier i) {
       return List.of();
     }
   }

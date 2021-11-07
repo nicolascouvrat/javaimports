@@ -17,7 +17,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class MavenEnvironmentTest {
@@ -67,9 +66,6 @@ public class MavenEnvironmentTest {
     assertThat(got).isEmpty();
   }
 
-  // TODO: This should be enabled, but for now findImports() still relies on the old behavior that
-  // filters imports inside MavenEnvironment when it should not.
-  @Disabled("Enabled me once the filtering logic has been removed")
   @Test
   void testThatAllMatchingDependenciesAreFound() throws Exception {
     Module module =
@@ -103,12 +99,10 @@ public class MavenEnvironmentTest {
         Environments.autoSelect(
             target, "test.module", Options.builder().repository(repository).build());
 
+    var got = environment.findImports(new Identifier("App"));
+    assertThat(got).containsExactly(anImport("com.mycompany.app.App"));
     // Assert that the 1.0 version of the dependency is indeed selected by checking that a class
     // only present in 2.0 is not found
-    var got = environment.findImports(new Identifier("App"));
-
-    assertThat(got).containsExactly(anImport("com.mycompany.app.App"));
-    // TODO: enable
-    // assertThat(environment.findImports(new Identifier("Subclass"))).isEmpty();
+    assertThat(environment.findImports(new Identifier("Subclass"))).isEmpty();
   }
 }
