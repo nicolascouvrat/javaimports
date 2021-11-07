@@ -7,7 +7,6 @@ import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.JavaProject;
-import com.nikodoko.javaimports.environment.PackageDistance;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,10 +36,8 @@ public class MavenEnvironment implements Environment {
   private final Path root;
   private final Path fileBeingResolved;
   private final Options options;
-  private final PackageDistance distance;
   private final MavenDependencyResolver resolver;
 
-  private Map<String, Import> bestAvailableImports = new HashMap<>();
   private Map<Identifier, List<Import>> availableImports = new HashMap<>();
   private JavaProject project;
   private boolean projectIsParsed = false;
@@ -51,7 +48,6 @@ public class MavenEnvironment implements Environment {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
-    this.distance = PackageDistance.from(pkgBeingResolved);
     var repository =
         options.repository().isPresent() ? options.repository().get() : DEFAULT_REPOSITORY;
     this.resolver = MavenDependencyResolver.withRepository(repository);
