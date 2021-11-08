@@ -101,6 +101,11 @@ public class Fixer {
     }
 
     var unresolved = allUnresolved(loaded);
+    // We had orphan classes, but they did not have any unresolved identifiers
+    if (unresolved.isEmpty()) {
+      return Result.complete();
+    }
+
     // var fixes = findFixes(unresolved, loaded);
     var fixes = findFixes(unresolved, List.of());
     var allGood = fixes.size() == unresolved.size();
