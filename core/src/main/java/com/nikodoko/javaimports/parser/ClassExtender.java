@@ -3,11 +3,16 @@ package com.nikodoko.javaimports.parser;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.OrphanClass;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.ClassSelector;
+import com.nikodoko.javaimports.parser.internal.ClassSelectors;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Wrapper around a {@link ClassEntity} to handle progressive extension, as well as identifier
@@ -21,6 +26,13 @@ public class ClassExtender {
   private ClassExtender(ClassEntity toExtend, Optional<ClassSelector> nextSuperclass) {
     this.toExtend = toExtend;
     this.nextSuperclass = nextSuperclass;
+  }
+
+  // Remove when OrphanClass replaces this class
+  public OrphanClass toOrphanClass() {
+    var unresolved = notYetResolved.stream().map(Identifier::new).collect(Collectors.toSet());
+    return new OrphanClass(
+        Selector.of(toExtend.name()), unresolved, ClassSelectors.toSuperclass(nextSuperclass));
   }
 
   /** Wrap a given {@link ClassEntity} into a {@code ClassExtender}. */

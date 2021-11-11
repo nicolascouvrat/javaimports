@@ -1,10 +1,13 @@
 package com.nikodoko.javaimports.parser.internal;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.Selector;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /** A representation of Java class, with a name, members, and maybe a pointer to a parent class. */
@@ -15,6 +18,17 @@ public class ClassEntity {
   private final String name;
   private Set<String> members = new HashSet<>();
   @Nullable private final ClassSelector superclass;
+
+  public com.nikodoko.javaimports.common.ClassEntity toNew() {
+    var builder =
+        com.nikodoko.javaimports.common.ClassEntity.named(Selector.of(name))
+            .declaring(members.stream().map(Identifier::new).collect(Collectors.toSet()));
+    if (superclass == null) {
+      return builder.build();
+    }
+
+    return builder.extending(ClassSelectors.toSuperclass(Optional.of(superclass))).build();
+  }
 
   /** Create a {@code ClassEntity} named {@code name} and extending the given{@code superclass}. */
   public static ClassEntity namedAndExtending(String name, ClassSelector superclass) {
