@@ -23,7 +23,9 @@ public class OrphanClass {
 
   public OrphanClass addParent(ClassEntity parent) {
     var stillUnresolved =
-        unresolved.stream().filter(parent.declarations::contains).collect(Collectors.toSet());
+        unresolved.stream()
+            .filter(identifier -> !parent.declarations.contains(identifier))
+            .collect(Collectors.toSet());
     return new OrphanClass(name, stillUnresolved, parent.maybeParent);
   }
 
@@ -35,6 +37,14 @@ public class OrphanClass {
 
   public boolean hasParent() {
     return maybeParent.isPresent();
+  }
+
+  public Superclass parent() {
+    if (!hasParent()) {
+      throw new IllegalStateException("orphan has no parent: " + this);
+    }
+
+    return maybeParent.get();
   }
 
   @Override

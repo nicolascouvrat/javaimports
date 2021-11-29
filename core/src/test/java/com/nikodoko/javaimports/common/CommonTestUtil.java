@@ -37,8 +37,12 @@ public class CommonTestUtil {
     return Combinators.combine(selector, isStatic).as(Import::new);
   }
 
-  public static Import anImport(String dotSelector) {
+  public static Selector aSelector(String dotSelector) {
     var identifiers = dotSelector.split("\\.");
-    return new Import(Selector.of(Arrays.asList(identifiers)), false);
+    return Selector.of(Arrays.asList(identifiers));
+  }
+
+  public static Import anImport(String dotSelector) {
+    return new Import(aSelector(dotSelector), false);
   }
 }

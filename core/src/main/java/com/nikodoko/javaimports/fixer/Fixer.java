@@ -1,11 +1,13 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.fixer.candidates.BasicCandidateSelectionStrategy;
 import com.nikodoko.javaimports.fixer.candidates.Candidate;
 import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
+import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
 import com.nikodoko.javaimports.fixer.candidates.Candidates;
 import com.nikodoko.javaimports.fixer.internal.LoadResult;
 import com.nikodoko.javaimports.fixer.internal.Loader;
@@ -28,6 +30,9 @@ public class Fixer {
   private ParsedFile file;
   private Options options;
   private final CandidateFinder candidates;
+  private final ClassLibrary library;
+  private final ParentClassFinder parents;
+  private final CandidateSelectionStrategy strategy;
   private static Logger log = Logger.getLogger(Fixer.class.getName());
 
   private Loader loader;
@@ -36,7 +41,14 @@ public class Fixer {
     this.file = file;
     this.options = options;
     this.candidates = new CandidateFinder();
+    this.library = new ClassLibrary();
     this.loader = Loader.of(file, options);
+    this.strategy = new BasicCandidateSelectionStrategy(file.pkg());
+    this.parents = new ParentClassFinder(candidates, library, strategy);
+    // Needed because some other files in the project might extend a class defined in the current
+    // file
+    library.add(file);
+    candidates.add(Candidate.Source.SIBLING, file::findImportables);
   }
 
   /**
@@ -64,6 +76,7 @@ public class Fixer {
 
     loader.addSiblings(siblingsOfSamePackage);
     siblingsOfSamePackage.stream().forEach(f -> candidates.add(Candidate.Source.SIBLING, f));
+    siblingsOfSamePackage.stream().forEach(f -> library.add(f));
   }
 
   public void addStdlibProvider(StdlibProvider provider) {
@@ -96,18 +109,28 @@ public class Fixer {
   // the best possible incomplete list of fixes will be returned.
   private Result fix(boolean lastTry) {
     var loaded = loader.result();
-    if (!loaded.orphans.isEmpty() && !lastTry) {
+    var allParentsFound = true;
+    var fixes = new HashSet<Import>();
+    var unresolved = new HashSet<Identifier>();
+    var result = parents.findAllParents(loaded.orphans());
+    if (!result.complete && !lastTry) {
       return Result.incomplete();
     }
 
-    var unresolved = allUnresolved(loaded);
+    fixes.addAll(
+        result.fixes.stream()
+            .filter(i -> !i.selector.scope().equals(file.pkg()))
+            .map(Import::fromNew)
+            .collect(Collectors.toSet()));
+    unresolved.addAll(result.unresolved);
+    unresolved.addAll(loaded.unresolved());
+
     // We had orphan classes, but they did not have any unresolved identifiers
     if (unresolved.isEmpty()) {
-      return Result.complete();
+      return Result.incomplete(fixes);
     }
 
-    // var fixes = findFixes(unresolved, loaded);
-    var fixes = findFixes(unresolved, List.of());
+    fixes.addAll(findFixes(unresolved, List.of()));
     var allGood = fixes.size() == unresolved.size();
 
     if (allGood) {
@@ -124,7 +147,7 @@ public class Fixer {
     return allUnresolved;
   }
 
-  private Set<Import> findFixes(Set<String> unresolved, Collection<Import> current) {
+  private Set<Import> findFixes(Set<Identifier> unresolved, Collection<Import> current) {
     var selectors = unresolved.stream().map(Selector::of).collect(Collectors.toList());
     var candidates = selectors.stream().map(this.candidates::find).reduce(Candidates::merge).get();
     var best = new BasicCandidateSelectionStrategy(file.pkg()).selectBest(candidates);

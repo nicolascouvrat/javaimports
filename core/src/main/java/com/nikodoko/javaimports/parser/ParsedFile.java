@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.ImportProvider;
 import com.nikodoko.javaimports.common.Selector;
@@ -18,11 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /** An object representing a Java source file. */
-public class ParsedFile implements ImportProvider {
+public class ParsedFile implements ImportProvider, ClassProvider {
   // The name of the package to which this file belongs
   String packageName;
   // The imports in this file
@@ -33,6 +35,7 @@ public class ParsedFile implements ImportProvider {
   // The position of the end of the package clause
   int packageEndPos;
   List<Range<Integer>> duplicates;
+  Map<com.nikodoko.javaimports.common.Import, com.nikodoko.javaimports.common.ClassEntity> classes;
 
   /**
    * A {@code ParsedFile} constructor.
@@ -128,7 +131,24 @@ public class ParsedFile implements ImportProvider {
 
   public ParsedFile classHierarchy(ClassHierarchy classHierarchy) {
     this.classHierarchy = classHierarchy;
+    this.classes =
+        ClassHierarchies.entities(classHierarchy).stream()
+            .collect(
+                Collectors.toMap(
+                    // Classes are never imported as static
+                    c -> new com.nikodoko.javaimports.common.Import(pkg().combine(c.name), false),
+                    Function.identity(),
+                    // We should not get 2 classes with the exact same import coming from one file.
+                    // Should probably spit out a log if we do
+                    (a, b) -> a));
     return this;
+  }
+
+  @Override
+  public Optional<com.nikodoko.javaimports.common.ClassEntity> findClass(
+      com.nikodoko.javaimports.common.Import i) {
+    // System.out.println(String.format("Looking for %s in %s", i, byImport));
+    return Optional.ofNullable(classes.get(i));
   }
 
   public Set<String> notYetResolved() {
@@ -154,12 +174,9 @@ public class ParsedFile implements ImportProvider {
   // TODO: maybe have a SiblingFile with the below findImports, and make this the default
   // findImports of ParsedFile
   public Collection<com.nikodoko.javaimports.common.Import> findImportables(Identifier identifier) {
-    var topLevelImports =
-        topLevelDeclarations().stream()
-            .map(i -> new Import(i, packageName(), false))
-            .map(Import::toNew)
-            .collect(Collectors.groupingBy(i -> i.selector.identifier()));
-    return Optional.ofNullable(topLevelImports.get(identifier)).orElse(List.of());
+    var importables =
+        classes.keySet().stream().collect(Collectors.groupingBy(i -> i.selector.identifier()));
+    return Optional.ofNullable(importables.get(identifier)).orElse(List.of());
   }
 
   // TODO: remove

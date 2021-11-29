@@ -76,6 +76,10 @@ public final class Selector {
     return of(identifiers);
   }
 
+  public static Selector of(Identifier identifier) {
+    return new Selector(List.of(identifier));
+  }
+
   public static Selector of(Iterable<String> identifiers) {
     var l = new LinkedList<Identifier>();
     identifiers.forEach(s -> l.add(new Identifier(s)));
