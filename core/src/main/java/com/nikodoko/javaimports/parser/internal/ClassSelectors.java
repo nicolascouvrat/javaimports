@@ -1,14 +1,29 @@
 package com.nikodoko.javaimports.parser.internal;
 
+import com.nikodoko.javaimports.common.Superclass;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCTypeApply;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 /** Utility methods for {@link ClassSelector}. */
 public class ClassSelectors {
+  // Remove when Superclass replaces this class
+  public static Superclass toSuperclass(Optional<ClassSelector> maybeSelector) {
+    List<String> identifiers = new ArrayList<>();
+    var superclass = maybeSelector;
+    while (superclass.isPresent()) {
+      identifiers.add(superclass.get().selector());
+      superclass = superclass.get().next();
+    }
+
+    return Superclass.unresolved(com.nikodoko.javaimports.common.Selector.of(identifiers));
+  }
+
   /** Returns a {@code ClassSelector} representing the path given by first.others. */
   public static ClassSelector of(String first, String... others) {
     Selector head = new Selector(first);

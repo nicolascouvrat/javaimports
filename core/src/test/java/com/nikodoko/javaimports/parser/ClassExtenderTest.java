@@ -3,8 +3,13 @@ package com.nikodoko.javaimports.parser;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableSet;
+import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.OrphanClass;
+import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.ClassSelectors;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class ClassExtenderTest {
@@ -14,6 +19,22 @@ public class ClassExtenderTest {
       ClassEntity.namedAndExtending("Child", ClassSelectors.of("Parent"))
           .members(ImmutableSet.of("c"));
   ClassEntity parent = ClassEntity.named("Parent").members(ImmutableSet.of("a", "b"));
+  ClassEntity otherClass =
+      ClassEntity.namedAndExtending("Child", ClassSelectors.of("Other", "Parent"));
+
+  @Test
+  void testConversion() {
+    ClassExtender extender =
+        ClassExtender.of(otherClass).notYetResolved(ImmutableSet.of("a", "b", "c"));
+    var got = extender.toOrphanClass();
+
+    assertThat(got)
+        .isEqualTo(
+            new OrphanClass(
+                Selector.of("Child"),
+                Set.of(new Identifier("a"), new Identifier("b"), new Identifier("c")),
+                Superclass.unresolved(Selector.of("Other", "Parent"))));
+  }
 
   @Test
   void testExtendChildClass() {

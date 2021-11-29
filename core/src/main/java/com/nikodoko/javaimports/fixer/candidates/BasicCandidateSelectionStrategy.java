@@ -31,11 +31,6 @@ public class BasicCandidateSelectionStrategy implements CandidateSelectionStrate
   }
 
   private BestCandidates takeFirst(Candidates candidates) {
-    var best = BestCandidates.builder();
-    for (var selector : candidates.selectors()) {
-      best.put(selector, candidates.getFor(selector).get(0).i);
-    }
-
-    return best.build();
+    return new TakeFirstCandidateSelectionStrategy().selectBest(candidates);
   }
 }

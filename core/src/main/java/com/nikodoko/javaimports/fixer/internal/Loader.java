@@ -5,8 +5,6 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.parser.ClassExtender;
-import com.nikodoko.javaimports.parser.ClassHierarchies;
-import com.nikodoko.javaimports.parser.ClassHierarchy;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
@@ -68,7 +66,6 @@ public class Loader {
    * the file itself.
    */
   public void load() {
-    extendAllClasses();
     resolveAllJavaLang();
     resolveUsingImports();
     resolveUsingSiblings();
@@ -131,37 +128,5 @@ public class Loader {
     }
 
     return result;
-  }
-
-  private void extendAllClasses() {
-    Set<ClassExtender> notFullyExtendedClasses = new HashSet<>();
-    for (ClassExtender e : result.orphans) {
-      extendUsingSiblings(e);
-      if (e.isFullyExtended()) {
-        result.unresolved.addAll(e.notYetResolved());
-        continue;
-      }
-
-      notFullyExtendedClasses.add(e);
-    }
-
-    result.orphans = notFullyExtendedClasses;
-  }
-
-  private void extendUsingSiblings(ClassExtender toExtend) {
-    ClassHierarchy[] hierarchies = new ClassHierarchy[siblings.size() + 1];
-    // Some siblings' classes might depend on classes defined in the file to fix
-    hierarchies[0] = file.classHierarchy();
-    int i = 1;
-    for (ParsedFile sibling : siblings) {
-      hierarchies[i++] = sibling.classHierarchy();
-    }
-
-    ClassHierarchy combined = ClassHierarchies.combine(hierarchies);
-    if (options.debug()) {
-      log.info(String.format("extending %s with %s", toExtend, combined));
-    }
-
-    toExtend.extendAsMuchAsPossibleUsing(combined);
   }
 }

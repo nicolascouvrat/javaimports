@@ -1,0 +1,5 @@
+// Test that the parent class is imported if found
+package importParentClass;import com.mycompany.anotherapp.AnotherApp;
+
+class App extends AnotherApp {
+}
