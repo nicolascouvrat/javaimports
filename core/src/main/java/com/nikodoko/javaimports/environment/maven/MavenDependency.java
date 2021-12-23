@@ -1,8 +1,8 @@
 package com.nikodoko.javaimports.environment.maven;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.nikodoko.javaimports.common.Utils.checkNotNull;
 
-import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.common.Utils;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -36,12 +36,31 @@ class MavenDependency {
 
       var that = (Versionless) o;
       return Objects.equals(this.wrapped.groupId, that.wrapped.groupId)
+          && Objects.equals(this.wrapped.type, that.wrapped.type)
+          && Objects.equals(this.wrapped.scope, that.wrapped.scope)
+          && Objects.equals(this.wrapped.optional, that.wrapped.optional)
           && Objects.equals(this.wrapped.artifactId, that.wrapped.artifactId);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(this.wrapped.groupId, this.wrapped.artifactId);
+      return Objects.hash(
+          this.wrapped.groupId,
+          this.wrapped.artifactId,
+          this.wrapped.type,
+          this.wrapped.scope,
+          this.wrapped.optional);
+    }
+
+    @Override
+    public String toString() {
+      return Utils.toStringHelper(this)
+          .add("groupId", this.wrapped.groupId)
+          .add("artifactId", this.wrapped.artifactId)
+          .add("type", this.wrapped.type)
+          .add("scope", this.wrapped.scope)
+          .add("optional", this.wrapped.optional)
+          .toString();
     }
   }
 
@@ -95,17 +114,30 @@ class MavenDependency {
     }
   }
 
-  private static final Pattern parameterPattern = Pattern.compile("\\$\\{(?<parameter>\\S+)\\}");
   private final String groupId;
   private final String artifactId;
   private final Version version;
+  private final String type;
+  private final String scope;
+  private final boolean optional;
 
-  MavenDependency(String groupId, String artifactId, String version) {
+  MavenDependency(
+      String groupId,
+      String artifactId,
+      String version,
+      String type,
+      String scope,
+      boolean optional) {
     checkNotNull(groupId, "maven dependency does not accept a null groupId");
     checkNotNull(artifactId, "maven dependency does not accept a null artifactId");
+    checkNotNull(scope, "maven dependency does not accept a null scope");
+    checkNotNull(type, "maven dependency does not accept a null type");
     this.groupId = groupId;
     this.artifactId = artifactId;
     this.version = new Version(version);
+    this.type = type;
+    this.scope = scope;
+    this.optional = optional;
   }
 
   String version() {
@@ -118,6 +150,18 @@ class MavenDependency {
 
   String groupId() {
     return groupId;
+  }
+
+  String type() {
+    return type;
+  }
+
+  String scope() {
+    return scope;
+  }
+
+  boolean optional() {
+    return optional;
   }
 
   String propertyReferencedByVersion() {
@@ -150,6 +194,12 @@ class MavenDependency {
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(
+        this.groupId, this.artifactId, this.version, this.type, this.scope, this.optional);
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (o == null) {
       return false;
@@ -162,15 +212,21 @@ class MavenDependency {
     MavenDependency d = (MavenDependency) o;
     return Objects.equals(d.groupId, groupId)
         && Objects.equals(d.artifactId, artifactId)
+        && Objects.equals(d.type, type)
+        && Objects.equals(d.scope, scope)
+        && Objects.equals(d.optional, optional)
         && Objects.equals(d.version, version);
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
+    return Utils.toStringHelper(this)
         .add("groupId", groupId)
         .add("artifactId", artifactId)
         .add("version", version)
+        .add("type", type)
+        .add("scope", scope)
+        .add("optional", optional)
         .toString();
   }
 }

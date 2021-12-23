@@ -25,4 +25,8 @@ public class Utils {
   public static <T> ToStringHelper toStringHelper(T obj) {
     return new ToStringHelper(obj);
   }
+
+  public static void checkNotNull(Object o, String errorMsg) {
+    assert o != null : errorMsg;
+  }
 }

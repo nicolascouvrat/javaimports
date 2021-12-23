@@ -16,6 +16,8 @@ public class MavenPomLoader {
   // If <parent></parent> is present but no <relativePath> is specified then maven will default to
   // this relative path
   private static final Path DEFAULT_PARENT = Paths.get("../pom.xml");
+  private static final String DEFAULT_SCOPE = "compile";
+  private static final String DEFAULT_TYPE = "jar";
 
   static final class Result {
     final FlatPom pom;
@@ -91,7 +93,15 @@ public class MavenPomLoader {
 
   private static List<MavenDependency> convert(List<Dependency> dependencies) {
     return dependencies.stream()
-        .map(d -> new MavenDependency(d.getGroupId(), d.getArtifactId(), d.getVersion()))
+        .map(
+            d ->
+                new MavenDependency(
+                    d.getGroupId(),
+                    d.getArtifactId(),
+                    d.getVersion(),
+                    Optional.ofNullable(d.getType()).orElse(DEFAULT_TYPE),
+                    Optional.ofNullable(d.getScope()).orElse(DEFAULT_SCOPE),
+                    d.isOptional()))
         .collect(Collectors.toList());
   }
 }
