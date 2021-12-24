@@ -4,19 +4,18 @@ import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.common.IdentifierLoader;
+import com.nikodoko.javaimports.environment.jarutil.JarIdentifierLoader;
 import com.nikodoko.javaimports.environment.jarutil.JarImportLoader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /** Loads a .jar, extracting all importable symbols. */
 // TODO: handle static imports
 class MavenDependencyLoader {
-  static List<Import> load(Path dependency) throws IOException {
+  static Dependency load(Path dependency) throws IOException {
     var span =
         Traces.createSpan("MavenDependencyLoader.load", new Tag("dependency_path", dependency));
     try (var __ = Traces.activate(span)) {
@@ -56,7 +55,8 @@ class MavenDependencyLoader {
   // }
 
   // REAL API
-  private static List<Import> loadInstrumented(Path dependency) throws IOException {
-    return new ArrayList<>(JarImportLoader.loadImports(dependency));
+  private static Dependency loadInstrumented(Path dependency) throws IOException {
+    var imports = JarImportLoader.loadImports(dependency);
+    return new Dependency(imports, new JarIdentifierLoader(dependency));
   }
 }

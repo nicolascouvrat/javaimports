@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class MavenEnvironmentTest {
-  static final URL repositoryURL = MavenDependencyLoaderTest.class.getResource("/testrepository");
+  static final URL repositoryURL = MavenEnvironmentTest.class.getResource("/testrepository");
   Exported project;
   Path repository;
 

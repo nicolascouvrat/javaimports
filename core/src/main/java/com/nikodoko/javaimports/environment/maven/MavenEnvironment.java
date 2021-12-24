@@ -168,10 +168,10 @@ public class MavenEnvironment implements Environment {
   }
 
   private static class LoadedDependency {
-    final List<Import> importables;
+    final Set<Import> importables;
     final List<MavenDependency> dependencies;
 
-    LoadedDependency(List<Import> importables, List<MavenDependency> dependencies) {
+    LoadedDependency(Set<Import> importables, List<MavenDependency> dependencies) {
       this.importables = importables;
       this.dependencies = dependencies;
     }
@@ -205,7 +205,7 @@ public class MavenEnvironment implements Environment {
   }
 
   private LoadedDependency resolveAndLoad(Span span, MavenDependency dependency) {
-    var loaded = new LoadedDependency(List.of(), List.of());
+    var loaded = new LoadedDependency(Set.of(), List.of());
     var start = clock.millis();
     try (var __ = Traces.activate(span)) {
       var location = resolver.resolve(dependency);
@@ -213,7 +213,7 @@ public class MavenEnvironment implements Environment {
         log.info(String.format("looking for dependency %s at %s", dependency, location));
       }
 
-      var importables = MavenDependencyLoader.load(location.jar);
+      var importables = MavenDependencyLoader.load(location.jar).imports();
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
       loaded = new LoadedDependency(importables, dependencies);
     } catch (Exception e) {
