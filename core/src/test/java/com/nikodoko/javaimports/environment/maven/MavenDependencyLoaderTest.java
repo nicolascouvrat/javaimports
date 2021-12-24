@@ -33,7 +33,7 @@ class MavenDependencyLoaderTest {
   void itShouldNotLoadIfAskingForNonExistingImport() {
     var dep =
         new MavenDependencyLoader.Dependency(
-            Set.of(anImport("com.myapp.App")), dummyLoader(Map.of()));
+            "aName", Set.of(anImport("com.myapp.App")), dummyLoader(Map.of()));
 
     var got = dep.findClass(anImport("com.myapp.AnotherApp"));
     assertThat(got.isEmpty()).isTrue();
@@ -44,6 +44,7 @@ class MavenDependencyLoaderTest {
   void itShouldLazyLoadIdentifiers() {
     var dep =
         new MavenDependencyLoader.Dependency(
+            "aName",
             Set.of(anImport("com.myapp.App")),
             dummyLoader(Map.of(anImport("com.myapp.App"), someIdentifiers("a", "b", "c"))));
 
@@ -58,6 +59,7 @@ class MavenDependencyLoaderTest {
             .build();
     var dep =
         new MavenDependencyLoader.Dependency(
+            "aName",
             Set.of(anImport("com.myapp.App")),
             dummyLoader(Map.of(anImport("com.myapp.App"), expected.declarations)));
 

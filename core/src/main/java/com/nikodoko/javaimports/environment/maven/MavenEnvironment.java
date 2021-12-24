@@ -95,7 +95,7 @@ public class MavenEnvironment implements Environment {
       log.info("Looking for class for " + i);
     }
     for (var dependency : dependencies) {
-      var maybeClass = dependency.findClass(i);
+      var maybeClass = safelyFindClassIn(dependency, i);
       if (maybeClass.isPresent()) {
         if (options.debug()) {
           log.info("Found class for " + i + ": " + maybeClass.get());
@@ -105,6 +105,18 @@ public class MavenEnvironment implements Environment {
     }
 
     return Optional.empty();
+  }
+
+  private Optional<ClassEntity> safelyFindClassIn(MavenDependencyLoader.Dependency dep, Import i) {
+    try {
+      return dep.findClass(i);
+    } catch (Throwable t) {
+      if (options.debug()) {
+        log.log(Level.WARNING, String.format("Error finding class %s in %s: %s", i, dep.name(), t));
+      }
+
+      return Optional.empty();
+    }
   }
 
   private void init() {

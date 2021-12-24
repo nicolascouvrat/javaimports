@@ -28,14 +28,20 @@ class MavenDependencyLoader {
   }
 
   public static class Dependency {
+    private final String name;
     private final Set<Import> imports;
     private final Map<Import, ClassEntity> classesByImport;
     private final IdentifierLoader loader;
 
-    Dependency(Set<Import> imports, IdentifierLoader loader) {
+    Dependency(String name, Set<Import> imports, IdentifierLoader loader) {
+      this.name = name;
       this.imports = imports;
       this.loader = loader;
       this.classesByImport = new HashMap<>();
+    }
+
+    public String name() {
+      return name;
     }
 
     public Set<Import> imports() {
@@ -63,6 +69,6 @@ class MavenDependencyLoader {
   // REAL API
   private static Dependency loadInstrumented(Path dependency) throws IOException {
     var imports = JarImportLoader.loadImports(dependency);
-    return new Dependency(imports, new JarIdentifierLoader(dependency));
+    return new Dependency(dependency.toString(), imports, new JarIdentifierLoader(dependency));
   }
 }
