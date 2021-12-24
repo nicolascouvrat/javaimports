@@ -1,0 +1,9 @@
+// Test that identifiers provider by the parent class are not imported
+package extendWithParentInDependency;import com.mycompany.app.another.Parent;
+
+class App extends Parent {
+  void test() {
+    var a = aPublicField;
+  }
+}
+

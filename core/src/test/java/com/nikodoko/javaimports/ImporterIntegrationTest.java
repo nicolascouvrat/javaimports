@@ -66,6 +66,7 @@ public class ImporterIntegrationTest {
             .stdlib(
                 FakeStdlibProvider.of(
                     new Import("List", "java.util", false),
+                    new Import("aPublicField", "java.fakeutil", true),
                     new Import("ArrayList", "java.util", false),
                     new Import("App", "java.fakeutil", false)))
             // speed up tests a bit
@@ -89,6 +90,7 @@ public class ImporterIntegrationTest {
             .containing(pkg.files.toArray(new Module.File[pkg.files.size()]))
             .dependingOn(
                 Module.dependency("com.mycompany.app", "a-dependency", "1.0"),
+                Module.dependency("com.mycompany.app", "another-dependency", "1.0"),
                 Module.dependency("com.mycompany.app", "an-empty-dependency", "1.0"));
     return Export.of(BuildSystem.MAVEN, module);
   }
