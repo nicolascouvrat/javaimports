@@ -44,6 +44,7 @@ public class MavenEnvironment implements Environment {
   private final MavenDependencyResolver resolver;
 
   private Map<Identifier, List<Import>> availableImports = new HashMap<>();
+  private List<MavenDependencyLoader.Dependency> dependencies = new ArrayList<>();
   private JavaProject project;
   private boolean projectIsParsed = false;
   private boolean isInitialized = false;
@@ -90,6 +91,19 @@ public class MavenEnvironment implements Environment {
 
   @Override
   public Optional<ClassEntity> findClass(Import i) {
+    if (options.debug()) {
+      log.info("Looking for class for " + i);
+    }
+    for (var dependency : dependencies) {
+      var maybeClass = dependency.findClass(i);
+      if (maybeClass.isPresent()) {
+        if (options.debug()) {
+          log.info("Found class for " + i + ": " + maybeClass.get());
+        }
+        return maybeClass;
+      }
+    }
+
     return Optional.empty();
   }
 
@@ -106,10 +120,13 @@ public class MavenEnvironment implements Environment {
     parseProjectIfNeeded();
 
     var start = clock.millis();
-    var imports = extractImportsInDependencies();
+    var dependencies = extractImportsInDependencies();
 
-    availableImports =
-        imports.stream().collect(Collectors.groupingBy(i -> i.selector.identifier()));
+    this.dependencies = dependencies;
+    this.availableImports =
+        dependencies.stream()
+            .flatMap(d -> d.imports().stream())
+            .collect(Collectors.groupingBy(i -> i.selector.identifier()));
     isInitialized = true;
     log.log(Level.INFO, String.format("init completed in %d ms", clock.millis() - start));
   }
@@ -135,7 +152,7 @@ public class MavenEnvironment implements Environment {
     projectIsParsed = true;
   }
 
-  private List<Import> extractImportsInDependencies() {
+  private List<MavenDependencyLoader.Dependency> extractImportsInDependencies() {
     MavenDependencyFinder.Result direct = new MavenDependencyFinder().findAll(root);
 
     var versionlessDirectDependencies =
@@ -143,6 +160,8 @@ public class MavenEnvironment implements Environment {
     var loadedDirect = resolveAndLoad(direct.dependencies, new Tag("direct_dependencies", true));
     var indirectDependencies =
         loadedDirect.stream()
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             // Limit to empty dependencies, and get their dependencies
             // This is to better handle cases like org.junit.jupiter.junit-jupiter, that point to
             // an empty jar and a pom which in turns points to the actual API
@@ -152,7 +171,7 @@ public class MavenEnvironment implements Environment {
             // big projects that quickly have a LOT of transitive dependencies. Since relying on
             // these non-explicit dependencies is a bad practice anyway, we explicitely choose to
             // not support it here.
-            .filter(d -> d.importables.isEmpty())
+            .filter(d -> d.dependency.imports().isEmpty())
             .flatMap(d -> d.dependencies.stream())
             .map(d -> d.hideVersion())
             .filter(d -> !versionlessDirectDependencies.contains(d))
@@ -170,21 +189,27 @@ public class MavenEnvironment implements Environment {
               indirectDependencies.size(), indirectDependencies));
     }
     return Stream.concat(loadedDirect.stream(), loadedIndirect.stream())
-        .flatMap(d -> d.importables.stream())
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .map(d -> d.dependency)
         .collect(Collectors.toList());
   }
 
+  // TODO: this is not great, this code should probably be refactored (depency and dependencies is
+  // very similar...)
   private static class LoadedDependency {
-    final Set<Import> importables;
+    final MavenDependencyLoader.Dependency dependency;
     final List<MavenDependency> dependencies;
 
-    LoadedDependency(Set<Import> importables, List<MavenDependency> dependencies) {
-      this.importables = importables;
+    LoadedDependency(
+        MavenDependencyLoader.Dependency dependency, List<MavenDependency> dependencies) {
+      this.dependency = dependency;
       this.dependencies = dependencies;
     }
   }
 
-  private List<LoadedDependency> resolveAndLoad(List<MavenDependency> dependencies, Tag tag) {
+  private List<Optional<LoadedDependency>> resolveAndLoad(
+      List<MavenDependency> dependencies, Tag tag) {
     var span =
         Traces.createSpan(
             "MavenEnvironment.resolveAndLoad",
@@ -197,7 +222,7 @@ public class MavenEnvironment implements Environment {
     }
   }
 
-  private List<LoadedDependency> resolveAndLoadInstrumented(
+  private List<Optional<LoadedDependency>> resolveAndLoadInstrumented(
       Span span, List<MavenDependency> dependencies) {
     var futures =
         dependencies.stream()
@@ -211,18 +236,18 @@ public class MavenEnvironment implements Environment {
     return futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
   }
 
-  private LoadedDependency resolveAndLoad(Span span, MavenDependency dependency) {
-    var loaded = new LoadedDependency(Set.of(), List.of());
+  private Optional<LoadedDependency> resolveAndLoad(Span span, MavenDependency dependency) {
     var start = clock.millis();
+    Optional<LoadedDependency> loaded = Optional.empty();
     try (var __ = Traces.activate(span)) {
       var location = resolver.resolve(dependency);
       if (options.debug()) {
         log.info(String.format("looking for dependency %s at %s", dependency, location));
       }
 
-      var importables = MavenDependencyLoader.load(location.jar).imports();
+      var loadedDependency = MavenDependencyLoader.load(location.jar);
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
-      loaded = new LoadedDependency(importables, dependencies);
+      loaded = Optional.of(new LoadedDependency(loadedDependency, dependencies));
     } catch (Exception e) {
       // No matter what happens, we don't want to fail the whole importing process just for that.
       if (options.debug()) {
@@ -230,14 +255,13 @@ public class MavenEnvironment implements Environment {
       }
     } finally {
       if (options.debug()) {
+        var importablesCount = loaded.map(l -> l.dependency.imports().size()).orElse(0);
+        var dependenciesCount = loaded.map(l -> l.dependencies.size()).orElse(0);
         log.log(
             Level.INFO,
             String.format(
                 "loaded %d imports and %d additional dependencies in %d ms (%s)",
-                loaded.importables.size(),
-                loaded.dependencies.size(),
-                clock.millis() - start,
-                dependency));
+                importablesCount, dependenciesCount, clock.millis() - start, dependency));
       }
     }
 

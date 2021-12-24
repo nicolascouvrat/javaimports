@@ -2,6 +2,8 @@ package com.nikodoko.javaimports.common;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
@@ -44,5 +46,9 @@ public class CommonTestUtil {
 
   public static Import anImport(String dotSelector) {
     return new Import(aSelector(dotSelector), false);
+  }
+
+  public static Set<Identifier> someIdentifiers(String... identifiers) {
+    return Arrays.stream(identifiers).map(Identifier::new).collect(Collectors.toSet());
   }
 }

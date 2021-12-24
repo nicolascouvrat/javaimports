@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.environment.jarutil;
 
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.environment.common.IdentifierLoader;
 import java.lang.reflect.Member;
@@ -30,9 +31,9 @@ public class JarIdentifierLoader implements IdentifierLoader {
   }
 
   @Override
-  public Set<String> loadIdentifiers(Import i) {
+  public Set<Identifier> loadIdentifiers(Import i) {
     var c = loadClass(i);
-    var identifiers = new HashSet<String>();
+    var identifiers = new HashSet<Identifier>();
     while (c != null) {
       identifiers.addAll(getUsableDeclaredIdentifiers(c));
       c = c.getSuperclass();
@@ -41,13 +42,14 @@ public class JarIdentifierLoader implements IdentifierLoader {
     return identifiers;
   }
 
-  private static Set<String> getUsableDeclaredIdentifiers(Class c) {
+  private static Set<Identifier> getUsableDeclaredIdentifiers(Class c) {
     var fields = Arrays.stream(c.getDeclaredFields());
     var methods = Arrays.stream(c.getDeclaredMethods());
 
     return Stream.concat(fields.map(Member.class::cast), methods.map(Member.class::cast))
         .filter(JarIdentifierLoader::isUsableIdentifier)
         .map(Member::getName)
+        .map(Identifier::new)
         .collect(Collectors.toSet());
   }
 

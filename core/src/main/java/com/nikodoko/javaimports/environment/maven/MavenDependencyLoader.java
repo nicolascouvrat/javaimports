@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.environment.maven;
 
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /** Loads a .jar, extracting all importable symbols. */
@@ -27,25 +29,29 @@ class MavenDependencyLoader {
 
   public static class Dependency {
     private final Set<Import> imports;
-    private final Map<Import, Set<String>> identifiersByImport;
+    private final Map<Import, ClassEntity> classesByImport;
     private final IdentifierLoader loader;
 
     Dependency(Set<Import> imports, IdentifierLoader loader) {
       this.imports = imports;
       this.loader = loader;
-      this.identifiersByImport = new HashMap<>();
+      this.classesByImport = new HashMap<>();
     }
 
     public Set<Import> imports() {
       return imports;
     }
 
-    public Set<String> findIdentifiers(Import i) {
+    public Optional<ClassEntity> findClass(Import i) {
       if (!imports.contains(i)) {
-        return Set.of();
+        return Optional.empty();
       }
 
-      return identifiersByImport.computeIfAbsent(i, loader::loadIdentifiers);
+      return Optional.of(classesByImport.computeIfAbsent(i, this::loadClass));
+    }
+
+    private ClassEntity loadClass(Import i) {
+      return ClassEntity.named(i.selector).declaring(loader.loadIdentifiers(i)).build();
     }
   }
 
