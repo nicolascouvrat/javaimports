@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.environment.jarutil;
 
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.environment.common.IdentifierLoader;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -16,7 +17,7 @@ import java.util.stream.Stream;
 /**
  * Loads all public and protected identifiers for a given class (identifier by its {@link Import}).
  */
-public class JarIdentifierLoader {
+public class JarIdentifierLoader implements IdentifierLoader {
   ClassLoader cl = null;
   final URL jarUrl;
 
@@ -28,6 +29,7 @@ public class JarIdentifierLoader {
     }
   }
 
+  @Override
   public Set<String> loadIdentifiers(Import i) {
     var c = loadClass(i);
     var identifiers = new HashSet<String>();

@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.environment.jarutil;
 import static com.google.common.truth.Truth.assertThat;
 import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
 
+import com.google.common.collect.ImmutableList;
 import com.nikodoko.javaimports.parser.Import;
 import java.net.URL;
 import java.nio.file.Path;
@@ -10,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -46,5 +48,19 @@ public class JarImportLoaderTest {
   void testDependencyLoading(String name, String jarPath, Set<Import> expected) throws Exception {
     var got = JarImportLoader.loadImports(repository.resolve(jarPath));
     assertThat(got).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void testJava9DependencyIsResolved() throws Exception {
+    var expected = ImmutableList.of(anImport("com.mycompany.app.App"));
+
+    var got =
+        JarImportLoader.loadImports(
+            repository.resolve(
+                "com/mycompany/app/a-java9-dependency/1.0/a-java9-dependency-1.0.jar"));
+
+    // TODO: this should be an exact comparison, but we don't really have java9 support for now and
+    // also extract imports we shouldnt (the ones not exposed by module-info.class)
+    assertThat(got).containsAtLeastElementsIn(expected);
   }
 }
