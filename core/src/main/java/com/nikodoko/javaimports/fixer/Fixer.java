@@ -89,6 +89,7 @@ public class Fixer {
   public void addEnvironment(Environment environment) {
     loader.addEnvironment(environment);
     candidates.add(Candidate.Source.EXTERNAL, environment);
+    library.add(environment);
   }
 
   private Result loadAndTryToFix(boolean lastTry) {

@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.environment.maven;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.telemetry.Tag;
@@ -19,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -84,6 +86,11 @@ public class MavenEnvironment implements Environment {
     }
 
     return found;
+  }
+
+  @Override
+  public Optional<ClassEntity> findClass(Import i) {
+    return Optional.empty();
   }
 
   private void init() {

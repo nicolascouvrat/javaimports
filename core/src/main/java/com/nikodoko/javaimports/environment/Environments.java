@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.environment;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.environment.maven.MavenEnvironment;
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class Environments {
@@ -23,6 +25,11 @@ public class Environments {
     @Override
     public Collection<Import> findImports(Identifier i) {
       return List.of();
+    }
+
+    @Override
+    public Optional<ClassEntity> findClass(Import i) {
+      return Optional.empty();
     }
   }
 
