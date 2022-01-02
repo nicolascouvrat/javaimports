@@ -34,9 +34,10 @@ class MavenDependencyResolver {
 
   PrimaryArtifact resolve(MavenDependency dependency) throws IOException {
     var artifactPath = artifactPath(dependency);
+    var jarSuffix = dependency.type().equals("test-jar") ? "-tests.jar" : ".jar";
     return new PrimaryArtifact(
         artifactPath.resolveSibling(artifactPath.getFileName() + ".pom"),
-        artifactPath.resolveSibling(artifactPath.getFileName() + ".jar"));
+        artifactPath.resolveSibling(artifactPath.getFileName() + jarSuffix));
   }
 
   private Path artifactPath(MavenDependency dependency) throws IOException {

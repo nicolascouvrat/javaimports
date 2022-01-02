@@ -24,6 +24,12 @@ public class MavenDependencyResolverTest {
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar",
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
         Arguments.of(
+            "A dependency with a test-jar type is found",
+            new MavenDependency(
+                "com.mycompany.app", "a-dependency", "1.0", "test-jar", "test", false),
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0-tests.jar",
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
+        Arguments.of(
             "A dependency without plain version is resolved to the first available one",
             mavenDependency("com.mycompany.app", "a-dependency", null),
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar",
