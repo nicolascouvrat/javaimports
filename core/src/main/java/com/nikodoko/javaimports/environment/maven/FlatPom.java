@@ -44,7 +44,13 @@ class FlatPom {
                   }
 
                   var managedVersion = versionByManagedDependencies.get(d.hideVersion());
-                  return new MavenDependency(d.groupId(), d.artifactId(), managedVersion);
+                  return new MavenDependency(
+                      d.groupId(),
+                      d.artifactId(),
+                      managedVersion,
+                      d.type(),
+                      d.scope(),
+                      d.optional());
                 })
             .collect(Collectors.toList());
   }
@@ -65,7 +71,8 @@ class FlatPom {
 
   private MavenDependency substitutePropertyIfPossible(MavenDependency d) {
     var version = properties.getProperty(d.propertyReferencedByVersion(), d.version());
-    return new MavenDependency(d.groupId(), d.artifactId(), version);
+    return new MavenDependency(
+        d.groupId(), d.artifactId(), version, d.type(), d.scope(), d.optional());
   }
 
   /**

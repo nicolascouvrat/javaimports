@@ -7,7 +7,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.apache.maven.model.Dependency;
@@ -40,12 +39,12 @@ public class MavenDependencyFinderTest {
     MavenDependencyFinder finder = new MavenDependencyFinder();
     writeChild(
         basicPom(),
-        withDependencies(
-            "com.google.guava", "guava", "28.1-jre", "com.google.truth", "truth", "1.0.1"));
+        withDependency("com.google.guava", "guava", "28.1-jre"),
+        withDependency("com.google.truth", "truth", "1.0.1"));
     List<MavenDependency> expected =
         ImmutableList.of(
-            new MavenDependency("com.google.guava", "guava", "28.1-jre"),
-            new MavenDependency("com.google.truth", "truth", "1.0.1"));
+            dependencyWithDefaults("com.google.guava", "guava", "28.1-jre"),
+            dependencyWithDefaults("com.google.truth", "truth", "1.0.1"));
     MavenDependencyFinder.Result got = finder.findAll(tmp);
     assertThat(got.dependencies).containsExactlyElementsIn(expected);
     assertThat(got.errors).isEmpty();
@@ -54,9 +53,9 @@ public class MavenDependencyFinderTest {
   @Test
   void testDependenciesUsingParametersAreFoundEvenIfNotResolved() throws Exception {
     MavenDependencyFinder finder = new MavenDependencyFinder();
-    writeChild(basicPom(), withDependencies("com.google.guava", "guava", "${guava.version}"));
+    writeChild(basicPom(), withDependency("com.google.guava", "guava", "${guava.version}"));
     List<MavenDependency> expected =
-        ImmutableList.of(new MavenDependency("com.google.guava", "guava", "${guava.version}"));
+        ImmutableList.of(dependencyWithDefaults("com.google.guava", "guava", "${guava.version}"));
 
     MavenDependencyFinder.Result got = finder.findAll(tmp);
     assertThat(got.dependencies).containsExactlyElementsIn(expected);
@@ -68,9 +67,9 @@ public class MavenDependencyFinderTest {
     var finder = new MavenDependencyFinder();
     writeChild(
         basicPom(),
-        withDependencies("com.google.guava", "guava", "${guava.version}"),
+        withDependency("com.google.guava", "guava", "${guava.version}"),
         withProperty("guava.version", "28.1-jre"));
-    var expected = List.of(new MavenDependency("com.google.guava", "guava", "28.1-jre"));
+    var expected = List.of(dependencyWithDefaults("com.google.guava", "guava", "28.1-jre"));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -92,9 +91,9 @@ public class MavenDependencyFinderTest {
     writeChild(
         basicPom(),
         withExplicitRelativePath("../pom.xml"),
-        withDependencies("com.google.guava", "guava", "${guava.version}"));
+        withDependency("com.google.guava", "guava", "${guava.version}"));
     writeParent(basicPom(), withProperty("guava.version", "28.1-jre"));
-    var expected = List.of(new MavenDependency("com.google.guava", "guava", "28.1-jre"));
+    var expected = List.of(dependencyWithDefaults("com.google.guava", "guava", "28.1-jre"));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -107,9 +106,9 @@ public class MavenDependencyFinderTest {
     writeChild(
         basicPom(),
         withExplicitRelativePath(".."),
-        withDependencies("com.google.guava", "guava", "${guava.version}"));
+        withDependency("com.google.guava", "guava", "${guava.version}"));
     writeParent(basicPom(), withProperty("guava.version", "28.1-jre"));
-    var expected = List.of(new MavenDependency("com.google.guava", "guava", "28.1-jre"));
+    var expected = List.of(dependencyWithDefaults("com.google.guava", "guava", "28.1-jre"));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -122,9 +121,9 @@ public class MavenDependencyFinderTest {
     writeChild(
         basicPom(),
         withExplicitRelativePath(""),
-        withDependencies("com.google.guava", "guava", "${guava.version}"));
+        withDependency("com.google.guava", "guava", "${guava.version}"));
     writeParent(basicPom(), withProperty("guava.version", "28.1-jre"));
-    var expected = List.of(new MavenDependency("com.google.guava", "guava", "${guava.version}"));
+    var expected = List.of(dependencyWithDefaults("com.google.guava", "guava", "${guava.version}"));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -137,9 +136,24 @@ public class MavenDependencyFinderTest {
     writeChild(
         basicPom(),
         withImplicitRelativePath(),
-        withDependencies("com.google.guava", "guava", "${guava.version}"));
+        withDependency("com.google.guava", "guava", "${guava.version}"));
     writeParent(basicPom(), withProperty("guava.version", "28.1-jre"));
-    var expected = List.of(new MavenDependency("com.google.guava", "guava", "28.1-jre"));
+    var expected = List.of(dependencyWithDefaults("com.google.guava", "guava", "28.1-jre"));
+
+    var got = finder.findAll(tmp);
+    assertThat(got.errors).isEmpty();
+    assertThat(got.dependencies).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void testThatDependencyTypeScopeAndOptionalAreExtracted() throws Exception {
+    var finder = new MavenDependencyFinder();
+    writeChild(
+        basicPom(),
+        withDependency("com.google.guava", "guava", "28.1-jre", "test", "provided", true));
+    var expected =
+        List.of(
+            new MavenDependency("com.google.guava", "guava", "28.1-jre", "test", "provided", true));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -155,17 +169,23 @@ public class MavenDependencyFinderTest {
     };
   }
 
-  static Consumer<Model> withDependencies(String... elements) {
-    List<Dependency> deps = new ArrayList<>();
-    for (int i = 0; i < elements.length; i = i + 3) {
-      Dependency dep = new Dependency();
-      dep.setGroupId(elements[i]);
-      dep.setArtifactId(elements[i + 1]);
-      dep.setVersion(elements[i + 2]);
-      deps.add(dep);
+  // Either 3 elements (maven coordinates) or 6 (adding type, scope and optional)
+  static Consumer<Model> withDependency(Object... elements) {
+    Dependency dep = new Dependency();
+    dep.setGroupId((String) elements[0]);
+    dep.setArtifactId((String) elements[1]);
+    dep.setVersion((String) elements[2]);
+    if (elements.length > 3) {
+      dep.setType((String) elements[3]);
+      dep.setScope((String) elements[4]);
+      dep.setOptional((Boolean) elements[5]);
     }
 
-    return m -> m.setDependencies(deps);
+    return m -> {
+      var deps = m.getDependencies();
+      deps.add(dep);
+      m.setDependencies(deps);
+    };
   }
 
   static Consumer<Model> withProperty(String key, String value) {
@@ -199,5 +219,9 @@ public class MavenDependencyFinderTest {
 
     File target = Paths.get(dir.toString(), "pom.xml").toFile();
     new DefaultModelWriter().write(target, null, pom);
+  }
+
+  static MavenDependency dependencyWithDefaults(String groupId, String artifactId, String version) {
+    return new MavenDependency(groupId, artifactId, version, "jar", "compile", false);
   }
 }

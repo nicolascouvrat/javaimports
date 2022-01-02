@@ -20,12 +20,18 @@ public class MavenDependencyResolverTest {
     return Stream.of(
         Arguments.of(
             "A dependency with a plain version is found",
-            new MavenDependency("com.mycompany.app", "a-dependency", "1.0"),
+            mavenDependency("com.mycompany.app", "a-dependency", "1.0"),
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar",
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
         Arguments.of(
+            "A dependency with a test-jar type is found",
+            new MavenDependency(
+                "com.mycompany.app", "a-dependency", "1.0", "test-jar", "test", false),
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0-tests.jar",
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
+        Arguments.of(
             "A dependency without plain version is resolved to the first available one",
-            new MavenDependency("com.mycompany.app", "a-dependency", null),
+            mavenDependency("com.mycompany.app", "a-dependency", null),
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar",
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"));
   }
@@ -43,5 +49,9 @@ public class MavenDependencyResolverTest {
     var got = resolver.resolve(dependency);
     assertThat(got.jar).isEqualTo(repository.resolve(jarPath));
     assertThat(got.pom).isEqualTo(repository.resolve(pomPath));
+  }
+
+  static MavenDependency mavenDependency(String groupId, String artifactId, String version) {
+    return new MavenDependency(groupId, artifactId, version, "jar", "compile", false);
   }
 }
