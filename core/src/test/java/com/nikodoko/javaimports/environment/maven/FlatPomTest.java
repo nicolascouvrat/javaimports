@@ -46,6 +46,17 @@ public class FlatPomTest {
   }
 
   @Test
+  void itSupportsDifferentDependenciesWithTheSameCoordinates() {
+    var managedDeps =
+        List.of(
+            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false));
+    var pom = FlatPom.builder().managedDependencies(managedDeps).build();
+    assertThat(pom.dependencies()).isEmpty();
+    assertThat(pom.isWellDefined()).isTrue();
+  }
+
+  @Test
   void itSubstitutesPropertiesIfNeeded() {
     var deps =
         List.of(
