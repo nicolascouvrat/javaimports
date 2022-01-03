@@ -8,7 +8,9 @@ import com.nikodoko.javaimports.Importer;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -80,6 +82,15 @@ public final class CLI {
     return code;
   }
 
+  private String readStdin() throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    String line = "", file = "";
+    while ((line = br.readLine()) != null) {
+      file = file + line + "\n";
+    }
+    return file;
+  }
+
   private int parse(String... args) throws UsageException {
     CLIOptions params = processArgs(args);
 
@@ -95,9 +106,15 @@ public final class CLI {
     Path path;
     String input;
     try {
-      // Importer expects an absolute path
-      path = Paths.get(params.file()).toAbsolutePath();
-      input = new String(Files.readAllBytes(path), UTF_8);
+      if (params.file().equals("-")) { // Read from Stdin
+        path = Paths.get("").toAbsolutePath(); // assumes current working directory
+        input = readStdin();
+      } else {
+        // Importer expects an absolute path
+        path = Paths.get(params.file()).toAbsolutePath();
+        input = new String(Files.readAllBytes(path), UTF_8);
+      }
+
     } catch (IOException e) {
       errWriter.println(params.file() + ": could not read file: " + e.getMessage());
       return 1;
