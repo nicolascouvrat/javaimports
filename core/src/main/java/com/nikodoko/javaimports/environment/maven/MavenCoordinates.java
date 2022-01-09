@@ -9,42 +9,43 @@ import java.util.regex.Pattern;
 
 /** Contains the information required to find an artifact in the repository. */
 public class MavenCoordinates {
-  // static class Versionless {
-  //   final MavenCoordinates wrapped;
+  static class Versionless {
+    final MavenCoordinates wrapped;
 
-  //   Versionless(MavenCoordinates coordinates) {
-  //     this.wrapped = coordinates;
-  //   }
+    Versionless(MavenCoordinates coordinates) {
+      this.wrapped = coordinates;
+    }
 
-  //   @Override
-  //   public boolean equals(Object o) {
-  //     if (o == null) {
-  //       return false;
-  //     }
+    @Override
+    public boolean equals(Object o) {
+      if (o == null) {
+        return false;
+      }
 
-  //     if (!(o instanceof Versionless)) {
-  //       return false;
-  //     }
+      if (!(o instanceof Versionless)) {
+        return false;
+      }
 
-  //     var that = (Versionless) o;
-  //     return Objects.equals(this.wrapped.groupId, that.wrapped.groupId)
-  //         && Objects.equals(this.wrapped.artifactId(), that.wrapped.artifactId());
-  //   }
+      var that = (Versionless) o;
+      return Objects.equals(this.wrapped.groupId, that.wrapped.groupId)
+          && Objects.equals(this.wrapped.type, that.wrapped.type)
+          && Objects.equals(this.wrapped.artifactId, that.wrapped.artifactId);
+    }
 
-  //   @Override
-  //   public int hashCode() {
-  //     return Objects.hash(this.wrapped.groupId, this.wrapped.artifactId, this.wrapped.type);
-  //   }
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.wrapped.groupId, this.wrapped.artifactId, this.wrapped.type);
+    }
 
-  //   @Override
-  //   public String toString() {
-  //     return Utils.toStringHelper(this)
-  //         .add("groupId", this.wrapped.groupId)
-  //         .add("artifactId", this.wrapped.artifactId)
-  //         .add("type", this.wrapped.type)
-  //         .toString();
-  //   }
-  // }
+    @Override
+    public String toString() {
+      return Utils.toStringHelper(this)
+          .add("groupId", this.wrapped.groupId)
+          .add("artifactId", this.wrapped.artifactId)
+          .add("type", this.wrapped.type)
+          .toString();
+    }
+  }
 
   private static class Version {
     private static final Pattern PATTERN = Pattern.compile("\\$\\{(?<parameter>\\S+)\\}");
@@ -152,9 +153,9 @@ public class MavenCoordinates {
     return hasVersion() && !hasPropertyReferenceVersion();
   }
 
-  // Versionless hideVersion() {
-  //   return new Versionless(this);
-  // }
+  Versionless hideVersion() {
+    return new Versionless(this);
+  }
 
   @Override
   public int hashCode() {

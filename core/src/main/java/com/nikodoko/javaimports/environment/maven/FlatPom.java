@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
  */
 class FlatPom {
   private List<MavenDependency> dependencies;
-  private Map<MavenDependency.Versionless, String> versionByManagedDependencies;
+  private Map<MavenCoordinates.Versionless, MavenDependency> managedDependencies;
   private Properties properties;
   private Optional<Path> maybeParent;
 
@@ -25,9 +26,12 @@ class FlatPom {
       Properties properties,
       Optional<Path> maybeParent) {
     this.dependencies = dependencies;
-    this.versionByManagedDependencies =
+    this.managedDependencies =
         managedDependencies.stream()
-            .collect(Collectors.toMap(MavenDependency::hideVersion, d -> d.version()));
+            .collect(
+                // If two managed dependencies have the same coordinates, the first takes precedence
+                Collectors.toMap(
+                    d -> d.coordinates().hideVersion(), Function.identity(), (a, b) -> a));
     this.properties = properties;
     this.maybeParent = maybeParent;
     useManagedVersionWhenNeeded();
@@ -39,18 +43,18 @@ class FlatPom {
         dependencies.stream()
             .map(
                 d -> {
-                  if (d.hasVersion()) {
+                  var managed = managedDependencies.get(d.coordinates().hideVersion());
+                  if (managed == null) {
                     return d;
                   }
 
-                  var managedVersion = versionByManagedDependencies.get(d.hideVersion());
+                  var version = d.hasVersion() ? d.version() : managed.version();
+                  var scope =
+                      d.scope().isPresent() ? d.scope().get() : managed.scope().orElse(null);
+                  var optional = d.optional() ? d.optional() : managed.optional();
+
                   return new MavenDependency(
-                      d.groupId(),
-                      d.artifactId(),
-                      managedVersion,
-                      d.type(),
-                      d.scope(),
-                      d.optional());
+                      d.groupId(), d.artifactId(), version, d.type(), scope, optional);
                 })
             .collect(Collectors.toList());
   }
@@ -72,7 +76,7 @@ class FlatPom {
   private MavenDependency substitutePropertyIfPossible(MavenDependency d) {
     var version = properties.getProperty(d.propertyReferencedByVersion(), d.version());
     return new MavenDependency(
-        d.groupId(), d.artifactId(), version, d.type(), d.scope(), d.optional());
+        d.groupId(), d.artifactId(), version, d.type(), d.scope().orElse(null), d.optional());
   }
 
   /**
@@ -84,8 +88,7 @@ class FlatPom {
       return;
     }
 
-    other.versionByManagedDependencies.forEach(
-        (k, v) -> this.versionByManagedDependencies.putIfAbsent(k, v));
+    other.managedDependencies.forEach((k, v) -> this.managedDependencies.putIfAbsent(k, v));
     // The other properties have lower priority so we put them as defaults
     var newProperties = new Properties(other.properties);
     properties.forEach((k, v) -> newProperties.setProperty((String) k, (String) v));
@@ -116,6 +119,8 @@ class FlatPom {
    * neither null nor a reference to a property.
    */
   boolean isWellDefined() {
+    // TODO: maybe this does not make sense anymore, because we also want to fetch the scope and the
+    // type?
     return dependencies.stream().allMatch(MavenDependency::hasWellDefinedVersion);
   }
 

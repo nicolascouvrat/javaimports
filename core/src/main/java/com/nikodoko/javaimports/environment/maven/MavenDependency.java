@@ -82,6 +82,10 @@ class MavenDependency {
     return optional;
   }
 
+  MavenCoordinates coordinates() {
+    return coordinates;
+  }
+
   Versionless hideVersion() {
     return new Versionless(this);
   }

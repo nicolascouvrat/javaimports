@@ -46,13 +46,57 @@ public class FlatPomTest {
   }
 
   @Test
-  void itSupportsDifferentDependenciesWithTheSameCoordinates() {
+  void itSupportsDependenciesOfDifferentTypeWithTheSameCoordinates() {
     var managedDeps =
         List.of(
             new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false));
+            new MavenDependency(
+                "com.nikodoko", "javaimports", "1.0.0", "test-jar", "compile", false));
     var pom = FlatPom.builder().managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).isEmpty();
+    assertThat(pom.isWellDefined()).isTrue();
+  }
+
+  @Test
+  void itGetsOptionalFromManagedDependencyIfNeeded() {
+    var deps =
+        List.of(
+            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", true),
+            new MavenDependency(
+                "com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", false));
+    var managedDeps =
+        List.of(
+            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            new MavenDependency(
+                "com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", true));
+    var expected =
+        List.of(
+            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", true),
+            new MavenDependency(
+                "com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", true));
+
+    var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
+    assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
+    assertThat(pom.isWellDefined()).isTrue();
+  }
+
+  @Test
+  void itGetsScopeFromManagedDependencyIfNeeded() {
+    var deps =
+        List.of(
+            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            new MavenDependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", null, false));
+    var managedDeps =
+        List.of(
+            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false),
+            new MavenDependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "test", false));
+    var expected =
+        List.of(
+            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            new MavenDependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "test", false));
+
+    var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
+    assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
     assertThat(pom.isWellDefined()).isTrue();
   }
 
