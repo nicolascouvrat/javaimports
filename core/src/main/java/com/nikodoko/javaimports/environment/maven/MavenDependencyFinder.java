@@ -38,7 +38,7 @@ class MavenDependencyFinder {
 
     var pom = loaded.pom;
     var errors = new ArrayList<>(loaded.errors);
-    while (pom.hasParent() && !pom.isWellDefined()) {
+    while (hasRelativeParentPath(pom) && !pom.isWellDefined()) {
       // We need to normalize because the relative parent path often includes the special name ..
       var parentPath = moduleRoot.resolve(relativeParentPomPath(pom)).normalize();
       loaded = MavenPomLoader.load(parentPath);
@@ -52,8 +52,12 @@ class MavenDependencyFinder {
     return result;
   }
 
+  private boolean hasRelativeParentPath(FlatPom pom) {
+    return pom.maybeParent().flatMap(p -> p.maybeRelativePath).isPresent();
+  }
+
   private Path relativeParentPomPath(FlatPom pom) {
-    var parent = pom.maybeParent().get();
+    var parent = pom.maybeParent().flatMap(p -> p.maybeRelativePath).get();
     if (parent.endsWith(POM)) {
       return parent;
     }

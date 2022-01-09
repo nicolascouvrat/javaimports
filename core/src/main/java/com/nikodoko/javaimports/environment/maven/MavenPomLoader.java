@@ -12,12 +12,13 @@ import java.util.stream.Collectors;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.DefaultModelReader;
 
 public class MavenPomLoader {
   // If <parent></parent> is present but no <relativePath> is specified then maven will default to
   // this relative path
-  private static final Path DEFAULT_PARENT = Paths.get("../pom.xml");
+  private static final Path DEFAULT_PARENT_PATH = Paths.get("../pom.xml");
   private static final String DEFAULT_SCOPE = "compile";
   private static final String DEFAULT_TYPE = "jar";
 
@@ -80,22 +81,28 @@ public class MavenPomLoader {
             .build());
   }
 
-  private static Optional<Path> getMaybeParent(Model model) {
+  private static Optional<MavenParent> getMaybeParent(Model model) {
     if (model.getParent() == null) {
       return Optional.empty();
     }
 
-    if (model.getParent().getRelativePath() == null) {
-      return Optional.of(DEFAULT_PARENT);
+    var parent = model.getParent();
+    var coordinates =
+        new MavenCoordinates(
+            parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "pom");
+    return Optional.of(new MavenParent(coordinates, getMaybeParentRelativePath(parent)));
+  }
+
+  private static Optional<Path> getMaybeParentRelativePath(Parent parent) {
+    if (parent.getRelativePath() == null) {
+      return Optional.of(DEFAULT_PARENT_PATH);
     }
 
-    // If a relative path is explicitely set to empty, it means maven won't look for a local parent
-    // pom. For our purposes, this is as if this POM has no parent
-    if (model.getParent().getRelativePath().equals("")) {
+    if (parent.getRelativePath().equals("")) {
       return Optional.empty();
     }
 
-    return Optional.of(Paths.get(model.getParent().getRelativePath()));
+    return Optional.of(Paths.get(parent.getRelativePath()));
   }
 
   private static List<MavenDependency> convert(List<Dependency> dependencies) {

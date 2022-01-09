@@ -1,7 +1,6 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.base.MoreObjects;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,13 +17,13 @@ class FlatPom {
   private List<MavenDependency> dependencies;
   private Map<MavenCoordinates.Versionless, MavenDependency> managedDependencies;
   private Properties properties;
-  private Optional<Path> maybeParent;
+  private Optional<MavenParent> maybeParent;
 
   private FlatPom(
       List<MavenDependency> dependencies,
       List<MavenDependency> managedDependencies,
       Properties properties,
-      Optional<Path> maybeParent) {
+      Optional<MavenParent> maybeParent) {
     this.dependencies = dependencies;
     this.managedDependencies =
         managedDependencies.stream()
@@ -106,7 +105,7 @@ class FlatPom {
     return new Builder();
   }
 
-  Optional<Path> maybeParent() {
+  Optional<MavenParent> maybeParent() {
     return maybeParent;
   }
 
@@ -135,7 +134,7 @@ class FlatPom {
     private List<MavenDependency> dependencies = new ArrayList<>();
     private List<MavenDependency> managedDependencies = new ArrayList<>();
     private Properties properties = new Properties();
-    private Optional<Path> maybeParent = Optional.empty();
+    private Optional<MavenParent> maybeParent = Optional.empty();
 
     Builder dependencies(List<MavenDependency> dependencies) {
       this.dependencies = dependencies;
@@ -152,7 +151,7 @@ class FlatPom {
       return this;
     }
 
-    Builder maybeParent(Optional<Path> maybeParent) {
+    Builder maybeParent(Optional<MavenParent> maybeParent) {
       this.maybeParent = maybeParent;
       return this;
     }

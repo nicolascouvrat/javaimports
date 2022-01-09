@@ -199,7 +199,11 @@ public class FlatPomTest {
     var firstPom =
         FlatPom.builder()
             .dependencies(List.of(dependency("com.nikodoko", "javaimports", null)))
-            .maybeParent(Optional.of(Paths.get("../pom.xml")))
+            .maybeParent(
+                Optional.of(
+                    new MavenParent(
+                        new MavenCoordinates("com.nikodoko", "javaimports-parent", "1.0.0", "pom"),
+                        Optional.of(Paths.get("../pom.xml")))))
             .build();
     var secondPom = FlatPom.builder().maybeParent(Optional.empty()).build();
 

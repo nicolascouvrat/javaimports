@@ -194,13 +194,16 @@ public class MavenDependencyFinderTest {
 
   static Consumer<Model> withExplicitRelativePath(String relativePath) {
     var parent = new Parent();
+    parent.setGroupId("com.nikodoko.javaimports");
+    parent.setArtifactId("test-pom-parent");
+    parent.setVersion("0.0");
     parent.setRelativePath(relativePath);
 
     return m -> m.setParent(parent);
   }
 
   static Consumer<Model> withImplicitRelativePath() {
-    return m -> m.setParent(new Parent());
+    return withExplicitRelativePath(null);
   }
 
   void writeChild(Consumer<Model>... options) throws Exception {
