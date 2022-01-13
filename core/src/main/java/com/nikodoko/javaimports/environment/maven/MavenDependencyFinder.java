@@ -38,7 +38,7 @@ class MavenDependencyFinder {
 
     var pom = loaded.pom;
     var errors = new ArrayList<>(loaded.errors);
-    while (hasRelativeParentPath(pom) && !pom.isWellDefined()) {
+    while (hasRelativeParentPath(pom)) {
       // We need to normalize because the relative parent path often includes the special name ..
       var parentPath = moduleRoot.resolve(relativeParentPomPath(pom)).normalize();
       loaded = MavenPomLoader.load(parentPath);

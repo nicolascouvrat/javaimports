@@ -113,8 +113,8 @@ public class MavenPomLoader {
                     d.getGroupId(),
                     d.getArtifactId(),
                     d.getVersion(),
-                    Optional.ofNullable(d.getType()).orElse(DEFAULT_TYPE),
-                    Optional.ofNullable(d.getScope()).orElse(DEFAULT_SCOPE),
+                    d.getType(),
+                    d.getScope(),
                     d.isOptional()))
         .collect(Collectors.toList());
   }

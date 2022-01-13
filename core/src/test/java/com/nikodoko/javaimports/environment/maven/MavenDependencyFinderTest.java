@@ -225,6 +225,6 @@ public class MavenDependencyFinderTest {
   }
 
   static MavenDependency dependencyWithDefaults(String groupId, String artifactId, String version) {
-    return new MavenDependency(groupId, artifactId, version, "jar", "compile", false);
+    return new MavenDependency(groupId, artifactId, version, "jar", null, false);
   }
 }

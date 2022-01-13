@@ -83,10 +83,6 @@ class FlatPom {
    * resolve properties.
    */
   void merge(FlatPom other) {
-    if (isWellDefined()) {
-      return;
-    }
-
     other.managedDependencies.forEach((k, v) -> this.managedDependencies.putIfAbsent(k, v));
     // The other properties have lower priority so we put them as defaults
     var newProperties = new Properties(other.properties);
@@ -111,16 +107,6 @@ class FlatPom {
 
   boolean hasParent() {
     return maybeParent.isPresent();
-  }
-
-  /**
-   * Returns {@code true} if all dependencies have a well defined version, i.e. a version that is
-   * neither null nor a reference to a property.
-   */
-  boolean isWellDefined() {
-    // TODO: maybe this does not make sense anymore, because we also want to fetch the scope and the
-    // type?
-    return dependencies.stream().allMatch(MavenDependency::hasWellDefinedVersion);
   }
 
   public String toString() {

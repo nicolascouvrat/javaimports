@@ -22,7 +22,6 @@ public class FlatPomTest {
 
     var pom = FlatPom.builder().dependencies(deps).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(deps);
-    assertThat(pom.isWellDefined()).isFalse();
   }
 
   @Test
@@ -42,7 +41,6 @@ public class FlatPomTest {
 
     var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
-    assertThat(pom.isWellDefined()).isFalse();
   }
 
   @Test
@@ -50,11 +48,9 @@ public class FlatPomTest {
     var managedDeps =
         List.of(
             new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
-            new MavenDependency(
-                "com.nikodoko", "javaimports", "1.0.0", "test-jar", "compile", false));
+            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false));
     var pom = FlatPom.builder().managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).isEmpty();
-    assertThat(pom.isWellDefined()).isTrue();
   }
 
   @Test
@@ -77,7 +73,6 @@ public class FlatPomTest {
 
     var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
-    assertThat(pom.isWellDefined()).isTrue();
   }
 
   @Test
@@ -97,7 +92,6 @@ public class FlatPomTest {
 
     var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
-    assertThat(pom.isWellDefined()).isTrue();
   }
 
   @Test
@@ -115,7 +109,6 @@ public class FlatPomTest {
 
     var pom = FlatPom.builder().dependencies(deps).properties(properties).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
-    assertThat(pom.isWellDefined()).isFalse();
   }
 
   @Test
@@ -140,7 +133,6 @@ public class FlatPomTest {
             .properties(properties)
             .build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
-    assertThat(pom.isWellDefined()).isTrue();
   }
 
   @Test
@@ -155,7 +147,6 @@ public class FlatPomTest {
             .build();
 
     wellDefined.merge(other);
-    assertThat(wellDefined.isWellDefined()).isTrue();
     assertThat(wellDefined.dependencies())
         .containsExactly(dependency("com.nikodoko", "javaimports", "1.0.0"));
   }
@@ -176,8 +167,6 @@ public class FlatPomTest {
             .properties(properties)
             .build();
 
-    assertThat(firstPom.isWellDefined()).isFalse();
-
     managedDeps =
         List.of(dependency("com.nikodoko", "javapackagetest", "${javapackagetest.version}"));
     properties = new Properties();
@@ -190,7 +179,6 @@ public class FlatPomTest {
             dependency("com.nikodoko", "javapackagetest", "1.0.0"));
 
     firstPom.merge(secondPom);
-    assertThat(firstPom.isWellDefined()).isTrue();
     assertThat(firstPom.dependencies()).containsExactlyElementsIn(expected);
   }
 
