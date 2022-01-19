@@ -5,7 +5,8 @@ import static com.nikodoko.javaimports.common.Utils.checkNotNull;
 import com.nikodoko.javaimports.common.Utils;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
+import java.util.Properties;
+import java.util.Set;
 
 /** Contains the information required to find an artifact in the repository. */
 public class MavenCoordinates {
@@ -47,60 +48,10 @@ public class MavenCoordinates {
     }
   }
 
-  private static class Version {
-    private static final Pattern PATTERN = Pattern.compile("\\$\\{(?<parameter>\\S+)\\}");
-
-    final String value;
-    // Empty if value is not a property reference
-    final Optional<String> property;
-
-    Version(String value) {
-      this.value = value;
-      this.property = maybeExtractProperty(value);
-    }
-
-    private Optional<String> maybeExtractProperty(String value) {
-      if (value == null) {
-        return Optional.empty();
-      }
-
-      var m = PATTERN.matcher(value);
-      if (!m.matches()) {
-        return Optional.empty();
-      }
-
-      return Optional.of(m.group("parameter"));
-    }
-
-    @Override
-    public String toString() {
-      return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (o == null) {
-        return false;
-      }
-
-      if (!(o instanceof Version)) {
-        return false;
-      }
-
-      var that = (Version) o;
-      return Objects.equals(this.value, that.value) && Objects.equals(this.property, that.property);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.value, this.property);
-    }
-  }
-
   private final String groupId;
   private final String artifactId;
-  private final Version version;
   private final String type;
+  private final Optional<MavenString> version;
 
   MavenCoordinates(String groupId, String artifactId, String version, String type) {
     checkNotNull(groupId, "maven coordinates does not accept a null groupId");
@@ -108,12 +59,12 @@ public class MavenCoordinates {
     checkNotNull(artifactId, "maven coordinates does not accept a null type");
     this.groupId = groupId;
     this.artifactId = artifactId;
-    this.version = new Version(version);
+    this.version = Optional.ofNullable(version).map(MavenString::new);
     this.type = type;
   }
 
   String version() {
-    return version.value;
+    return version.map(MavenString::toString).orElse(null);
   }
 
   String artifactId() {
@@ -128,20 +79,36 @@ public class MavenCoordinates {
     return type;
   }
 
+  void substitute(Properties props) {
+    version.map(
+        v -> {
+          v.substitute(props);
+          return v;
+        });
+  }
+
   String propertyReferencedByVersion() {
     if (!hasPropertyReferenceVersion()) {
       throw new IllegalStateException("Version does not reference a property: " + this);
     }
 
-    return version.property.get();
+    return version.get().propertyReferences().stream().findFirst().get();
+  }
+
+  Set<String> propertyReferences() {
+    return version.map(MavenString::propertyReferences).orElse(Set.of());
   }
 
   boolean hasPropertyReferenceVersion() {
-    return version.property.isPresent();
+    if (!hasVersion()) {
+      return false;
+    }
+
+    return version.get().propertyReferences().size() == 1;
   }
 
   boolean hasVersion() {
-    return version.value != null;
+    return version.isPresent();
   }
 
   /**

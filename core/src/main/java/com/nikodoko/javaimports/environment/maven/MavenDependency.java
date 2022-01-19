@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.environment.maven;
 import com.nikodoko.javaimports.common.Utils;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 
 /** Encapsulates a Maven dependency. */
 class MavenDependency {
@@ -106,6 +107,10 @@ class MavenDependency {
 
   String propertyReferencedByVersion() {
     return coordinates.propertyReferencedByVersion();
+  }
+
+  void substitute(Properties props) {
+    coordinates.substitute(props);
   }
 
   boolean hasPropertyReferenceVersion() {
