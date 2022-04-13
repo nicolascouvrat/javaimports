@@ -22,6 +22,9 @@ public class UsageException extends Exception {
     "  --help, -help, -h",
     "    Print this usage statement.",
     "",
+    "File:",
+    "  setting file equal to '-' will read from stdin",
+    "",
   };
 
   public UsageException(String message) {

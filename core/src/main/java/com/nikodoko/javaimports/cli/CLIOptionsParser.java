@@ -42,7 +42,7 @@ public class CLIOptionsParser {
     Iterator<String> it = args.iterator();
     while (it.hasNext()) {
       String option = it.next();
-      if (!option.startsWith("-")) {
+      if (!option.startsWith("-") || option.equals("-")) {
         optsBuilder.file(option);
         break;
       }
