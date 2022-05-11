@@ -54,15 +54,18 @@ class MavenDependencyResolver {
 
   private Path artifactPath(MavenDependency dependency) throws IOException {
     Path dependencyRepository = directoryFor(dependency);
-    String version = dependency.version();
-    if (!dependency.hasWellDefinedVersion()) {
+    var maybeVersion = dependency.coordinates().maybeVersion();
+    var versionString = maybeVersion.map(MavenString::toString).orElse("");
+    if (maybeVersion.isEmpty() || maybeVersion.get().hasPropertyReferences()) {
       // If we get there, that means that we did not find enough information in the POM. We don't
       // know what version is being used, so we just use the first one we find.
-      version = getFirstAvailableVersion(dependencyRepository);
+      versionString = getFirstAvailableVersion(dependencyRepository);
     }
 
     return Paths.get(
-        dependencyRepository.toString(), version, artifactName(dependency.artifactId(), version));
+        dependencyRepository.toString(),
+        versionString,
+        artifactName(dependency.artifactId(), versionString));
   }
 
   private Path directoryFor(MavenDependency dependency) {

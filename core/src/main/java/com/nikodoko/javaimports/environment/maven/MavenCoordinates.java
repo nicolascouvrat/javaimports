@@ -6,7 +6,6 @@ import com.nikodoko.javaimports.common.Utils;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 
 /** Contains the information required to find an artifact in the repository. */
 public class MavenCoordinates {
@@ -48,76 +47,48 @@ public class MavenCoordinates {
     }
   }
 
-  private final String groupId;
-  private final String artifactId;
-  private final String type;
+  private final MavenString groupId;
+  private final MavenString artifactId;
+  private final MavenString type;
   private final Optional<MavenString> version;
 
   MavenCoordinates(String groupId, String artifactId, String version, String type) {
     checkNotNull(groupId, "maven coordinates does not accept a null groupId");
     checkNotNull(artifactId, "maven coordinates does not accept a null artifactId");
     checkNotNull(artifactId, "maven coordinates does not accept a null type");
-    this.groupId = groupId;
-    this.artifactId = artifactId;
+    this.groupId = new MavenString(groupId);
+    this.artifactId = new MavenString(artifactId);
     this.version = Optional.ofNullable(version).map(MavenString::new);
-    this.type = type;
+    this.type = new MavenString(type);
   }
 
-  String version() {
-    return version.map(MavenString::toString).orElse(null);
+  Optional<MavenString> maybeVersion() {
+    return version;
   }
 
   String artifactId() {
-    return artifactId;
+    return artifactId.toString();
   }
 
   String groupId() {
-    return groupId;
+    return groupId.toString();
   }
 
   String type() {
-    return type;
+    return type.toString();
   }
 
   void substitute(Properties props) {
-    version.map(
-        v -> {
-          v.substitute(props);
-          return v;
-        });
-  }
-
-  String propertyReferencedByVersion() {
-    if (!hasPropertyReferenceVersion()) {
-      throw new IllegalStateException("Version does not reference a property: " + this);
+    groupId.substitute(props);
+    artifactId.substitute(props);
+    type.substitute(props);
+    if (version.isPresent()) {
+      version.get().substitute(props);
     }
-
-    return version.get().propertyReferences().stream().findFirst().get();
-  }
-
-  Set<String> propertyReferences() {
-    return version.map(MavenString::propertyReferences).orElse(Set.of());
-  }
-
-  boolean hasPropertyReferenceVersion() {
-    if (!hasVersion()) {
-      return false;
-    }
-
-    return version.get().propertyReferences().size() == 1;
   }
 
   boolean hasVersion() {
     return version.isPresent();
-  }
-
-  /**
-   * A version is assumed to be well defined if it exists and is not a property reference.
-   *
-   * <p>We don't handle cases where the version is simply invalid.
-   */
-  boolean hasWellDefinedVersion() {
-    return hasVersion() && !hasPropertyReferenceVersion();
   }
 
   Versionless hideVersion() {

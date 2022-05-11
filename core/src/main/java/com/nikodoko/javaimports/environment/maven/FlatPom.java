@@ -59,25 +59,7 @@ class FlatPom {
   }
 
   private void substitutePropertiesWhenPossible() {
-    dependencies =
-        dependencies.stream()
-            .map(
-                d -> {
-                  if (!d.hasPropertyReferenceVersion()) {
-                    return d;
-                  }
-
-                  return substitutePropertyIfPossible(d);
-                })
-            .collect(Collectors.toList());
-  }
-
-  private MavenDependency substitutePropertyIfPossible(MavenDependency d) {
-    d.substitute(properties);
-    return d;
-    // var version = properties.getProperty(d.propertyReferencedByVersion(), d.version());
-    // return new MavenDependency(
-    //     d.groupId(), d.artifactId(), version, d.type(), d.scope().orElse(null), d.optional());
+    dependencies.forEach(d -> d.substitute(properties));
   }
 
   /**

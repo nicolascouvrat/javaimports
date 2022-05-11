@@ -34,6 +34,22 @@ public class MavenStringTest {
     assertThat(s.toString()).isEqualTo("akka-actor_1.0.0");
   }
 
+  @Example
+  void it_can_substitute_indirect_props() {
+    var s = new MavenString("akka-${akka-scala.type}_${akka-scala.version}");
+    var props = new Properties();
+    props.setProperty("akka-scala.version", "${akka.version}");
+    props.setProperty("akka-scala.type", "${akka.type}");
+    props.setProperty("akka.type", "actor");
+
+    s.substitute(props);
+    assertThat(s.toString()).isEqualTo("akka-actor_${akka.version}");
+
+    props.setProperty("akka.version", "1.0.0");
+    s.substitute(props);
+    assertThat(s.toString()).isEqualTo("akka-actor_1.0.0");
+  }
+
   @Property
   void it_can_handle_any_properties(
       @ForAll Map<String, String> someProperties, @ForAll String aString) {

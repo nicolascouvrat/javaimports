@@ -112,6 +112,24 @@ public class FlatPomTest {
   }
 
   @Test
+  void itSubstitutesPropertiesOutsideOfVersion() {
+    var dep =
+        dependency(
+            "com.typesafe.akka",
+            "akka-cluster_${akka-scala.version}",
+            "${com.typesafe.akka.akka-cluster.version}");
+    var properties = new Properties();
+    properties.setProperty("com.typesafe.akka.akka-cluster.version", "${akka.version}");
+    properties.setProperty("akka-scala.version", "${scala.version}");
+    properties.setProperty("scala.version", "2.12");
+    properties.setProperty("akka.version", "2.5.32");
+    var expected = dependency("com.typesafe.akka", "akka-cluster_2.12", "2.5.32");
+
+    var pom = FlatPom.builder().dependencies(List.of(dep)).properties(properties).build();
+    assertThat(pom.dependencies()).containsExactly(expected);
+  }
+
+  @Test
   void itCompletelyEnrichesDependenciesIfPossible() {
     var deps =
         List.of(

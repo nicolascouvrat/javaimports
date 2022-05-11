@@ -102,27 +102,15 @@ class MavenDependency {
   }
 
   String version() {
-    return coordinates.version();
-  }
-
-  String propertyReferencedByVersion() {
-    return coordinates.propertyReferencedByVersion();
+    return coordinates.maybeVersion().map(MavenString::toString).orElse(null);
   }
 
   void substitute(Properties props) {
     coordinates.substitute(props);
   }
 
-  boolean hasPropertyReferenceVersion() {
-    return coordinates.hasPropertyReferenceVersion();
-  }
-
   boolean hasVersion() {
     return coordinates.hasVersion();
-  }
-
-  boolean hasWellDefinedVersion() {
-    return coordinates.hasWellDefinedVersion();
   }
 
   @Override

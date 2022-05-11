@@ -15,26 +15,54 @@ public class MavenString {
 
   public MavenString(String template) {
     this.template = template;
-    var m = MAVEN_PROPERTY_PATTERN.matcher(template);
-    while (m.find()) {
-      propertyReferences.add(m.group("property"));
-    }
+    this.propertyReferences = extractPropertyReferences(template);
   }
 
   public Set<String> propertyReferences() {
     return propertyReferences;
   }
 
-  public void substitute(Properties props) {
-    var it = propertyReferences.iterator();
-    while (it.hasNext()) {
-      var ref = it.next();
-      var value = props.getProperty(ref);
-      if (value != null) {
-        substitute(ref, props.getProperty(ref));
-        it.remove();
-      }
+  public boolean hasPropertyReferences() {
+    return !propertyReferences.isEmpty();
+  }
+
+  private Set<String> extractPropertyReferences(String s) {
+    var props = new HashSet<String>();
+    var m = MAVEN_PROPERTY_PATTERN.matcher(s);
+    while (m.find()) {
+      props.add(m.group("property"));
     }
+
+    return props;
+  }
+
+  public void substitute(Properties props) {
+    var shouldContinue = false;
+    do {
+      shouldContinue = substituteOnce(props);
+    } while (shouldContinue);
+  }
+
+  // returns true if we found anything
+  private boolean substituteOnce(Properties props) {
+    var foundSome = false;
+    Set<String> remaining = new HashSet<>();
+
+    for (var ref : propertyReferences) {
+      var value = props.getProperty(ref);
+      if (value == null) {
+        remaining.add(ref);
+        continue;
+      }
+
+      foundSome = true;
+      var extraRefs = extractPropertyReferences(value);
+      substitute(ref, value);
+      remaining.addAll(extraRefs);
+    }
+
+    propertyReferences = remaining;
+    return foundSome;
   }
 
   private void substitute(String prop, String value) {
