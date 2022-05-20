@@ -8,6 +8,7 @@ final class CLIOptions {
   private final boolean replace;
   private final boolean fixOnly;
   private final boolean verbose;
+  private final String assumeFilename;
 
   CLIOptions(
       String file,
@@ -15,13 +16,15 @@ final class CLIOptions {
       boolean version,
       boolean replace,
       boolean fixOnly,
-      boolean verbose) {
+      boolean verbose,
+      String assumeFilename) {
     this.file = file;
     this.help = help;
     this.version = version;
     this.replace = replace;
     this.fixOnly = fixOnly;
     this.verbose = verbose;
+    this.assumeFilename = assumeFilename;
   }
 
   /** The file to operate on */
@@ -53,6 +56,10 @@ final class CLIOptions {
     return version;
   }
 
+  String assumeFilename() {
+    return assumeFilename;
+  }
+
   static class Builder {
     private String file;
     private boolean help;
@@ -60,6 +67,7 @@ final class CLIOptions {
     private boolean replace;
     private boolean fixOnly;
     private boolean verbose;
+    private String assumeFilename;
 
     Builder file(String file) {
       this.file = file;
@@ -91,8 +99,13 @@ final class CLIOptions {
       return this;
     }
 
+    Builder assumeFilename(String assumeFilename) {
+      this.assumeFilename = assumeFilename;
+      return this;
+    }
+
     CLIOptions build() {
-      return new CLIOptions(file, help, version, replace, fixOnly, verbose);
+      return new CLIOptions(file, help, version, replace, fixOnly, verbose, assumeFilename);
     }
   }
 
