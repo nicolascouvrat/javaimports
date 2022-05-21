@@ -8,20 +8,24 @@ package com.nikodoko.javaimports.common.metrics;
 public class Metrics {
   private static volatile MetricsBackend backend;
 
-  public static void configure() {
+  public static void configure(MetricsConfiguration config) {
     if (backend != null) {
       return;
     }
 
-    backend = createBackend();
+    backend = createBackend(config);
   }
 
-  private static synchronized MetricsBackend createBackend() {
+  private static synchronized MetricsBackend createBackend(MetricsConfiguration config) {
     if (backend != null) {
       return backend;
     }
 
-    return new DDAgentMetricsBackend();
+    if (config.enabled) {
+      return new DDAgentMetricsBackend(config);
+    }
+
+    return new NoopMetricsBackend();
   }
 
   private static MetricsBackend get() {

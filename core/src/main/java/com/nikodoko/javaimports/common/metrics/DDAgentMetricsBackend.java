@@ -6,11 +6,15 @@ import com.timgroup.statsd.StatsDClient;
 class DDAgentMetricsBackend implements MetricsBackend {
   private final StatsDClient client;
 
-  DDAgentMetricsBackend() {
+  DDAgentMetricsBackend(MetricsConfiguration config) {
     this.client =
         new NonBlockingStatsDClientBuilder()
-            .hostname("localhost")
-            .port(8125)
+            .hostname(config.datadogAgentHostname)
+            .port(config.datadogAgentPort)
+            // Enabling aggregation can cause an issue where metrics are not flushed, due to how
+            // short-lived the javaimports process is.
+            // Anyway, we're not going to send the same metric so many times that aggregation would
+            // bring anything
             .enableAggregation(false)
             .build();
   }
