@@ -107,7 +107,11 @@ public final class CLI {
     String input;
     try {
       if (params.file().equals("-")) { // Read from Stdin
-        path = Paths.get("").toAbsolutePath(); // assumes current working directory
+        var f = params.assumeFilename();
+        if (f == null) {
+          f = ""; // assumes current working directory if assume-filename isn't specified
+        }
+        path = Paths.get(f).toAbsolutePath();
         input = readStdin();
       } else {
         // Importer expects an absolute path

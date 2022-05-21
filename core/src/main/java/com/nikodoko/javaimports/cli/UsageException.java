@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.cli;
 
+
 import com.google.common.base.Joiner;
 
 /** Exception class for CLI usage errors */
@@ -21,6 +22,8 @@ public class UsageException extends Exception {
     "    Print the version.",
     "  --help, -help, -h",
     "    Print this usage statement.",
+    "  --assume-filename, -assume-filename",
+    "    File name to use for diagnostics when importing standard input (default is .).",
     "",
     "File:",
     "  setting file equal to '-' will read from stdin",

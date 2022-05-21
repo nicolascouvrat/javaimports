@@ -72,6 +72,10 @@ public class CLIOptionsParser {
         case "-version":
           optsBuilder.version(true);
           break;
+        case "--assume-filename":
+        case "-assume-filename":
+          optsBuilder.assumeFilename(fv.value);
+          break;
         default:
           throw new IllegalArgumentException("unexpected flag: " + fv.flag);
       }
