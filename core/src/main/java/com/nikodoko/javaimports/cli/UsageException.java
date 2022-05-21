@@ -1,6 +1,5 @@
 package com.nikodoko.javaimports.cli;
 
-
 import com.google.common.base.Joiner;
 
 /** Exception class for CLI usage errors */
@@ -12,8 +11,16 @@ public class UsageException extends Exception {
     "Usage: javaimports [options] file",
     "",
     "Options:",
+    "  --assume-filename, -assume-filename",
+    "    File name to use for diagnostics when importing standard input (default is .).",
     "  --fix-only",
     "    Do not format ouput, simply add and remove imports.",
+    "  --metrics-datadog-port",
+    "    Port to use when --metrics-enable is set (default is 8125).",
+    "  --metrics-datadog-host",
+    "    Host to use when --metrics-enable is set (default is \"localhost\").",
+    "  --metrics-enable",
+    "    Enable metrics reporting to a datadog agent running on the specified port and host.",
     "  --replace, -replace, -r, -w",
     "    Write result to source file instead of stdout.",
     "  --verbose, -verbose, -v",
@@ -22,8 +29,6 @@ public class UsageException extends Exception {
     "    Print the version.",
     "  --help, -help, -h",
     "    Print this usage statement.",
-    "  --assume-filename, -assume-filename",
-    "    File name to use for diagnostics when importing standard input (default is .).",
     "",
     "File:",
     "  setting file equal to '-' will read from stdin",

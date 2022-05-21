@@ -39,4 +39,8 @@ public class Metrics {
   public static void count(String name, double value, String... tags) {
     get().count(name, value, tags);
   }
+
+  public static void gauge(String name, double value, String... tags) {
+    get().gauge(name, value, tags);
+  }
 }

@@ -23,4 +23,9 @@ class DDAgentMetricsBackend implements MetricsBackend {
   public void count(String name, double value, String... tags) {
     client.count(name, value, tags);
   }
+
+  @Override
+  public void gauge(String name, double value, String... tags) {
+    client.gauge(name, value, tags);
+  }
 }

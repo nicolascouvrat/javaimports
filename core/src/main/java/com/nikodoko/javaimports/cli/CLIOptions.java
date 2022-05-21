@@ -9,6 +9,10 @@ final class CLIOptions {
   private final boolean fixOnly;
   private final boolean verbose;
   private final String assumeFilename;
+  private final boolean metricsEnabled;
+  // These two options are used only if metrics are enabled
+  private final Integer metricsDatadogPort;
+  private final String metricsDatadogHost;
 
   CLIOptions(
       String file,
@@ -17,7 +21,10 @@ final class CLIOptions {
       boolean replace,
       boolean fixOnly,
       boolean verbose,
-      String assumeFilename) {
+      String assumeFilename,
+      boolean metricsEnabled,
+      Integer metricsDatadogPort,
+      String metricsDatadogHost) {
     this.file = file;
     this.help = help;
     this.version = version;
@@ -25,6 +32,9 @@ final class CLIOptions {
     this.fixOnly = fixOnly;
     this.verbose = verbose;
     this.assumeFilename = assumeFilename;
+    this.metricsEnabled = metricsEnabled;
+    this.metricsDatadogPort = metricsDatadogPort;
+    this.metricsDatadogHost = metricsDatadogHost;
   }
 
   /** The file to operate on */
@@ -56,8 +66,24 @@ final class CLIOptions {
     return version;
   }
 
+  /** File name to use for diagnostics when parsing standard input. */
   String assumeFilename() {
     return assumeFilename;
+  }
+
+  /** Whether to enable metrics reporting */
+  boolean metricsEnabled() {
+    return metricsEnabled;
+  }
+
+  /** The port to use when reporting metrics to the datadog agent. */
+  Integer metricsDatadogPort() {
+    return metricsDatadogPort;
+  }
+
+  /** The hostname to use when reporting metrics to the datadog agent. */
+  String metricsDatadogHost() {
+    return metricsDatadogHost;
   }
 
   static class Builder {
@@ -68,6 +94,9 @@ final class CLIOptions {
     private boolean fixOnly;
     private boolean verbose;
     private String assumeFilename;
+    private boolean metricsEnabled;
+    private Integer metricsDatadogPort;
+    private String metricsDatadogHost;
 
     Builder file(String file) {
       this.file = file;
@@ -104,8 +133,33 @@ final class CLIOptions {
       return this;
     }
 
+    Builder metricsEnabled(boolean metricsEnabled) {
+      this.metricsEnabled = metricsEnabled;
+      return this;
+    }
+
+    Builder metricsDatadogPort(int port) {
+      this.metricsDatadogPort = port;
+      return this;
+    }
+
+    Builder metricsDatadogHost(String host) {
+      this.metricsDatadogHost = host;
+      return this;
+    }
+
     CLIOptions build() {
-      return new CLIOptions(file, help, version, replace, fixOnly, verbose, assumeFilename);
+      return new CLIOptions(
+          file,
+          help,
+          version,
+          replace,
+          fixOnly,
+          verbose,
+          assumeFilename,
+          metricsEnabled,
+          metricsDatadogPort,
+          metricsDatadogHost);
     }
   }
 

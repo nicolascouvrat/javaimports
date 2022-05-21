@@ -78,7 +78,7 @@ public final class Importer {
   public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
     Metrics.configure(options.metricsConfiguration());
-    Metrics.count("importer.runs", 1, "tag:bonjour");
+    Metrics.count("importer.runs", 1);
     long start = clock.millis();
     try {
       Optional<ParsedFile> f = parser.parse(filename, javaCode);
@@ -92,8 +92,10 @@ public final class Importer {
       Result fixes = getFixes(filename, f.get());
       return applyFixes(f.get(), javaCode, fixes);
     } finally {
+      var elapsed = clock.millis() - start;
+      Metrics.gauge("importer.duration", elapsed);
       if (options.debug()) {
-        log.log(Level.INFO, String.format("total time: %d ms", clock.millis() - start));
+        log.log(Level.INFO, String.format("total time: %d ms", elapsed));
       }
     }
   }
