@@ -125,6 +125,7 @@ public final class CLI {
     }
 
     // TODO: make stdlib version a CLI option
+    // TODO: use number of threads according to processor
     Options opts =
         Options.builder()
             .debug(params.verbose())

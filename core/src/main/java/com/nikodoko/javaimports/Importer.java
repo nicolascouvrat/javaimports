@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.common.metrics.Metrics;
 import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.fixer.Fixer;
 import com.nikodoko.javaimports.fixer.Result;
@@ -76,6 +77,8 @@ public final class Importer {
    */
   public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
+    Metrics.configure(options.metricsConfiguration());
+    Metrics.count("importer.runs", 1, "tag:bonjour");
     long start = clock.millis();
     try {
       Optional<ParsedFile> f = parser.parse(filename, javaCode);

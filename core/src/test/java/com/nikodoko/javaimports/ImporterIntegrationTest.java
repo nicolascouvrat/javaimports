@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
+import com.nikodoko.javaimports.common.metrics.MetricsConfiguration;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.stdlib.FakeStdlibProvider;
 import com.nikodoko.packagetest.BuildSystem;
@@ -70,6 +71,7 @@ public class ImporterIntegrationTest {
                     new Import("App", "java.fakeutil", false)))
             // speed up tests a bit
             .numThreads(Runtime.getRuntime().availableProcessors())
+            .metricsConfiguration(MetricsConfiguration.disabled().build())
             .build();
     String input = new String(Files.readAllBytes(main), UTF_8);
     try {

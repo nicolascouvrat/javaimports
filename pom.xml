@@ -37,6 +37,7 @@
     <mavencore.version>3.6.3</mavencore.version>
     <gitcommitidplugin.version>4.0.2</gitcommitidplugin.version>
     <graalvm.version>21.1.0</graalvm.version>
+    <dogstatsd.version>4.0.0</dogstatsd.version>
   </properties>
 
   <dependencyManagement>
@@ -63,6 +64,11 @@
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <version>${gitcommitidplugin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.datadoghq</groupId>
+        <artifactId>java-dogstatsd-client</artifactId>
+        <version>${dogstatsd.version}</version>
       </dependency>
       <!-- Test dependencies -->
       <dependency>

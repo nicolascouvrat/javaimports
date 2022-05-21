@@ -29,6 +29,10 @@
       <groupId>com.google.googlejavaformat</groupId>
       <artifactId>google-java-format</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.datadoghq</groupId>
+      <artifactId>java-dogstatsd-client</artifactId>
+    </dependency>
     <!-- Test dependencies -->
     <dependency>
       <groupId>net.jqwik</groupId>
