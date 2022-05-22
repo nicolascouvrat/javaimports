@@ -5,6 +5,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.collect.ImmutableList;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.parser.internal.UnresolvedIdentifierScanner;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavacParser;
@@ -36,6 +38,8 @@ import javax.tools.StandardLocation;
 public class Parser {
   private static Logger log = Logger.getLogger(Parser.class.getName());
   private static final Clock clock = Clock.systemDefaultZone();
+  private static final Tag.Key PACKAGE = Tag.withKey("package");
+  private static final Tag.Key<Integer> FILE_LENGTH = Tag.withKey("file_length");
 
   private Options options;
 
@@ -58,9 +62,19 @@ public class Parser {
    */
   public Optional<ParsedFile> parse(final Path filename, final String javaCode)
       throws ImporterException {
+    var span = Traces.createSpan("Parser.parse", FILE_LENGTH.is(javaCode.length()));
+    try (var __ = Traces.activate(span)) {
+      return parseInstrumented(filename, javaCode);
+    } finally {
+      span.finish();
+    }
+  }
+
+  public Optional<ParsedFile> parseInstrumented(final Path filename, final String javaCode)
+      throws ImporterException {
     long start = clock.millis();
     // Parse the code into a compilation unit containing the AST
-    JCCompilationUnit unit = getCompilationUnit(filename.toString(), javaCode);
+    JCCompilationUnit unit = getCompilationUnitInstrumented(filename.toString(), javaCode);
     // A lot of what we do relies on having a package clause, consider the file empty if it does not
     // have one.
     if (unit.getPackageName() == null) {
@@ -85,6 +99,22 @@ public class Parser {
   /** Return true if the diagnostic is an error diagnostic. */
   private static boolean isErrorDiagnostic(Diagnostic<?> d) {
     return d.getKind() == Diagnostic.Kind.ERROR;
+  }
+
+  private JCCompilationUnit getCompilationUnitInstrumented(String filename, String javaCode)
+      throws ImporterException {
+    var span = Traces.createSpan("Parser.getCompilationUnit", FILE_LENGTH.is(javaCode.length()));
+    JCCompilationUnit unit = null;
+    try (var __ = Traces.activate(span)) {
+      unit = getCompilationUnit(filename, javaCode);
+      return unit;
+    } finally {
+      if (unit != null) {
+        Traces.addTags(span, PACKAGE.is(unit.getPackageName()));
+      }
+
+      span.finish();
+    }
   }
 
   // This should not be public, but is used in test

@@ -119,7 +119,7 @@ public final class CLI {
 
   private int run(CLIOptions params) throws UsageException {
     instrument(params);
-    var span = Traces.createSpan("cli.run");
+    var span = Traces.createSpan("CLI.run");
     try (var __ = Traces.activate(span)) {
       return runInstrumented(params);
     } finally {

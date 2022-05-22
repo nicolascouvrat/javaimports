@@ -56,17 +56,17 @@ public class Traces {
     }
 
     var builder = GlobalTracer.get().buildSpan(name);
-    builder = decorate(builder);
+    builder = decorate(builder, tags);
     return builder.start();
   }
 
   private static SpanBuilder decorate(SpanBuilder spanBuilder, Tag... tags) {
     for (var tag : defaultTags) {
-      spanBuilder.withTag(tag.key, tag.value);
+      spanBuilder = spanBuilder.withTag(tag.key, tag.value);
     }
 
     for (var tag : tags) {
-      spanBuilder.withTag(tag.key, tag.value);
+      spanBuilder = spanBuilder.withTag(tag.key, tag.value);
     }
 
     return spanBuilder;
@@ -78,5 +78,11 @@ public class Traces {
     }
 
     return GlobalTracer.get().activateSpan(span);
+  }
+
+  public static void addTags(Span span, Tag... tags) {
+    for (var tag : tags) {
+      span.setTag(tag.key, tag.value);
+    }
   }
 }
