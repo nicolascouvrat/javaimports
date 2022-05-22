@@ -25,12 +25,13 @@ public class Metrics {
       return new DDAgentMetricsBackend(config);
     }
 
-    return new NoopMetricsBackend();
+    return NoopMetricsBackend.INSTANCE;
   }
 
   private static MetricsBackend get() {
     if (backend == null) {
-      throw new IllegalStateException("Metrics backend is not configured!");
+      // Drop the metric
+      return NoopMetricsBackend.INSTANCE;
     }
 
     return backend;

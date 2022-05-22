@@ -7,6 +7,7 @@ import com.google.googlejavaformat.java.FormatterException;
 import com.nikodoko.javaimports.Importer;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.metrics.Metrics;
 import com.nikodoko.javaimports.common.metrics.MetricsConfiguration;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.BufferedReader;
@@ -92,8 +93,28 @@ public final class CLI {
     return file;
   }
 
+  private void instrument(CLIOptions params) {
+    // Build metrics configuration
+    var metricsConfig = MetricsConfiguration.disabled().build();
+    if (params.metricsEnabled()) {
+      var metricsConfigBuilder = MetricsConfiguration.enabled();
+      if (params.metricsDatadogPort() != null) {
+        metricsConfigBuilder.datadogAgentPort(params.metricsDatadogPort());
+      }
+
+      if (params.metricsDatadogHost() != null) {
+        metricsConfigBuilder.datadogAgentHostname(params.metricsDatadogHost());
+      }
+
+      metricsConfig = metricsConfigBuilder.build();
+    }
+
+    Metrics.configure(metricsConfig);
+  }
+
   private int parse(String... args) throws UsageException {
     CLIOptions params = processArgs(args);
+    instrument(params);
 
     if (params.version()) {
       errWriter.println(versionString());
@@ -125,21 +146,6 @@ public final class CLI {
       return 1;
     }
 
-    // Build metrics configuration
-    var metricsConfig = MetricsConfiguration.disabled().build();
-    if (params.metricsEnabled()) {
-      var metricsConfigBuilder = MetricsConfiguration.enabled();
-      if (params.metricsDatadogPort() != null) {
-        metricsConfigBuilder.datadogAgentPort(params.metricsDatadogPort());
-      }
-
-      if (params.metricsDatadogHost() != null) {
-        metricsConfigBuilder.datadogAgentHostname(params.metricsDatadogHost());
-      }
-
-      metricsConfig = metricsConfigBuilder.build();
-    }
-
     // TODO: make stdlib version a CLI option
     // TODO: use number of threads according to processor
     Options opts =
@@ -147,7 +153,6 @@ public final class CLI {
             .debug(params.verbose())
             .stdlib(StdlibProviders.java8())
             .numThreads(8)
-            .metricsConfiguration(metricsConfig)
             .build();
     String fixed;
     try {

@@ -77,7 +77,6 @@ public final class Importer {
    */
   public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
-    Metrics.configure(options.metricsConfiguration());
     Metrics.count("importer.runs", 1);
     long start = clock.millis();
     try {

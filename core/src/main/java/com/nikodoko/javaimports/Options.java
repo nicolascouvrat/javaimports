@@ -1,6 +1,5 @@
 package com.nikodoko.javaimports;
 
-import com.nikodoko.javaimports.common.metrics.MetricsConfiguration;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.nio.file.Path;
@@ -16,9 +15,6 @@ public class Options {
   public static final int DEFAULT_NUM_THREADS = 0;
   /** Do not use debug logging by default. */
   public static final boolean DEFAULT_IS_DEBUG = false;
-  /** Do not report metrics by default. */
-  public static final MetricsConfiguration DEFAULT_METRICS_CONFIGURATION =
-      MetricsConfiguration.disabled().build();
   /** Do not look for dependencies by default. */
   public static final Optional<Path> DEFAULT_REPOSITORY = Optional.empty();
 
@@ -26,19 +22,12 @@ public class Options {
   Optional<Path> repository;
   StdlibProvider stdlib;
   Executor executor;
-  MetricsConfiguration metricsConfiguration;
 
-  public Options(
-      boolean debug,
-      Optional<Path> repository,
-      StdlibProvider stdlib,
-      int numThreads,
-      MetricsConfiguration metricsConfiguration) {
+  public Options(boolean debug, Optional<Path> repository, StdlibProvider stdlib, int numThreads) {
     this.debug = debug;
     this.repository = repository;
     this.stdlib = stdlib;
     this.executor = numThreads != 0 ? Executors.newFixedThreadPool(numThreads) : Runnable::run;
-    this.metricsConfiguration = metricsConfiguration;
   }
 
   /** Specific directory to use as a dependency repository. */
@@ -61,17 +50,11 @@ public class Options {
     return executor;
   }
 
-  /** The settings to use for metrics reporting */
-  public MetricsConfiguration metricsConfiguration() {
-    return metricsConfiguration;
-  }
-
   public static class Builder {
     boolean debug = DEFAULT_IS_DEBUG;
     Optional<Path> repository = DEFAULT_REPOSITORY;
     StdlibProvider stdlib = DEFAULT_STDLIB_PROVIDER;
     int numThreads = DEFAULT_NUM_THREADS;
-    MetricsConfiguration metricsConfiguration = DEFAULT_METRICS_CONFIGURATION;
 
     public Builder() {}
 
@@ -95,13 +78,8 @@ public class Options {
       return this;
     }
 
-    public Builder metricsConfiguration(MetricsConfiguration configuration) {
-      this.metricsConfiguration = configuration;
-      return this;
-    }
-
     public Options build() {
-      return new Options(debug, repository, stdlib, numThreads, metricsConfiguration);
+      return new Options(debug, repository, stdlib, numThreads);
     }
   }
 
