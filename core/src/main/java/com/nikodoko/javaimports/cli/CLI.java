@@ -7,8 +7,9 @@ import com.google.googlejavaformat.java.FormatterException;
 import com.nikodoko.javaimports.Importer;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
-import com.nikodoko.javaimports.common.metrics.Metrics;
-import com.nikodoko.javaimports.common.metrics.MetricsConfiguration;
+import com.nikodoko.javaimports.common.telemetry.Metrics;
+import com.nikodoko.javaimports.common.telemetry.MetricsConfiguration;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,8 +45,9 @@ public final class CLI {
     PrintWriter err = new PrintWriter(new OutputStreamWriter(System.err, UTF_8));
     PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out, UTF_8));
     try {
-      CLI parser = new CLI(out, err);
-      result = parser.parse(args);
+      CLI cli = new CLI(out, err);
+      CLIOptions params = processArgs(args);
+      result = cli.run(params);
     } catch (UsageException e) {
       err.print(e.getMessage());
       result = 0;
@@ -57,7 +59,7 @@ public final class CLI {
     System.exit(result);
   }
 
-  private CLIOptions processArgs(String... args) throws UsageException {
+  private static CLIOptions processArgs(String... args) throws UsageException {
     CLIOptions params;
     try {
       params = CLIOptionsParser.parse(Arrays.asList(args));
@@ -110,12 +112,23 @@ public final class CLI {
     }
 
     Metrics.configure(metricsConfig);
+    if (params.tracingEnabled()) {
+      Traces.enable();
+    }
   }
 
-  private int parse(String... args) throws UsageException {
-    CLIOptions params = processArgs(args);
+  private int run(CLIOptions params) throws UsageException {
     instrument(params);
+    var span = Traces.createSpan("cli.run");
+    try (var __ = Traces.activate(span)) {
+      return runInstrumented(params);
+    } finally {
+      span.finish();
+      Traces.close();
+    }
+  }
 
+  private int runInstrumented(CLIOptions params) throws UsageException {
     if (params.version()) {
       errWriter.println(versionString());
       return 0;

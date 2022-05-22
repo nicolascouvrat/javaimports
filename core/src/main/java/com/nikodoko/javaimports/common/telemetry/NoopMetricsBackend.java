@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.common.metrics;
+package com.nikodoko.javaimports.common.telemetry;
 
 class NoopMetricsBackend implements MetricsBackend {
   public static NoopMetricsBackend INSTANCE = new NoopMetricsBackend();

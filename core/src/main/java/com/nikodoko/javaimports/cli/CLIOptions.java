@@ -13,6 +13,7 @@ final class CLIOptions {
   // These two options are used only if metrics are enabled
   private final Integer metricsDatadogPort;
   private final String metricsDatadogHost;
+  private final boolean tracingEnabled;
 
   CLIOptions(
       String file,
@@ -24,7 +25,8 @@ final class CLIOptions {
       String assumeFilename,
       boolean metricsEnabled,
       Integer metricsDatadogPort,
-      String metricsDatadogHost) {
+      String metricsDatadogHost,
+      boolean tracingEnabled) {
     this.file = file;
     this.help = help;
     this.version = version;
@@ -35,6 +37,7 @@ final class CLIOptions {
     this.metricsEnabled = metricsEnabled;
     this.metricsDatadogPort = metricsDatadogPort;
     this.metricsDatadogHost = metricsDatadogHost;
+    this.tracingEnabled = tracingEnabled;
   }
 
   /** The file to operate on */
@@ -86,6 +89,10 @@ final class CLIOptions {
     return metricsDatadogHost;
   }
 
+  boolean tracingEnabled() {
+    return tracingEnabled;
+  }
+
   static class Builder {
     private String file;
     private boolean help;
@@ -97,6 +104,7 @@ final class CLIOptions {
     private boolean metricsEnabled;
     private Integer metricsDatadogPort;
     private String metricsDatadogHost;
+    private boolean tracingEnabled;
 
     Builder file(String file) {
       this.file = file;
@@ -148,6 +156,11 @@ final class CLIOptions {
       return this;
     }
 
+    Builder tracingEnabled(boolean tracingEnabled) {
+      this.tracingEnabled = tracingEnabled;
+      return this;
+    }
+
     CLIOptions build() {
       return new CLIOptions(
           file,
@@ -159,7 +172,8 @@ final class CLIOptions {
           assumeFilename,
           metricsEnabled,
           metricsDatadogPort,
-          metricsDatadogHost);
+          metricsDatadogHost,
+          tracingEnabled);
     }
   }
 

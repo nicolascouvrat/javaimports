@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.common.metrics;
+package com.nikodoko.javaimports.common.telemetry;
 
 public class MetricsConfiguration {
   private static final int DEFAULT_DD_PORT = 8125;

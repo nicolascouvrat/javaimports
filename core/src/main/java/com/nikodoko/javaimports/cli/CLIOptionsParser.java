@@ -88,6 +88,15 @@ public class CLIOptionsParser {
         case "-metrics-datadog-host":
           optsBuilder.metricsDatadogHost(fv.value);
           break;
+        case "--tracing-enable":
+        case "-tracing-enable":
+          optsBuilder.tracingEnabled(true);
+          break;
+        case "--telemetry-enable":
+        case "-telemetry-enable":
+          optsBuilder.tracingEnabled(true);
+          optsBuilder.metricsEnabled(true);
+          break;
         default:
           throw new IllegalArgumentException("unexpected flag: " + fv.flag);
       }

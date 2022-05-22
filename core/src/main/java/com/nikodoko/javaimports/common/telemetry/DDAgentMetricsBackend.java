@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.common.metrics;
+package com.nikodoko.javaimports.common.telemetry;
 
 import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
 import com.timgroup.statsd.StatsDClient;

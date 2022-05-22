@@ -38,6 +38,8 @@
     <gitcommitidplugin.version>4.0.2</gitcommitidplugin.version>
     <graalvm.version>21.1.0</graalvm.version>
     <dogstatsd.version>4.0.0</dogstatsd.version>
+    <opentracing.version>0.32.0</opentracing.version>
+    <dd-trace-java.version>0.101.0</dd-trace-java.version>
   </properties>
 
   <dependencyManagement>
@@ -65,10 +67,36 @@
         <artifactId>git-commit-id-plugin</artifactId>
         <version>${gitcommitidplugin.version}</version>
       </dependency>
+      <!-- Telemetry -->
       <dependency>
         <groupId>com.datadoghq</groupId>
         <artifactId>java-dogstatsd-client</artifactId>
         <version>${dogstatsd.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-api</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-util</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-noop</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.datadoghq</groupId>
+        <artifactId>dd-trace-api</artifactId>
+        <version>${dd-trace-java.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.datadoghq</groupId>
+        <artifactId>dd-trace-ot</artifactId>
+        <version>${dd-trace-java.version}</version>
       </dependency>
       <!-- Test dependencies -->
       <dependency>

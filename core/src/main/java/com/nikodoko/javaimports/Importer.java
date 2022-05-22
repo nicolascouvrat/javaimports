@@ -4,13 +4,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.Range;
-import com.nikodoko.javaimports.common.metrics.Metrics;
+import com.nikodoko.javaimports.common.telemetry.Metrics;
 import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.fixer.Fixer;
 import com.nikodoko.javaimports.fixer.Result;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
+import io.opentracing.util.GlobalTracer;
 import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -79,7 +80,9 @@ public final class Importer {
       throws ImporterException {
     Metrics.count("importer.runs", 1);
     long start = clock.millis();
-    try {
+    var tracer = GlobalTracer.get();
+    var span = tracer.buildSpan("IMPORTER").start();
+    try (var scope = tracer.activateSpan(span)) {
       Optional<ParsedFile> f = parser.parse(filename, javaCode);
       if (f.isEmpty()) {
         if (options.debug()) {
@@ -91,6 +94,7 @@ public final class Importer {
       Result fixes = getFixes(filename, f.get());
       return applyFixes(f.get(), javaCode, fixes);
     } finally {
+      span.finish();
       var elapsed = clock.millis() - start;
       Metrics.gauge("importer.duration", elapsed);
       if (options.debug()) {
