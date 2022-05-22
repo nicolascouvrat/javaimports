@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.common.telemetry;
 
+/** Simple wrapper to unify tags accross traces and metrics. */
 public class Tag {
   private static final String DELIMITER = ":";
 

@@ -54,6 +54,12 @@
       <groupId>com.datadoghq</groupId>
       <artifactId>dd-trace-ot</artifactId>
     </dependency>
+    <!-- Supress warnings in dependencies using SLF4j -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>1.7.30</version>
+    </dependency>
     <!-- Test dependencies -->
     <dependency>
       <groupId>net.jqwik</groupId>

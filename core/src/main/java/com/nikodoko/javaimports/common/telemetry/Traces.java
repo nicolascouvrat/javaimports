@@ -11,8 +11,7 @@ import java.util.List;
 
 public class Traces {
   private static volatile boolean enabled = false;
-  private static final List<Tag> defaultTags =
-      List.of(new Tag("version", Traces.class.getPackage().getImplementationVersion()));
+  private static final List<Tag> defaultTags = List.of(Tags.VERSION_TAG);
 
   public static void enable() {
     if (enabled) {

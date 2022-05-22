@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.common.telemetry;
 
 import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
 import com.timgroup.statsd.StatsDClient;
+import java.util.Arrays;
 
 class DDAgentMetricsBackend implements MetricsBackend {
   private final StatsDClient client;
@@ -20,12 +21,16 @@ class DDAgentMetricsBackend implements MetricsBackend {
   }
 
   @Override
-  public void count(String name, double value, String... tags) {
-    client.count(name, value, tags);
+  public void count(String name, double value, Tag... tags) {
+    client.count(name, value, convert(tags));
   }
 
   @Override
-  public void gauge(String name, double value, String... tags) {
-    client.gauge(name, value, tags);
+  public void gauge(String name, double value, Tag... tags) {
+    client.gauge(name, value, convert(tags));
+  }
+
+  private String[] convert(Tag... tags) {
+    return Arrays.stream(tags).map(Tag::toString).toArray(String[]::new);
   }
 }

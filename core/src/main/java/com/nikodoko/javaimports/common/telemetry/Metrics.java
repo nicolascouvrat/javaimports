@@ -1,11 +1,16 @@
 package com.nikodoko.javaimports.common.telemetry;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
 /**
  * Provides convenient access to metrics.
  *
  * <p>Make sure to use {@link #configure()} first.
  */
 public class Metrics {
+  private static final List<Tag> DEFAULT_TAGS = List.of(Tags.VERSION_TAG);
   private static volatile MetricsBackend backend;
 
   public static void configure(MetricsConfiguration config) {
@@ -37,11 +42,15 @@ public class Metrics {
     return backend;
   }
 
-  public static void count(String name, double value, String... tags) {
-    get().count(name, value, tags);
+  private static Tag[] addDefaultTags(Tag... tags) {
+    return Stream.concat(DEFAULT_TAGS.stream(), Arrays.stream(tags)).toArray(Tag[]::new);
   }
 
-  public static void gauge(String name, double value, String... tags) {
-    get().gauge(name, value, tags);
+  public static void count(String name, double value, Tag... tags) {
+    get().count(name, value, addDefaultTags(tags));
+  }
+
+  public static void gauge(String name, double value, Tag... tags) {
+    get().gauge(name, value, addDefaultTags(tags));
   }
 }
