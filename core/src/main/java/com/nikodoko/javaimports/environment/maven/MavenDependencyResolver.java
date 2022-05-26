@@ -1,6 +1,8 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +35,16 @@ class MavenDependencyResolver {
   }
 
   PrimaryArtifact resolve(MavenDependency dependency) throws IOException {
+    var span =
+        Traces.createSpan("MavenDependencyResolver.resolve", new Tag("dependency", dependency));
+    try (var __ = Traces.activate(span)) {
+      return resolveInstrumented(dependency);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private PrimaryArtifact resolveInstrumented(MavenDependency dependency) throws IOException {
     var artifactPath = artifactPath(dependency);
     var jarSuffix = dependency.type().equals("test-jar") ? "-tests.jar" : ".jar";
     return new PrimaryArtifact(

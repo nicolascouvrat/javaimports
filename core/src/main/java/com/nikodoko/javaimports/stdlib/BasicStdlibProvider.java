@@ -1,6 +1,8 @@
 package com.nikodoko.javaimports.stdlib;
 
 import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.stdlib.internal.Stdlib;
 import java.util.ArrayList;
@@ -52,6 +54,15 @@ public class BasicStdlibProvider implements StdlibProvider {
 
   @Override
   public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
+    var span = Traces.createSpan("BasicStdlibProvider.findImports", new Tag("identifier", i));
+    try (var __ = Traces.activate(span)) {
+      return findImportsInstrumented(i);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Collection<com.nikodoko.javaimports.common.Import> findImportsInstrumented(Identifier i) {
     var found = stdlib.getClassesFor(i.toString());
     if (found == null) {
       return List.of();

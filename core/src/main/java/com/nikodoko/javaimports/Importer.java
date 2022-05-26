@@ -80,7 +80,7 @@ public final class Importer {
       throws ImporterException {
     Metrics.count("importer.runs", 1);
     long start = clock.millis();
-    var span = Traces.createSpan("importer.addUsedImports");
+    var span = Traces.createSpan("Importer.addUsedImports");
     try (var __ = Traces.activate(span)) {
       Optional<ParsedFile> f = parser.parse(filename, javaCode);
       if (f.isEmpty()) {
@@ -103,6 +103,15 @@ public final class Importer {
   }
 
   private Result getFixes(Path filename, ParsedFile f) throws ImporterException {
+    var span = Traces.createSpan("Importer.getFixes");
+    try (var __ = Traces.activate(span)) {
+      return getFixesInstrumented(filename, f);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Result getFixesInstrumented(Path filename, ParsedFile f) throws ImporterException {
     Fixer fixer = Fixer.init(f, options);
     // Initial run with the current file only.
     Result r = fixer.tryToFix();
@@ -138,6 +147,15 @@ public final class Importer {
 
   // Find and parse all java files in the directory of filename, excepting filename itself
   private Set<ParsedFile> parseSiblings(final Path filename) throws ImporterException {
+    var span = Traces.createSpan("Importer.parseSiblings");
+    try (var __ = Traces.activate(span)) {
+      return parseSiblingsInstrumented(filename);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Set<ParsedFile> parseSiblingsInstrumented(final Path filename) throws ImporterException {
     Map<Path, String> sources = new HashMap<>();
     try {
       // Retrieve all java files in the parent directory of filename, excluding filename and not

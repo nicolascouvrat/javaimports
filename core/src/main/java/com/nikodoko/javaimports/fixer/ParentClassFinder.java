@@ -5,6 +5,7 @@ import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
 import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
 import java.util.HashSet;
@@ -63,10 +64,15 @@ class ParentClassFinder {
   }
 
   Result findAllParents(Set<OrphanClass> orphans) {
-    return orphans.stream()
-        .map(this::findParents)
-        .reduce(Result::merge)
-        .orElse(Result.complete(Set.of(), Set.of()));
+    var span = Traces.createSpan("ParentClassFinder.findAllParents");
+    try (var __ = Traces.activate(span)) {
+      return orphans.stream()
+          .map(this::findParents)
+          .reduce(Result::merge)
+          .orElse(Result.complete(Set.of(), Set.of()));
+    } finally {
+      span.finish();
+    }
   }
 
   Result findParents(OrphanClass orphan) {

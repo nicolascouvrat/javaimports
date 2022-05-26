@@ -1,7 +1,7 @@
 package com.nikodoko.javaimports.common.telemetry;
 
 /** Simple wrapper to unify tags accross traces and metrics. */
-public class Tag<T> {
+public class Tag<T extends Object> {
   private static final String DELIMITER = ":";
 
   final String key;
@@ -20,7 +20,7 @@ public class Tag<T> {
     return value.toString();
   }
 
-  public static <T> Key<T> withKey(String key) {
+  public static <T extends Object> Key<T> withKey(String key) {
     return new Key<T>(key);
   }
 
@@ -29,7 +29,7 @@ public class Tag<T> {
     return String.join(DELIMITER, key, value);
   }
 
-  public static class Key<T> {
+  public static class Key<T extends Object> {
     private final String key;
 
     Key(String key) {

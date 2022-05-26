@@ -4,6 +4,8 @@ import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.ImportProvider;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +23,15 @@ public class CandidateFinder {
   }
 
   public Candidates find(Selector selector) {
+    var span = Traces.createSpan("CandidateFinder.find", new Tag("selector", selector.toString()));
+    try (var __ = Traces.activate(span)) {
+      return findInstrumented(selector);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Candidates findInstrumented(Selector selector) {
     var candidates =
         findForIdentifier(selector.identifier())
             .filter(c -> matchesSelector(c, selector))
