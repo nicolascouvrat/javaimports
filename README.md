@@ -18,10 +18,22 @@ java -jar /path/to/javaimports-1.0-all-deps.jar <options> file
 Usage: javaimports [options] file
 
 Options:
+  --assume-filename, -assume-filename
+    File name to use for diagnostics when importing standard input (default is .).
   --fix-only
     Do not format ouput, simply add and remove imports.
+  --metrics-datadog-port, -metrics-datadog-port
+    Port to use when --metrics-enable is set (default is 8125).
+  --metrics-datadog-host, -metrics-datadog-host
+    Host to use when --metrics-enable is set (default is "localhost").
+  --metrics-enable, -metrics-enable
+    Enable metrics reporting to a datadog agent running on the specified port and host.
   --replace, -replace, -r, -w
     Write result to source file instead of stdout.
+  --telemetry-enable, -telemetry-enable
+    Enable telemetry. Shorthand for --tracing-enable and --metrics-enable.
+  --tracing-enable, -tracing-enable
+    Enable tracing reporting to a datadog agent listening at http://localhost:8126.
   --verbose, -verbose, -v
     Verbose logging.
   --version, -version
@@ -68,6 +80,12 @@ path to your java home, like so:
 ```
 ./javaimports-native-image -Djava.home=/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home [other flags] <file>"
 ```
+
+## Telemetry (traces and metrics)
+
+In order to help contributors debug and find bottlenecks, `javaimports` can optionally emit traces
+and metrics that will be picked up by a Datadog agent. This is disabled by default, see options to
+enable it.
 
 ## Why `javaimports`?
 
