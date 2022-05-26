@@ -9,6 +9,15 @@ import java.util.concurrent.Executors;
 
 /** {@link Importer} options */
 public class Options {
+  /** Do not use the stdlib by default. */
+  public static final StdlibProvider DEFAULT_STDLIB_PROVIDER = StdlibProviders.empty();
+  /** Do not use multithreading by default. */
+  public static final int DEFAULT_NUM_THREADS = 0;
+  /** Do not use debug logging by default. */
+  public static final boolean DEFAULT_IS_DEBUG = false;
+  /** Do not look for dependencies by default. */
+  public static final Optional<Path> DEFAULT_REPOSITORY = Optional.empty();
+
   boolean debug;
   Optional<Path> repository;
   StdlibProvider stdlib;
@@ -42,10 +51,10 @@ public class Options {
   }
 
   public static class Builder {
-    boolean debug;
-    Path repository;
-    StdlibProvider stdlib;
-    int numThreads;
+    boolean debug = DEFAULT_IS_DEBUG;
+    Optional<Path> repository = DEFAULT_REPOSITORY;
+    StdlibProvider stdlib = DEFAULT_STDLIB_PROVIDER;
+    int numThreads = DEFAULT_NUM_THREADS;
 
     public Builder() {}
 
@@ -55,7 +64,7 @@ public class Options {
     }
 
     public Builder repository(Path repository) {
-      this.repository = repository;
+      this.repository = Optional.of(repository);
       return this;
     }
 
@@ -70,7 +79,7 @@ public class Options {
     }
 
     public Options build() {
-      return new Options(debug, Optional.ofNullable(repository), stdlib, numThreads);
+      return new Options(debug, repository, stdlib, numThreads);
     }
   }
 
@@ -80,6 +89,6 @@ public class Options {
 
   /** Default options */
   public static Options defaults() {
-    return builder().debug(false).stdlib(StdlibProviders.empty()).numThreads(0).build();
+    return builder().build();
   }
 }

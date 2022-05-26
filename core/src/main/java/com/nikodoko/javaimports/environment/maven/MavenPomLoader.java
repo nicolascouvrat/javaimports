@@ -1,6 +1,8 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,7 +44,12 @@ public class MavenPomLoader {
   }
 
   static Result load(Path pom) {
-    return tryToScan(pom);
+    var span = Traces.createSpan("MavenPomLoader.load", new Tag("pom_path", pom));
+    try (var __ = Traces.activate(span)) {
+      return tryToScan(pom);
+    } finally {
+      span.finish();
+    }
   }
 
   private static Result tryToScan(Path pom) {

@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.common.telemetry.Metrics;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.fixer.Fixer;
 import com.nikodoko.javaimports.fixer.Result;
@@ -76,8 +78,10 @@ public final class Importer {
    */
   public String addUsedImports(final Path filename, final String javaCode)
       throws ImporterException {
+    Metrics.count("importer.runs", 1);
     long start = clock.millis();
-    try {
+    var span = Traces.createSpan("Importer.addUsedImports");
+    try (var __ = Traces.activate(span)) {
       Optional<ParsedFile> f = parser.parse(filename, javaCode);
       if (f.isEmpty()) {
         if (options.debug()) {
@@ -89,13 +93,25 @@ public final class Importer {
       Result fixes = getFixes(filename, f.get());
       return applyFixes(f.get(), javaCode, fixes);
     } finally {
+      span.finish();
+      var elapsed = clock.millis() - start;
+      Metrics.gauge("importer.duration", elapsed);
       if (options.debug()) {
-        log.log(Level.INFO, String.format("total time: %d ms", clock.millis() - start));
+        log.log(Level.INFO, String.format("total time: %d ms", elapsed));
       }
     }
   }
 
   private Result getFixes(Path filename, ParsedFile f) throws ImporterException {
+    var span = Traces.createSpan("Importer.getFixes");
+    try (var __ = Traces.activate(span)) {
+      return getFixesInstrumented(filename, f);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Result getFixesInstrumented(Path filename, ParsedFile f) throws ImporterException {
     Fixer fixer = Fixer.init(f, options);
     // Initial run with the current file only.
     Result r = fixer.tryToFix();
@@ -131,6 +147,15 @@ public final class Importer {
 
   // Find and parse all java files in the directory of filename, excepting filename itself
   private Set<ParsedFile> parseSiblings(final Path filename) throws ImporterException {
+    var span = Traces.createSpan("Importer.parseSiblings");
+    try (var __ = Traces.activate(span)) {
+      return parseSiblingsInstrumented(filename);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Set<ParsedFile> parseSiblingsInstrumented(final Path filename) throws ImporterException {
     Map<Path, String> sources = new HashMap<>();
     try {
       // Retrieve all java files in the parent directory of filename, excluding filename and not

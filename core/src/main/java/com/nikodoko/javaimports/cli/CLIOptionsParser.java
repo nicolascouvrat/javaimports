@@ -76,6 +76,27 @@ public class CLIOptionsParser {
         case "-assume-filename":
           optsBuilder.assumeFilename(fv.value);
           break;
+        case "--metrics-enable":
+        case "-metrics-enable":
+          optsBuilder.metricsEnabled(true);
+          break;
+        case "--metrics-datadog-port":
+        case "-metrics-datadog-port":
+          optsBuilder.metricsDatadogPort(Integer.parseInt(fv.value));
+          break;
+        case "--metrics-datadog-host":
+        case "-metrics-datadog-host":
+          optsBuilder.metricsDatadogHost(fv.value);
+          break;
+        case "--tracing-enable":
+        case "-tracing-enable":
+          optsBuilder.tracingEnabled(true);
+          break;
+        case "--telemetry-enable":
+        case "-telemetry-enable":
+          optsBuilder.tracingEnabled(true);
+          optsBuilder.metricsEnabled(true);
+          break;
         default:
           throw new IllegalArgumentException("unexpected flag: " + fv.flag);
       }

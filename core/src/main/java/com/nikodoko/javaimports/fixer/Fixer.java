@@ -3,6 +3,8 @@ package com.nikodoko.javaimports.fixer;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.fixer.candidates.BasicCandidateSelectionStrategy;
 import com.nikodoko.javaimports.fixer.candidates.Candidate;
@@ -90,6 +92,15 @@ public class Fixer {
   }
 
   private Result loadAndTryToFix(boolean lastTry) {
+    var span = Traces.createSpan("Fixer.loadAndTryToFix", new Tag("lastTry", lastTry));
+    try (var __ = Traces.activate(span)) {
+      return loadAndTryToFixInstrumented(lastTry);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Result loadAndTryToFixInstrumented(boolean lastTry) {
     loader.load();
     if (options.debug()) {
       log.info("load completed: " + loader.result().toString());
@@ -108,6 +119,15 @@ public class Fixer {
   // Gives up if all necessary imports cannot be found, except if it is a last try, in which case
   // the best possible incomplete list of fixes will be returned.
   private Result fix(boolean lastTry) {
+    var span = Traces.createSpan("Fixer.fix", new Tag("lastTry", lastTry));
+    try (var __ = Traces.activate(span)) {
+      return fixInstrumented(lastTry);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Result fixInstrumented(boolean lastTry) {
     var loaded = loader.result();
     var allParentsFound = true;
     var fixes = new HashSet<Import>();
@@ -148,6 +168,16 @@ public class Fixer {
   }
 
   private Set<Import> findFixes(Set<Identifier> unresolved, Collection<Import> current) {
+    var span = Traces.createSpan("Fixer.findFixes");
+    try (var __ = Traces.activate(span)) {
+      return findFixesInstrumented(unresolved, current);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Set<Import> findFixesInstrumented(
+      Set<Identifier> unresolved, Collection<Import> current) {
     var selectors = unresolved.stream().map(Selector::of).collect(Collectors.toList());
     var candidates = selectors.stream().map(this.candidates::find).reduce(Candidates::merge).get();
     var best = new BasicCandidateSelectionStrategy(file.pkg()).selectBest(candidates);

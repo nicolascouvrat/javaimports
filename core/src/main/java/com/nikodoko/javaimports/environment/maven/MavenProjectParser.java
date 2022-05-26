@@ -5,9 +5,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.JavaProject;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
+import io.opentracing.Span;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,9 +66,20 @@ class MavenProjectParser {
   }
 
   Result parseAll() {
+    var span = Traces.createSpan("MavenProjectParser.parseAll");
+    try (var __ = Traces.activate(span)) {
+      return parseAllInstrumented(span);
+    } finally {
+      span.finish();
+    }
+  }
+
+  Result parseAllInstrumented(Span span) {
     var futures =
         tryToFindAllFiles().stream()
-            .map(path -> CompletableFuture.supplyAsync(() -> tryToParse(path), options.executor()))
+            .map(
+                path ->
+                    CompletableFuture.supplyAsync(() -> tryToParse(span, path), options.executor()))
             .collect(Collectors.toList());
 
     CompletableFuture.allOf(futures.stream().toArray(CompletableFuture[]::new)).join();
@@ -95,8 +108,8 @@ class MavenProjectParser {
     }
   }
 
-  private Pair<Optional<ParsedFile>, MavenEnvironmentException> tryToParse(Path path) {
-    try {
+  private Pair<Optional<ParsedFile>, MavenEnvironmentException> tryToParse(Span span, Path path) {
+    try (var __ = Traces.activate(span)) {
       var result = new Pair(parseFile(path), null);
       return result;
     } catch (IOException | ImporterException e) {

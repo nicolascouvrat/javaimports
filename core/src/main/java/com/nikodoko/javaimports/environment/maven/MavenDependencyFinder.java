@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -24,6 +25,15 @@ class MavenDependencyFinder {
   private Result result = new Result();
 
   Result findAll(Path moduleRoot) {
+    var span = Traces.createSpan("MavenDependencyFinder.findAll");
+    try (var __ = Traces.activate(span)) {
+      return findAllInstrumented(moduleRoot);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Result findAllInstrumented(Path moduleRoot) {
     var loaded = MavenPomLoader.load(moduleRoot.resolve(POM));
 
     var pom = loaded.pom;

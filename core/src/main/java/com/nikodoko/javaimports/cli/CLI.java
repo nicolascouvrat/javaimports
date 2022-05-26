@@ -7,6 +7,9 @@ import com.google.googlejavaformat.java.FormatterException;
 import com.nikodoko.javaimports.Importer;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.telemetry.Metrics;
+import com.nikodoko.javaimports.common.telemetry.MetricsConfiguration;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,8 +45,9 @@ public final class CLI {
     PrintWriter err = new PrintWriter(new OutputStreamWriter(System.err, UTF_8));
     PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out, UTF_8));
     try {
-      CLI parser = new CLI(out, err);
-      result = parser.parse(args);
+      CLI cli = new CLI(out, err);
+      CLIOptions params = processArgs(args);
+      result = cli.run(params);
     } catch (UsageException e) {
       err.print(e.getMessage());
       result = 0;
@@ -55,7 +59,7 @@ public final class CLI {
     System.exit(result);
   }
 
-  private CLIOptions processArgs(String... args) throws UsageException {
+  private static CLIOptions processArgs(String... args) throws UsageException {
     CLIOptions params;
     try {
       params = CLIOptionsParser.parse(Arrays.asList(args));
@@ -91,9 +95,40 @@ public final class CLI {
     return file;
   }
 
-  private int parse(String... args) throws UsageException {
-    CLIOptions params = processArgs(args);
+  private void instrument(CLIOptions params) {
+    // Build metrics configuration
+    var metricsConfig = MetricsConfiguration.disabled().build();
+    if (params.metricsEnabled()) {
+      var metricsConfigBuilder = MetricsConfiguration.enabled();
+      if (params.metricsDatadogPort() != null) {
+        metricsConfigBuilder.datadogAgentPort(params.metricsDatadogPort());
+      }
 
+      if (params.metricsDatadogHost() != null) {
+        metricsConfigBuilder.datadogAgentHostname(params.metricsDatadogHost());
+      }
+
+      metricsConfig = metricsConfigBuilder.build();
+    }
+
+    Metrics.configure(metricsConfig);
+    if (params.tracingEnabled()) {
+      Traces.enable();
+    }
+  }
+
+  private int run(CLIOptions params) throws UsageException {
+    instrument(params);
+    var span = Traces.createSpan("CLI.run");
+    try (var __ = Traces.activate(span)) {
+      return runInstrumented(params);
+    } finally {
+      span.finish();
+      Traces.close();
+    }
+  }
+
+  private int runInstrumented(CLIOptions params) throws UsageException {
     if (params.version()) {
       errWriter.println(versionString());
       return 0;
@@ -125,6 +160,7 @@ public final class CLI {
     }
 
     // TODO: make stdlib version a CLI option
+    // TODO: use number of threads according to processor
     Options opts =
         Options.builder()
             .debug(params.verbose())

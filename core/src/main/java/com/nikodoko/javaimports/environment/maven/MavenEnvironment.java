@@ -5,9 +5,12 @@ import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.JavaProject;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import io.opentracing.Span;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
@@ -61,6 +64,15 @@ public class MavenEnvironment implements Environment {
 
   @Override
   public Collection<Import> findImports(Identifier i) {
+    var span = Traces.createSpan("MavenEnvironment.findImports", new Tag("identifier", i));
+    try (var __ = Traces.activate(span)) {
+      return findImportsInstrumented(i);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Collection<Import> findImportsInstrumented(Identifier i) {
     if (!isInitialized) {
       init();
     }
@@ -75,6 +87,15 @@ public class MavenEnvironment implements Environment {
   }
 
   private void init() {
+    var span = Traces.createSpan("MavenEnvironment.init");
+    try (var __ = Traces.activate(span)) {
+      initInstrumented();
+    } finally {
+      span.finish();
+    }
+  }
+
+  private void initInstrumented() {
     parseProjectIfNeeded();
 
     var start = clock.millis();
@@ -112,7 +133,7 @@ public class MavenEnvironment implements Environment {
 
     var versionlessDirectDependencies =
         direct.dependencies.stream().map(d -> d.hideVersion()).collect(Collectors.toSet());
-    var loadedDirect = resolveAndLoad(direct.dependencies);
+    var loadedDirect = resolveAndLoad(direct.dependencies, new Tag("direct_dependencies", true));
     var indirectDependencies =
         loadedDirect.stream()
             // Limit to empty dependencies, and get their dependencies
@@ -131,7 +152,8 @@ public class MavenEnvironment implements Environment {
             .distinct()
             .map(d -> d.showVersion())
             .collect(Collectors.toList());
-    var loadedIndirect = resolveAndLoad(indirectDependencies);
+    var loadedIndirect =
+        resolveAndLoad(indirectDependencies, new Tag("direct_dependencies", false));
     if (options.debug()) {
       log.info(
           String.format("found %d direct dependencies: %s", direct.dependencies.size(), direct));
@@ -155,20 +177,37 @@ public class MavenEnvironment implements Environment {
     }
   }
 
-  private List<LoadedDependency> resolveAndLoad(List<MavenDependency> dependencies) {
+  private List<LoadedDependency> resolveAndLoad(List<MavenDependency> dependencies, Tag tag) {
+    var span =
+        Traces.createSpan(
+            "MavenEnvironment.resolveAndLoad",
+            tag,
+            new Tag("dependency_count", dependencies.size()));
+    try (var __ = Traces.activate(span)) {
+      return resolveAndLoadInstrumented(span, dependencies);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private List<LoadedDependency> resolveAndLoadInstrumented(
+      Span span, List<MavenDependency> dependencies) {
     var futures =
         dependencies.stream()
-            .map(d -> CompletableFuture.supplyAsync(() -> resolveAndLoad(d), options.executor()))
+            .map(
+                d ->
+                    CompletableFuture.supplyAsync(
+                        () -> resolveAndLoad(span, d), options.executor()))
             .collect(Collectors.toList());
 
     CompletableFuture.allOf(futures.stream().toArray(CompletableFuture[]::new)).join();
     return futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
   }
 
-  private LoadedDependency resolveAndLoad(MavenDependency dependency) {
+  private LoadedDependency resolveAndLoad(Span span, MavenDependency dependency) {
     var loaded = new LoadedDependency(List.of(), List.of());
     var start = clock.millis();
-    try {
+    try (var __ = Traces.activate(span)) {
       var location = resolver.resolve(dependency);
       if (options.debug()) {
         log.info(String.format("looking for dependency %s at %s", dependency, location));

@@ -2,6 +2,8 @@ package com.nikodoko.javaimports.environment.maven;
 
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,7 +25,13 @@ class MavenDependencyLoader {
   private static final String CLASS_EXTENSION = ".class";
 
   static List<Import> load(Path dependency) throws IOException {
-    return scanJar(dependency);
+    var span =
+        Traces.createSpan("MavenDependencyLoader.load", new Tag("dependency_path", dependency));
+    try (var __ = Traces.activate(span)) {
+      return scanJar(dependency);
+    } finally {
+      span.finish();
+    }
   }
 
   private static List<Import> scanJar(Path jar) throws IOException {
