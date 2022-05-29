@@ -1,0 +1,2979 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.fsmatic</groupId>
+  <artifactId>logs-backend</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>logs-backend</name>
+
+  <modules>
+    <module>domains/event-platform/apps/admin</module>
+    <module>domains/event-platform/apps/api</module>
+    <module>domains/cloud-security-platform/apps/security-monitoring-api</module>
+    <module>domains/logs/apps/archive-reloader</module>
+    <module>domains/event-store/libs/archive-common</module>
+    <module>domains/event-platform/apps/assigner</module>
+    <module>domains/streaming/apps/streaming-assigner</module>
+    <module>libs/aws-tools-v2</module>
+    <module>libs/aws-tools</module>
+    <module>domains/event-platform/apps/backup</module>
+    <module>domains/intake/libs/client</module>
+    <module>libs/commons</module>
+    <module>domains/cloud-security-platform/apps/compliance-reducer</module>
+    <module>domains/cloud-security-platform/apps/compliance-findings-reducer</module>
+    <module>domains/event-platform/libs/context-reader</module>
+    <module>domains/event-platform/libs/context-writer</module>
+    <module>domains/event-platform/apps/context-loader</module>
+    <module>domains/event-platform/libs/context-loader-blob</module>
+    <module>domains/event-platform/libs/context-loader-client</module>
+    <module>domains/event-platform/libs/context-loader-grpc-client</module>
+    <module>domains/event-platform/libs/resource-locker-client</module>
+    <module>domains/event-platform/libs/indexing-coordinator-client</module>
+    <module>domains/query/libs/model</module>
+    <module>domains/event-platform/libs/context-writer-client</module>
+    <module>domains/inbox/apps/issue-reducer</module>
+    <module>domains/inbox/apps/inbox-rules-api</module>
+    <module>domains/inbox/apps/inbox-cache-api</module>
+    <module>domains/event-platform/apps/cost-tagging</module>
+    <module>domains/event-platform/libs/cost-tagging</module>
+    <module>devenv</module>
+    <module>domains/data-science/apps/anomaly-mapper</module>
+    <module>domains/data-science/apps/anomaly-reducer</module>
+    <module>domains/data-science/libs/accumulator</module>
+    <module>domains/data-science/libs/anomaly</module>
+    <module>domains/data-science/libs/math</module>
+    <module>domains/data-science/libs/signal</module>
+    <module>domains/data-science/libs/outliers</module>
+    <module>domains/data-science/libs/patterns</module>
+    <module>domain</module>
+    <module>libs/dd-metrics</module>
+    <module>domains/logs/libs/enclave-client</module>
+    <module>domains/logs/libs/delancie-client</module>
+    <module>domains/event-store/apps/event-store-api</module>
+    <module>domains/event-store/libs/event-store-aggregate</module>
+    <module>domains/event-store/libs/event-store-reader-client</module>
+    <module>domains/event-store/apps/event-store-metadata</module>
+    <module>domains/event-store/apps/event-store-reaper</module>
+    <module>domains/event-store/apps/event-store-writer</module>
+    <module>domains/event-store/libs/event-store-metadata-client</module>
+    <module>domains/event-platform/apps/context-publisher</module>
+    <module>domains/event-platform/apps/event-config-loader</module>
+    <module>domains/logs/apps/external-archive</module>
+    <module>domains/logs/apps/forwarder/planner</module>
+    <module>domains/logs/apps/forwarder/stager</module>
+    <module>domains/logs/apps/forwarder/shipper</module>
+    <module>domains/logs/libs/archive-reloader</module>
+    <module>domains/logs/libs/external-archive</module>
+    <module>domains/logs/libs/forwarder/common</module>
+    <module>domains/logs/libs/forwarder/domain</module>
+    <module>domains/logs/libs/forwarder/forwarding</module>
+    <module>domains/logs/libs/service</module>
+    <module>domains/logs/libs/integration-config-client</module>
+    <module>domains/logs/libs/livetail</module>
+    <module>domains/event-platform/libs/processing</module>
+    <module>domains/event-platform/libs/event-to-metrics</module>
+    <module>domains/event-store/libs/foundationdb</module>
+    <module>libs/grpc</module>
+    <module>libs/gcp-tools</module>
+    <module>domains/event-platform/apps/indexation</module>
+    <module>domains/event-platform/apps/indexing-autosharder</module>
+    <module>domains/event-platform/apps/indexing-autoscaler</module>
+    <module>domains/event-platform/libs/indexing-autoscaler-client</module>
+    <module>domains/event-platform/apps/indexing-coordinator</module>
+    <module>domains/event-platform/apps/indexold</module>
+    <module>domains/event-platform/libs/es-utils</module>
+    <module>domains/event-platform/apps/indexold-manager</module>
+    <module>domains/event-platform/apps/indexold-coordinator</module>
+    <module>domains/intake/apps/intake</module>
+    <module>domains/intake/libs/intake-api</module>
+    <module>domains/intake/apps/intake-coordinator</module>
+    <module>domains/intake/libs/intake-coordinator-api</module>
+    <module>libs/jdbc</module>
+    <module>domains/event-platform/libs/k8s-coordinator</module>
+    <module>domains/event-platform/libs/koutris-client</module>
+    <module>domains/logs/apps/livetail</module>
+    <module>domains/event-platform/apps/metrics</module>
+    <module>libs/mongo</module>
+    <module>domains/event-platform/libs/org-routing</module>
+    <module>libs/object-storage</module>
+    <module>libs/object-storage-provider</module>
+    <module>libs/rocksdb</module>
+    <module>domains/event-platform/libs/percolation</module>
+    <module>domains/event-platform/libs/parsing</module>
+    <module>domains/event-platform/libs/raw-content-parsers</module>
+    <module>pb</module>
+    <module>domains/event-platform/apps/processing</module>
+    <module>domains/event-platform/libs/queryparser</module>
+    <module>domains/event-platform/libs/query</module>
+    <module>domains/event-platform/apps/registry</module>
+    <module>domains/event-platform/libs/routing</module>
+    <module>domains/streaming-engine/libs/core</module>
+    <module>domains/streaming-engine/libs/core-reducer</module>
+    <module>domains/streaming-engine/libs/temporary-rule-engine</module>
+    <module>domains/streaming-engine/apps/rule-mapper</module>
+    <module>domains/cloud-security-platform/apps/rule-reducer</module>
+    <module>domains/cloud-security-platform/application-security/apps/appsec-reducer-signal</module>
+    <module>domains/cloud-security-platform/application-security/apps/appsec-reducer-enricher</module>
+    <module>domains/rum/apps/rum-api</module>
+    <module>domains/rum/libs/reducer-commons</module>
+    <module>domains/rum/libs/rum-commons-domain</module>
+    <module>domains/rum/libs/rum-event-query-client</module>
+    <module>domains/rum/libs/rum-commons-workload</module>
+    <module>domains/rum/libs/rum-admin</module>
+    <module>domains/rum/apps/rum-reducer</module>
+    <module>domains/rum/apps/rum-view-reducer</module>
+    <module>domains/rum/apps/rum-metrics-reducer</module>
+    <module>domains/rum/apps/rum-span-mapper</module>
+    <module>domains/rum/apps/rum-telemetry-mapper</module>
+    <module>domains/rum/apps/sketch-reducer</module>
+    <module>domains/ci-app/apps/ci-app-reducer</module>
+    <module>domains/event-platform/libs/search</module>
+    <module>domains/event-platform/apps/shard-router</module>
+    <module>domains/event-platform/apps/indexing-service</module>
+    <module>domains/event-platform/libs/indexing-service-client</module>
+    <module>domains/event-platform/apps/sharding-allocator</module>
+    <module>domains/event-platform/libs/sharding-allocator-client</module>
+    <module>domains/event-platform/libs/storage-cells</module>
+    <module>domains/event-platform/libs/storage-cells-model</module>
+    <module>domains/event-platform/libs/storage-cells-test-utils</module>
+    <module>domains/event-platform/apps/sharding-balancer</module>
+    <module>domains/event-platform/libs/sharding-balancer-client</module>
+    <module>domains/event-platform/apps/platform-api</module>
+    <module>domains/event-platform/libs/platform-config-loader-client</module>
+    <module>domains/event-platform/libs/platform-stream</module>
+    <module>libs/service</module>
+    <module>domains/event-platform/apps/service-discovery</module>
+    <module>domains/event-platform/apps/skeleton</module>
+    <module>domains/event-platform/apps/skeleton-workload</module>
+    <module>domains/event-platform/apps/event-track-forwarder</module>
+    <module>domains/event-platform/apps/event-platform-toolbox</module>
+    <module>domains/cloud-security-platform/apps/security-analytics-mongo-proxy</module>
+    <module>domains/cloud-security-platform/libs/security-analytics-mongo-proxy-client</module>
+    <module>domains/cloud-security-platform/libs/compliance-common</module>
+    <module>domains/cloud-security-platform/libs/compliance-rule-validator</module>
+    <module>domains/cloud-security-platform/libs/core-reducer-aggregation</module>
+    <module>domains/cloud-security-platform/libs/core-reducer</module>
+    <module>libs/tracing-utils</module>
+    <module>domains/event-platform/libs/track-type-store</module>
+    <module>domains/event-platform/libs/usage-commons</module>
+    <module>domains/event-platform/apps/usage-api</module>
+    <module>domains/event-platform/apps/usage-reader</module>
+    <module>domains/event-platform/libs/usage-tracker-client</module>
+    <module>domains/event-platform/apps/usage-tracker</module>
+    <module>libs/vault-tools</module>
+    <module>domains/event-platform/libs/workload</module>
+    <module>libs/azure-tools</module>
+    <module>domains/event-platform/apps/jobs</module>
+    <module>domains/event-platform/libs/jobs-common</module>
+    <module>domains/event-platform/apps/event-jobs-ep-core</module>
+    <module>domains/event-platform/libs/wrapped-es</module>
+    <module>domains/event-platform/libs/wrapped-es6</module>
+    <module>domains/event-platform/libs/wrapped-es7</module>
+    <module>domains/event-platform/libs/api-commons</module>
+    <module>domains/event-platform/apps/event-query</module>
+    <module>domains/event-platform/libs/event-query-client</module>
+    <module>domains/event-platform/apps/event-query-shadow</module>
+    <module>domains/rum/apps/rum-mongo-proxy</module>
+    <module>domains/rum/libs/rum-mongo-proxy-client</module>
+    <module>libs/dd-internal-authentication</module>
+    <module>domains/event-platform/apps/topicstats</module>
+    <module>domains/cloud-security-platform/apps/security-monitoring-entity-reducer</module>
+    <module>domains/event-platform/libs/temporal-workflow-client</module>
+    <module>domains/event-platform/libs/track_types</module>
+    <module>domains/event-platform/libs/kafka-admin-client</module>
+    <module>domains/event-platform/libs/tracks</module>
+    <module>domains/event-platform/libs/facets</module>
+    <module>domains/event-platform/libs/routes</module>
+    <module>domains/event-platform/libs/assigner-utils</module>
+    <module>domains/event-platform/libs/assigner-commons</module>
+    <module>domains/ephemera/libs/ephemera-client</module>
+    <module>domains/intake/libs/journal-dump-system-client</module>
+    <module>domains/event-platform/apps/event-heartbeat-emitter</module>
+    <module>libs/feature-flags</module>
+    <module>libs/feature-flags-client</module>
+    <module>libs/feature-flags-blob-watcher</module>
+    <module>libs/external-metrics-client</module>
+  </modules>
+
+  <properties>
+    <!-- Shaded versions. Should be kept in sync with libs/shaded/pom.xml -->
+    <elasticsearch.version>6.8.6</elasticsearch.version>
+    <elasticsearch7.version>7.9.1</elasticsearch7.version>
+    <shaded.azure-sdk.version>12.14.3</shaded.azure-sdk.version>
+    <shaded.netty.version>4.1.43.Final</shaded.netty.version>
+    <shaded.elasticsearch.version>${elasticsearch.version}-opendistro</shaded.elasticsearch.version>
+    <shaded.elasticsearch7.version>${elasticsearch7.version}-opendistro</shaded.elasticsearch7.version>
+    <shaded.elasticsearch.painless.version>${elasticsearch.version}</shaded.elasticsearch.painless.version>
+    <shaded.elasticsearch7.painless.version>${elasticsearch7.version}</shaded.elasticsearch7.painless.version>
+
+    <!-- Scala versions, both should be same -->
+    <scala.version>2.12</scala.version>
+    <akka-scala.version>${scala.version}</akka-scala.version>
+    <kafka-scala.version>${scala.version}</kafka-scala.version>
+
+    <!-- Shared versions - Keep sorted -->
+    <akka.version>2.5.32</akka.version>
+    <antlr.version>4.7.1</antlr.version>
+    <aws-java-sdk.version>1.12.49</aws-java-sdk.version>
+    <awssdk.version>2.16.104</awssdk.version>
+    <bouncycastle.version>1.69</bouncycastle.version>
+    <cucumber.version>6.11.0</cucumber.version>
+    <curator.version>5.2.0</curator.version>
+    <dd.tracer.version>0.101.0</dd.tracer.version>
+    <dropwizard.metrics.version>3.2.2</dropwizard.metrics.version>
+    <error-prone.version>2.13.1</error-prone.version>
+    <glassfish.version>2.5.0-b42</glassfish.version>
+    <google-http-client.version>1.41.2</google-http-client.version>
+    <google-auth-library.version>1.4.0</google-auth-library.version>
+    <grpc.version>1.45.1</grpc.version>
+    <hadoop.version>2.7.3</hadoop.version>
+    <immutables.version>2.8.0</immutables.version>
+    <io.rest-assured.version>4.5.0</io.rest-assured.version>
+    <jackson.version>2.12.0</jackson.version>
+    <jersey.version>2.26</jersey.version>
+    <jetty.version>9.4.14.v20181114</jetty.version>
+    <jmh.version>1.20</jmh.version>
+    <jqwik.version>1.6.2</jqwik.version>
+    <junit-jupiter.version>5.6.2</junit-jupiter.version>
+    <!-- When upgrading the Kafka client, check whether com.dd.logs.intake.ingestion.reporting.Result.ofKafkaFailure needs an update -->
+    <!-- Changes to error handling and exceptions should be listed in the release notes -->
+    <kafka.version>3.1.0</kafka.version>
+    <kubectl.client.version>11.0.4</kubectl.client.version>
+    <logback.version>1.2.3</logback.version>
+    <micrometer.version>1.8.1</micrometer.version>
+    <mockito.version>3.5.11</mockito.version>
+    <mockserver.version>5.11.1</mockserver.version>
+    <mongo.driver.version>4.2.0</mongo.driver.version>
+    <msgpack.version>0.8.20</msgpack.version>
+    <netty.version>4.1.77.Final</netty.version>
+    <okhttp3.version>3.14.9</okhttp3.version>
+    <opentracing.version>0.32.0</opentracing.version>
+    <protobuf.version>3.19.2</protobuf.version>
+    <protoc.plugin.version>3.11.4</protoc.plugin.version>
+    <reactor.version>3.4.14</reactor.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <temporal.version>1.11.0</temporal.version>
+    <libstreaming.version>e86b6578</libstreaming.version>
+    <webcompere.version>1.2.0</webcompere.version>
+    <zookeeper.version>3.5.8</zookeeper.version>
+
+    <!-- Please keep sorted -->
+    <com.github.luben.zstd-jni.version.DEPRECATED.0.5.1>0.5.1</com.github.luben.zstd-jni.version.DEPRECATED.0.5.1>
+    <com.gliwka.hyperscan.native.version>5.4.0-1.0.0</com.gliwka.hyperscan.native.version>
+    <com.google.api-client.google-api-client.version>1.30.2</com.google.api-client.google-api-client.version>
+    <com.google.cloud.google-cloud-core-http.version>2.1.2</com.google.cloud.google-cloud-core-http.version>
+    <com.google.cloud.google-cloud-core.version.DEPRECATED.2.1.2>2.1.2</com.google.cloud.google-cloud-core.version.DEPRECATED.2.1.2>
+    <com.google.cloud.google-cloud-nio.version.DEPRECATED.0.67.0-alpha>0.67.0-alpha</com.google.cloud.google-cloud-nio.version.DEPRECATED.0.67.0-alpha>
+    <com.google.cloud.google-cloud-storage.version.DEPRECATED.2.1.1>2.1.1</com.google.cloud.google-cloud-storage.version.DEPRECATED.2.1.1>
+    <org.bytedeco.javacpp.version>1.5.7</org.bytedeco.javacpp.version>
+    <org.bytedeco.javacpp-platform.version>${org.bytedeco.javacpp.version}</org.bytedeco.javacpp-platform.version>
+    <org.rocksdb.rocksdbjni.version>6.27.3</org.rocksdb.rocksdbjni.version>
+
+    <dd.java.agent.arg/>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- Surefire override points configuration -->
+    <surefire.classpath.dependency.excludes/>
+    <surefire.extra.java.args/>
+    <surefire.groups/>
+    <surefire.excludedGroups/>
+
+    <!-- Java Microbenchmark Harness (JMH) -->
+    <benchmark/>
+    <jmh.benchmarkPattern>${benchmark}.*</jmh.benchmarkPattern>
+    <jmh.rff>target/${benchmark}.json</jmh.rff>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    <custom.build.timestamp>${maven.build.timestamp}</custom.build.timestamp>
+
+    <!-- This help IntelliJ to understand that we _really_ want Java 15 everywhere -->
+    <maven.compiler.source>15</maven.compiler.source>
+    <maven.compiler.target>15</maven.compiler.target>
+    <!-- TODO: Move this property to the plugin configuration once we clean up
+    compilation warnings. -->
+    <maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
+    <!-- The property to pass additional Error Prone options. -->
+    <error-prone.additional.args />
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>event-platform-facets</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>event-platform-track_types</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>event-platform-tracks</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-commons</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-commons</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-mongo</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-notification-grpc</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-rum-commons-domain</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>streaming-engine-temporary-rule-engine</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-service</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>enclave-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>${protobuf.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java-util</artifactId>
+        <version>${protobuf.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-client</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-framework</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-recipes</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.kubernetes</groupId>
+        <artifactId>client-java</artifactId>
+        <version>${kubectl.client.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.kubernetes</groupId>
+        <artifactId>client-java-api</artifactId>
+        <version>${kubectl.client.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.kubernetes</groupId>
+        <artifactId>client-java-extended</artifactId>
+        <version>${kubectl.client.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.msgpack</groupId>
+        <artifactId>msgpack-core</artifactId>
+        <version>${msgpack.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.msgpack</groupId>
+        <artifactId>jackson-dataformat-msgpack</artifactId>
+        <version>${msgpack.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.ssedano</groupId>
+        <artifactId>jump-consistent-hash</artifactId>
+        <version>1.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.hubspot.jackson</groupId>
+        <artifactId>jackson-datatype-protobuf</artifactId>
+        <version>0.9.11-jackson2.9</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.auth0</groupId>
+        <artifactId>java-jwt</artifactId>
+        <version>3.3.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.hk2</groupId>
+        <artifactId>hk2-api</artifactId>
+        <version>${glassfish.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.hk2.external</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>${glassfish.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.salesforce.servicelibs</groupId>
+        <artifactId>reactor-grpc-stub</artifactId>
+        <version>1.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.agkn</groupId>
+        <artifactId>hll</artifactId>
+        <version>1.6.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-runtime</artifactId>
+        <version>${antlr.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.foundationdb</groupId>
+        <artifactId>fdb-java</artifactId>
+        <version>6.2.10</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-csv</artifactId>
+        <version>1.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-core</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-sts</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.datadoghq</groupId>
+        <artifactId>datadog-api-client</artifactId>
+        <version>1.2.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.jsqlparser</groupId>
+        <artifactId>jsqlparser</artifactId>
+        <version>4.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.jknack</groupId>
+        <artifactId>handlebars</artifactId>
+        <version>4.2.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.datastax.oss</groupId>
+        <artifactId>java-driver-core</artifactId>
+        <version>4.13.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.bettercloud</groupId>
+        <artifactId>vault-java-driver</artifactId>
+        <version>3.1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>2.1.210</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.ibm.icu</groupId>
+        <artifactId>icu4j</artifactId>
+        <version>62.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.maxmind.db</groupId>
+        <artifactId>maxmind-db</artifactId>
+        <version>1.2.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>3.4.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>de.undercouch</groupId>
+        <artifactId>bson4jackson</artifactId>
+        <version>2.11.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>datatable</artifactId>
+        <version>3.5.0</version>
+      </dependency>
+
+      <!-- A fork of com.hrakaroo.glob, pending https://github.com/hrakaroo/glob-library-java/pull/5 -->
+      <dependency>
+        <groupId>io.github.pengw0048</groupId>
+        <artifactId>glob</artifactId>
+        <version>0.9.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.ianferguson</groupId>
+        <artifactId>vault-java-driver</artifactId>
+        <version>6.1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentracing.contrib</groupId>
+        <artifactId>opentracing-grpc</artifactId>
+        <version>0.1.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentracing.contrib</groupId>
+        <artifactId>opentracing-jaxrs2</artifactId>
+        <version>0.5.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentracing.contrib</groupId>
+        <artifactId>opentracing-okhttp3</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <version>${io.rest-assured.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>json-path</artifactId>
+        <version>${io.rest-assured.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.sqreen</groupId>
+        <artifactId>libsqreen</artifactId>
+        <version>4.1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.temporal</groupId>
+        <artifactId>temporal-sdk</artifactId>
+        <version>${temporal.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.temporal</groupId>
+        <artifactId>temporal-serviceclient</artifactId>
+        <version>${temporal.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.temporal</groupId>
+        <artifactId>temporal-testing</artifactId>
+        <version>${temporal.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.vavr</groupId>
+        <artifactId>vavr</artifactId>
+        <version>0.10.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest</artifactId>
+        <version>2.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hdrhistogram</groupId>
+        <artifactId>HdrHistogram</artifactId>
+        <version>2.1.12</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openjdk.jol</groupId>
+        <artifactId>jol-core</artifactId>
+        <version>0.16</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>42.3.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.threeten</groupId>
+        <artifactId>threeten-extra</artifactId>
+        <version>1.7.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.orc</groupId>
+        <artifactId>orc-core</artifactId>
+        <version>1.6.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.hive</groupId>
+        <artifactId>hive-storage-api</artifactId>
+        <version>2.6.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.xerial.snappy</groupId>
+        <artifactId>snappy-java</artifactId>
+        <version>1.1.8.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>1.27</version>
+      </dependency>
+
+      <!-- Shaded jars -->
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-azure-sdk-shaded</artifactId>
+        <version>${shaded.azure-sdk.version}-5fed456b</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-workload-netty-shaded</artifactId>
+        <version>${shaded.netty.version}-5fed456b</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-es6-shaded</artifactId>
+        <version>${shaded.elasticsearch.version}-5fed456b</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-es7-shaded</artifactId>
+        <version>${shaded.elasticsearch7.version}-5fed456b</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-es6-lang-painless-shaded</artifactId>
+        <version>${shaded.elasticsearch.painless.version}-5fed456b</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fsmatic</groupId>
+        <artifactId>logs-backend-es7-lang-painless-shaded</artifactId>
+        <version>${shaded.elasticsearch7.painless.version}-5fed456b</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-actor_${akka-scala.version}</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-slf4j_${akka-scala.version}</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-testkit_${akka-scala.version}</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>bson</artifactId>
+        <version>${mongo.driver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-core</artifactId>
+        <version>${mongo.driver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-sync</artifactId>
+        <version>${mongo.driver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-reactivestreams</artifactId>
+        <version>${mongo.driver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka_${kafka-scala.version}</artifactId>
+        <version>${kafka.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka-clients</artifactId>
+        <version>${kafka.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.jqwik</groupId>
+        <artifactId>jqwik</artifactId>
+        <version>${jqwik.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.jqwik</groupId>
+        <artifactId>jqwik-api</artifactId>
+        <version>${jqwik.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.jqwik</groupId>
+        <artifactId>jqwik-time</artifactId>
+        <version>${jqwik.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mock-server</groupId>
+        <artifactId>mockserver-client-java</artifactId>
+        <version>${mockserver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mock-server</groupId>
+        <artifactId>mockserver-core</artifactId>
+        <version>${mockserver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mock-server</groupId>
+        <artifactId>mockserver-junit-jupiter</artifactId>
+        <version>${mockserver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mock-server</groupId>
+        <artifactId>mockserver-netty</artifactId>
+        <version>${mockserver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.github.resilience4j</groupId>
+        <artifactId>resilience4j-retry</artifactId>
+        <version>1.7.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-java</artifactId>
+        <version>${cucumber.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-junit-platform-engine</artifactId>
+        <version>${cucumber.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.datadoghq</groupId>
+        <artifactId>dd-java-agent</artifactId>
+        <version>${dd.tracer.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.datadoghq</groupId>
+        <artifactId>dd-trace-api</artifactId>
+        <version>${dd.tracer.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.datadoghq</groupId>
+        <artifactId>dd-trace-ot</artifactId>
+        <version>${dd.tracer.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${awssdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- software.amazon.awssdk:* versions are all pulled from software.amazon.awssdk:bom, but we redefine them here for scripts/build_graph module, as it doesn't handle BOMs. -->
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>apache-client</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>auth</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>aws-core</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>ec2</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>http-client-spi</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>netty-nio-client</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>profiles</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>regions</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>s3</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>sts</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>sdk-core</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>utils</artifactId>
+        <version>${awssdk.version}</version>
+      </dependency>
+
+      <!-- com.google.cloud:* versions are all pulled from com.google.cloud:google-cloud-bom, but we redefine them here for scripts/build_graph module, as it doesn't handle BOMs. -->
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>google-cloud-bom</artifactId>
+        <version>0.111.0-alpha</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>google-cloud-core</artifactId>
+        <version>1.90.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>google-cloud-storage</artifactId>
+        <version>1.93.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.api.grpc</groupId>
+        <artifactId>proto-google-common-protos</artifactId>
+        <version>1.17.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>google-cloud-nio</artifactId>
+        <version>0.111.0-alpha</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.carrotsearch</groupId>
+        <artifactId>hppc</artifactId>
+        <version>0.7.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.datadoghq</groupId>
+        <artifactId>java-dogstatsd-client</artifactId>
+        <version>3.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.datadoghq</groupId>
+        <artifactId>sketches-java</artifactId>
+        <version>0.8.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.jodah</groupId>
+        <artifactId>failsafe</artifactId>
+        <version>2.4.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.threeten</groupId>
+        <artifactId>threetenbp</artifactId>
+        <version>1.5.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-cbor</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-smile</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-xml</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-yaml</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jdk8</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-jaxb-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.networknt</groupId>
+        <artifactId>json-schema-validator</artifactId>
+        <version>1.0.67</version>
+      </dependency>
+
+      <!-- Guava -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>26.0-jre</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jetbrains</groupId>
+        <artifactId>annotations</artifactId>
+        <version>17.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.5.13</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+        <version>4.4.13</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.agrona</groupId>
+        <artifactId>agrona</artifactId>
+        <version>1.7.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.11</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.openhft</groupId>
+        <artifactId>zero-allocation-hashing</artifactId>
+        <version>0.12</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>1.21</version>
+      </dependency>
+
+      <!-- Hashing API keys -->
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk15on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk15on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>error_prone_annotations</artifactId>
+        <version>${error-prone.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.dd.libstreaming</groupId>
+        <artifactId>libstreaming</artifactId>
+        <version>${libstreaming.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.opajni</groupId>
+        <artifactId>opajni</artifactId>
+        <version>0.0.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.scala-lang.modules</groupId>
+        <artifactId>scala-java8-compat_${scala.version}</artifactId>
+        <version>0.9.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>2.12.8</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.typesafe</groupId>
+        <artifactId>config</artifactId>
+        <version>1.3.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.api</groupId>
+        <artifactId>gax</artifactId>
+        <version>2.4.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.reactivestreams</groupId>
+        <artifactId>reactive-streams</artifactId>
+        <version>1.0.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-buffer</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec-http</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec-http2</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec-socks</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-common</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler-proxy</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-resolver</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-unix-common</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-classes-epoll</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-epoll</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-epoll</artifactId>
+        <version>${netty.version}</version>
+        <classifier>linux-x86_64</classifier>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-tcnative-boringssl-static</artifactId>
+        <version>2.0.48.Final</version>
+      </dependency>
+
+      <!-- grpc -->
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-api</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-context</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-core</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-netty-shaded</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-protobuf</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-protobuf-lite</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-services</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-stub</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>${dropwizard.metrics.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-jetty9</artifactId>
+        <version>${dropwizard.metrics.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-json</artifactId>
+        <version>${dropwizard.metrics.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-jvm</artifactId>
+        <version>${dropwizard.metrics.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.luben</groupId>
+        <artifactId>zstd-jni</artifactId>
+        <version>1.5.2-2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-api</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-noop</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-util</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>1.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.projectreactor</groupId>
+        <artifactId>reactor-core</artifactId>
+        <version>${reactor.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.projectreactor</groupId>
+        <artifactId>reactor-test</artifactId>
+        <version>${reactor.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.projectreactor</groupId>
+        <artifactId>reactor-tools</artifactId>
+        <version>${reactor.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>${okhttp3.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>mockwebserver</artifactId>
+        <version>${okhttp3.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.jersey.containers</groupId>
+        <artifactId>jersey-container-servlet-core</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.jersey.containers</groupId>
+        <artifactId>jersey-container-servlet</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-client</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-server</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-common</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.jersey.media</groupId>
+        <artifactId>jersey-media-sse</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.jersey.media</groupId>
+        <artifactId>jersey-media-json-jackson</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.jersey.security</groupId>
+        <artifactId>oauth2-client</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit-jupiter.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- Here, we list used JUnit dependencies even though we import the BOM
+      above. It's because `scripts/build_graph` doesn't support BOMs. -->
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${junit-jupiter.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit-jupiter.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
+        <version>${junit-jupiter.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.ginsberg</groupId>
+        <artifactId>junit5-system-exit</artifactId>
+        <version>1.1.1</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>nl.jqno.equalsverifier</groupId>
+        <artifactId>equalsverifier</artifactId>
+        <version>3.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.16.1</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openjdk.jmh</groupId>
+        <artifactId>jmh-core</artifactId>
+        <version>${jmh.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openjdk.jmh</groupId>
+        <artifactId>jmh-generator-annprocess</artifactId>
+        <version>${jmh.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.rocksdb</groupId>
+        <artifactId>rocksdbjni</artifactId>
+        <version>${org.rocksdb.rocksdbjni.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.immutables</groupId>
+        <artifactId>value-annotations</artifactId>
+        <version>${immutables.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>pl.project13.scala</groupId>
+        <artifactId>sbt-jmh-extras</artifactId>
+        <version>0.3.7</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.stefanbirkner</groupId>
+        <artifactId>system-lambda</artifactId>
+        <version>1.2.0</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>uk.org.webcompere</groupId>
+        <artifactId>system-stubs-jupiter</artifactId>
+        <version>${webcompere.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>uk.org.webcompere</groupId>
+        <artifactId>system-stubs-core</artifactId>
+        <version>${webcompere.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.reflections</groupId>
+        <artifactId>reflections</artifactId>
+        <version>0.9.12</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.github.hakky54</groupId>
+        <artifactId>logcaptor</artifactId>
+        <version>2.7.0</version>
+      </dependency>
+
+      <dependency>
+        <!-- Runtime dependency of ES for integration tests -->
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.17.2</version>
+      </dependency>
+
+
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>animal-sniffer-annotations</artifactId>
+        <version>1.18</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.checkerframework</groupId>
+        <artifactId>checker-qual</artifactId>
+        <version>3.5.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-api</artifactId>
+        <version>0.21.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.jnr</groupId>
+        <artifactId>jnr-unixsocket</artifactId>
+        <version>0.28</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.jnr</groupId>
+        <artifactId>jnr-posix</artifactId>
+        <version>3.0.54</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>3.0.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-annotations</artifactId>
+        <version>1.5.22</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.http-client</groupId>
+        <artifactId>google-http-client</artifactId>
+        <version>${google-http-client.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.http-client</groupId>
+        <artifactId>google-http-client-jackson2</artifactId>
+        <version>${google-http-client.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.http-client</groupId>
+        <artifactId>google-http-client-appengine</artifactId>
+        <version>${google-http-client.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.auth</groupId>
+        <artifactId>google-auth-library-credentials</artifactId>
+        <version>${google-auth-library.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.auth</groupId>
+        <artifactId>google-auth-library-oauth2-http</artifactId>
+        <version>${google-auth-library.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <version>2.10.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.j2objc</groupId>
+        <artifactId>j2objc-annotations</artifactId>
+        <version>1.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>${zookeeper.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper-jute</artifactId>
+        <version>${zookeeper.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.15</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>7.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>1.6.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.javassist</groupId>
+        <artifactId>javassist</artifactId>
+        <version>3.27.0-GA</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.squareup.okio</groupId>
+        <artifactId>okio</artifactId>
+        <version>1.17.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.8.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.api</groupId>
+        <artifactId>gax-httpjson</artifactId>
+        <version>0.64.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.9.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-digester</groupId>
+        <artifactId>commons-digester</artifactId>
+        <version>2.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.java.dev.jna</groupId>
+        <artifactId>jna</artifactId>
+        <version>5.10.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>6.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlet</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-proxy</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlets</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-io</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-util</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-http</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>2.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>1.1.0.Final</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>2.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>4.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.java.dev.jna</groupId>
+        <artifactId>jna-platform</artifactId>
+        <version>5.10.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-cli</groupId>
+        <artifactId>commons-cli</artifactId>
+        <version>1.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-reflect</artifactId>
+        <version>2.12.10</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.8.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>3.3.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-container-default</artifactId>
+        <version>1.5.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-annotations</artifactId>
+        <version>1.5.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-classworlds</artifactId>
+        <version>2.5.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>${maven.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-model</artifactId>
+        <version>${maven.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-artifact</artifactId>
+        <version>${maven.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apiguardian</groupId>
+        <artifactId>apiguardian-api</artifactId>
+        <version>1.1.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-ext</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.opentest4j</groupId>
+        <artifactId>opentest4j</artifactId>
+        <version>1.2.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>2.4.0-b180830.0359</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.java-json-tools</groupId>
+        <artifactId>json-schema-validator</artifactId>
+        <version>2.2.14</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.graalvm.nativeimage</groupId>
+        <artifactId>svm</artifactId>
+        <version>20.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.sf.jopt-simple</groupId>
+        <artifactId>jopt-simple</artifactId>
+        <version>5.0.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-collections4</artifactId>
+        <version>4.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>2.8.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-core</artifactId>
+        <version>${micrometer.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-registry-statsd</artifactId>
+        <version>${micrometer.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math3</artifactId>
+        <version>3.6.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-hdfs</artifactId>
+        <version>${hadoop.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-common</artifactId>
+        <version>${hadoop.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.graalvm.sdk</groupId>
+        <artifactId>graal-sdk</artifactId>
+        <version>21.0.0.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>1.9.13</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-core-asl</artifactId>
+        <version>1.9.13</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.enterprise</groupId>
+        <artifactId>cdi-api</artifactId>
+        <version>1.0-SP4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.2.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>2.12.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>0.11.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-core</artifactId>
+        <version>3.5.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>de.flapdoodle</groupId>
+        <artifactId>de.flapdoodle.os</artifactId>
+        <version>1.1.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>de.flapdoodle.embed</groupId>
+        <artifactId>de.flapdoodle.embed.process</artifactId>
+        <version>3.1.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>de.flapdoodle.embed</groupId>
+        <artifactId>de.flapdoodle.embed.mongo</artifactId>
+        <version>3.3.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.asarkar.grpc</groupId>
+        <artifactId>grpc-test</artifactId>
+        <version>1.2.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.logstash.logback</groupId>
+        <artifactId>logstash-logback-encoder</artifactId>
+        <version>4.11</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- Reminder: make sure to exclude any default dependency in this list from the libs/shaded artifact sets. -->
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.datadoghq</groupId>
+      <artifactId>dd-java-agent</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.immutables</groupId>
+      <artifactId>value-annotations</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Always include jqwik, as without this we silently don't run property-based tests -->
+    <dependency>
+      <groupId>net.jqwik</groupId>
+      <artifactId>jqwik</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Used to send logs that we can parse, we want it by default for tests, but just specifying
+     <scope>test</scope> would force us to include it explcitely in all launchers even though it's
+     used only by lib/service's code
+     -->
+    <dependency>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>2.21.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <!-- TODO(shatlyk): Downgraded from 3.2.0 to 3.1.2 because of multiple bugs in the dependency analyzer: https://issues.apache.org/jira/browse/MDEP-753-->
+          <version>3.1.2</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.shared</groupId>
+              <artifactId>maven-dependency-analyzer</artifactId>
+              <version>1.11.1</version>
+            </dependency>
+          </dependencies>
+          <configuration>
+            <failOnWarning>true</failOnWarning>
+            <ignoredUnusedDeclaredDependencies>
+              <!-- Correctly ignored list -->
+              <ignoredUnusedDeclaredDependency>com.datadoghq:dd-java-agent</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>com.google.code.findbugs:jsr305</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>org.immutables:value-annotations</ignoredUnusedDeclaredDependency>
+              <!-- We assume *all* modules use JUnit 5 for tests, no exceptions. -->
+              <ignoredUnusedDeclaredDependency>org.junit.jupiter:junit-jupiter-api</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>org.junit.jupiter:junit-jupiter-engine</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>org.junit.jupiter:junit-jupiter-params</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>net.logstash.logback:logstash-logback-encoder</ignoredUnusedDeclaredDependency>
+              <!-- We allow jqwik for all modules, same as junit-->
+              <ignoredUnusedDeclaredDependency>net.jqwik:jqwik</ignoredUnusedDeclaredDependency>
+              <!-- TODO(shatlyk): These are special cases, where tests start failing when removed. Resolve them later (add correct scope, etc). -->
+              <!-- for libs/commons/pom.xml -->
+              <ignoredUnusedDeclaredDependency>com.typesafe.akka:akka-slf4j_2.12</ignoredUnusedDeclaredDependency> <!--  -->
+              <!-- for domains/event-store/libs/archive-common/pom.xml  -->
+              <ignoredUnusedDeclaredDependency>org.apache.hadoop:hadoop-hdfs</ignoredUnusedDeclaredDependency>
+              <!-- for domains/intake/apps/intake/pom.xml -->
+              <ignoredUnusedDeclaredDependency>com.google.cloud:google-cloud-core</ignoredUnusedDeclaredDependency>
+              <!-- for libs/services/pom.xml -->
+              <ignoredUnusedDeclaredDependency>org.glassfish.jersey.containers:jersey-container-servlet</ignoredUnusedDeclaredDependency>
+              <!-- for domains/event-platform/libs/platform-stream/pom.xml -->
+              <ignoredUnusedDeclaredDependency>org.assertj:assertj-core</ignoredUnusedDeclaredDependency>
+              <!-- for domains/event-platform/libs/parsing/pom.xml -->
+              <ignoredUnusedDeclaredDependency>org.bytedeco:javacpp-platform</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>com.gliwka.hyperscan:native</ignoredUnusedDeclaredDependency>
+              <!-- for domains/data-science/libs/outliers/pom.xml-->
+              <ignoredUnusedDeclaredDependency>org.mockito:mockito-core</ignoredUnusedDeclaredDependency>
+              <!-- for domains/event-platform/libs/search/pom.xml -->
+              <ignoredUnusedDeclaredDependency>org.apache.logging.log4j:log4j-core</ignoredUnusedDeclaredDependency>
+              <!-- KafkaServer and TestKit classes are dynamically loaded at test runtime -->
+              <ignoredUnusedDeclaredDependency>com.typesafe.akka:akka-testkit_2.12</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>org.apache.kafka:kafka_2.12</ignoredUnusedDeclaredDependency>
+              <!-- depended at runtime by logs-metrics, but used directly on tests; if added with scope `test` it replaces the `compile` scope inherently transitively -->
+              <ignoredUnusedDeclaredDependency>org.apache.kafka:kafka-clients</ignoredUnusedDeclaredDependency>
+              <!-- for libs/grpc/utils/pom.xml -->
+              <ignoredUnusedDeclaredDependency>javax.annotation:javax.annotation-api</ignoredUnusedDeclaredDependency>
+              <!-- loaded dynamically through JDK SSL provider -->
+              <ignoredUnusedDeclaredDependency>io.netty:netty-tcnative-boringssl-static</ignoredUnusedDeclaredDependency>
+              <!-- native library loaded dynamically at runtime -->
+              <ignoredUnusedDeclaredDependency>io.netty:netty-transport-native-epoll</ignoredUnusedDeclaredDependency>
+
+              <!-- KafkaFetcherTest (logs-backend-event-platform-toolbox:test-jar) uses MetricsTestKit (logs-backend-track-type-store:test-jar) class.
+                Since transitive test deps are not pulled by maven, any module that uses KafkaFetcherTest needs to depend on logs-backend-track-type-store:test-jar -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:event-platform-track_types:test-jar</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-track-type-store:test-jar</ignoredUnusedDeclaredDependency>
+              <!-- ServiceTestBase (logs-backend-service:test-jar) uses MetricsTestKit (logs-backend-dd-metrics:test-jar) class.
+                Since transitive test deps are not pulled by maven, any module that uses ServiceTestbase needs to depend on logs-backend-dd-metrics:test-jar, even if they do not direcly use it. -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-dd-metrics:test-jar</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-commons:test-jar</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-service:test-jar</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-workload:test-jar</ignoredUnusedDeclaredDependency>
+              <!-- domains/rum/apps/rum-view-reducer/pom.xml loads MappedLogCodecTest class from streaming-engine-core -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:streaming-engine-core:test-jar</ignoredUnusedDeclaredDependency>
+              <!-- domains/event-platform/apps/indexing-autoscaler/pom.xml uses some config from sharding-allocator -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-sharding-allocator</ignoredUnusedDeclaredDependency>
+              <!-- domains/event-platform/apps/event-query/pom.xml loads RegistryClientWrapper from registry, and IndexProviderTestHelper from indexation -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-registry:test-jar</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-indexation:test-jar</ignoredUnusedDeclaredDependency>
+              <!-- admin uses configs from indexing-autoscaler-client, rum-event-query-client via domains/event-platform/libs/jobs-common/pom.xml -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-indexing-autoscaler-client</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-rum-event-query-client</ignoredUnusedDeclaredDependency>
+              <!-- admin uses configs from indexing-autosharder via domains/event-platform/apps/indexation/pom.xml -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-indexing-autosharder</ignoredUnusedDeclaredDependency>
+              <!-- domains/event-platform/apps/context-publisher uses context-loader-base.conf from logs-backend-context-loader -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-context-loader</ignoredUnusedDeclaredDependency>
+
+              <!-- used in domains/event-platform/libs/query and domains/event-platform/apps/event-query -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-es6-lang-painless-shaded</ignoredUnusedDeclaredDependency>
+              <!-- depended at runtime by logs-metrics, but used directly on tests; if added with scope `test` it replaces the `compile` scope inherently transitively  -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-object-storage</ignoredUnusedDeclaredDependency>
+              <!-- depended at runtime by logs-metrics, but used directly on tests; if added with scope `test` it replaces the `compile` scope inherently transitively  -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-workload-netty-shaded</ignoredUnusedDeclaredDependency>
+
+              <!-- Used via test scope in domains/logs/libs/delancie-client; if added with scope `test` it replaces the `compile` scope inherently transitively  -->
+              <ignoredUnusedDeclaredDependency>com.fsmatic:logs-backend-service</ignoredUnusedDeclaredDependency>
+            </ignoredUnusedDeclaredDependencies>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.10.0</version>
+          <configuration>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${jmh.version}</version>
+              </path>
+              <path>
+                <groupId>org.immutables</groupId>
+                <artifactId>value</artifactId>
+                <version>${immutables.version}</version>
+              </path>
+            </annotationProcessorPaths>
+            <compilerArgs combine.children="append">
+              <arg>-Xlint:all</arg>
+              <!-- The annotation processors do not handle all annotations
+              present on the classpath. See
+              https://bugs.openjdk.java.net/browse/JDK-6999068. -->
+              <arg>-Xlint:-processing</arg>
+              <!-- Javac gives a warning that an auto-closable resource
+              (e.g., `io.opentracing.Scope`) is never referenced in the try
+              block; however, it is intentional. Since there are too many of
+              them, we disable `try` warnings. -->
+              <arg>-Xlint:-try</arg>
+              <!-- When building the project with the incremental compilation
+              feature (i.e., without the `clean` goal), generated sources
+              (e.g., Immutables generated code) under the `target/` folder are
+              not deleted. And therefore, generated sources from the previous
+              runs are implicitly compiled. However, implicitly compiled files
+              are not subject to annotation processing, so the compiler gives a
+              warning about this. See
+              https://docs.oracle.com/en/java/javase/17/docs/specs/man/javac.html#searching-for-module-package-and-type-declarations.
+              Hence, we suppress class file generation for implicitly
+              referenced files because we regenerate the source during
+              annotation processing. So, in practice, we don't need implicit
+              compilation since the compiler reads the newer source or class
+              files for a type.
+              It is also worth mentioning that `-implicit:none` is the
+              default in Bazel. See
+              https://github.com/bazelbuild/bazel/blob/24f962bc8c9c0c8466e7d513bdd93e0c60e2532a/src/java_tools/buildjar/java/com/google/devtools/build/buildjar/JavaLibraryBuildRequest.java#L409-L410.
+              -->
+              <arg>-implicit:none</arg>
+            </compilerArgs>
+            <showWarnings>true</showWarnings>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.2.0</version>
+          <configuration>
+            <archive>
+              <addMavenDescriptor>false</addMavenDescriptor>
+              <manifest>
+                <addClasspath>true</addClasspath>
+              </manifest>
+              <manifestEntries>
+                <Build-Timestamp>${custom.build.timestamp}</Build-Timestamp>
+              </manifestEntries>
+            </archive>
+            <outputTimestamp>${custom.build.timestamp}</outputTimestamp>
+            <skipIfEmpty>true</skipIfEmpty>
+          </configuration>
+          <executions>
+            <execution>
+              <id>create-test-jar</id>
+              <goals>
+                <goal>test-jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.2.4</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.0.0-M6</version>
+          <configuration>
+            <!-- CI-App feature requires forkCount > 0 -->
+            <!--<forkCount>0</forkCount>-->
+            <argLine>--illegal-access=permit</argLine>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>1.6.0</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-benchmark-source</id>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/benchmark/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-benchmark-resources</id>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/benchmark/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>jmh</id>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <classpathScope>test</classpathScope>
+              <arguments>
+                <argument>-classpath</argument>
+                <!-- automatically creates the classpath using all project dependencies,
+                     also adding the project build directory -->
+                <classpath/>
+                <argument>org.openjdk.jmh.Main</argument>
+                <!--
+                  JMH Options:
+                    - "foe": Should JMH fail immediately if any benchmark had experienced an unrecoverable error?
+                    - "gc": Should JMH force GC between iterations?
+                    - "rf": Format type for machine-readable results.
+                    - "rff": Write machine-readable results to a given file.
+
+                  See class "org.openjdk.jmh.runner.options.CommandLineOptions"
+                 -->
+                <argument>-foe</argument>
+                <argument>true</argument>
+                <argument>-gc</argument>
+                <argument>true</argument>
+                <argument>-rf</argument>
+                <argument>json</argument>
+                <argument>-rff</argument>
+                <argument>${jmh.rff}</argument>
+                <argument>${jmh.benchmarkPattern}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.7</version>
+        <configuration>
+          <excludes>
+            <exclude>org.apache.commons:commons-collections4</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>${surefire.extra.java.args}</argLine>
+          <groups>${surefire.groups}</groups>
+          <excludedGroups>${surefire.excludedGroups}</excludedGroups>
+          <classpathDependencyExcludes>${surefire.classpath.dependency.excludes}</classpathDependencyExcludes>
+        </configuration>
+      </plugin>
+
+    </plugins>
+
+  </build>
+
+
+  <repositories>
+    <!-- Leaving default central repository as first lookup option -->
+    <repository>
+      <id>central</id>
+      <url>https://repo.maven.apache.org/maven2/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <!-- It will only look into our own repo if dependency not found in central -->
+    <repository>
+      <id>ddbuild-snapshots</id>
+      <url>https://binaries.ddbuild.io/logs-backend/snapshot</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <!-- We don't use any snapshots other than our local artifacts. Here,
+        we set the update policy to `never` to avoid unnecessary HTTP calls. -->
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>ddbuild-release</id>
+      <url>https://binaries.ddbuild.io/logs-backend/release</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>dd-source-snapshots</id>
+      <url>https://binaries.ddbuild.io/dd-source/java/snapshot</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <!-- We don't use any snapshots other than our local artifacts. Here,
+        we set the update policy to `never` to avoid unnecessary HTTP calls. -->
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>dd-source-release</id>
+      <url>https://binaries.ddbuild.io/dd-source/java/release</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <profiles>
+
+    <profile>
+      <!-- Some hacks for unblocking development in Apple M1 native mode -->
+      <id>apple-m1-dev</id>
+      <activation>
+        <os>
+          <family>mac</family>
+          <arch>aarch64</arch>
+        </os>
+      </activation>
+      <properties>
+        <!-- Upgrade rocksdb only for local development in M1 until #incident-14430 is investigated -->
+        <org.rocksdb.rocksdbjni.version>6.29.5</org.rocksdb.rocksdbjni.version>
+      </properties>
+      <repositories>
+        <!-- Leaving default central repository as first lookup option -->
+        <repository>
+          <id>central</id>
+          <url>https://repo.maven.apache.org/maven2/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+        <!-- Needed to pull hyperscan-java latest snapshot with support for M1 -->
+        <repository>
+          <id>ossrh-snapshots</id>
+          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <!-- We don't use any snapshots other than our local artifacts. Here,
+            we set the update policy to `never` to avoid unnecessary HTTP calls. -->
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>
+        <!-- It will only look into our own repo if dependency not found in central -->
+        <repository>
+          <id>ddbuild-snapshots</id>
+          <url>https://binaries.ddbuild.io/logs-backend/snapshot</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <!-- We don't use any snapshots other than our local artifacts. Here,
+            we set the update policy to `never` to avoid unnecessary HTTP calls. -->
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>ddbuild-release</id>
+          <url>https://binaries.ddbuild.io/logs-backend/release</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>dd-source-snapshots</id>
+          <url>https://binaries.ddbuild.io/dd-source/java/snapshot</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <!-- We don't use any snapshots other than our local artifacts. Here,
+            we set the update policy to `never` to avoid unnecessary HTTP calls. -->
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>dd-source-release</id>
+          <url>https://binaries.ddbuild.io/dd-source/java/release</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+
+    <profile>
+      <id>verification</id>
+      <activation>
+        <property>
+          <name>!verification.skip</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <annotationProcessorPaths combine.children="append">
+                <path>
+                  <groupId>com.google.errorprone</groupId>
+                  <artifactId>error_prone_core</artifactId>
+                  <version>${error-prone.version}</version>
+                </path>
+                <path>
+                  <groupId>com.uber.nullaway</groupId>
+                  <artifactId>nullaway</artifactId>
+                  <version>0.9.7</version>
+                </path>
+              </annotationProcessorPaths>
+              <compilerArgs combine.children="append">
+                <arg>-XDcompilePolicy=simple</arg>
+                <arg>-Xplugin:ErrorProne <!--
+                -->-XepDisableAllWarnings <!--
+                -->-Xep:DefaultCharset:OFF <!--
+                -->-Xep:ArrayAsKeyOfSetOrMap:ERROR <!--
+                -->-Xep:ProtosAsKeyOfSetOrMap:ERROR <!--
+                -->-Xep:RemoveUnusedImports:ERROR <!--
+                -->-Xep:UnusedMethod:ERROR <!--
+                -->-Xep:WildcardImport:ERROR <!--
+                -->-Xep:StaticAssignmentInConstructor:ERROR <!--
+                -->-Xep:CheckReturnValue:ERROR <!--
+                -->-Xep:StaticQualifiedUsingExpression:ERROR <!--
+                -->-Xep:RedundantOverride:ERROR <!--
+                -->-Xep:CheckedExceptionNotThrown:ERROR <!--
+                -->-Xep:FallThrough:ERROR <!--
+                This check does not work well on IntelliJ IDEA. Re-enable it
+                once https://github.com/google/error-prone/issues/3092 is
+                resolved. See also
+                https://youtrack.jetbrains.com/issue/IDEA-288257.
+                -->-Xep:UnicodeInCode:OFF <!--
+                -->-XepExcludedPaths:<!--
+                  -->.*/(<!--
+                    -->target|<!--
+                    -->com/dd/logs/balance/protocol|<!--
+                    -->com/dd/logs/notification/message|<!--
+                    -->com/dd/logs/registry/message|<!--
+                    -->com/dd/logs/shardingallocator/message|<!--
+                    -->com/dd/logs/securityanalyticsmongoproxy/message|<!--
+                    -->com/dd/rum/mongo/proxy/message|<!--
+                    -->com/dd/logs/indexing/coordinator/message|<!--
+                    -->com/dd/logs/indexing/bucketmove/message|<!--
+                    -->com/dd/logs/indexing/workerrecovery/message|<!--
+                    -->com/dd/logs/indexing/cellworker/message|<!--
+                    -->com/dd/logs/indexingservice/message|<!--
+                    -->com/dd/logs/shardingbalancer/message|<!--
+                    -->com/dd/logs/indexing_autosharder/message|<!--
+                    -->com/dd/logs/platformapi/message|<!--
+                    -->pb|<!--
+                    -->proto|<!--
+                    -->libs/grpc/(?!utils/).+|<!--
+                    -->com/dd/grpc/utils/helper/test/message|<!--
+                    -->com/dd/grpc/utils/server/message|<!--
+                    -->com/dd/logs/rule_engine/case_expression/generated|<!--
+                    -->com/dd/ep/usage/message|<!--
+                    -->com/dd/logs/queryparser/parsing|<!--
+                    -->cfapb|<!--
+                    -->com/dd/logs/rum/reducer/codec|<!--
+                    -->com/dd/logs/connect/message|<!--
+                  -->)/.* <!--
+                -->-Xep:NullAway:ERROR <!--
+                -->-XepOpt:NullAway:AnnotatedPackages=<!--
+                  -->com.dd.event.store,<!--
+                  -->com.dd.grpc.utils,<!--
+                  -->com.dd.logs.api.analytics.engine.executor,<!--
+                  -->com.dd.logs.intake,<!--
+                  -->com.fsmatic.intake <!--
+                -->-XepOpt:NullAway:CheckOptionalEmptiness=true <!--
+                -->-XepOpt:NullAway:ExcludedClassAnnotations=com.dd.NullAnalysisDisabled <!--
+                -->-XepOpt:NullAway:TreatGeneratedAsUnannotated=true <!--
+                -->-XepOpt:NullAway:HandleTestAssertionLibraries=true <!--
+                -->-XepOpt:NullAway:ExcludedFieldAnnotations=<!--
+                  -->org.junit.jupiter.api.io.TempDir,<!--
+                  -->org.mockito.Mock,<!--
+                  -->org.openjdk.jmh.annotations.Param <!--
+                -->-XepOpt:NullAway:CustomInitializerAnnotations=<!--
+                  -->net.jqwik.api.lifecycle.BeforeContainer,<!--
+                  -->net.jqwik.api.lifecycle.BeforeProperty,<!--
+                  -->net.jqwik.api.lifecycle.BeforeTry,<!--
+                  -->org.openjdk.jmh.annotations.Setup
+                  <!-- Append additional custom arguments. -->
+                  ${error-prone.additional.args}
+                </arg>
+              </compilerArgs>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>enforce-maven</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <requireMavenVersion>
+                      <version>3.6.3</version>
+                    </requireMavenVersion>
+                  </rules>
+                </configuration>
+              </execution>
+              <execution>
+                <id>no-duplicate-declared-dependencies</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <banDuplicatePomDependencyVersions/>
+                  </rules>
+                </configuration>
+              </execution>
+              <execution>
+                <id>enforce-banned-dependencies</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <bannedDependencies>
+                      <!-- Keep this up-to-date with root libs/shaded/pom.xml. When we ban libraries we would like to ban them from shaded libraries as well. -->
+                      <excludes>
+                        <!-- junit 5 is org.junit:junit -->
+                        <exclude>junit:junit</exclude>
+                        <!-- only use com.google.code.findbugs:jsr305 -->
+                        <exclude>com.google.code.findbugs:annotations</exclude>
+                        <exclude>com.github.spotbugs:spotbugs-annotations</exclude>
+                        <!-- sundr-codegen has not-relocated commons libraries and adds duplicated classes: https://github.com/sundrio/sundrio/issues/153 -->
+                        <exclude>io.sundr:sundr-codegen</exclude>
+                        <!-- log4j-api and log4j-core are only allowed in test scope for ES integration tests: https://datadoghq.atlassian.net/wiki/spaces/EP/pages/2425094145/log4j+dependencies -->
+                        <exclude>org.apache.logging.log4j:log4j-api</exclude>
+                        <exclude>org.apache.logging.log4j:log4j-core</exclude>
+                        <!-- Use `org.immutables:value-annotations` instead. -->
+                        <exclude>org.immutables:value</exclude>
+                      </excludes>
+                      <includes>
+                        <include>org.apache.logging.log4j:log4j-api:*:*:test</include>
+                        <include>org.apache.logging.log4j:log4j-core:*:*:test</include>
+                      </includes>
+                    </bannedDependencies>
+                  </rules>
+                  <fail>true</fail>
+                </configuration>
+              </execution>
+              <execution>
+                <id>enforce-banned-direct-dependencies</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <bannedDependencies>
+                      <excludes>
+                        <!-- use org.bouncycastle:bcprov-jdk15on instead -->
+                        <exclude>org.bouncycastle:bcprov-ext-jdk15on</exclude>
+                      </excludes>
+                      <searchTransitive>false</searchTransitive>
+                    </bannedDependencies>
+                  </rules>
+                  <fail>true</fail>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>analyze-dependencies</id>
+                <goals>
+                  <goal>analyze-only</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <configuration>
+              <java>
+                <includes>
+                  <include>**/*.java</include>
+                </includes>
+                <excludes>
+                  <!-- Working directory for bazel -->
+                  <exclude>bazel-logs-backend/**/*.java</exclude>
+                  <exclude>**/target/**/*.java</exclude>
+                  <!-- Auto-generated GRPC code -->
+                  <exclude>%regex[libs/grpc/(?!utils).*\.java]</exclude>
+                  <exclude>libs/grpc/utils/src/test/**/message/*.java</exclude>
+                  <!-- Auto-generated protobuf code -->
+                  <exclude>pb/**/*.java</exclude>
+                  <!-- antlr-generated code -->
+                  <exclude>**/src/main/java/com/dd/event/store/api/query/parsing/*.java</exclude>
+                  <exclude>
+                    domains/cloud-security-platform/application-security/apps/appsec-reducer-enricher/src/main/java/com/dd/logs/rule_engine/appsec/reducer_enricher/proto/*.java
+                  </exclude>
+                  <exclude>domains/data-science/apps/anomaly-reducer/src/main/java/cfapb/**/*.java</exclude>
+                  <exclude>
+                    domains/event-platform/libs/event-to-metrics/event-to-metrics-aggregation/src/main/java/com/dd/logs/metrics/pb/*.java
+                  </exclude>
+                  <exclude>domains/event-platform/libs/queryparser/src/main/java/com/dd/logs/queryparser/parsing/*.java</exclude>
+                  <exclude>domains/event-platform/libs/workload/src/main/java/com/dd/logs/connect/message/*.java</exclude>
+                  <exclude>domains/logs/apps/livetail/src/main/java/com/dd/logs/livetail/proto/*.java</exclude>
+                  <exclude>domains/rum/libs/reducer-commons/src/main/java/com/dd/logs/rum/reducer/codec/*.java</exclude>
+                  <exclude>libs/service/src/main/java/com/dd/logs/notification/message/*.java</exclude>
+                  <!-- Intellij plugin code which is not valid java -->
+                  <exclude>intellij-plugins/intellij-dd-rpc-plugin/src/test/testData/*.java</exclude>
+                </excludes>
+                <googleJavaFormat>
+                  <version>1.15.0</version>
+                  <style>GOOGLE</style>
+                </googleJavaFormat>
+                <toggleOffOn>
+                  <off>@formatter:off</off>
+                  <on>@formatter:on</on>
+                </toggleOffOn>
+              </java>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <!-- When combined with the `verification` profile above, this profile
+      configures Error Prone to try to automatically fix (rather than merely
+      flag) bug pattern violations in the source code.
+      Example usage: `mvn -T 0.5C clean install -DskipTests -Derrorprone.patchchecks=StaticQualifiedUsingExpression`. -->
+      <id>error-prone-patch</id>
+      <activation>
+        <property>
+          <name>errorprone.patchchecks</name>
+        </property>
+      </activation>
+      <properties>
+        <error-prone.additional.args>-XepPatchChecks:${errorprone.patchchecks} -XepPatchLocation:IN_PLACE</error-prone.additional.args>
+      </properties>
+    </profile>
+    <profile>
+      <id>FastTests</id>
+      <properties>
+        <surefire.excludedGroups>
+          com.fsmatic.test.category.Slow,com.fsmatic.test.category.SlowIndexing,com.fsmatic.test.category.Unstable,com.fsmatic.test.category.Experimental,com.fsmatic.test.category.LargeTest
+        </surefire.excludedGroups>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>SlowTests</id>
+      <properties>
+        <surefire.groups>com.fsmatic.test.category.Slow</surefire.groups>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>SlowIndexingTests</id>
+      <properties>
+        <surefire.groups>com.fsmatic.test.category.SlowIndexing</surefire.groups>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>UnstableTests</id>
+      <properties>
+        <surefire.groups>com.fsmatic.test.category.Unstable</surefire.groups>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>ExperimentalTests</id>
+      <properties>
+        <surefire.groups>com.fsmatic.test.category.Experimental</surefire.groups>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>largetest</id>
+      <properties>
+        <surefire.groups>com.fsmatic.test.category.LargeTest</surefire.groups>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>HighMemTests</id>
+      <properties>
+        <!-- `-Xmx4G` prevents parsing/processing geoip tests to OOM -->
+        <surefire.extra.java.args>-Xmx4G</surefire.extra.java.args>
+        <surefire.groups>com.fsmatic.test.category.ScheduledGeoIP</surefire.groups>
+      </properties>
+    </profile>
+
+    <profile>
+      <!-- We only enable ci-app integration (i.e. tracing of the build) vi .ci/settings.xml, because when running locally it just
+           slows things down and requires setting certain DD_INTEGRATION_XXX properties which are set in .gitlab-ci.yml -->
+      <id>ci-app-integration</id>
+
+      <properties>
+        <!-- With with the tracing agent for CI-App integration -->
+        <dd.java.agent.arg>
+          -javaagent:${settings.localRepository}/com/datadoghq/dd-java-agent/0.101.0/dd-java-agent-0.101.0.jar
+          -Ddd.tracing.enabled=true
+          -Ddd.civisibility.enabled=true
+          -Ddd.civisibility.agentless.enabled=true
+        </dd.java.agent.arg>
+        <surefire.classpath.dependency.excludes>com.datadoghq:dd-trace-ot
+        </surefire.classpath.dependency.excludes>
+      </properties>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>${surefire.extra.java.args} ${dd.java.agent.arg}</argLine>
+              <groups>${surefire.groups}</groups>
+              <excludedGroups>${surefire.excludedGroups}</excludedGroups>
+              <environmentVariables>
+                <DD_ENV>${env.DD_ENV_TESTS}</DD_ENV>
+                <DD_TAGS>owner:${TEST_OWNER_TEAM}</DD_TAGS>
+                <DD_API_KEY>${env.DD_API_KEY_TESTS}</DD_API_KEY>
+              </environmentVariables>
+              <!-- To make sure the logs can be parsed and linked back to traces -->
+              <systemPropertyVariables>
+                <logback.configurationFile>${maven.multiModuleProjectDirectory}/.ci/logback-ciapp.xml</logback.configurationFile>
+              </systemPropertyVariables>
+              <classpathDependencyExcludes>${surefire.classpath.dependency.excludes}</classpathDependencyExcludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+
+    </profile>
+
+  </profiles>
+
+</project>

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
@@ -71,6 +72,7 @@ public class MavenPomLoader {
                 .map(DependencyManagement::getDependencies)
                 .orElse(List.of()));
     var properties = model.getProperties();
+    enrichProperties(properties, model, pom);
 
     return Result.complete(
         FlatPom.builder()
@@ -79,6 +81,18 @@ public class MavenPomLoader {
             .maybeParent(getMaybeParent(model))
             .properties(properties)
             .build());
+  }
+
+  private static void enrichProperties(Properties props, Model model, Path pom) {
+    // GroupId, Version and ArtifactId should never be null, see
+    // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#minimal-pom
+    // However, child poms do not have it and use the parent's instead
+    if (model.getGroupId() != null) {
+      props.setProperty("project.groupId", model.getGroupId());
+    }
+    if (model.getVersion() != null) {
+      props.setProperty("project.version", model.getVersion());
+    }
   }
 
   private static Optional<MavenParent> getMaybeParent(Model model) {

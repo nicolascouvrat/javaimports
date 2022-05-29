@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public class MavenDependencyTreeTest {
   static final URL rootURL =
-      MavenDependencyTreeTest.class.getResource("/fixtures/unittests/javaimports-pom/core");
+      MavenDependencyTreeTest.class.getResource("/fixtures/unittests/indexation-pom/indexation");
   static Path root;
 
   @BeforeEach
