@@ -112,6 +112,21 @@ public class FlatPomTest {
   }
 
   @Test
+  void itSubstitutesPropertiesInManagedDependencies() {
+    var managedDeps =
+        List.of(dependency("com.nikodoko", "javapackagetest", "${javapackagetest.version}"));
+    var parentProps = new Properties();
+    parentProps.setProperty("javapackagetest.version", "1.0");
+
+    var pom = FlatPom.builder().managedDependencies(managedDeps).build();
+    var parentPom = FlatPom.builder().properties(parentProps).build();
+    pom.merge(parentPom);
+
+    var expected = List.of(dependency("com.nikodoko", "javapackagetest", "1.0"));
+    assertThat(pom.managedDependencies()).containsExactlyElementsIn(expected);
+  }
+
+  @Test
   void itSubstitutesPropertiesOutsideOfVersion() {
     var dep =
         dependency(

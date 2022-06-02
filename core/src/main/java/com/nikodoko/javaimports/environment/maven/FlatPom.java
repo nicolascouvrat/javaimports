@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.base.MoreObjects;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,6 +61,7 @@ class FlatPom {
 
   private void substitutePropertiesWhenPossible() {
     dependencies.forEach(d -> d.substitute(properties));
+    managedDependencies.values().forEach(d -> d.substitute(properties));
   }
 
   /**
@@ -79,6 +81,10 @@ class FlatPom {
 
   List<MavenDependency> dependencies() {
     return dependencies;
+  }
+
+  Collection<MavenDependency> managedDependencies() {
+    return managedDependencies.values();
   }
 
   static Builder builder() {
