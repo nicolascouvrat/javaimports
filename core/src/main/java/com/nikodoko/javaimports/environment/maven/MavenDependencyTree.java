@@ -1,9 +1,14 @@
 package com.nikodoko.javaimports.environment.maven;
 
+import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
+import io.opentracing.Span;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class MavenDependencyTree {
@@ -11,12 +16,24 @@ public class MavenDependencyTree {
       Paths.get(System.getProperty("user.home"), ".m2/repository");
 
   MavenDependencyResolver resolver;
+  Options opts;
 
-  MavenDependencyTree() {
+  MavenDependencyTree(Options opts) {
     this.resolver = MavenDependencyResolver.withRepository(DEFAULT_REPOSITORY);
+    this.opts = opts;
   }
 
   public List<MavenDependency> getTransitiveDependencies(List<MavenDependency> directDependencies) {
+    var span = Traces.createSpan("MavenDependencyTree.getTransitiveDependencies");
+    try (var __ = Traces.activate(span)) {
+      return getTransitiveDependenciesInstrumented(span, directDependencies);
+    } finally {
+      span.finish();
+    }
+  }
+
+  public List<MavenDependency> getTransitiveDependenciesInstrumented(
+      Span span, List<MavenDependency> directDependencies) {
     var start = System.currentTimeMillis();
     var toDig = directDependencies;
     var versionless =
@@ -24,54 +41,68 @@ public class MavenDependencyTree {
     var all = new ArrayList<MavenDependency>();
     all.addAll(directDependencies);
     while (!toDig.isEmpty()) {
-      List<MavenDependency> next = new ArrayList<>();
-      for (var dep : toDig) {
-        List<MavenDependency> forDep = new ArrayList<>();
-        var transitiveDeps = getDependencies(dep);
-        for (var transitiveDep : transitiveDeps) {
-          if (versionless.contains(transitiveDep.hideVersion())) {
-            continue;
-          }
+      var futures =
+          toDig.stream()
+              .map(
+                  d ->
+                      CompletableFuture.supplyAsync(
+                          () -> getDependencies(span, d), opts.executor()))
+              .collect(Collectors.toList());
+      CompletableFuture.allOf(futures.stream().toArray(CompletableFuture[]::new)).join();
+      var next =
+          futures.stream()
+              .flatMap(f -> f.join().stream())
+              .filter(
+                  transitiveDep -> {
+                    if (versionless.contains(transitiveDep.hideVersion())) {
+                      return false;
+                    }
 
-          if (transitiveDep.scope().isPresent()
-              && (transitiveDep.scope().get().equals("test")
-                  || transitiveDep.scope().get().equals("provided"))) {
-            continue;
-          }
+                    if (transitiveDep.scope().isPresent()
+                        && (transitiveDep.scope().get().equals("test")
+                            || transitiveDep.scope().get().equals("provided"))) {
+                      return false;
+                    }
 
-          if (transitiveDep.optional()) {
-            continue;
-          }
+                    if (transitiveDep.optional()) {
+                      return false;
+                    }
 
-          forDep.add(transitiveDep);
-          versionless.add(transitiveDep.hideVersion());
-        }
-        next.addAll(forDep);
-      }
+                    return true;
+                  })
+              .collect(Collectors.toList());
+      var nextVersionless =
+          next.stream().map(MavenDependency::hideVersion).collect(Collectors.toSet());
+      versionless.addAll(nextVersionless);
       toDig = next;
       all.addAll(next);
     }
 
     var end = System.currentTimeMillis();
-    System.out.println(all.size());
-    System.out.println(end - start);
-    return List.of();
+    return all;
   }
 
-  private List<MavenDependency> getDependencies(MavenDependency dependency) {
-    try {
-      var location = resolver.resolve(dependency);
-      var childPom = MavenPomLoader.load(location.pom).pom;
-      if (!childPom.hasParent()) {
+  private List<MavenDependency> getDependencies(Span span, MavenDependency dependency) {
+    try (var __ = Traces.activate(span)) {
+      var childSpan =
+          Traces.createSpan(
+              "MavenDependencyTree.getDependencies", new Tag("dependency", dependency));
+      try (var ___ = Traces.activate(childSpan)) {
+        var location = resolver.resolve(dependency);
+        var childPom = MavenPomLoader.load(location.pom).pom;
+        if (!childPom.hasParent()) {
+          return childPom.dependencies();
+        }
+
+        var parent = childPom.maybeParent().get();
+        var parentLocation = resolver.resolve(parent.coordinates);
+        var parentPom = MavenPomLoader.load(parentLocation.pom).pom;
+        childPom.merge(parentPom);
         return childPom.dependencies();
+
+      } finally {
+        childSpan.finish();
       }
-
-      var parent = childPom.maybeParent().get();
-      var parentLocation = resolver.resolve(parent.coordinates);
-      var parentPom = MavenPomLoader.load(parentLocation.pom).pom;
-      childPom.merge(parentPom);
-      return childPom.dependencies();
-
     } catch (Exception e) {
       return List.of();
     }

@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.environment.maven;
 
+import com.nikodoko.javaimports.Options;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +21,6 @@ public class MavenDependencyTreeTest {
   void test() throws Exception {
     var dependencies = new MavenDependencyFinder().findAll(root).dependencies;
     System.out.println(dependencies);
-    new MavenDependencyTree().getTransitiveDependencies(dependencies);
+    new MavenDependencyTree(Options.defaults()).getTransitiveDependencies(dependencies);
   }
 }

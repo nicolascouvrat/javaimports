@@ -10,6 +10,7 @@ import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.JavaProject;
+import com.nikodoko.javaimports.environment.jarutil.JarIdentifierLoader;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import io.opentracing.Span;
 import java.nio.file.Path;
@@ -48,6 +49,9 @@ public class MavenEnvironment implements Environment {
   private JavaProject project;
   private boolean projectIsParsed = false;
   private boolean isInitialized = false;
+
+  // TEST
+  private List<MavenDependency> directDeps = new ArrayList<>();
 
   public MavenEnvironment(
       Path root, Path fileBeingResolved, String pkgBeingResolved, Options options) {
@@ -94,6 +98,14 @@ public class MavenEnvironment implements Environment {
     if (options.debug()) {
       log.info("Looking for class for " + i);
     }
+    var testMaybe = TESTfindClass(i);
+    if (testMaybe.isPresent()) {
+      if (options.debug()) {
+        log.info("Found this " + testMaybe.get());
+      }
+
+      return testMaybe;
+    }
     for (var dependency : dependencies) {
       var maybeClass = safelyFindClassIn(dependency, i);
       if (maybeClass.isPresent()) {
@@ -105,6 +117,55 @@ public class MavenEnvironment implements Environment {
     }
 
     return Optional.empty();
+  }
+
+  private Optional<ClassEntity> TESTfindClass(Import i) {
+    var span = Traces.createSpan("TESTfindClass");
+    try (var __ = Traces.activate(span)) {
+      return TESTfindClassInstrumented(i);
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Optional<ClassEntity> TESTfindClassInstrumented(Import i) {
+    var transitiveDeps = new MavenDependencyTree(options).getTransitiveDependencies(directDeps);
+    if (options.debug()) {
+      log.info("FOUND A TOTAL OF " + transitiveDeps.size() + " TRANSITIVE DEPS");
+    }
+
+    var paths =
+        transitiveDeps.stream()
+            .map(this::TESTsafeGetJarPath)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
+    if (options.debug()) {
+      log.info("FOUND A TOTAL OF " + paths.size() + " PATHS");
+    }
+
+    var megaLoader = new JarIdentifierLoader(paths);
+    try {
+      return Optional.of(
+          ClassEntity.named(i.selector).declaring(megaLoader.loadIdentifiers(i)).build());
+    } catch (Throwable t) {
+      if (options.debug()) {
+        log.log(Level.WARNING, String.format("Error finding class %s: %s", i, t));
+      }
+
+      return Optional.empty();
+    }
+  }
+
+  private Optional<Path> TESTsafeGetJarPath(MavenDependency dep) {
+    try {
+      return Optional.of(resolver.resolve(dep).jar);
+    } catch (Exception e) {
+      if (options.debug()) {
+        log.log(Level.WARNING, "Error getting jar path for dependency " + dep, e);
+      }
+      return Optional.empty();
+    }
   }
 
   private Optional<ClassEntity> safelyFindClassIn(MavenDependencyLoader.Dependency dep, Import i) {
@@ -166,6 +227,7 @@ public class MavenEnvironment implements Environment {
 
   private List<MavenDependencyLoader.Dependency> extractImportsInDependencies() {
     MavenDependencyFinder.Result direct = new MavenDependencyFinder().findAll(root);
+    directDeps = direct.dependencies;
 
     var versionlessDirectDependencies =
         direct.dependencies.stream().map(d -> d.hideVersion()).collect(Collectors.toSet());
