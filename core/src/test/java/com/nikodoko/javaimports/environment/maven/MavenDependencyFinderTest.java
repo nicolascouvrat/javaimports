@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -18,15 +19,16 @@ import org.junit.jupiter.api.Test;
 
 public class MavenDependencyFinderTest {
   Path tmp;
+  MavenDependencyFinder finder;
 
   @BeforeEach
   void setup() throws Exception {
     tmp = Files.createDirectory(Files.createTempDirectory("").resolve("module"));
+    finder = new MavenDependencyFinder(new DummyRepository(Map.of()));
   }
 
   @Test
   void testThatPomWithNoDepenciesReturnsEmptyList() throws Exception {
-    MavenDependencyFinder finder = new MavenDependencyFinder();
     writeChild(basicPom());
 
     MavenDependencyFinder.Result got = finder.findAll(tmp);
@@ -36,7 +38,6 @@ public class MavenDependencyFinderTest {
 
   @Test
   void testThatPomWithDependenciesReturnsCorrectDependencies() throws Exception {
-    MavenDependencyFinder finder = new MavenDependencyFinder();
     writeChild(
         basicPom(),
         withDependency("com.google.guava", "guava", "28.1-jre"),
@@ -52,7 +53,6 @@ public class MavenDependencyFinderTest {
 
   @Test
   void testDependenciesUsingParametersAreFoundEvenIfNotResolved() throws Exception {
-    MavenDependencyFinder finder = new MavenDependencyFinder();
     writeChild(basicPom(), withDependency("com.google.guava", "guava", "${guava.version}"));
     List<MavenDependency> expected =
         ImmutableList.of(dependencyWithDefaults("com.google.guava", "guava", "${guava.version}"));
@@ -64,7 +64,6 @@ public class MavenDependencyFinderTest {
 
   @Test
   void testThatPropertiesAreResolvedInTheSameFile() throws Exception {
-    var finder = new MavenDependencyFinder();
     writeChild(
         basicPom(),
         withDependency("com.google.guava", "guava", "${guava.version}"),
@@ -80,14 +79,13 @@ public class MavenDependencyFinderTest {
   void testThatFinderDoesNotCrashOnInvalidPom() throws Exception {
     Files.write(Paths.get(tmp.toString(), "pom.xml"), "this is not a valid pom!".getBytes());
 
-    MavenDependencyFinder.Result got = new MavenDependencyFinder().findAll(tmp);
+    MavenDependencyFinder.Result got = finder.findAll(tmp);
     assertThat(got.dependencies).isEmpty();
     assertThat(got.errors).hasSize(1);
   }
 
   @Test
   void testThatExplicitParentPomIsFound() throws Exception {
-    var finder = new MavenDependencyFinder();
     writeChild(
         basicPom(),
         withExplicitRelativePath("../pom.xml"),
@@ -102,7 +100,6 @@ public class MavenDependencyFinderTest {
 
   @Test
   void testThatParentPomIsFoundIfOnlyDirectory() throws Exception {
-    var finder = new MavenDependencyFinder();
     writeChild(
         basicPom(),
         withExplicitRelativePath(".."),
@@ -117,7 +114,6 @@ public class MavenDependencyFinderTest {
 
   @Test
   void theThatNoParentPomIsFoundIfEmptyRelativePath() throws Exception {
-    var finder = new MavenDependencyFinder();
     writeChild(
         basicPom(),
         withExplicitRelativePath(""),
@@ -132,7 +128,6 @@ public class MavenDependencyFinderTest {
 
   @Test
   void testThatImplicitParentPomIsFound() throws Exception {
-    var finder = new MavenDependencyFinder();
     writeChild(
         basicPom(),
         withImplicitRelativePath(),
@@ -147,7 +142,6 @@ public class MavenDependencyFinderTest {
 
   @Test
   void testThatDependencyTypeScopeAndOptionalAreExtracted() throws Exception {
-    var finder = new MavenDependencyFinder();
     writeChild(
         basicPom(),
         withDependency("com.google.guava", "guava", "28.1-jre", "test", "provided", true));
@@ -160,17 +154,57 @@ public class MavenDependencyFinderTest {
     assertThat(got.dependencies).containsExactlyElementsIn(expected);
   }
 
+  @Test
+  void testThatManagedDependencyWithScopeImportIsReplacedWithItsManagedDependencies()
+      throws Exception {
+    var repository =
+        new DummyRepository(
+            Map.of(
+                new MavenDependency("com.test", "test-bom", "1.0", "pom", "import", false),
+                List.of(dependencyWithDefaults("com.test", "mydependency", "1.0"))));
+    var finder = new MavenDependencyFinder(repository);
+    writeChild(
+        basicPom(),
+        withDependency("com.test", "mydependency", null),
+        withManagedDependency("com.test", "test-bom", "1.0", "pom", "import", false));
+    var expected = dependencyWithDefaults("com.test", "mydependency", "1.0");
+
+    var got = finder.findAll(tmp);
+    assertThat(got.errors).isEmpty();
+    assertThat(got.dependencies).containsExactly(expected);
+  }
+
   static Consumer<Model> basicPom() {
     return m -> {
       m.setModelVersion("4.0.0");
       m.setGroupId("com.nikodoko.javaimports");
       m.setArtifactId("test-pom");
       m.setVersion("0.0");
+      m.setDependencyManagement(new DependencyManagement());
+    };
+  }
+
+  static Consumer<Model> withManagedDependency(Object... elements) {
+    var managedDep = mvnDependency(elements);
+
+    return m -> {
+      var dependencyManagement = m.getDependencyManagement();
+      dependencyManagement.addDependency(managedDep);
+    };
+  }
+
+  static Consumer<Model> withDependency(Object... elements) {
+    var dep = mvnDependency(elements);
+
+    return m -> {
+      var deps = m.getDependencies();
+      deps.add(dep);
+      m.setDependencies(deps);
     };
   }
 
   // Either 3 elements (maven coordinates) or 6 (adding type, scope and optional)
-  static Consumer<Model> withDependency(Object... elements) {
+  static Dependency mvnDependency(Object... elements) {
     Dependency dep = new Dependency();
     dep.setGroupId((String) elements[0]);
     dep.setArtifactId((String) elements[1]);
@@ -181,11 +215,7 @@ public class MavenDependencyFinderTest {
       dep.setOptional((Boolean) elements[5]);
     }
 
-    return m -> {
-      var deps = m.getDependencies();
-      deps.add(dep);
-      m.setDependencies(deps);
-    };
+    return dep;
   }
 
   static Consumer<Model> withProperty(String key, String value) {
@@ -226,5 +256,18 @@ public class MavenDependencyFinderTest {
 
   static MavenDependency dependencyWithDefaults(String groupId, String artifactId, String version) {
     return new MavenDependency(groupId, artifactId, version, "jar", null, false);
+  }
+
+  static class DummyRepository implements MavenRepository {
+    private final Map<MavenDependency, List<MavenDependency>> managedDeps;
+
+    DummyRepository(Map<MavenDependency, List<MavenDependency>> managedDeps) {
+      this.managedDeps = managedDeps;
+    }
+
+    @Override
+    public List<MavenDependency> getManagedDependencies(MavenDependency dep) {
+      return managedDeps.getOrDefault(dep, List.of());
+    }
   }
 }

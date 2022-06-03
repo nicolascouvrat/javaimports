@@ -79,6 +79,11 @@ class MavenDependency {
     return scope;
   }
 
+  // TODO: tentative API
+  boolean hasScope(String desired) {
+    return scope.map(s -> s.equals(desired)).orElse(false);
+  }
+
   boolean optional() {
     return optional;
   }

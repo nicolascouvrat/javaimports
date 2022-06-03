@@ -4,28 +4,56 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class MavenDependencyTree {
+public class LocalMavenRepository implements MavenRepository {
   private static final Path DEFAULT_REPOSITORY =
       Paths.get(System.getProperty("user.home"), ".m2/repository");
 
   MavenDependencyResolver resolver;
 
-  MavenDependencyTree() {
-    this.resolver = MavenDependencyResolver.withRepository(DEFAULT_REPOSITORY);
+  LocalMavenRepository(MavenDependencyResolver resolver) {
+    this.resolver = resolver;
+  }
+
+  @Override
+  public List<MavenDependency> getManagedDependencies(MavenDependency dependency) {
+    return List.of();
   }
 
   public List<MavenDependency> getTransitiveDependencies(List<MavenDependency> directDependencies) {
+    return getTransitiveDependencies(directDependencies, Optional.empty());
+  }
+
+  public List<MavenDependency> getTransitiveDependencies(MavenDependency target, int maxDepth) {
+    var directDependencies = getDependencies(target);
+    var transitiveDeps =
+        getTransitiveDependencies(
+            directDependencies, maxDepth == -1 ? Optional.empty() : Optional.of(maxDepth));
+    return Stream.concat(directDependencies.stream(), transitiveDeps.stream())
+        .collect(Collectors.toList());
+  }
+
+  private List<MavenDependency> getTransitiveDependencies(
+      List<MavenDependency> directDependencies, Optional<Integer> maxDepth) {
+    System.out.println("STARTING " + directDependencies);
     var start = System.currentTimeMillis();
     var toDig = directDependencies;
     var versionless =
         directDependencies.stream().map(MavenDependency::hideVersion).collect(Collectors.toSet());
     var all = new ArrayList<MavenDependency>();
-    all.addAll(directDependencies);
+    var depth = 0;
     while (!toDig.isEmpty()) {
+      if (maxDepth.isPresent() && maxDepth.get() <= depth) {
+        break;
+      }
+
       List<MavenDependency> next = new ArrayList<>();
+      depth += 1;
       for (var dep : toDig) {
+        System.out.println("DIGGING " + dep);
         List<MavenDependency> forDep = new ArrayList<>();
         var transitiveDeps = getDependencies(dep);
         for (var transitiveDep : transitiveDeps) {
@@ -43,6 +71,7 @@ public class MavenDependencyTree {
             continue;
           }
 
+          System.out.println("FOUND " + transitiveDep);
           forDep.add(transitiveDep);
           versionless.add(transitiveDep.hideVersion());
         }
@@ -55,23 +84,32 @@ public class MavenDependencyTree {
     var end = System.currentTimeMillis();
     System.out.println(all.size());
     System.out.println(end - start);
-    return List.of();
+    return all;
   }
 
   private List<MavenDependency> getDependencies(MavenDependency dependency) {
     try {
       var location = resolver.resolve(dependency);
-      var childPom = MavenPomLoader.load(location.pom).pom;
-      if (!childPom.hasParent()) {
-        return childPom.dependencies();
+      var pom = MavenPomLoader.load(location.pom).pom;
+      while (pom.hasParent()) {
+        var parent = pom.maybeParent().get();
+        var parentLocation = resolver.resolve(parent.coordinates);
+        var parentPom = MavenPomLoader.load(parentLocation.pom).pom;
+        pom.merge(parentPom);
       }
 
-      var parent = childPom.maybeParent().get();
-      var parentLocation = resolver.resolve(parent.coordinates);
-      var parentPom = MavenPomLoader.load(parentLocation.pom).pom;
-      childPom.merge(parentPom);
-      return childPom.dependencies();
+      var scopeImport =
+          pom.managedDependencies().stream()
+              .filter(d -> d.scope().map(s -> s.equals("import")).orElse(false))
+              .collect(Collectors.toList());
+      for (var toImport : scopeImport) {
+        System.out.println("IMPORTING: " + toImport);
+        var toImportLocation = resolver.resolve(toImport);
+        var toImportPom = MavenPomLoader.load(toImportLocation.pom).pom;
+        pom.merge(toImportPom);
+      }
 
+      return pom.dependencies();
     } catch (Exception e) {
       return List.of();
     }

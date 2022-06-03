@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /** Finds all dependencies in a Maven project by parsing POM files. */
 class MavenDependencyFinder {
@@ -22,7 +23,11 @@ class MavenDependencyFinder {
   }
 
   private static final Path POM = Paths.get("pom.xml");
-  private Result result = new Result();
+  private final MavenRepository repository;
+
+  MavenDependencyFinder(MavenRepository repository) {
+    this.repository = repository;
+  }
 
   Result findAll(Path moduleRoot) {
     var span = Traces.createSpan("MavenDependencyFinder.findAll");
@@ -35,6 +40,7 @@ class MavenDependencyFinder {
 
   private Result findAllInstrumented(Path moduleRoot) {
     var loaded = MavenPomLoader.load(moduleRoot.resolve(POM));
+    var result = new Result();
 
     var pom = loaded.pom;
     var errors = new ArrayList<>(loaded.errors);
@@ -45,6 +51,17 @@ class MavenDependencyFinder {
       errors.addAll(loaded.errors);
       pom.merge(loaded.pom);
     }
+
+    // According to the maven documentation, managed dependencies with scope "import" should be
+    // replaced with the effective list of dependencies in the specified POM's
+    // <dependencyManagement> section. See:
+    // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Scope
+    var managedDepsToAdd =
+        pom.managedDependencies().stream()
+            .filter(d -> d.hasScope("import"))
+            .flatMap(d -> repository.getManagedDependencies(d).stream())
+            .collect(Collectors.toList());
+    pom.merge(FlatPom.builder().managedDependencies(managedDepsToAdd).build());
 
     result.dependencies.addAll(pom.dependencies());
     result.errors.addAll(errors);
