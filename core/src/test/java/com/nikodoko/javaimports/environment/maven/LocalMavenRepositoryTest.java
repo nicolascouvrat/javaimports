@@ -2,8 +2,8 @@ package com.nikodoko.javaimports.environment.maven;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.nikodoko.javaimports.Options;
 import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -15,13 +15,15 @@ public class LocalMavenRepositoryTest {
   static final URL rootURL =
       LocalMavenRepositoryTest.class.getResource("/fixtures/unittests/javaimports-pom/core");
   static final URL repositoryURL = MavenDependencyLoaderTest.class.getResource("/testrepository");
-  static Path root;
-  static Path repository;
+
+  LocalMavenRepository repository;
 
   @BeforeEach
   void setup() throws Exception {
-    root = Paths.get(rootURL.toURI());
-    repository = Paths.get(repositoryURL.toURI());
+    var repositoryPath = Paths.get(repositoryURL.toURI());
+    var resolver = MavenDependencyResolver.withRepository(repositoryPath);
+    var options = Options.builder().debug(true).build();
+    repository = new LocalMavenRepository(resolver, options);
   }
 
   static String[] EXPECTED_DEPENDENCIES = {
@@ -113,6 +115,58 @@ public class LocalMavenRepositoryTest {
     "com.nikodoko.javapackagetest:javapackagetest:jar:1.0:test"
   };
 
+  @Test
+  void itShouldGetManagedDependencies() {
+    var target = aDependency("org.junit.jupiter:junit-jupiter:jar:5.6.2");
+    var expected =
+        List.of(
+            aDependency("org.junit.jupiter:junit-jupiter:jar:5.6.2"),
+            aDependency("org.junit.jupiter:junit-jupiter-api:jar:5.6.2"),
+            aDependency("org.junit.jupiter:junit-jupiter-engine:jar:5.6.2"),
+            aDependency("org.junit.jupiter:junit-jupiter-migrationsupport:jar:5.6.2"),
+            aDependency("org.junit.jupiter:junit-jupiter-params:jar:5.6.2"),
+            aDependency("org.junit.platform:junit-platform-commons:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-console:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-engine:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-launcher:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-reporting:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-runner:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-suite-api:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-testkit:jar:1.6.2"),
+            aDependency("org.junit.vintage:junit-vintage-engine:jar:5.6.2"));
+    var got = repository.getManagedDependencies(target);
+    // TODO: this should be "exactlyElementsIn" but for now we also return the original dependency
+    // of scope import
+    assertThat(got).containsAtLeastElementsIn(expected);
+  }
+
+  @Test
+  void itShouldResolveTransitiveDependenciesWithMultipleParentPoms() {
+    var target = aDependency("javax.enterprise:cdi-api:jar:1.0:compile");
+    var expected =
+        List.of(
+            aDependency("org.jboss.interceptor:jboss-interceptor-api:jar:1.1"),
+            aDependency("javax.annotation:jsr250-api:jar:1.0"),
+            aDependency("javax.inject:javax.inject:jar:1"));
+    var got = repository.getTransitiveDependencies(target, 1);
+    assertThat(got).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void test() throws Exception {
+    var expectedDependencies =
+        Arrays.stream(EXPECTED_DEPENDENCIES)
+            .map(LocalMavenRepositoryTest::aDependency)
+            .map(MavenDependency::coordinates)
+            .collect(Collectors.toList());
+    var target = aDependency("com.nikodoko.javaimports:javaimports:jar:1.3");
+    var got = repository.getTransitiveDependencies(target, -1);
+    var gotCoord = got.stream().map(MavenDependency::coordinates).collect(Collectors.toList());
+    System.out.println(gotCoord);
+
+    assertThat(gotCoord).containsAtLeastElementsIn(expectedDependencies);
+  }
+
   // [groupId]:[artifactId]:[type]:[version]
   private static MavenDependency aDependency(String depString) {
     var elements = depString.split(":");
@@ -125,34 +179,5 @@ public class LocalMavenRepositoryTest {
       version = elements[4];
     }
     return new MavenDependency(groupId, artifactId, version, type, null, false);
-  }
-
-  @Test
-  void itShouldResolveTransitiveDependenciesWithMultipleParentPoms() {
-    var target = aDependency("javax.enterprise:cdi-api:jar:1.0:compile");
-    var expected =
-        List.of(
-            aDependency("org.jboss.interceptor:jboss-interceptor-api:jar:1.1"),
-            aDependency("javax.annotation:jsr250-api:jar:1.0"),
-            aDependency("javax.inject:javax.inject:jar:1"));
-    var resolver = MavenDependencyResolver.withRepository(repository);
-    var got = new LocalMavenRepository(resolver).getTransitiveDependencies(target, 1);
-    assertThat(got).containsExactlyElementsIn(expected);
-  }
-
-  @Test
-  void test() throws Exception {
-    var expectedDependencies =
-        Arrays.stream(EXPECTED_DEPENDENCIES)
-            .map(LocalMavenRepositoryTest::aDependency)
-            .map(MavenDependency::coordinates)
-            .collect(Collectors.toList());
-    var target = aDependency("com.nikodoko.javaimports:javaimports:jar:1.3");
-    var resolver = MavenDependencyResolver.withRepository(repository);
-    var got = new LocalMavenRepository(resolver).getTransitiveDependencies(target, -1);
-    var gotCoord = got.stream().map(MavenDependency::coordinates).collect(Collectors.toList());
-    System.out.println(gotCoord);
-
-    assertThat(gotCoord).containsAtLeastElementsIn(expectedDependencies);
   }
 }

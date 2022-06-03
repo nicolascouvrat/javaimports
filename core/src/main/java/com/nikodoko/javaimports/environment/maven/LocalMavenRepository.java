@@ -1,26 +1,33 @@
 package com.nikodoko.javaimports.environment.maven;
 
+import com.nikodoko.javaimports.Options;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LocalMavenRepository implements MavenRepository {
+  private static Logger log = Logger.getLogger(LocalMavenRepository.class.getName());
   private static final Path DEFAULT_REPOSITORY =
       Paths.get(System.getProperty("user.home"), ".m2/repository");
 
-  MavenDependencyResolver resolver;
+  private final MavenDependencyResolver resolver;
+  private final Options options;
 
-  LocalMavenRepository(MavenDependencyResolver resolver) {
+  LocalMavenRepository(MavenDependencyResolver resolver, Options options) {
     this.resolver = resolver;
+    this.options = options;
   }
 
   @Override
   public List<MavenDependency> getManagedDependencies(MavenDependency dependency) {
-    return List.of();
+    var pom = effectivePom(dependency);
+    return new ArrayList<>(pom.managedDependencies());
   }
 
   public List<MavenDependency> getTransitiveDependencies(List<MavenDependency> directDependencies) {
@@ -85,6 +92,45 @@ public class LocalMavenRepository implements MavenRepository {
     System.out.println(all.size());
     System.out.println(end - start);
     return all;
+  }
+
+  private FlatPom effectivePom(MavenDependency dependency) {
+    var pom = getPomMergedWithParentPoms(dependency);
+
+    // According to the maven documentation, managed dependencies with scope "import" should be
+    // replaced with the effective list of dependencies in the specified POM's
+    // <dependencyManagement> section. See:
+    // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Scope
+    var managedDepsToAdd =
+        pom.managedDependencies().stream()
+            .filter(d -> d.hasScope("import"))
+            .map(this::getPomMergedWithParentPoms)
+            .flatMap(p -> p.managedDependencies().stream())
+            .collect(Collectors.toList());
+    pom.merge(FlatPom.builder().managedDependencies(managedDepsToAdd).build());
+
+    return pom;
+  }
+
+  private FlatPom getPomMergedWithParentPoms(MavenDependency dependency) {
+    try {
+      var location = resolver.resolve(dependency);
+      var pom = MavenPomLoader.load(location.pom).pom;
+      while (pom.hasParent()) {
+        var parent = pom.maybeParent().get();
+        var parentLocation = resolver.resolve(parent.coordinates);
+        var parentPom = MavenPomLoader.load(parentLocation.pom).pom;
+        pom.merge(parentPom);
+      }
+
+      return pom;
+    } catch (Exception e) {
+      if (options.debug()) {
+        log.log(Level.WARNING, "Cannot get merged pom for " + dependency, e);
+      }
+
+      return FlatPom.builder().build();
+    }
   }
 
   private List<MavenDependency> getDependencies(MavenDependency dependency) {

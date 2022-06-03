@@ -130,7 +130,7 @@ public class MavenEnvironment implements Environment {
 
   private List<Import> extractImportsInDependencies() {
     MavenDependencyFinder.Result direct =
-        new MavenDependencyFinder(new LocalMavenRepository(resolver)).findAll(root);
+        new MavenDependencyFinder(new LocalMavenRepository(resolver, options)).findAll(root);
 
     var versionlessDirectDependencies =
         direct.dependencies.stream().map(d -> d.hideVersion()).collect(Collectors.toSet());
