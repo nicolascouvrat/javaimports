@@ -148,7 +148,8 @@ public class MavenDependencyFinderTest {
         withDependency("com.google.guava", "guava", "28.1-jre", "test", "provided", true));
     var expected =
         List.of(
-            new MavenDependency("com.google.guava", "guava", "28.1-jre", "test", "provided", true));
+            new MavenDependency(
+                "com.google.guava", "guava", "28.1-jre", "test", null, "provided", true));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -161,7 +162,7 @@ public class MavenDependencyFinderTest {
     var repository =
         new DummyRepository(
             Map.of(
-                new MavenDependency("com.test", "test-bom", "1.0", "pom", "import", false),
+                new MavenDependency("com.test", "test-bom", "1.0", "pom", null, "import", false),
                 List.of(dependencyWithDefaults("com.test", "mydependency", "1.0"))));
     var finder = new MavenDependencyFinder(repository);
     writeChild(
@@ -256,7 +257,7 @@ public class MavenDependencyFinderTest {
   }
 
   static MavenDependency dependencyWithDefaults(String groupId, String artifactId, String version) {
-    return new MavenDependency(groupId, artifactId, version, "jar", null, false);
+    return new MavenDependency(groupId, artifactId, version, "jar", null, null, false);
   }
 
   static class DummyRepository implements MavenRepository {

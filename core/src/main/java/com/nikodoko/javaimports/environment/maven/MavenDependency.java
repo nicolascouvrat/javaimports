@@ -34,13 +34,13 @@ class MavenDependency {
 
       var that = (Versionless) o;
       return Objects.equals(this.wrapped.groupId(), that.wrapped.groupId())
-          && Objects.equals(this.wrapped.type, that.wrapped.type)
+          && Objects.equals(this.wrapped.type(), that.wrapped.type())
           && Objects.equals(this.wrapped.artifactId(), that.wrapped.artifactId());
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(this.wrapped.groupId(), this.wrapped.artifactId(), this.wrapped.type);
+      return Objects.hash(this.wrapped.groupId(), this.wrapped.artifactId(), this.wrapped.type());
     }
 
     @Override
@@ -48,12 +48,11 @@ class MavenDependency {
       return Utils.toStringHelper(this)
           .add("groupId", this.wrapped.groupId())
           .add("artifactId", this.wrapped.artifactId())
-          .add("type", this.wrapped.type)
+          .add("type", this.wrapped.type())
           .toString();
     }
   }
 
-  private final String type;
   private final boolean optional;
   private final Optional<String> scope;
   private final MavenCoordinates coordinates;
@@ -63,10 +62,10 @@ class MavenDependency {
       String artifactId,
       String version,
       String type,
+      String classifier,
       String scope,
       boolean optional) {
-    this.coordinates = new MavenCoordinates(groupId, artifactId, version, type);
-    this.type = type;
+    this.coordinates = new MavenCoordinates(groupId, artifactId, version, type, classifier);
     this.scope = Optional.ofNullable(scope);
     this.optional = optional;
   }
@@ -110,6 +109,10 @@ class MavenDependency {
     return coordinates.maybeVersion().map(MavenString::toString).orElse(null);
   }
 
+  Optional<String> classifier() {
+    return coordinates.maybeClassifier();
+  }
+
   void substitute(Properties props) {
     coordinates.substitute(props);
   }
@@ -120,7 +123,7 @@ class MavenDependency {
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.coordinates, this.type, this.scope, this.optional);
+    return Objects.hash(this.coordinates, this.scope, this.optional);
   }
 
   @Override
@@ -134,8 +137,7 @@ class MavenDependency {
     }
 
     MavenDependency d = (MavenDependency) o;
-    return Objects.equals(d.type, type)
-        && Objects.equals(d.coordinates, coordinates)
+    return Objects.equals(d.coordinates, coordinates)
         && Objects.equals(d.scope, scope)
         && Objects.equals(d.optional, optional);
   }
@@ -144,7 +146,6 @@ class MavenDependency {
   public String toString() {
     return Utils.toStringHelper(this)
         .add("coordinates", coordinates)
-        .add("type", type)
         .add("scope", scope)
         .add("optional", optional)
         .toString();

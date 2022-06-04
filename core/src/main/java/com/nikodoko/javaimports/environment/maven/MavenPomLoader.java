@@ -103,7 +103,7 @@ public class MavenPomLoader {
     var parent = model.getParent();
     var coordinates =
         new MavenCoordinates(
-            parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "pom");
+            parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "pom", null);
     return Optional.of(new MavenParent(coordinates, getMaybeParentRelativePath(parent)));
   }
 
@@ -128,6 +128,7 @@ public class MavenPomLoader {
                     d.getArtifactId(),
                     d.getVersion(),
                     d.getType(),
+                    d.getClassifier(),
                     d.getScope(),
                     d.isOptional()))
         .collect(Collectors.toList());

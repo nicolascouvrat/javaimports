@@ -52,9 +52,10 @@ class FlatPom {
                   var scope =
                       d.scope().isPresent() ? d.scope().get() : managed.scope().orElse(null);
                   var optional = d.optional() ? d.optional() : managed.optional();
+                  var classifier = d.classifier().orElse(null);
 
                   return new MavenDependency(
-                      d.groupId(), d.artifactId(), version, d.type(), scope, optional);
+                      d.groupId(), d.artifactId(), version, d.type(), classifier, scope, optional);
                 })
             .collect(Collectors.toList());
   }

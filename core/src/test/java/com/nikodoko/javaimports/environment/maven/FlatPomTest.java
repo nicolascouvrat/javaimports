@@ -9,8 +9,18 @@ import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
 public class FlatPomTest {
+  static MavenDependency dependency(
+      String groupId,
+      String artifactId,
+      String version,
+      String type,
+      String scope,
+      boolean optional) {
+    return new MavenDependency(groupId, artifactId, version, type, null, scope, optional);
+  }
+
   static MavenDependency dependency(String groupId, String artifactId, String version) {
-    return new MavenDependency(groupId, artifactId, version, "jar", "compile", false);
+    return dependency(groupId, artifactId, version, "jar", "compile", false);
   }
 
   @Test
@@ -47,8 +57,8 @@ public class FlatPomTest {
   void itSupportsDependenciesOfDifferentTypeWithTheSameCoordinates() {
     var managedDeps =
         List.of(
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false));
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false));
     var pom = FlatPom.builder().managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).isEmpty();
   }
@@ -57,19 +67,16 @@ public class FlatPomTest {
   void itGetsOptionalFromManagedDependencyIfNeeded() {
     var deps =
         List.of(
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", true),
-            new MavenDependency(
-                "com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", false));
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", true),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", false));
     var managedDeps =
         List.of(
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
-            new MavenDependency(
-                "com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", true));
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", true));
     var expected =
         List.of(
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", true),
-            new MavenDependency(
-                "com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", true));
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", true),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", true));
 
     var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
@@ -79,16 +86,16 @@ public class FlatPomTest {
   void itGetsScopeFromManagedDependencyIfNeeded() {
     var deps =
         List.of(
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
-            new MavenDependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", null, false));
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", null, false));
     var managedDeps =
         List.of(
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false),
-            new MavenDependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "test", false));
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "test", false));
     var expected =
         List.of(
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
-            new MavenDependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "test", false));
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "test", false));
 
     var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
@@ -223,7 +230,8 @@ public class FlatPomTest {
             .maybeParent(
                 Optional.of(
                     new MavenParent(
-                        new MavenCoordinates("com.nikodoko", "javaimports-parent", "1.0.0", "pom"),
+                        new MavenCoordinates(
+                            "com.nikodoko", "javaimports-parent", "1.0.0", "pom", null),
                         Optional.of(Paths.get("../pom.xml")))))
             .build();
     var secondPom = FlatPom.builder().maybeParent(Optional.empty()).build();

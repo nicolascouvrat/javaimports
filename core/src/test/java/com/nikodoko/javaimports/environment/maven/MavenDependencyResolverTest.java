@@ -26,7 +26,7 @@ public class MavenDependencyResolverTest {
         Arguments.of(
             "A dependency with a test-jar type is found",
             new MavenDependency(
-                "com.mycompany.app", "a-dependency", "1.0", "test-jar", "test", false),
+                "com.mycompany.app", "a-dependency", "1.0", "test-jar", null, "test", false),
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0-tests.jar",
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
         Arguments.of(
@@ -57,6 +57,6 @@ public class MavenDependencyResolverTest {
   }
 
   static MavenDependency mavenDependency(String groupId, String artifactId, String version) {
-    return new MavenDependency(groupId, artifactId, version, "jar", "compile", false);
+    return new MavenDependency(groupId, artifactId, version, "jar", null, "compile", false);
   }
 }

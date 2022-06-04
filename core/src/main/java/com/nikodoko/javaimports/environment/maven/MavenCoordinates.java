@@ -29,12 +29,17 @@ public class MavenCoordinates {
       var that = (Versionless) o;
       return Objects.equals(this.wrapped.groupId, that.wrapped.groupId)
           && Objects.equals(this.wrapped.type, that.wrapped.type)
+          && Objects.equals(this.wrapped.classifier, that.wrapped.classifier)
           && Objects.equals(this.wrapped.artifactId, that.wrapped.artifactId);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(this.wrapped.groupId, this.wrapped.artifactId, this.wrapped.type);
+      return Objects.hash(
+          this.wrapped.groupId,
+          this.wrapped.artifactId,
+          this.wrapped.type,
+          this.wrapped.classifier);
     }
 
     @Override
@@ -43,6 +48,7 @@ public class MavenCoordinates {
           .add("groupId", this.wrapped.groupId)
           .add("artifactId", this.wrapped.artifactId)
           .add("type", this.wrapped.type)
+          .add("classifier", this.wrapped.classifier)
           .toString();
     }
   }
@@ -51,15 +57,22 @@ public class MavenCoordinates {
   private final MavenString artifactId;
   private final MavenString type;
   private final Optional<MavenString> version;
+  private final Optional<MavenString> classifier;
 
-  MavenCoordinates(String groupId, String artifactId, String version, String type) {
+  MavenCoordinates(
+      String groupId, String artifactId, String version, String type, String classifier) {
     checkNotNull(groupId, "maven coordinates does not accept a null groupId");
     checkNotNull(artifactId, "maven coordinates does not accept a null artifactId");
     checkNotNull(artifactId, "maven coordinates does not accept a null type");
     this.groupId = new MavenString(groupId);
     this.artifactId = new MavenString(artifactId);
     this.version = Optional.ofNullable(version).map(MavenString::new);
+    this.classifier = Optional.ofNullable(classifier).map(MavenString::new);
     this.type = new MavenString(type);
+  }
+
+  Optional<String> maybeClassifier() {
+    return classifier.map(MavenString::toString);
   }
 
   Optional<MavenString> maybeVersion() {
@@ -85,6 +98,9 @@ public class MavenCoordinates {
     if (version.isPresent()) {
       version.get().substitute(props);
     }
+    if (classifier.isPresent()) {
+      classifier.get().substitute(props);
+    }
   }
 
   boolean hasVersion() {
@@ -97,7 +113,7 @@ public class MavenCoordinates {
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.groupId, this.artifactId, this.version, this.type);
+    return Objects.hash(this.groupId, this.artifactId, this.version, this.type, this.classifier);
   }
 
   @Override
@@ -114,6 +130,7 @@ public class MavenCoordinates {
     return Objects.equals(d.groupId, groupId)
         && Objects.equals(d.artifactId, artifactId)
         && Objects.equals(d.type, type)
+        && Objects.equals(d.classifier, classifier)
         && Objects.equals(d.version, version);
   }
 
@@ -124,6 +141,7 @@ public class MavenCoordinates {
         .add("artifactId", artifactId)
         .add("version", version)
         .add("type", type)
+        .add("classifier", classifier)
         .toString();
   }
 }
