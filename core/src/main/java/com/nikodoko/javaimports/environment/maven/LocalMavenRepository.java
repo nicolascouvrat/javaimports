@@ -4,12 +4,13 @@ import com.nikodoko.javaimports.Options;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class LocalMavenRepository implements MavenRepository {
   private static Logger log = Logger.getLogger(LocalMavenRepository.class.getName());
@@ -30,68 +31,99 @@ public class LocalMavenRepository implements MavenRepository {
     return new ArrayList<>(pom.managedDependencies());
   }
 
-  public List<MavenDependency> getTransitiveDependencies(List<MavenDependency> directDependencies) {
-    return getTransitiveDependencies(directDependencies, Optional.empty());
+  // TODO: tentative API, this is most likely only for tests
+  public List<MavenDependency> getDirectDependencies(MavenDependency dependency) {
+    return effectivePom(dependency).dependencies();
   }
 
-  public List<MavenDependency> getTransitiveDependencies(MavenDependency target, int maxDepth) {
-    var directDependencies = getDependencies(target);
-    var transitiveDeps =
-        getTransitiveDependencies(
-            directDependencies, maxDepth == -1 ? Optional.empty() : Optional.of(maxDepth));
-    return Stream.concat(directDependencies.stream(), transitiveDeps.stream())
+  public Collection<MavenDependency> getTransitiveDependencies(
+      List<MavenDependency> directDependencies, int maxDepth) {
+    var byVersionlessCoordinates =
+        directDependencies.stream()
+            .flatMap(d -> getTransitiveDependencies(d, maxDepth).stream())
+            .collect(
+                Collectors.toMap(
+                    d -> d.dependency.coordinates().hideVersion(),
+                    d -> d,
+                    (d1, d2) -> {
+                      if (d1.depth < d2.depth) {
+                        return d1;
+                      }
+
+                      if (d2.depth < d1.depth) {
+                        return d2;
+                      }
+
+                      return d1;
+                    }));
+
+    return byVersionlessCoordinates.values().stream()
+        .map(d -> d.dependency)
         .collect(Collectors.toList());
   }
 
-  private List<MavenDependency> getTransitiveDependencies(
-      List<MavenDependency> directDependencies, Optional<Integer> maxDepth) {
-    System.out.println("STARTING " + directDependencies);
-    var start = System.currentTimeMillis();
-    var toDig = directDependencies;
-    var versionless =
-        directDependencies.stream().map(MavenDependency::hideVersion).collect(Collectors.toSet());
-    var all = new ArrayList<MavenDependency>();
+  // When encounting the same dependency with two different versions, Maven wil pick the nearest
+  // one. This allow us to track how far down the dependency tree a transitive dependency was found.
+  private static class DependencyWithDepth {
+    final MavenDependency dependency;
+    final int depth;
+
+    DependencyWithDepth(MavenDependency dependency, int depth) {
+      this.dependency = dependency;
+      this.depth = depth;
+    }
+  }
+
+  // WARNING: dependency is considered to be a direct dependency of something already, so it will
+  // apply filtering rules
+  private List<DependencyWithDepth> getTransitiveDependencies(
+      MavenDependency directDependency, int maxDepth) {
+    Set<MavenCoordinates.Versionless> visited = new HashSet<>();
+    List<DependencyWithDepth> found = new ArrayList<>();
+    List<MavenDependency> nextLayer = new ArrayList<>();
+    visited.add(directDependency.coordinates().hideVersion());
+    nextLayer.add(directDependency);
+
     var depth = 0;
-    while (!toDig.isEmpty()) {
-      if (maxDepth.isPresent() && maxDepth.get() <= depth) {
+    while (!nextLayer.isEmpty()) {
+      if (maxDepth >= 0 && depth >= maxDepth) {
         break;
       }
 
-      List<MavenDependency> next = new ArrayList<>();
       depth += 1;
-      for (var dep : toDig) {
-        System.out.println("DIGGING " + dep);
-        List<MavenDependency> forDep = new ArrayList<>();
-        var transitiveDeps = getDependencies(dep);
-        for (var transitiveDep : transitiveDeps) {
-          if (versionless.contains(transitiveDep.hideVersion())) {
-            continue;
-          }
-
-          if (transitiveDep.scope().isPresent()
-              && (transitiveDep.scope().get().equals("test")
-                  || transitiveDep.scope().get().equals("provided"))) {
-            continue;
-          }
-
-          if (transitiveDep.optional()) {
-            continue;
-          }
-
-          System.out.println("FOUND " + transitiveDep);
-          forDep.add(transitiveDep);
-          versionless.add(transitiveDep.hideVersion());
-        }
-        next.addAll(forDep);
-      }
-      toDig = next;
-      all.addAll(next);
+      var transitiveDeps =
+          nextLayer.stream()
+              .flatMap(d -> effectivePom(d).dependencies().stream())
+              .filter(t -> !visited.contains(t.hideVersion()))
+              .filter(this::isTransitiveScope)
+              .filter(this::isNotOptional)
+              .collect(Collectors.toList());
+      visited.addAll(
+          transitiveDeps.stream()
+              .map(MavenDependency::coordinates)
+              .map(MavenCoordinates::hideVersion)
+              .collect(Collectors.toSet()));
+      var currentDepth = depth;
+      found.addAll(
+          transitiveDeps.stream()
+              .map(d -> new DependencyWithDepth(d, currentDepth))
+              .collect(Collectors.toList()));
+      nextLayer = transitiveDeps;
     }
 
-    var end = System.currentTimeMillis();
-    System.out.println(all.size());
-    System.out.println(end - start);
-    return all;
+    return found;
+  }
+
+  // According to the maven spec, the provided, system and test scope are not transitive. See:
+  // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Scope,
+  private boolean isTransitiveScope(MavenDependency dependency) {
+    return !dependency.hasScope("test")
+        && !dependency.hasScope("provided")
+        && !dependency.hasScope("system");
+  }
+
+  private boolean isNotOptional(MavenDependency dependency) {
+    return !dependency.optional();
   }
 
   private FlatPom effectivePom(MavenDependency dependency) {
@@ -104,7 +136,7 @@ public class LocalMavenRepository implements MavenRepository {
     var managedDepsToAdd =
         pom.managedDependencies().stream()
             .filter(d -> d.hasScope("import"))
-            .map(this::getPomMergedWithParentPoms)
+            .map(this::effectivePom)
             .flatMap(p -> p.managedDependencies().stream())
             .collect(Collectors.toList());
     pom.merge(FlatPom.builder().managedDependencies(managedDepsToAdd).build());
@@ -132,46 +164,4 @@ public class LocalMavenRepository implements MavenRepository {
       return FlatPom.builder().build();
     }
   }
-
-  private List<MavenDependency> getDependencies(MavenDependency dependency) {
-    try {
-      var location = resolver.resolve(dependency);
-      var pom = MavenPomLoader.load(location.pom).pom;
-      while (pom.hasParent()) {
-        var parent = pom.maybeParent().get();
-        var parentLocation = resolver.resolve(parent.coordinates);
-        var parentPom = MavenPomLoader.load(parentLocation.pom).pom;
-        pom.merge(parentPom);
-      }
-
-      var scopeImport =
-          pom.managedDependencies().stream()
-              .filter(d -> d.scope().map(s -> s.equals("import")).orElse(false))
-              .collect(Collectors.toList());
-      for (var toImport : scopeImport) {
-        System.out.println("IMPORTING: " + toImport);
-        var toImportLocation = resolver.resolve(toImport);
-        var toImportPom = MavenPomLoader.load(toImportLocation.pom).pom;
-        pom.merge(toImportPom);
-      }
-
-      return pom.dependencies();
-    } catch (Exception e) {
-      return List.of();
-    }
-  }
-
-  // private boolean hasRelativeParentPath(FlatPom pom) {
-  //   return pom.maybeParent().flatMap(p -> p.maybeRelativePath).isPresent();
-  // }
-
-  // private Path relativeParentPomPath(FlatPom pom) {
-  //   var parent = pom.maybeParent().flatMap(p -> p.maybeRelativePath).get();
-  //   if (parent.endsWith(POM)) {
-  //     return parent;
-  //   }
-
-  //   // Consider that we had a directory, attempt to find a pom in it
-  //   return parent.resolve(POM);
-  // }
 }

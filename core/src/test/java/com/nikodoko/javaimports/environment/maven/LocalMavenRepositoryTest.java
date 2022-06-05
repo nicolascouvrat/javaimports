@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +25,43 @@ public class LocalMavenRepositoryTest {
     var resolver = MavenDependencyResolver.withRepository(repositoryPath);
     var options = Options.builder().debug(true).build();
     repository = new LocalMavenRepository(resolver, options);
+  }
+
+  @Test
+  void itShouldGetManagedDependencies() {
+    var target = aDependency("org.junit.jupiter:junit-jupiter:jar:5.6.2");
+    var expected =
+        List.of(
+            aDependency("org.junit.jupiter:junit-jupiter:jar:5.6.2"),
+            aDependency("org.junit.jupiter:junit-jupiter-api:jar:5.6.2"),
+            aDependency("org.junit.jupiter:junit-jupiter-engine:jar:5.6.2"),
+            aDependency("org.junit.jupiter:junit-jupiter-migrationsupport:jar:5.6.2"),
+            aDependency("org.junit.jupiter:junit-jupiter-params:jar:5.6.2"),
+            aDependency("org.junit.platform:junit-platform-commons:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-console:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-engine:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-launcher:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-reporting:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-runner:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-suite-api:jar:1.6.2"),
+            aDependency("org.junit.platform:junit-platform-testkit:jar:1.6.2"),
+            aDependency("org.junit.vintage:junit-vintage-engine:jar:5.6.2"));
+    var got = repository.getManagedDependencies(target);
+    // TODO: this should be "exactlyElementsIn" but for now we also return the original dependency
+    // of scope import
+    assertThat(got).containsAtLeastElementsIn(expected);
+  }
+
+  @Test
+  void itShouldResolveTransitiveDependenciesWithMultipleParentPoms() {
+    var target = aDependency("javax.enterprise:cdi-api:jar:1.0:compile");
+    var expected =
+        List.of(
+            aDependency("org.jboss.interceptor:jboss-interceptor-api:jar:1.1"),
+            aDependency("javax.annotation:jsr250-api:jar:1.0"),
+            aDependency("javax.inject:javax.inject:jar:1"));
+    var got = repository.getTransitiveDependencies(List.of(target), 1);
+    assertThat(got).containsExactlyElementsIn(expected);
   }
 
   static String[] EXPECTED_DEPENDENCIES = {
@@ -116,53 +154,19 @@ public class LocalMavenRepositoryTest {
   };
 
   @Test
-  void itShouldGetManagedDependencies() {
-    var target = aDependency("org.junit.jupiter:junit-jupiter:jar:5.6.2");
-    var expected =
-        List.of(
-            aDependency("org.junit.jupiter:junit-jupiter:jar:5.6.2"),
-            aDependency("org.junit.jupiter:junit-jupiter-api:jar:5.6.2"),
-            aDependency("org.junit.jupiter:junit-jupiter-engine:jar:5.6.2"),
-            aDependency("org.junit.jupiter:junit-jupiter-migrationsupport:jar:5.6.2"),
-            aDependency("org.junit.jupiter:junit-jupiter-params:jar:5.6.2"),
-            aDependency("org.junit.platform:junit-platform-commons:jar:1.6.2"),
-            aDependency("org.junit.platform:junit-platform-console:jar:1.6.2"),
-            aDependency("org.junit.platform:junit-platform-engine:jar:1.6.2"),
-            aDependency("org.junit.platform:junit-platform-launcher:jar:1.6.2"),
-            aDependency("org.junit.platform:junit-platform-reporting:jar:1.6.2"),
-            aDependency("org.junit.platform:junit-platform-runner:jar:1.6.2"),
-            aDependency("org.junit.platform:junit-platform-suite-api:jar:1.6.2"),
-            aDependency("org.junit.platform:junit-platform-testkit:jar:1.6.2"),
-            aDependency("org.junit.vintage:junit-vintage-engine:jar:5.6.2"));
-    var got = repository.getManagedDependencies(target);
-    // TODO: this should be "exactlyElementsIn" but for now we also return the original dependency
-    // of scope import
-    assertThat(got).containsAtLeastElementsIn(expected);
-  }
-
-  @Test
-  void itShouldResolveTransitiveDependenciesWithMultipleParentPoms() {
-    var target = aDependency("javax.enterprise:cdi-api:jar:1.0:compile");
-    var expected =
-        List.of(
-            aDependency("org.jboss.interceptor:jboss-interceptor-api:jar:1.1"),
-            aDependency("javax.annotation:jsr250-api:jar:1.0"),
-            aDependency("javax.inject:javax.inject:jar:1"));
-    var got = repository.getTransitiveDependencies(target, 1);
-    assertThat(got).containsExactlyElementsIn(expected);
-  }
-
-  @Test
-  void test() throws Exception {
+  void itShouldGetAllTransitiveDependenciesForJavaimports() throws Exception {
     var expectedDependencies =
         Arrays.stream(EXPECTED_DEPENDENCIES)
             .map(LocalMavenRepositoryTest::aDependency)
             .map(MavenDependency::coordinates)
             .collect(Collectors.toList());
     var target = aDependency("com.nikodoko.javaimports:javaimports:jar:1.3");
-    var got = repository.getTransitiveDependencies(target, -1);
-    var gotCoord = got.stream().map(MavenDependency::coordinates).collect(Collectors.toList());
-    System.out.println(gotCoord);
+    var direct = repository.getDirectDependencies(target);
+    var transitive = repository.getTransitiveDependencies(direct, -1);
+    var gotCoord =
+        Stream.concat(direct.stream(), transitive.stream())
+            .map(MavenDependency::coordinates)
+            .collect(Collectors.toList());
 
     assertThat(gotCoord).containsAtLeastElementsIn(expectedDependencies);
   }
@@ -175,9 +179,11 @@ public class LocalMavenRepositoryTest {
     var artifactId = elements[1];
     var type = elements[2];
     var version = elements[3];
+    String classifier = null;
     if (elements.length == 6) {
+      classifier = elements[3];
       version = elements[4];
     }
-    return new MavenDependency(groupId, artifactId, version, type, null, false);
+    return new MavenDependency(groupId, artifactId, version, type, classifier, null, false);
   }
 }
