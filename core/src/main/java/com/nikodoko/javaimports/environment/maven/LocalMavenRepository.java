@@ -38,9 +38,18 @@ public class LocalMavenRepository implements MavenRepository {
 
   public Collection<MavenDependency> getTransitiveDependencies(
       List<MavenDependency> directDependencies, int maxDepth) {
+    var versionlessDirectDependencies =
+        directDependencies.stream()
+            .map(d -> d.coordinates().hideVersion())
+            .collect(Collectors.toList());
     var byVersionlessCoordinates =
         directDependencies.stream()
-            .flatMap(d -> getTransitiveDependencies(d, maxDepth).stream())
+            .flatMap(
+                d -> {
+                  var got = getTransitiveDependencies(d, versionlessDirectDependencies, maxDepth);
+                  // System.out.println("For " + d + ", found " + got);
+                  return got.stream();
+                })
             .collect(
                 Collectors.toMap(
                     d -> d.dependency.coordinates().hideVersion(),
@@ -72,17 +81,24 @@ public class LocalMavenRepository implements MavenRepository {
       this.dependency = dependency;
       this.depth = depth;
     }
+
+    @Override
+    public String toString() {
+      return dependency.toString();
+    }
   }
 
   // WARNING: dependency is considered to be a direct dependency of something already, so it will
   // apply filtering rules
   private List<DependencyWithDepth> getTransitiveDependencies(
-      MavenDependency directDependency, int maxDepth) {
+      MavenDependency target, List<MavenCoordinates.Versionless> directDependencies, int maxDepth) {
     Set<MavenCoordinates.Versionless> visited = new HashSet<>();
+    Set<MavenDependency.Exclusion> exclusions = new HashSet<>();
     List<DependencyWithDepth> found = new ArrayList<>();
     List<MavenDependency> nextLayer = new ArrayList<>();
-    visited.add(directDependency.coordinates().hideVersion());
-    nextLayer.add(directDependency);
+    visited.addAll(directDependencies);
+    exclusions.addAll(target.exclusions());
+    nextLayer.add(target);
 
     var depth = 0;
     while (!nextLayer.isEmpty()) {
@@ -94,7 +110,8 @@ public class LocalMavenRepository implements MavenRepository {
       var transitiveDeps =
           nextLayer.stream()
               .flatMap(d -> effectivePom(d).dependencies().stream())
-              .filter(t -> !visited.contains(t.hideVersion()))
+              .filter(t -> !visited.contains(t.coordinates().hideVersion()))
+              .filter(t -> !exclusions.contains(MavenDependency.Exclusion.matching(t)))
               .filter(this::isTransitiveScope)
               .filter(this::isNotOptional)
               .collect(Collectors.toList());
@@ -102,6 +119,10 @@ public class LocalMavenRepository implements MavenRepository {
           transitiveDeps.stream()
               .map(MavenDependency::coordinates)
               .map(MavenCoordinates::hideVersion)
+              .collect(Collectors.toSet()));
+      exclusions.addAll(
+          transitiveDeps.stream()
+              .flatMap(t -> t.exclusions().stream())
               .collect(Collectors.toSet()));
       var currentDepth = depth;
       found.addAll(

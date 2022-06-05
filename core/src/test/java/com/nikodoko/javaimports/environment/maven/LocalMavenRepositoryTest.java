@@ -5,6 +5,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.nikodoko.javaimports.Options;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,6 +59,21 @@ public class LocalMavenRepositoryTest {
     var expected =
         List.of(
             aDependency("org.jboss.interceptor:jboss-interceptor-api:jar:1.1"),
+            aDependency("javax.annotation:jsr250-api:jar:1.0"),
+            aDependency("javax.inject:javax.inject:jar:1"));
+    var got = repository.getTransitiveDependencies(List.of(target), 1);
+    assertThat(got).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void itShouldProperlyApplyExclusions() {
+    var target =
+        aDependencyWithExclusions(
+            "javax.enterprise:cdi-api:jar:1.0:compile",
+            "javax.el:el-api",
+            "org.jboss.interceptor:jboss-interceptor-api");
+    var expected =
+        List.of(
             aDependency("javax.annotation:jsr250-api:jar:1.0"),
             aDependency("javax.inject:javax.inject:jar:1"));
     var got = repository.getTransitiveDependencies(List.of(target), 1);
@@ -154,7 +170,7 @@ public class LocalMavenRepositoryTest {
   };
 
   @Test
-  void itShouldGetAllTransitiveDependenciesForJavaimports() throws Exception {
+  void itShouldGetAtLeastAllTransitiveDependenciesForJavaimports() throws Exception {
     var expectedDependencies =
         Arrays.stream(EXPECTED_DEPENDENCIES)
             .map(LocalMavenRepositoryTest::aDependency)
@@ -171,8 +187,31 @@ public class LocalMavenRepositoryTest {
     assertThat(gotCoord).containsAtLeastElementsIn(expectedDependencies);
   }
 
-  // [groupId]:[artifactId]:[type]:[version]
+  @Test
+  void itShouldGetExactlyAllTransitiveDependenciesForJavaimports() throws Exception {
+    var expectedDependencies =
+        Arrays.stream(EXPECTED_DEPENDENCIES)
+            .map(LocalMavenRepositoryTest::aDependency)
+            .map(MavenDependency::coordinates)
+            .collect(Collectors.toList());
+    var target = aDependency("com.nikodoko.javaimports:javaimports:jar:1.3");
+    var direct = repository.getDirectDependencies(target);
+    var transitive = repository.getTransitiveDependencies(direct, -1);
+    var gotCoord =
+        Stream.concat(direct.stream(), transitive.stream())
+            .map(MavenDependency::coordinates)
+            .collect(Collectors.toList());
+
+    assertThat(gotCoord).containsExactlyElementsIn(expectedDependencies);
+  }
+
   private static MavenDependency aDependency(String depString) {
+    return aDependencyWithExclusions(depString);
+  }
+
+  // [groupId]:[artifactId]:[type]:[version], then [groupId]:[artifactId]
+  private static MavenDependency aDependencyWithExclusions(
+      String depString, String... exclusionStrings) {
     var elements = depString.split(":");
     assert elements.length >= 4;
     var groupId = elements[0];
@@ -184,6 +223,15 @@ public class LocalMavenRepositoryTest {
       classifier = elements[3];
       version = elements[4];
     }
-    return new MavenDependency(groupId, artifactId, version, type, classifier, null, false);
+
+    List<MavenDependency.Exclusion> exclusions = new ArrayList<>();
+    for (var exclusionString : exclusionStrings) {
+      elements = exclusionString.split(":");
+      assert elements.length == 2;
+      exclusions.add(new MavenDependency.Exclusion(elements[0], elements[1]));
+    }
+
+    return new MavenDependency(
+        groupId, artifactId, version, type, classifier, null, false, exclusions);
   }
 }
