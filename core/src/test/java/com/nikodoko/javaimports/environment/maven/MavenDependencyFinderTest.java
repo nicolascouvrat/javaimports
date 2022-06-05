@@ -145,11 +145,29 @@ public class MavenDependencyFinderTest {
   void testThatDependencyTypeScopeAndOptionalAreExtracted() throws Exception {
     writeChild(
         basicPom(),
-        withDependency("com.google.guava", "guava", "28.1-jre", "test", "provided", true));
+        withDependency(
+            "com.google.guava", "guava", "28.1-jre", "test-jar", null, "provided", true));
     var expected =
         List.of(
             new MavenDependency(
-                "com.google.guava", "guava", "28.1-jre", "test", null, "provided", true));
+                "com.google.guava", "guava", "28.1-jre", "test-jar", null, "provided", true));
+
+    var got = finder.findAll(tmp);
+    assertThat(got.errors).isEmpty();
+    assertThat(got.dependencies).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void testThatSameDependenciesWithDifferentClassifierAreFound() throws Exception {
+    writeChild(
+        basicPom(),
+        withDependency("com.test", "mydependency", "1.0", "jar", null, "compile", false),
+        withDependency("com.test", "mydependency", "1.0", "jar", "native", "compile", false));
+    var expected =
+        List.of(
+            new MavenDependency("com.test", "mydependency", "1.0", "jar", null, "compile", false),
+            new MavenDependency(
+                "com.test", "mydependency", "1.0", "jar", "native", "compile", false));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -168,7 +186,7 @@ public class MavenDependencyFinderTest {
     writeChild(
         basicPom(),
         withDependency("com.test", "mydependency", null),
-        withManagedDependency("com.test", "test-bom", "1.0", "pom", "import", false));
+        withManagedDependency("com.test", "test-bom", "1.0", "pom", null, "import", false));
     var expected = dependencyWithDefaults("com.test", "mydependency", "1.0");
 
     var got = finder.findAll(tmp);
@@ -205,7 +223,8 @@ public class MavenDependencyFinderTest {
     };
   }
 
-  // Either 3 elements (maven coordinates) or 6 (adding type, scope and optional)
+  // Either 3 elements (groupId/artifactId/Version) or 7 (adding type, classifier, scope and
+  // optional)
   static Dependency mvnDependency(Object... elements) {
     Dependency dep = new Dependency();
     dep.setGroupId((String) elements[0]);
@@ -213,8 +232,9 @@ public class MavenDependencyFinderTest {
     dep.setVersion((String) elements[2]);
     if (elements.length > 3) {
       dep.setType((String) elements[3]);
-      dep.setScope((String) elements[4]);
-      dep.setOptional((Boolean) elements[5]);
+      dep.setClassifier((String) elements[4]);
+      dep.setScope((String) elements[5]);
+      dep.setOptional((Boolean) elements[6]);
     }
 
     return dep;

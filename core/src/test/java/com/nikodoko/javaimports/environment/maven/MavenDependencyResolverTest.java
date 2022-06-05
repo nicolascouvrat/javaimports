@@ -19,6 +19,11 @@ public class MavenDependencyResolverTest {
   static Stream<Arguments> dependencyProvider() {
     return Stream.of(
         Arguments.of(
+            "A dependency with a classifier is found",
+            mavenDependency("com.mycompany.app", "a-dependency", "1.0", "native"),
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0-native.jar",
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
+        Arguments.of(
             "A dependency with a plain version is found",
             mavenDependency("com.mycompany.app", "a-dependency", "1.0"),
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar",
@@ -57,6 +62,11 @@ public class MavenDependencyResolverTest {
   }
 
   static MavenDependency mavenDependency(String groupId, String artifactId, String version) {
-    return new MavenDependency(groupId, artifactId, version, "jar", null, "compile", false);
+    return mavenDependency(groupId, artifactId, version, null);
+  }
+
+  static MavenDependency mavenDependency(
+      String groupId, String artifactId, String version, String classifier) {
+    return new MavenDependency(groupId, artifactId, version, "jar", classifier, "compile", false);
   }
 }

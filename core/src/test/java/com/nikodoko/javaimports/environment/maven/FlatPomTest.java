@@ -14,9 +14,20 @@ public class FlatPomTest {
       String artifactId,
       String version,
       String type,
+      String classifier,
       String scope,
       boolean optional) {
-    return new MavenDependency(groupId, artifactId, version, type, null, scope, optional);
+    return new MavenDependency(groupId, artifactId, version, type, classifier, scope, optional);
+  }
+
+  static MavenDependency dependency(
+      String groupId,
+      String artifactId,
+      String version,
+      String type,
+      String scope,
+      boolean optional) {
+    return dependency(groupId, artifactId, version, type, null, scope, optional);
   }
 
   static MavenDependency dependency(String groupId, String artifactId, String version) {
@@ -49,6 +60,24 @@ public class FlatPomTest {
             dependency("com.nikodoko", "javaimports", "${javaimports.version}"),
             dependency("com.nikodoko", "javapackagetest", "${javapackagetest.version}"));
 
+    var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
+    assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void itHandlesClassifiers() {
+    var deps =
+        List.of(
+            dependency("com.test", "mydependency", null, "jar", null, "compile", false),
+            dependency("com.test", "mydependency", null, "jar", "native", "compile", false));
+    var managedDeps =
+        List.of(
+            dependency("com.test", "mydependency", "1.0", "jar", null, null, false),
+            dependency("com.test", "mydependency", "1.1", "jar", "native", null, false));
+    var expected =
+        List.of(
+            dependency("com.test", "mydependency", "1.0", "jar", null, "compile", false),
+            dependency("com.test", "mydependency", "1.1", "jar", "native", "compile", false));
     var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
   }

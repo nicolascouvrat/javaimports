@@ -51,10 +51,16 @@ class MavenDependencyResolver {
 
   private PrimaryArtifact resolveInstrumented(MavenCoordinates coordinates) throws IOException {
     var artifactPath = artifactPath(coordinates);
-    var jarSuffix = coordinates.type().equals("test-jar") ? "-tests.jar" : ".jar";
+    var jarSuffix = jarSuffix(coordinates);
     return new PrimaryArtifact(
         artifactPath.resolveSibling(artifactPath.getFileName() + ".pom"),
         artifactPath.resolveSibling(artifactPath.getFileName() + jarSuffix));
+  }
+
+  private String jarSuffix(MavenCoordinates coordinates) {
+    var classifierSuffix = coordinates.maybeClassifier().map(c -> "-" + c).orElse("");
+    var typeSuffix = coordinates.type().equals("test-jar") ? "-tests.jar" : ".jar";
+    return classifierSuffix + typeSuffix;
   }
 
   private Path artifactPath(MavenCoordinates coordinates) throws IOException {
