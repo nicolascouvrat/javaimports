@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
+import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.DefaultModelReader;
@@ -130,7 +131,14 @@ public class MavenPomLoader {
                     d.getType(),
                     d.getClassifier(),
                     d.getScope(),
-                    d.isOptional()))
+                    d.isOptional(),
+                    convertExclusions(d.getExclusions())))
+        .collect(Collectors.toList());
+  }
+
+  private static List<MavenDependency.Exclusion> convertExclusions(List<Exclusion> exclusions) {
+    return exclusions.stream()
+        .map(e -> new MavenDependency.Exclusion(e.getGroupId(), e.getArtifactId()))
         .collect(Collectors.toList());
   }
 }

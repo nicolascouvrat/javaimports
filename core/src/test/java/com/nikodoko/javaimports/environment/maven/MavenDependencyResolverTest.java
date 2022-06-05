@@ -5,6 +5,7 @@ import static com.google.common.truth.Truth8.assertThat;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,7 +32,14 @@ public class MavenDependencyResolverTest {
         Arguments.of(
             "A dependency with a test-jar type is found",
             new MavenDependency(
-                "com.mycompany.app", "a-dependency", "1.0", "test-jar", null, "test", false),
+                "com.mycompany.app",
+                "a-dependency",
+                "1.0",
+                "test-jar",
+                null,
+                "test",
+                false,
+                List.of()),
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0-tests.jar",
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
         Arguments.of(
@@ -67,6 +75,7 @@ public class MavenDependencyResolverTest {
 
   static MavenDependency mavenDependency(
       String groupId, String artifactId, String version, String classifier) {
-    return new MavenDependency(groupId, artifactId, version, "jar", classifier, "compile", false);
+    return new MavenDependency(
+        groupId, artifactId, version, "jar", classifier, "compile", false, List.of());
   }
 }

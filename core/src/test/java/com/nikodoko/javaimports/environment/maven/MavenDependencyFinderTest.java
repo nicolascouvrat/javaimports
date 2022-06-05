@@ -7,11 +7,13 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
+import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.DefaultModelWriter;
@@ -150,7 +152,14 @@ public class MavenDependencyFinderTest {
     var expected =
         List.of(
             new MavenDependency(
-                "com.google.guava", "guava", "28.1-jre", "test-jar", null, "provided", true));
+                "com.google.guava",
+                "guava",
+                "28.1-jre",
+                "test-jar",
+                null,
+                "provided",
+                true,
+                List.of()));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -165,9 +174,10 @@ public class MavenDependencyFinderTest {
         withDependency("com.test", "mydependency", "1.0", "jar", "native", "compile", false));
     var expected =
         List.of(
-            new MavenDependency("com.test", "mydependency", "1.0", "jar", null, "compile", false),
             new MavenDependency(
-                "com.test", "mydependency", "1.0", "jar", "native", "compile", false));
+                "com.test", "mydependency", "1.0", "jar", null, "compile", false, List.of()),
+            new MavenDependency(
+                "com.test", "mydependency", "1.0", "jar", "native", "compile", false, List.of()));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -180,7 +190,8 @@ public class MavenDependencyFinderTest {
     var repository =
         new DummyRepository(
             Map.of(
-                new MavenDependency("com.test", "test-bom", "1.0", "pom", null, "import", false),
+                new MavenDependency(
+                    "com.test", "test-bom", "1.0", "pom", null, "import", false, List.of()),
                 List.of(dependencyWithDefaults("com.test", "mydependency", "1.0"))));
     var finder = new MavenDependencyFinder(repository);
     writeChild(
@@ -188,6 +199,36 @@ public class MavenDependencyFinderTest {
         withDependency("com.test", "mydependency", null),
         withManagedDependency("com.test", "test-bom", "1.0", "pom", null, "import", false));
     var expected = dependencyWithDefaults("com.test", "mydependency", "1.0");
+
+    var got = finder.findAll(tmp);
+    assertThat(got.errors).isEmpty();
+    assertThat(got.dependencies).containsExactly(expected);
+  }
+
+  @Test
+  void testThatDependenciesWithExclusionsAreFound() throws Exception {
+    writeChild(
+        basicPom(),
+        withDependency(
+            "com.test",
+            "mydependency",
+            "1.0",
+            "jar",
+            null,
+            "compile",
+            false,
+            "com.test",
+            "exclude-me"));
+    var expected =
+        new MavenDependency(
+            "com.test",
+            "mydependency",
+            "1.0",
+            "jar",
+            null,
+            "compile",
+            false,
+            List.of(new MavenDependency.Exclusion("com.test", "exclude-me")));
 
     var got = finder.findAll(tmp);
     assertThat(got.errors).isEmpty();
@@ -224,7 +265,7 @@ public class MavenDependencyFinderTest {
   }
 
   // Either 3 elements (groupId/artifactId/Version) or 7 (adding type, classifier, scope and
-  // optional)
+  // optional), or more (with exclusions)
   static Dependency mvnDependency(Object... elements) {
     Dependency dep = new Dependency();
     dep.setGroupId((String) elements[0]);
@@ -235,6 +276,18 @@ public class MavenDependencyFinderTest {
       dep.setClassifier((String) elements[4]);
       dep.setScope((String) elements[5]);
       dep.setOptional((Boolean) elements[6]);
+    }
+
+    if (elements.length > 7) {
+      List<Exclusion> exclusions = new ArrayList<>();
+      for (var i = 7; i < elements.length - 1; i++) {
+        Exclusion exclusion = new Exclusion();
+        exclusion.setGroupId((String) elements[i]);
+        exclusion.setArtifactId((String) elements[i + 1]);
+        exclusions.add(exclusion);
+      }
+
+      dep.setExclusions(exclusions);
     }
 
     return dep;
@@ -277,7 +330,7 @@ public class MavenDependencyFinderTest {
   }
 
   static MavenDependency dependencyWithDefaults(String groupId, String artifactId, String version) {
-    return new MavenDependency(groupId, artifactId, version, "jar", null, null, false);
+    return new MavenDependency(groupId, artifactId, version, "jar", null, null, false, List.of());
   }
 
   static class DummyRepository implements MavenRepository {

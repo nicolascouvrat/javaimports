@@ -17,7 +17,8 @@ public class FlatPomTest {
       String classifier,
       String scope,
       boolean optional) {
-    return new MavenDependency(groupId, artifactId, version, type, classifier, scope, optional);
+    return new MavenDependency(
+        groupId, artifactId, version, type, classifier, scope, optional, List.of());
   }
 
   static MavenDependency dependency(

@@ -54,8 +54,17 @@ class FlatPom {
                   var optional = d.optional() ? d.optional() : managed.optional();
                   var classifier = d.classifier().orElse(null);
 
+                  // TODO: it seems that, while technically allowing it, maven does not yet support
+                  // exclusions in dependencyManagement? In any case, ignore it for now
                   return new MavenDependency(
-                      d.groupId(), d.artifactId(), version, d.type(), classifier, scope, optional);
+                      d.groupId(),
+                      d.artifactId(),
+                      version,
+                      d.type(),
+                      classifier,
+                      scope,
+                      optional,
+                      d.exclusions());
                 })
             .collect(Collectors.toList());
   }
