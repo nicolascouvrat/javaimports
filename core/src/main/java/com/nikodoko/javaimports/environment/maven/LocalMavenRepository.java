@@ -1,13 +1,17 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.telemetry.Tag;
+import com.nikodoko.javaimports.common.telemetry.Traces;
+import io.opentracing.Span;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -38,37 +42,42 @@ public class LocalMavenRepository implements MavenRepository {
 
   public Collection<MavenDependency> getTransitiveDependencies(
       List<MavenDependency> directDependencies, int maxDepth) {
-    var versionlessDirectDependencies =
-        directDependencies.stream()
-            .map(d -> d.coordinates().hideVersion())
-            .collect(Collectors.toList());
-    var byVersionlessCoordinates =
-        directDependencies.stream()
-            .flatMap(
-                d -> {
-                  var got = getTransitiveDependencies(d, versionlessDirectDependencies, maxDepth);
-                  // System.out.println("For " + d + ", found " + got);
-                  return got.stream();
-                })
-            .collect(
-                Collectors.toMap(
-                    d -> d.dependency.coordinates().hideVersion(),
-                    d -> d,
-                    (d1, d2) -> {
-                      if (d1.depth < d2.depth) {
+    var span = Traces.createSpan("LocalMavenRepository.getAllTransitiveDependencies");
+    AtomicInteger conflicts = new AtomicInteger(0);
+    try (var __ = Traces.activate(span)) {
+      var versionlessDirectDependencies =
+          directDependencies.stream()
+              .map(d -> d.coordinates().hideVersion())
+              .collect(Collectors.toList());
+      Set<MavenCoordinates.Versionless> visited = ConcurrentHashMap.newKeySet();
+      visited.addAll(versionlessDirectDependencies);
+      var byVersionlessCoordinates =
+          directDependencies.parallelStream()
+              .flatMap(d -> getTransitiveDependencies(span, d, visited, maxDepth).stream())
+              .collect(
+                  Collectors.toMap(
+                      d -> d.dependency.coordinates().hideVersion(),
+                      d -> d,
+                      (d1, d2) -> {
+                        conflicts.incrementAndGet();
+                        if (d1.depth < d2.depth) {
+                          return d1;
+                        }
+
+                        if (d2.depth < d1.depth) {
+                          return d2;
+                        }
+
                         return d1;
-                      }
+                      }));
 
-                      if (d2.depth < d1.depth) {
-                        return d2;
-                      }
-
-                      return d1;
-                    }));
-
-    return byVersionlessCoordinates.values().stream()
-        .map(d -> d.dependency)
-        .collect(Collectors.toList());
+      return byVersionlessCoordinates.values().stream()
+          .map(d -> d.dependency)
+          .collect(Collectors.toList());
+    } finally {
+      Traces.addTags(span, new Tag("conflicts", conflicts.get()));
+      span.finish();
+    }
   }
 
   // When encounting the same dependency with two different versions, Maven wil pick the nearest
@@ -91,48 +100,51 @@ public class LocalMavenRepository implements MavenRepository {
   // WARNING: dependency is considered to be a direct dependency of something already, so it will
   // apply filtering rules
   private List<DependencyWithDepth> getTransitiveDependencies(
-      MavenDependency target, List<MavenCoordinates.Versionless> directDependencies, int maxDepth) {
-    Set<MavenCoordinates.Versionless> visited = new HashSet<>();
-    Set<MavenDependency.Exclusion> exclusions = new HashSet<>();
-    List<DependencyWithDepth> found = new ArrayList<>();
-    List<MavenDependency> nextLayer = new ArrayList<>();
-    visited.addAll(directDependencies);
-    exclusions.addAll(target.exclusions());
-    nextLayer.add(target);
+      Span parentSpan,
+      MavenDependency target,
+      Set<MavenCoordinates.Versionless> visited,
+      int maxDepth) {
+    try (var __ = Traces.activate(parentSpan)) {
+      var span =
+          Traces.createSpan(
+              "LocalMavenRepository.getTransitiveDependencies", new Tag("target", target));
+      try (var ___ = Traces.activate(span)) {
+        Set<MavenDependency.Exclusion> exclusions = ConcurrentHashMap.newKeySet();
+        List<DependencyWithDepth> found = new ArrayList<>();
+        List<MavenDependency> nextLayer = new ArrayList<>();
+        exclusions.addAll(target.exclusions());
+        nextLayer.add(target);
 
-    var depth = 0;
-    while (!nextLayer.isEmpty()) {
-      if (maxDepth >= 0 && depth >= maxDepth) {
-        break;
+        var depth = 0;
+        while (!nextLayer.isEmpty()) {
+          if (maxDepth >= 0 && depth >= maxDepth) {
+            break;
+          }
+
+          depth += 1;
+          var transitiveDeps =
+              nextLayer.stream()
+                  .flatMap(d -> effectivePom(d).dependencies().stream())
+                  .filter(t -> !visited.contains(t.coordinates().hideVersion()))
+                  .filter(t -> !exclusions.contains(MavenDependency.Exclusion.matching(t)))
+                  .filter(this::isTransitiveScope)
+                  .filter(this::isNotOptional)
+                  .peek(t -> exclusions.addAll(t.exclusions()))
+                  .peek(t -> visited.add(t.coordinates().hideVersion()))
+                  .collect(Collectors.toList());
+          var currentDepth = depth;
+          found.addAll(
+              transitiveDeps.stream()
+                  .map(d -> new DependencyWithDepth(d, currentDepth))
+                  .collect(Collectors.toList()));
+          nextLayer = transitiveDeps;
+        }
+
+        return found;
+      } finally {
+        span.finish();
       }
-
-      depth += 1;
-      var transitiveDeps =
-          nextLayer.stream()
-              .flatMap(d -> effectivePom(d).dependencies().stream())
-              .filter(t -> !visited.contains(t.coordinates().hideVersion()))
-              .filter(t -> !exclusions.contains(MavenDependency.Exclusion.matching(t)))
-              .filter(this::isTransitiveScope)
-              .filter(this::isNotOptional)
-              .collect(Collectors.toList());
-      visited.addAll(
-          transitiveDeps.stream()
-              .map(MavenDependency::coordinates)
-              .map(MavenCoordinates::hideVersion)
-              .collect(Collectors.toSet()));
-      exclusions.addAll(
-          transitiveDeps.stream()
-              .flatMap(t -> t.exclusions().stream())
-              .collect(Collectors.toSet()));
-      var currentDepth = depth;
-      found.addAll(
-          transitiveDeps.stream()
-              .map(d -> new DependencyWithDepth(d, currentDepth))
-              .collect(Collectors.toList()));
-      nextLayer = transitiveDeps;
     }
-
-    return found;
   }
 
   // According to the maven spec, the provided, system and test scope are not transitive. See:
