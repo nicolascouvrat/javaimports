@@ -45,15 +45,19 @@ public class LocalMavenRepository implements MavenRepository {
     var span = Traces.createSpan("LocalMavenRepository.getAllTransitiveDependencies");
     AtomicInteger conflicts = new AtomicInteger(0);
     try (var __ = Traces.activate(span)) {
+      var directCoordinates =
+          directDependencies.stream().map(d -> d.coordinates()).collect(Collectors.toList());
+      Set<MavenCoordinates> visited = ConcurrentHashMap.newKeySet();
+      visited.addAll(directCoordinates);
       var versionlessDirectDependencies =
-          directDependencies.stream()
-              .map(d -> d.coordinates().hideVersion())
-              .collect(Collectors.toList());
-      Set<MavenCoordinates.Versionless> visited = ConcurrentHashMap.newKeySet();
-      visited.addAll(versionlessDirectDependencies);
+          directCoordinates.stream().map(MavenCoordinates::hideVersion).collect(Collectors.toSet());
       var byVersionlessCoordinates =
           directDependencies.parallelStream()
-              .flatMap(d -> getTransitiveDependencies(span, d, visited, maxDepth).stream())
+              .flatMap(
+                  d ->
+                      getTransitiveDependencies(
+                          span, d, visited, versionlessDirectDependencies, maxDepth)
+                          .stream())
               .collect(
                   Collectors.toMap(
                       d -> d.dependency.coordinates().hideVersion(),
@@ -102,7 +106,8 @@ public class LocalMavenRepository implements MavenRepository {
   private List<DependencyWithDepth> getTransitiveDependencies(
       Span parentSpan,
       MavenDependency target,
-      Set<MavenCoordinates.Versionless> visited,
+      Set<MavenCoordinates> visited,
+      Set<MavenCoordinates.Versionless> versionlessDirectDependencies,
       int maxDepth) {
     try (var __ = Traces.activate(parentSpan)) {
       var span =
@@ -125,12 +130,14 @@ public class LocalMavenRepository implements MavenRepository {
           var transitiveDeps =
               nextLayer.stream()
                   .flatMap(d -> effectivePom(d).dependencies().stream())
-                  .filter(t -> !visited.contains(t.coordinates().hideVersion()))
+                  .filter(t -> !visited.contains(t.coordinates()))
+                  .filter(
+                      t -> !versionlessDirectDependencies.contains(t.coordinates().hideVersion()))
                   .filter(t -> !exclusions.contains(MavenDependency.Exclusion.matching(t)))
                   .filter(this::isTransitiveScope)
                   .filter(this::isNotOptional)
                   .peek(t -> exclusions.addAll(t.exclusions()))
-                  .peek(t -> visited.add(t.coordinates().hideVersion()))
+                  .peek(t -> visited.add(t.coordinates()))
                   .collect(Collectors.toList());
           var currentDepth = depth;
           found.addAll(
