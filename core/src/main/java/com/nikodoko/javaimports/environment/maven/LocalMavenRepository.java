@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,6 +24,7 @@ public class LocalMavenRepository implements MavenRepository {
 
   private final MavenDependencyResolver resolver;
   private final Options options;
+  private final Map<MavenDependency, FlatPom> cache = new ConcurrentHashMap<>();
 
   LocalMavenRepository(MavenDependencyResolver resolver, Options options) {
     this.resolver = resolver;
@@ -167,6 +169,10 @@ public class LocalMavenRepository implements MavenRepository {
   }
 
   private FlatPom effectivePom(MavenDependency dependency) {
+    if (cache.containsKey(dependency)) {
+      return cache.get(dependency);
+    }
+
     var pom = getPomMergedWithParentPoms(dependency);
 
     // According to the maven documentation, managed dependencies with scope "import" should be
@@ -181,6 +187,7 @@ public class LocalMavenRepository implements MavenRepository {
             .collect(Collectors.toList());
     pom.merge(FlatPom.builder().managedDependencies(managedDepsToAdd).build());
 
+    cache.put(dependency, pom);
     return pom;
   }
 
