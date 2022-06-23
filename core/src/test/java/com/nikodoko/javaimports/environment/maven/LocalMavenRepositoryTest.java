@@ -187,6 +187,31 @@ public class LocalMavenRepositoryTest {
     assertThat(gotCoord).containsExactlyElementsIn(expectedDependencies);
   }
 
+  @Test
+  void itShouldGetExactlyAllTransitiveDependenciesForIndexation() throws Exception {
+    var defaultRepository = Paths.get(System.getProperty("user.home"), ".m2/repository");
+    var resolver = MavenDependencyResolver.withRepository(defaultRepository);
+    var options = Options.builder().debug(true).build();
+    repository = new LocalMavenRepository(resolver, options);
+    var expectedDependencies =
+        Arrays.stream(INDEXATION_DEPS)
+            .map(LocalMavenRepositoryTest::aDependency)
+            .map(MavenDependency::coordinates)
+            .collect(Collectors.toList());
+    var target = aDependency("com.fsmatic:logs-backend-indexation:jar:1.0-SNAPSHOT");
+    var direct = repository.getDirectDependencies(target);
+    var start = System.currentTimeMillis();
+    var transitive = repository.getTransitiveDependencies(direct, -1);
+    var end = System.currentTimeMillis();
+    System.out.println(end - start);
+    var gotCoord =
+        Stream.concat(direct.stream(), transitive.stream())
+            .map(MavenDependency::coordinates)
+            .collect(Collectors.toList());
+
+    // assertThat(gotCoord).containsExactlyElementsIn(expectedDependencies);
+  }
+
   private static MavenDependency aDependency(String depString) {
     return aDependencyWithExclusions(depString);
   }
