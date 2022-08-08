@@ -136,24 +136,21 @@ public class MavenEnvironment implements Environment {
         direct.dependencies.stream().map(d -> d.hideVersion()).collect(Collectors.toSet());
     new LocalMavenRepository(resolver, options).getTransitiveDependencies(direct.dependencies, -1);
     var loadedDirect = resolveAndLoad(direct.dependencies, new Tag("direct_dependencies", true));
-    var indirectDependencies =
+    var emptyDirectDeps =
         loadedDirect.stream()
-            // Limit to empty dependencies, and get their dependencies
-            // This is to better handle cases like org.junit.jupiter.junit-jupiter, that point to
-            // an empty jar and a pom which in turns points to the actual API
-            //
-            // Of course, we could get ALL transitives dependencies and this recursively until we
-            // get the full dependency graph (minus version conflicts), but this is not viable on
-            // big projects that quickly have a LOT of transitive dependencies. Since relying on
-            // these non-explicit dependencies is a bad practice anyway, we explicitely choose to
-            // not support it here.
             .filter(d -> d.importables.isEmpty())
-            .flatMap(d -> d.dependencies.stream())
-            .map(d -> d.hideVersion())
-            .filter(d -> !versionlessDirectDependencies.contains(d))
-            .distinct()
-            .map(d -> d.showVersion())
+            .map(d -> d.dependency)
             .collect(Collectors.toList());
+    // In order to handle cases like `org.junit.jupiter.junit-jupiter`, that point to an empty jar
+    // with a point which in turns point to the actual API, we also load first-level transitive
+    // dependencies for empty direct dependencies.
+    // We do not bother with loading more transitive dependencies than that though, as it could
+    // quickly become too slow for big projects. Since relying on transitive dependencies is not a
+    // good practice anyway, we explicitely choose to not support it here.
+    var indirectDependencies =
+        new ArrayList<>(
+            new LocalMavenRepository(resolver, options)
+                .getTransitiveDependencies(emptyDirectDeps, 1));
     var loadedIndirect =
         resolveAndLoad(indirectDependencies, new Tag("direct_dependencies", false));
     if (options.debug()) {
@@ -171,11 +168,14 @@ public class MavenEnvironment implements Environment {
 
   private static class LoadedDependency {
     final List<Import> importables;
+    final MavenDependency dependency;
     final List<MavenDependency> dependencies;
 
-    LoadedDependency(List<Import> importables, List<MavenDependency> dependencies) {
+    LoadedDependency(
+        List<Import> importables, List<MavenDependency> dependencies, MavenDependency dependency) {
       this.importables = importables;
       this.dependencies = dependencies;
+      this.dependency = dependency;
     }
   }
 
@@ -207,7 +207,7 @@ public class MavenEnvironment implements Environment {
   }
 
   private LoadedDependency resolveAndLoad(Span span, MavenDependency dependency) {
-    var loaded = new LoadedDependency(List.of(), List.of());
+    var loaded = new LoadedDependency(List.of(), List.of(), dependency);
     var start = clock.millis();
     try (var __ = Traces.activate(span)) {
       var location = resolver.resolve(dependency);
@@ -217,7 +217,7 @@ public class MavenEnvironment implements Environment {
 
       var importables = MavenDependencyLoader.load(location.jar);
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
-      loaded = new LoadedDependency(importables, dependencies);
+      loaded = new LoadedDependency(importables, dependencies, dependency);
     } catch (Exception e) {
       // No matter what happens, we don't want to fail the whole importing process just for that.
       if (options.debug()) {
