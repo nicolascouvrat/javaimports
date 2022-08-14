@@ -1,27 +1,28 @@
 package com.nikodoko.javaimports.environment.maven;
 
-import static com.nikodoko.javaimports.common.Utils.checkNotNull;
-
 import com.nikodoko.javaimports.common.Utils;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
+import java.util.Properties;
 
 /** Encapsulates a Maven dependency. */
 class MavenDependency {
-  /**
-   * {@code Versionless} provides a convenient way to compare dependencies while ignoring their
-   * versions.
-   */
-  static class Versionless {
-    final MavenDependency wrapped;
+  static class Exclusion {
+    private final String groupId;
+    private final String artifactId;
 
-    Versionless(MavenDependency dependency) {
-      this.wrapped = dependency;
+    Exclusion(String groupId, String artifactId) {
+      this.groupId = groupId;
+      this.artifactId = artifactId;
     }
 
-    MavenDependency showVersion() {
-      return wrapped;
+    static Exclusion matching(MavenDependency dependency) {
+      return new Exclusion(dependency.groupId(), dependency.artifactId());
+    }
+
+    boolean matches(MavenDependency dependency) {
+      return dependency.groupId().equals(groupId) && dependency.artifactId().equals(artifactId);
     }
 
     @Override
@@ -30,173 +31,102 @@ class MavenDependency {
         return false;
       }
 
-      if (!(o instanceof Versionless)) {
+      if (!(o instanceof Exclusion)) {
         return false;
       }
 
-      var that = (Versionless) o;
-      return Objects.equals(this.wrapped.groupId, that.wrapped.groupId)
-          && Objects.equals(this.wrapped.type, that.wrapped.type)
-          && Objects.equals(this.wrapped.scope, that.wrapped.scope)
-          && Objects.equals(this.wrapped.optional, that.wrapped.optional)
-          && Objects.equals(this.wrapped.artifactId, that.wrapped.artifactId);
+      var that = (Exclusion) o;
+      return Objects.equals(this.groupId, that.groupId)
+          && Objects.equals(this.artifactId, that.artifactId);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(
-          this.wrapped.groupId,
-          this.wrapped.artifactId,
-          this.wrapped.type,
-          this.wrapped.scope,
-          this.wrapped.optional);
+      return Objects.hash(this.groupId, this.artifactId);
     }
 
     @Override
     public String toString() {
       return Utils.toStringHelper(this)
-          .add("groupId", this.wrapped.groupId)
-          .add("artifactId", this.wrapped.artifactId)
-          .add("type", this.wrapped.type)
-          .add("scope", this.wrapped.scope)
-          .add("optional", this.wrapped.optional)
+          .add("groupId", this.groupId)
+          .add("artifactId", this.artifactId)
           .toString();
     }
   }
 
-  private static class Version {
-    private static final Pattern PATTERN = Pattern.compile("\\$\\{(?<parameter>\\S+)\\}");
-
-    final String value;
-    // Empty if value is not a property reference
-    final Optional<String> property;
-
-    Version(String value) {
-      this.value = value;
-      this.property = maybeExtractProperty(value);
-    }
-
-    private Optional<String> maybeExtractProperty(String value) {
-      if (value == null) {
-        return Optional.empty();
-      }
-
-      var m = PATTERN.matcher(value);
-      if (!m.matches()) {
-        return Optional.empty();
-      }
-
-      return Optional.of(m.group("parameter"));
-    }
-
-    @Override
-    public String toString() {
-      return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (o == null) {
-        return false;
-      }
-
-      if (!(o instanceof Version)) {
-        return false;
-      }
-
-      var that = (Version) o;
-      return Objects.equals(this.value, that.value) && Objects.equals(this.property, that.property);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.value, this.property);
-    }
-  }
-
-  private final String groupId;
-  private final String artifactId;
-  private final Version version;
-  private final String type;
-  private final String scope;
   private final boolean optional;
+  private final Optional<String> scope;
+  private final MavenCoordinates coordinates;
+  private final List<Exclusion> exclusions;
 
   MavenDependency(
       String groupId,
       String artifactId,
       String version,
       String type,
+      String classifier,
       String scope,
-      boolean optional) {
-    checkNotNull(groupId, "maven dependency does not accept a null groupId");
-    checkNotNull(artifactId, "maven dependency does not accept a null artifactId");
-    checkNotNull(scope, "maven dependency does not accept a null scope");
-    checkNotNull(type, "maven dependency does not accept a null type");
-    this.groupId = groupId;
-    this.artifactId = artifactId;
-    this.version = new Version(version);
-    this.type = type;
-    this.scope = scope;
+      boolean optional,
+      List<Exclusion> exclusions) {
+    this.coordinates = new MavenCoordinates(groupId, artifactId, version, type, classifier);
+    this.scope = Optional.ofNullable(scope);
     this.optional = optional;
-  }
-
-  String version() {
-    return version.value;
-  }
-
-  String artifactId() {
-    return artifactId;
-  }
-
-  String groupId() {
-    return groupId;
+    this.exclusions = exclusions;
   }
 
   String type() {
-    return type;
+    return coordinates.type();
   }
 
-  String scope() {
+  Optional<String> scope() {
     return scope;
+  }
+
+  boolean hasScope(String desired) {
+    return scope.map(s -> s.equals(desired)).orElse(false);
   }
 
   boolean optional() {
     return optional;
   }
 
-  String propertyReferencedByVersion() {
-    if (!hasPropertyReferenceVersion()) {
-      throw new IllegalStateException("Version does not reference a property: " + this);
-    }
-
-    return version.property.get();
+  MavenCoordinates coordinates() {
+    return coordinates;
   }
 
-  boolean hasPropertyReferenceVersion() {
-    return version.property.isPresent();
+  // All these are convenience methods calling the corresponding one in MavenCoordinates
+  // TODO: maybe get rid of them?
+  String artifactId() {
+    return coordinates.artifactId();
+  }
+
+  String groupId() {
+    return coordinates.groupId();
+  }
+
+  String version() {
+    return coordinates.maybeVersion().map(MavenString::toString).orElse(null);
+  }
+
+  Optional<String> classifier() {
+    return coordinates.maybeClassifier();
+  }
+
+  List<Exclusion> exclusions() {
+    return exclusions;
+  }
+
+  void substitute(Properties props) {
+    coordinates.substitute(props);
   }
 
   boolean hasVersion() {
-    return version.value != null;
-  }
-
-  /**
-   * A version is assumed to be well defined if it exists and is not a property reference.
-   *
-   * <p>We don't handle cases where the version is simply invalid.
-   */
-  boolean hasWellDefinedVersion() {
-    return hasVersion() && !hasPropertyReferenceVersion();
-  }
-
-  Versionless hideVersion() {
-    return new Versionless(this);
+    return coordinates.hasVersion();
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        this.groupId, this.artifactId, this.version, this.type, this.scope, this.optional);
+    return Objects.hash(this.coordinates, this.scope, this.optional, this.exclusions);
   }
 
   @Override
@@ -210,22 +140,18 @@ class MavenDependency {
     }
 
     MavenDependency d = (MavenDependency) o;
-    return Objects.equals(d.groupId, groupId)
-        && Objects.equals(d.artifactId, artifactId)
-        && Objects.equals(d.type, type)
+    return Objects.equals(d.coordinates, coordinates)
         && Objects.equals(d.scope, scope)
-        && Objects.equals(d.optional, optional)
-        && Objects.equals(d.version, version);
+        && Objects.equals(d.exclusions, exclusions)
+        && Objects.equals(d.optional, optional);
   }
 
   @Override
   public String toString() {
     return Utils.toStringHelper(this)
-        .add("groupId", groupId)
-        .add("artifactId", artifactId)
-        .add("version", version)
-        .add("type", type)
+        .add("coordinates", coordinates)
         .add("scope", scope)
+        .add("exclusions", exclusions)
         .add("optional", optional)
         .toString();
   }

@@ -5,6 +5,7 @@ import static com.google.common.truth.Truth8.assertThat;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +20,11 @@ public class MavenDependencyResolverTest {
   static Stream<Arguments> dependencyProvider() {
     return Stream.of(
         Arguments.of(
+            "A dependency with a classifier is found",
+            mavenDependency("com.mycompany.app", "a-dependency", "1.0", "native"),
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0-native.jar",
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
+        Arguments.of(
             "A dependency with a plain version is found",
             mavenDependency("com.mycompany.app", "a-dependency", "1.0"),
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar",
@@ -26,8 +32,20 @@ public class MavenDependencyResolverTest {
         Arguments.of(
             "A dependency with a test-jar type is found",
             new MavenDependency(
-                "com.mycompany.app", "a-dependency", "1.0", "test-jar", "test", false),
+                "com.mycompany.app",
+                "a-dependency",
+                "1.0",
+                "test-jar",
+                null,
+                "test",
+                false,
+                List.of()),
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0-tests.jar",
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
+        Arguments.of(
+            "A dependency with an unresolved property is resolved to the first available one",
+            mavenDependency("com.mycompany.app", "a-dependency", "${a.property}"),
+            "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar",
             "com/mycompany/app/a-dependency/1.0/a-dependency-1.0.pom"),
         Arguments.of(
             "A dependency without plain version is resolved to the first available one",
@@ -52,6 +70,12 @@ public class MavenDependencyResolverTest {
   }
 
   static MavenDependency mavenDependency(String groupId, String artifactId, String version) {
-    return new MavenDependency(groupId, artifactId, version, "jar", "compile", false);
+    return mavenDependency(groupId, artifactId, version, null);
+  }
+
+  static MavenDependency mavenDependency(
+      String groupId, String artifactId, String version, String classifier) {
+    return new MavenDependency(
+        groupId, artifactId, version, "jar", classifier, "compile", false, List.of());
   }
 }

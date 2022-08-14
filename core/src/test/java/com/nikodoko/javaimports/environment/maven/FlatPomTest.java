@@ -9,8 +9,30 @@ import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
 public class FlatPomTest {
+  static MavenDependency dependency(
+      String groupId,
+      String artifactId,
+      String version,
+      String type,
+      String classifier,
+      String scope,
+      boolean optional) {
+    return new MavenDependency(
+        groupId, artifactId, version, type, classifier, scope, optional, List.of());
+  }
+
+  static MavenDependency dependency(
+      String groupId,
+      String artifactId,
+      String version,
+      String type,
+      String scope,
+      boolean optional) {
+    return dependency(groupId, artifactId, version, type, null, scope, optional);
+  }
+
   static MavenDependency dependency(String groupId, String artifactId, String version) {
-    return new MavenDependency(groupId, artifactId, version, "jar", "compile", false);
+    return dependency(groupId, artifactId, version, "jar", "compile", false);
   }
 
   @Test
@@ -22,7 +44,6 @@ public class FlatPomTest {
 
     var pom = FlatPom.builder().dependencies(deps).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(deps);
-    assertThat(pom.isWellDefined()).isFalse();
   }
 
   @Test
@@ -42,18 +63,72 @@ public class FlatPomTest {
 
     var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
-    assertThat(pom.isWellDefined()).isFalse();
   }
 
   @Test
-  void itSupportsDifferentDependenciesWithTheSameCoordinates() {
+  void itHandlesClassifiers() {
+    var deps =
+        List.of(
+            dependency("com.test", "mydependency", null, "jar", null, "compile", false),
+            dependency("com.test", "mydependency", null, "jar", "native", "compile", false));
     var managedDeps =
         List.of(
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
-            new MavenDependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false));
+            dependency("com.test", "mydependency", "1.0", "jar", null, null, false),
+            dependency("com.test", "mydependency", "1.1", "jar", "native", null, false));
+    var expected =
+        List.of(
+            dependency("com.test", "mydependency", "1.0", "jar", null, "compile", false),
+            dependency("com.test", "mydependency", "1.1", "jar", "native", "compile", false));
+    var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
+    assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void itSupportsDependenciesOfDifferentTypeWithTheSameCoordinates() {
+    var managedDeps =
+        List.of(
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false));
     var pom = FlatPom.builder().managedDependencies(managedDeps).build();
     assertThat(pom.dependencies()).isEmpty();
-    assertThat(pom.isWellDefined()).isTrue();
+  }
+
+  @Test
+  void itGetsOptionalFromManagedDependencyIfNeeded() {
+    var deps =
+        List.of(
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", true),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", false));
+    var managedDeps =
+        List.of(
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", true));
+    var expected =
+        List.of(
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", true),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "compile", true));
+
+    var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
+    assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void itGetsScopeFromManagedDependencyIfNeeded() {
+    var deps =
+        List.of(
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", null, false));
+    var managedDeps =
+        List.of(
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "test", false),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "test", false));
+    var expected =
+        List.of(
+            dependency("com.nikodoko", "javaimports", "1.0.0", "jar", "compile", false),
+            dependency("com.nikodoko", "javapackagetest", "1.0.0", "jar", "test", false));
+
+    var pom = FlatPom.builder().dependencies(deps).managedDependencies(managedDeps).build();
+    assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
   }
 
   @Test
@@ -71,7 +146,39 @@ public class FlatPomTest {
 
     var pom = FlatPom.builder().dependencies(deps).properties(properties).build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
-    assertThat(pom.isWellDefined()).isFalse();
+  }
+
+  @Test
+  void itSubstitutesPropertiesInManagedDependencies() {
+    var managedDeps =
+        List.of(dependency("com.nikodoko", "javapackagetest", "${javapackagetest.version}"));
+    var parentProps = new Properties();
+    parentProps.setProperty("javapackagetest.version", "1.0");
+
+    var pom = FlatPom.builder().managedDependencies(managedDeps).build();
+    var parentPom = FlatPom.builder().properties(parentProps).build();
+    pom.merge(parentPom);
+
+    var expected = List.of(dependency("com.nikodoko", "javapackagetest", "1.0"));
+    assertThat(pom.managedDependencies()).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  void itSubstitutesPropertiesOutsideOfVersion() {
+    var dep =
+        dependency(
+            "com.typesafe.akka",
+            "akka-cluster_${akka-scala.version}",
+            "${com.typesafe.akka.akka-cluster.version}");
+    var properties = new Properties();
+    properties.setProperty("com.typesafe.akka.akka-cluster.version", "${akka.version}");
+    properties.setProperty("akka-scala.version", "${scala.version}");
+    properties.setProperty("scala.version", "2.12");
+    properties.setProperty("akka.version", "2.5.32");
+    var expected = dependency("com.typesafe.akka", "akka-cluster_2.12", "2.5.32");
+
+    var pom = FlatPom.builder().dependencies(List.of(dep)).properties(properties).build();
+    assertThat(pom.dependencies()).containsExactly(expected);
   }
 
   @Test
@@ -96,7 +203,6 @@ public class FlatPomTest {
             .properties(properties)
             .build();
     assertThat(pom.dependencies()).containsExactlyElementsIn(expected);
-    assertThat(pom.isWellDefined()).isTrue();
   }
 
   @Test
@@ -111,7 +217,6 @@ public class FlatPomTest {
             .build();
 
     wellDefined.merge(other);
-    assertThat(wellDefined.isWellDefined()).isTrue();
     assertThat(wellDefined.dependencies())
         .containsExactly(dependency("com.nikodoko", "javaimports", "1.0.0"));
   }
@@ -132,8 +237,6 @@ public class FlatPomTest {
             .properties(properties)
             .build();
 
-    assertThat(firstPom.isWellDefined()).isFalse();
-
     managedDeps =
         List.of(dependency("com.nikodoko", "javapackagetest", "${javapackagetest.version}"));
     properties = new Properties();
@@ -146,7 +249,6 @@ public class FlatPomTest {
             dependency("com.nikodoko", "javapackagetest", "1.0.0"));
 
     firstPom.merge(secondPom);
-    assertThat(firstPom.isWellDefined()).isTrue();
     assertThat(firstPom.dependencies()).containsExactlyElementsIn(expected);
   }
 
@@ -155,7 +257,12 @@ public class FlatPomTest {
     var firstPom =
         FlatPom.builder()
             .dependencies(List.of(dependency("com.nikodoko", "javaimports", null)))
-            .maybeParent(Optional.of(Paths.get("../pom.xml")))
+            .maybeParent(
+                Optional.of(
+                    new MavenParent(
+                        new MavenCoordinates(
+                            "com.nikodoko", "javaimports-parent", "1.0.0", "pom", null),
+                        Optional.of(Paths.get("../pom.xml")))))
             .build();
     var secondPom = FlatPom.builder().maybeParent(Optional.empty()).build();
 

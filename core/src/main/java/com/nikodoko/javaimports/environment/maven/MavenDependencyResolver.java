@@ -35,39 +35,53 @@ class MavenDependencyResolver {
   }
 
   PrimaryArtifact resolve(MavenDependency dependency) throws IOException {
+    var coordinates = dependency.coordinates();
+    return resolve(coordinates);
+  }
+
+  PrimaryArtifact resolve(MavenCoordinates coordinates) throws IOException {
     var span =
-        Traces.createSpan("MavenDependencyResolver.resolve", new Tag("dependency", dependency));
+        Traces.createSpan("MavenDependencyResolver.resolve", new Tag("coordinates", coordinates));
     try (var __ = Traces.activate(span)) {
-      return resolveInstrumented(dependency);
+      return resolveInstrumented(coordinates);
     } finally {
       span.finish();
     }
   }
 
-  private PrimaryArtifact resolveInstrumented(MavenDependency dependency) throws IOException {
-    var artifactPath = artifactPath(dependency);
-    var jarSuffix = dependency.type().equals("test-jar") ? "-tests.jar" : ".jar";
+  private PrimaryArtifact resolveInstrumented(MavenCoordinates coordinates) throws IOException {
+    var artifactPath = artifactPath(coordinates);
+    var jarSuffix = jarSuffix(coordinates);
     return new PrimaryArtifact(
         artifactPath.resolveSibling(artifactPath.getFileName() + ".pom"),
         artifactPath.resolveSibling(artifactPath.getFileName() + jarSuffix));
   }
 
-  private Path artifactPath(MavenDependency dependency) throws IOException {
-    Path dependencyRepository = directoryFor(dependency);
-    String version = dependency.version();
-    if (!dependency.hasWellDefinedVersion()) {
+  private String jarSuffix(MavenCoordinates coordinates) {
+    var classifierSuffix = coordinates.maybeClassifier().map(c -> "-" + c).orElse("");
+    var typeSuffix = coordinates.type().equals("test-jar") ? "-tests.jar" : ".jar";
+    return classifierSuffix + typeSuffix;
+  }
+
+  private Path artifactPath(MavenCoordinates coordinates) throws IOException {
+    Path dependencyRepository = directoryFor(coordinates);
+    var maybeVersion = coordinates.maybeVersion();
+    var versionString = maybeVersion.map(MavenString::toString).orElse("");
+    if (maybeVersion.isEmpty() || maybeVersion.get().hasPropertyReferences()) {
       // If we get there, that means that we did not find enough information in the POM. We don't
       // know what version is being used, so we just use the first one we find.
-      version = getFirstAvailableVersion(dependencyRepository);
+      versionString = getFirstAvailableVersion(dependencyRepository);
     }
 
     return Paths.get(
-        dependencyRepository.toString(), version, artifactName(dependency.artifactId(), version));
+        dependencyRepository.toString(),
+        versionString,
+        artifactName(coordinates.artifactId(), versionString));
   }
 
-  private Path directoryFor(MavenDependency dependency) {
+  private Path directoryFor(MavenCoordinates coordinates) {
     return Paths.get(
-        repository.toString(), dependency.groupId().replace(".", "/"), dependency.artifactId());
+        repository.toString(), coordinates.groupId().replace(".", "/"), coordinates.artifactId());
   }
 
   private String artifactName(String artifactId, String version) {

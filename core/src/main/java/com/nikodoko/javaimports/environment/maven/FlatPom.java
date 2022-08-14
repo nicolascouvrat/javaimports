@@ -1,12 +1,13 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.base.MoreObjects;
-import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -15,19 +16,22 @@ import java.util.stream.Collectors;
  */
 class FlatPom {
   private List<MavenDependency> dependencies;
-  private Map<MavenDependency.Versionless, String> versionByManagedDependencies;
+  private Map<MavenCoordinates.Versionless, MavenDependency> managedDependencies;
   private Properties properties;
-  private Optional<Path> maybeParent;
+  private Optional<MavenParent> maybeParent;
 
   private FlatPom(
       List<MavenDependency> dependencies,
       List<MavenDependency> managedDependencies,
       Properties properties,
-      Optional<Path> maybeParent) {
+      Optional<MavenParent> maybeParent) {
     this.dependencies = dependencies;
-    this.versionByManagedDependencies =
+    this.managedDependencies =
         managedDependencies.stream()
-            .collect(Collectors.toMap(MavenDependency::hideVersion, d -> d.version()));
+            .collect(
+                // If two managed dependencies have the same coordinates, the first takes precedence
+                Collectors.toMap(
+                    d -> d.coordinates().hideVersion(), Function.identity(), (a, b) -> a));
     this.properties = properties;
     this.maybeParent = maybeParent;
     useManagedVersionWhenNeeded();
@@ -39,40 +43,35 @@ class FlatPom {
         dependencies.stream()
             .map(
                 d -> {
-                  if (d.hasVersion()) {
+                  var managed = managedDependencies.get(d.coordinates().hideVersion());
+                  if (managed == null) {
                     return d;
                   }
 
-                  var managedVersion = versionByManagedDependencies.get(d.hideVersion());
+                  var version = d.hasVersion() ? d.version() : managed.version();
+                  var scope =
+                      d.scope().isPresent() ? d.scope().get() : managed.scope().orElse(null);
+                  var optional = d.optional() ? d.optional() : managed.optional();
+                  var classifier = d.classifier().orElse(null);
+
+                  // TODO: it seems that, while technically allowing it, maven does not yet support
+                  // exclusions in dependencyManagement? In any case, ignore it for now
                   return new MavenDependency(
                       d.groupId(),
                       d.artifactId(),
-                      managedVersion,
+                      version,
                       d.type(),
-                      d.scope(),
-                      d.optional());
+                      classifier,
+                      scope,
+                      optional,
+                      d.exclusions());
                 })
             .collect(Collectors.toList());
   }
 
   private void substitutePropertiesWhenPossible() {
-    dependencies =
-        dependencies.stream()
-            .map(
-                d -> {
-                  if (!d.hasPropertyReferenceVersion()) {
-                    return d;
-                  }
-
-                  return substitutePropertyIfPossible(d);
-                })
-            .collect(Collectors.toList());
-  }
-
-  private MavenDependency substitutePropertyIfPossible(MavenDependency d) {
-    var version = properties.getProperty(d.propertyReferencedByVersion(), d.version());
-    return new MavenDependency(
-        d.groupId(), d.artifactId(), version, d.type(), d.scope(), d.optional());
+    dependencies.forEach(d -> d.substitute(properties));
+    managedDependencies.values().forEach(d -> d.substitute(properties));
   }
 
   /**
@@ -80,12 +79,7 @@ class FlatPom {
    * resolve properties.
    */
   void merge(FlatPom other) {
-    if (isWellDefined()) {
-      return;
-    }
-
-    other.versionByManagedDependencies.forEach(
-        (k, v) -> this.versionByManagedDependencies.putIfAbsent(k, v));
+    other.managedDependencies.forEach((k, v) -> this.managedDependencies.putIfAbsent(k, v));
     // The other properties have lower priority so we put them as defaults
     var newProperties = new Properties(other.properties);
     properties.forEach((k, v) -> newProperties.setProperty((String) k, (String) v));
@@ -99,24 +93,20 @@ class FlatPom {
     return dependencies;
   }
 
+  Collection<MavenDependency> managedDependencies() {
+    return managedDependencies.values();
+  }
+
   static Builder builder() {
     return new Builder();
   }
 
-  Optional<Path> maybeParent() {
+  Optional<MavenParent> maybeParent() {
     return maybeParent;
   }
 
   boolean hasParent() {
     return maybeParent.isPresent();
-  }
-
-  /**
-   * Returns {@code true} if all dependencies have a well defined version, i.e. a version that is
-   * neither null nor a reference to a property.
-   */
-  boolean isWellDefined() {
-    return dependencies.stream().allMatch(MavenDependency::hasWellDefinedVersion);
   }
 
   public String toString() {
@@ -130,7 +120,7 @@ class FlatPom {
     private List<MavenDependency> dependencies = new ArrayList<>();
     private List<MavenDependency> managedDependencies = new ArrayList<>();
     private Properties properties = new Properties();
-    private Optional<Path> maybeParent = Optional.empty();
+    private Optional<MavenParent> maybeParent = Optional.empty();
 
     Builder dependencies(List<MavenDependency> dependencies) {
       this.dependencies = dependencies;
@@ -147,7 +137,7 @@ class FlatPom {
       return this;
     }
 
-    Builder maybeParent(Optional<Path> maybeParent) {
+    Builder maybeParent(Optional<MavenParent> maybeParent) {
       this.maybeParent = maybeParent;
       return this;
     }

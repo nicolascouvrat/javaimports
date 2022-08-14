@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.google.truth.extensions</groupId>
+    <artifactId>truth-extensions-parent</artifactId>
+    <version>1.0.1</version>
+  </parent>
+  <artifactId>truth-java8-extension</artifactId>
+  <name>Truth Extension for Java8</name>
+  <description>
+    An extension for the Truth test assertion framework supporting Java8 types and structures
+  </description>
+  <dependencies>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.checkerframework</groupId>
+      <artifactId>checker-compat-qual</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-gwt-sources</id>
+            <phase>post-integration-test</phase>
+            <goals><goal>jar</goal></goals>
+            <configuration>
+              <classifier>gwt</classifier>
+              <classesDirectory>src/main/java</classesDirectory>
+              <includes>
+                <include>**/*.java</include>
+                <include>**/*.gwt.xml</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
+
