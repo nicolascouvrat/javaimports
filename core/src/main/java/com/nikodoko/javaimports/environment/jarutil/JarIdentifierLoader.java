@@ -8,7 +8,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,13 +20,21 @@ import java.util.stream.Stream;
  */
 public class JarIdentifierLoader {
   ClassLoader cl = null;
-  final URL jarUrl;
+  final URL[] jarUrls;
 
   public JarIdentifierLoader(Path jarPath) {
+    this(List.of(jarPath));
+  }
+
+  public JarIdentifierLoader(Collection<Path> jarPaths) {
+    this.jarUrls = jarPaths.stream().map(this::asUrl).toArray(URL[]::new);
+  }
+
+  private URL asUrl(Path path) {
     try {
-      this.jarUrl = new URL("jar:file:" + jarPath + "!/");
+      return new URL("jar:file:" + path + "!/");
     } catch (MalformedURLException e) {
-      throw new IllegalArgumentException("could not form an URL for jar path: " + jarPath);
+      throw new IllegalArgumentException("could not form an URL for jar path: " + path);
     }
   }
 
@@ -56,13 +66,14 @@ public class JarIdentifierLoader {
 
   private Class loadClass(Import i) {
     if (cl == null) {
-      cl = URLClassLoader.newInstance(new URL[] {jarUrl});
+      cl = URLClassLoader.newInstance(jarUrls);
     }
 
     try {
       return cl.loadClass(i.selector.toString());
     } catch (ClassNotFoundException e) {
-      throw new IllegalArgumentException(String.format("Import %s not found in JAR %s", i, jarUrl));
+      throw new IllegalArgumentException(
+          String.format("Import %s not found in JARS %s", i, jarUrls));
     }
   }
 }
