@@ -53,51 +53,6 @@ class MavenDependency {
           .toString();
     }
   }
-  /**
-   * {@code Versionless} provides a convenient way to compare dependencies while ignoring their
-   * versions.
-   */
-  static class Versionless {
-    final MavenDependency wrapped;
-
-    Versionless(MavenDependency dependency) {
-      this.wrapped = dependency;
-    }
-
-    MavenDependency showVersion() {
-      return wrapped;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (o == null) {
-        return false;
-      }
-
-      if (!(o instanceof Versionless)) {
-        return false;
-      }
-
-      var that = (Versionless) o;
-      return Objects.equals(this.wrapped.groupId(), that.wrapped.groupId())
-          && Objects.equals(this.wrapped.type(), that.wrapped.type())
-          && Objects.equals(this.wrapped.artifactId(), that.wrapped.artifactId());
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.wrapped.groupId(), this.wrapped.artifactId(), this.wrapped.type());
-    }
-
-    @Override
-    public String toString() {
-      return Utils.toStringHelper(this)
-          .add("groupId", this.wrapped.groupId())
-          .add("artifactId", this.wrapped.artifactId())
-          .add("type", this.wrapped.type())
-          .toString();
-    }
-  }
 
   private final boolean optional;
   private final Optional<String> scope;
@@ -138,10 +93,6 @@ class MavenDependency {
 
   MavenCoordinates coordinates() {
     return coordinates;
-  }
-
-  Versionless hideVersion() {
-    return new Versionless(this);
   }
 
   // All these are convenience methods calling the corresponding one in MavenCoordinates

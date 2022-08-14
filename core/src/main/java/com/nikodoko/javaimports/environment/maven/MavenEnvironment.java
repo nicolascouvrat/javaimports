@@ -132,8 +132,6 @@ public class MavenEnvironment implements Environment {
     MavenDependencyFinder.Result direct =
         new MavenDependencyFinder(new LocalMavenRepository(resolver, options)).findAll(root);
 
-    var versionlessDirectDependencies =
-        direct.dependencies.stream().map(d -> d.hideVersion()).collect(Collectors.toSet());
     var loadedDirect = resolveAndLoad(direct.dependencies, new Tag("direct_dependencies", true));
     var emptyDirectDeps =
         loadedDirect.stream()
