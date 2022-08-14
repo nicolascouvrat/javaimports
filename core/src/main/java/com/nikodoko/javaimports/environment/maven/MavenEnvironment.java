@@ -129,8 +129,8 @@ public class MavenEnvironment implements Environment {
   }
 
   private List<Import> extractImportsInDependencies() {
-    MavenDependencyFinder.Result direct =
-        new MavenDependencyFinder(new LocalMavenRepository(resolver, options)).findAll(root);
+    var repository = new LocalMavenRepository(resolver, options);
+    MavenDependencyFinder.Result direct = new MavenDependencyFinder(repository).findAll(root);
 
     var loadedDirect = resolveAndLoad(direct.dependencies, new Tag("direct_dependencies", true));
     var emptyDirectDeps =
@@ -144,10 +144,7 @@ public class MavenEnvironment implements Environment {
     // We do not bother with loading more transitive dependencies than that though, as it could
     // quickly become too slow for big projects. Since relying on transitive dependencies is not a
     // good practice anyway, we explicitely choose to not support it here.
-    var indirectDependencies =
-        new ArrayList<>(
-            new LocalMavenRepository(resolver, options)
-                .getTransitiveDependencies(emptyDirectDeps, 1));
+    var indirectDependencies = repository.getTransitiveDependencies(emptyDirectDeps, 1);
     var loadedIndirect =
         resolveAndLoad(indirectDependencies, new Tag("direct_dependencies", false));
     if (options.debug()) {

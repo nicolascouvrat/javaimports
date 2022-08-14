@@ -344,5 +344,11 @@ public class MavenDependencyFinderTest {
     public List<MavenDependency> getManagedDependencies(MavenDependency dep) {
       return managedDeps.getOrDefault(dep, List.of());
     }
+
+    @Override
+    public List<MavenDependency> getTransitiveDependencies(
+        List<MavenDependency> dependencies, int maxDepth) {
+      return List.of();
+    }
   }
 }

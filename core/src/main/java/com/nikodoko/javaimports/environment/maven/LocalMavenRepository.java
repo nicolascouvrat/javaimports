@@ -7,7 +7,6 @@ import io.opentracing.Span;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +41,8 @@ public class LocalMavenRepository implements MavenRepository {
     return effectivePom(dependency).dependencies();
   }
 
-  public Collection<MavenDependency> getTransitiveDependencies(
+  @Override
+  public List<MavenDependency> getTransitiveDependencies(
       List<MavenDependency> directDependencies, int maxDepth) {
     var span = Traces.createSpan("LocalMavenRepository.getAllTransitiveDependencies");
     AtomicInteger conflicts = new AtomicInteger(0);
