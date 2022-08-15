@@ -3,7 +3,7 @@ package extendWithParentInDependency;
 
 class App extends Parent {
   void test() {
-    var a = aPublicField;
+    var a = anotherPublicField;
   }
 }
 

@@ -66,7 +66,7 @@ public class ImporterIntegrationTest {
             .stdlib(
                 FakeStdlibProvider.of(
                     new Import("List", "java.util", false),
-                    new Import("aPublicField", "java.fakeutil", true),
+                    new Import("anotherPublicField", "java.fakeutil", true),
                     new Import("ArrayList", "java.util", false),
                     new Import("App", "java.fakeutil", false)))
             // speed up tests a bit
