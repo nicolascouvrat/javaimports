@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 /**
  * Loads all public and protected identifiers for a given class (identifier by its {@link Import}).
  */
-public class JarIdentifierLoader {
+public class JarIdentifierLoader implements IdentifierLoader {
   ClassLoader cl = null;
   final URL[] jarUrls;
 
@@ -39,6 +39,7 @@ public class JarIdentifierLoader {
     }
   }
 
+  @Override
   public Set<Identifier> loadIdentifiers(Import i) {
     var c = loadClass(i);
     var identifiers = new HashSet<Identifier>();

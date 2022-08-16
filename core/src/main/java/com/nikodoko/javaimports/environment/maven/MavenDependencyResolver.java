@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 
 /** Resolves Maven dependencies to their location on disk. */
 class MavenDependencyResolver {
-  static class PrimaryArtifact {
+  public static class PrimaryArtifact {
     final Path pom;
     final Path jar;
 
@@ -34,12 +34,12 @@ class MavenDependencyResolver {
     return new MavenDependencyResolver(repository);
   }
 
-  PrimaryArtifact resolve(MavenDependency dependency) throws IOException {
+  public PrimaryArtifact resolve(MavenDependency dependency) throws IOException {
     var coordinates = dependency.coordinates();
     return resolve(coordinates);
   }
 
-  PrimaryArtifact resolve(MavenCoordinates coordinates) throws IOException {
+  public PrimaryArtifact resolve(MavenCoordinates coordinates) throws IOException {
     var span =
         Traces.createSpan("MavenDependencyResolver.resolve", new Tag("coordinates", coordinates));
     try (var __ = Traces.activate(span)) {

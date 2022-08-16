@@ -1,9 +1,12 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.nikodoko.javaimports.common.CommonTestUtil.aSelector;
 import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
+import static com.nikodoko.javaimports.common.CommonTestUtil.someIdentifiers;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
@@ -104,5 +107,35 @@ public class MavenEnvironmentTest {
     // Assert that the 1.0 version of the dependency is indeed selected by checking that a class
     // only present in 2.0 is not found
     assertThat(environment.findImports(new Identifier("Subclass"))).isEmpty();
+  }
+
+  @Test
+  void testThatExternalClassesAreLoaded() throws Exception {
+    var module =
+        Module.named("test.module")
+            .containing(Module.file("Main.java", "package test.module;"))
+            .dependingOn(Module.dependency("com.mycompany.app", "a-dependency", "1.0"));
+    project = Export.of(BuildSystem.MAVEN, module);
+    var target = project.file(module.name(), "Main.java").get();
+    var environment =
+        Environments.autoSelect(
+            target, "test.module", Options.builder().repository(repository).build());
+
+    var got = environment.findClass(anImport("com.mycompany.app.App"));
+    var expected =
+        ClassEntity.named(aSelector("com.mycompany.app.App"))
+            .declaring(
+                someIdentifiers(
+                    "getClass",
+                    "wait",
+                    "equals",
+                    "hashCode",
+                    "notifyAll",
+                    "finalize",
+                    "clone",
+                    "toString",
+                    "notify"))
+            .build();
+    assertThat(got.get()).isEqualTo(expected);
   }
 }
