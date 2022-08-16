@@ -76,6 +76,10 @@ public class CLIOptionsParser {
         case "-assume-filename":
           optsBuilder.assumeFilename(fv.value);
           break;
+        case "--repository":
+        case "-repository":
+          optsBuilder.repository(fv.value);
+          break;
         case "--metrics-enable":
         case "-metrics-enable":
           optsBuilder.metricsEnabled(true);

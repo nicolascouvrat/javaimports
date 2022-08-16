@@ -56,8 +56,7 @@ public class MavenEnvironment implements Environment {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
-    var repository =
-        options.repository().isPresent() ? options.repository().get() : DEFAULT_REPOSITORY;
+    var repository = options.repository();
     this.resolver = MavenDependencyResolver.withRepository(repository);
     this.repository = new LocalMavenRepository(resolver, options);
   }

@@ -3,7 +3,7 @@ package com.nikodoko.javaimports;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.nio.file.Paths;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -15,15 +15,16 @@ public class Options {
   public static final int DEFAULT_NUM_THREADS = 0;
   /** Do not use debug logging by default. */
   public static final boolean DEFAULT_IS_DEBUG = false;
-  /** Do not look for dependencies by default. */
-  public static final Optional<Path> DEFAULT_REPOSITORY = Optional.empty();
+  /** Use local maven repository by default. */
+  public static final Path DEFAULT_REPOSITORY =
+      Paths.get(System.getProperty("user.home"), ".m2/repository");
 
   boolean debug;
-  Optional<Path> repository;
+  Path repository;
   StdlibProvider stdlib;
   Executor executor;
 
-  public Options(boolean debug, Optional<Path> repository, StdlibProvider stdlib, int numThreads) {
+  public Options(boolean debug, Path repository, StdlibProvider stdlib, int numThreads) {
     this.debug = debug;
     this.repository = repository;
     this.stdlib = stdlib;
@@ -31,7 +32,7 @@ public class Options {
   }
 
   /** Specific directory to use as a dependency repository. */
-  public Optional<Path> repository() {
+  public Path repository() {
     return repository;
   }
 
@@ -52,7 +53,7 @@ public class Options {
 
   public static class Builder {
     boolean debug = DEFAULT_IS_DEBUG;
-    Optional<Path> repository = DEFAULT_REPOSITORY;
+    Path repository = DEFAULT_REPOSITORY;
     StdlibProvider stdlib = DEFAULT_STDLIB_PROVIDER;
     int numThreads = DEFAULT_NUM_THREADS;
 
@@ -64,7 +65,7 @@ public class Options {
     }
 
     public Builder repository(Path repository) {
-      this.repository = Optional.of(repository);
+      this.repository = repository;
       return this;
     }
 

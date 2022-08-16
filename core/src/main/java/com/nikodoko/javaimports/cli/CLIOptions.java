@@ -9,6 +9,8 @@ final class CLIOptions {
   private final boolean fixOnly;
   private final boolean verbose;
   private final String assumeFilename;
+  // Where to find the dependency JARs
+  private final String repository;
   private final boolean metricsEnabled;
   // These two options are used only if metrics are enabled
   private final Integer metricsDatadogPort;
@@ -23,6 +25,7 @@ final class CLIOptions {
       boolean fixOnly,
       boolean verbose,
       String assumeFilename,
+      String repository,
       boolean metricsEnabled,
       Integer metricsDatadogPort,
       String metricsDatadogHost,
@@ -32,6 +35,7 @@ final class CLIOptions {
     this.version = version;
     this.replace = replace;
     this.fixOnly = fixOnly;
+    this.repository = repository;
     this.verbose = verbose;
     this.assumeFilename = assumeFilename;
     this.metricsEnabled = metricsEnabled;
@@ -67,6 +71,11 @@ final class CLIOptions {
 
   boolean version() {
     return version;
+  }
+
+  /** Absolute path to the directory in which the depency JARs are stored. */
+  String repository() {
+    return repository;
   }
 
   /** File name to use for diagnostics when parsing standard input. */
@@ -105,6 +114,7 @@ final class CLIOptions {
     private Integer metricsDatadogPort;
     private String metricsDatadogHost;
     private boolean tracingEnabled;
+    private String repository;
 
     Builder file(String file) {
       this.file = file;
@@ -161,6 +171,11 @@ final class CLIOptions {
       return this;
     }
 
+    Builder repository(String repository) {
+      this.repository = repository;
+      return this;
+    }
+
     CLIOptions build() {
       return new CLIOptions(
           file,
@@ -170,6 +185,7 @@ final class CLIOptions {
           fixOnly,
           verbose,
           assumeFilename,
+          repository,
           metricsEnabled,
           metricsDatadogPort,
           metricsDatadogHost,
