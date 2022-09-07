@@ -3,12 +3,14 @@ package com.nikodoko.javaimports.environment.maven;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.JavaProject;
+import com.nikodoko.javaimports.environment.jarutil.JarIdentifierLoader;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import io.opentracing.Span;
 import java.nio.file.Path;
@@ -19,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -40,7 +43,9 @@ public class MavenEnvironment implements Environment {
   private final Path fileBeingResolved;
   private final Options options;
   private final MavenDependencyResolver resolver;
+  private final MavenRepository repository;
 
+  private MavenClassLoader classLoader;
   private Map<Identifier, List<Import>> availableImports = new HashMap<>();
   private JavaProject project;
   private boolean projectIsParsed = false;
@@ -51,9 +56,9 @@ public class MavenEnvironment implements Environment {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
-    var repository =
-        options.repository().isPresent() ? options.repository().get() : DEFAULT_REPOSITORY;
+    var repository = options.repository();
     this.resolver = MavenDependencyResolver.withRepository(repository);
+    this.repository = new LocalMavenRepository(resolver, options);
   }
 
   @Override
@@ -86,6 +91,15 @@ public class MavenEnvironment implements Environment {
     return found;
   }
 
+  @Override
+  public Optional<ClassEntity> findClass(Import i) {
+    if (!isInitialized) {
+      init();
+    }
+
+    return classLoader.findClass(i);
+  }
+
   private void init() {
     var span = Traces.createSpan("MavenEnvironment.init");
     try (var __ = Traces.activate(span)) {
@@ -99,10 +113,18 @@ public class MavenEnvironment implements Environment {
     parseProjectIfNeeded();
 
     var start = clock.millis();
-    var imports = extractImportsInDependencies();
+    var directDependencies = findDirectDependencies();
+    var imports = extractImportsInDependencies(directDependencies);
 
     availableImports =
         imports.stream().collect(Collectors.groupingBy(i -> i.selector.identifier()));
+    classLoader =
+        new MavenClassLoader(
+            repository,
+            c -> resolver.resolve(c).jar,
+            JarIdentifierLoader::new,
+            directDependencies,
+            options);
     isInitialized = true;
     log.log(Level.INFO, String.format("init completed in %d ms", clock.millis() - start));
   }
@@ -128,11 +150,18 @@ public class MavenEnvironment implements Environment {
     projectIsParsed = true;
   }
 
-  private List<Import> extractImportsInDependencies() {
-    var repository = new LocalMavenRepository(resolver, options);
-    MavenDependencyFinder.Result direct = new MavenDependencyFinder(repository).findAll(root);
+  private List<MavenDependency> findDirectDependencies() {
+    var direct = new MavenDependencyFinder(repository).findAll(root);
+    if (options.debug()) {
+      log.info(
+          String.format("found %d direct dependencies: %s", direct.dependencies.size(), direct));
+    }
 
-    var loadedDirect = resolveAndLoad(direct.dependencies, new Tag("direct_dependencies", true));
+    return direct.dependencies;
+  }
+
+  private List<Import> extractImportsInDependencies(List<MavenDependency> directDependencies) {
+    var loadedDirect = resolveAndLoad(directDependencies, new Tag("direct_dependencies", true));
     var emptyDirectDeps =
         loadedDirect.stream()
             .filter(d -> d.importables.isEmpty())
@@ -148,8 +177,6 @@ public class MavenEnvironment implements Environment {
     var loadedIndirect =
         resolveAndLoad(indirectDependencies, new Tag("direct_dependencies", false));
     if (options.debug()) {
-      log.info(
-          String.format("found %d direct dependencies: %s", direct.dependencies.size(), direct));
       log.info(
           String.format(
               "found %d indirect dependencies: %s",

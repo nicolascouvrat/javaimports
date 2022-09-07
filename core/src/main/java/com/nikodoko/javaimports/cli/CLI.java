@@ -161,15 +161,15 @@ public final class CLI {
 
     // TODO: make stdlib version a CLI option
     // TODO: use number of threads according to processor
-    Options opts =
-        Options.builder()
-            .debug(params.verbose())
-            .stdlib(StdlibProviders.java8())
-            .numThreads(8)
-            .build();
+    var optsBuilder =
+        Options.builder().debug(params.verbose()).stdlib(StdlibProviders.java8()).numThreads(8);
+    if (params.repository() != null) {
+      optsBuilder.repository(Paths.get(params.repository()));
+    }
+
     String fixed;
     try {
-      fixed = new Importer(opts).addUsedImports(path, input);
+      fixed = new Importer(optsBuilder.build()).addUsedImports(path, input);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         errWriter.println(d);

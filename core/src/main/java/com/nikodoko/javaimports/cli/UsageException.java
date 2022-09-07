@@ -23,6 +23,9 @@ public class UsageException extends Exception {
     "    Enable metrics reporting to a datadog agent running on the specified port and host.",
     "  --replace, -replace, -r, -w",
     "    Write result to source file instead of stdout.",
+    "  --repository, -repository",
+    "    Absolute path to the directory containing dependency JARs (default is"
+        + " /your/home/.m2/repository).",
     "  --telemetry-enable, -telemetry-enable",
     "    Enable telemetry. Shorthand for --tracing-enable and --metrics-enable.",
     "  --tracing-enable, -tracing-enable",
