@@ -121,9 +121,21 @@
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <archive>
-            <!-- Include git hash in version to make it available from getImplementationVersion() -->
             <manifestEntries>
+              <!-- Include git hash in version to make it available from getImplementationVersion() -->
               <Implementation-Version>${project.version} (rev. ${git.commit.id.abbrev})</Implementation-Version>
+              <!-- These are to avoid having to provide them on the CLI when using java -jar -->
+              <Add-Exports><!--
+                -->jdk.compiler/com.sun.tools.javac.api <!--
+                -->jdk.compiler/com.sun.tools.javac.file <!--
+                -->jdk.compiler/com.sun.tools.javac.main <!--
+                -->jdk.compiler/com.sun.tools.javac.model <!--
+                -->jdk.compiler/com.sun.tools.javac.parser <!--
+                -->jdk.compiler/com.sun.tools.javac.processing <!--
+                -->jdk.compiler/com.sun.tools.javac.tree <!--
+                -->jdk.compiler/com.sun.tools.javac.util<!--
+              --></Add-Exports>
+              <Add-Opens>jdk.compiler/com.sun.tools.javac.code jdk.compiler/com.sun.tools.javac.comp</Add-Opens>
             </manifestEntries>
             <manifest>
               <mainClass>com.nikodoko.javaimports.cli.CLI</mainClass>
