@@ -1,0 +1,3 @@
+package findImport;
+
+class Test extends Parent {}

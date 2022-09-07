@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,6 +26,13 @@ public class NativeImageIT {
   private static final String JAVAIMPORTS_BINARY = "./javaimports-native-image";
 
   Exported targetPkg;
+  Path repository;
+
+  @BeforeEach
+  void setup() throws Exception {
+    repository =
+        Paths.get(NativeImageIT.class.getClassLoader().getResource("testrepository").toURI());
+  }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("packageProvider")
@@ -44,14 +52,21 @@ public class NativeImageIT {
   Process runJavaimportsOn(Path target) throws Exception {
     var javaHome = System.getProperty("java.home");
     return new ProcessBuilder(
-            JAVAIMPORTS_BINARY, String.format("-Djava.home=%s", javaHome), target.toString())
+            JAVAIMPORTS_BINARY,
+            String.format("-Djava.home=%s", javaHome),
+            String.format("-repository=%s", repository.toString()),
+            "--fix-only",
+            "-v",
+            target.toString())
         .directory(Paths.get(getClass().getResource("/").toURI()).getParent().toFile())
         .start();
   }
 
   static Exported export(Pkg pkg) throws Exception {
     var module =
-        Module.named(pkg.name).containing(pkg.files.toArray(new Module.File[pkg.files.size()]));
+        Module.named(pkg.name)
+            .containing(pkg.files.toArray(new Module.File[pkg.files.size()]))
+            .dependingOn(Module.dependency("com.mycompany.app", "another-dependency", "1.0"));
     return Export.of(BuildSystem.MAVEN, module);
   }
 

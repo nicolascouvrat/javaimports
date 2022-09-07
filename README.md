@@ -79,9 +79,22 @@ To compile `javaimports` with `native-image`, make sure you are using the right 
 executable in `native-image/target/javaimports-native-image`. To run it, you need to pass it the
 path to your java home, like so:
 
+
 ```
 ./javaimports-native-image -Djava.home=/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home [other flags] <file>"
 ```
+
+**IMPORTANT:**
+
+Versions of `javaimports` newer than  `1.4-SNAPSHOT (rev. 5b66400)` come packaged with a feature
+than will read `.jar` files in order to find identifiers provided by parent classes. This feature
+will NOT work with `native-image` due to the following:
+
+```
+java.net.MalformedURLException: Accessing an URL protocol that was not enabled. The URL protocol jar is not tested and might not work as expected. It can be enabled by adding the --enable-url-protocols=jar option to the native-image command.
+```
+
+This is a known limitation, other `javaimports` features will still work.
 
 ## Telemetry (traces and metrics)
 
