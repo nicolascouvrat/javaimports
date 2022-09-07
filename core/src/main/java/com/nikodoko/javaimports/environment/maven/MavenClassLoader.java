@@ -53,7 +53,7 @@ public class MavenClassLoader {
       initInstrumented();
     } catch (Throwable t) {
       if (options.debug()) {
-        log.log(Level.WARNING, String.format("Error initializing MavenClassLoader: %s", t));
+        log.log(Level.WARNING, "Error initializing MavenClassLoader", t);
       }
 
       this.loader = i -> Set.of();
@@ -94,7 +94,7 @@ public class MavenClassLoader {
       return findClassInstrumented(i);
     } catch (Throwable t) {
       if (options.debug()) {
-        log.log(Level.WARNING, String.format("Error finding class for import %s: %s", i, t));
+        log.log(Level.WARNING, String.format("Error finding class for import %s", i), t);
       }
 
       return Optional.empty();

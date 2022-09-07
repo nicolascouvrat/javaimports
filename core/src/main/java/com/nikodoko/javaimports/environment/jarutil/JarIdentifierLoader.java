@@ -35,7 +35,7 @@ public class JarIdentifierLoader implements IdentifierLoader {
     try {
       return new URL("jar:file:" + path + "!/");
     } catch (MalformedURLException e) {
-      throw new IllegalArgumentException("could not form an URL for jar path: " + path);
+      throw new IllegalArgumentException("could not form an URL for jar path: " + path, e);
     }
   }
 
@@ -76,7 +76,7 @@ public class JarIdentifierLoader implements IdentifierLoader {
       return cl.loadClass(i.selector.toString());
     } catch (ClassNotFoundException e) {
       throw new IllegalArgumentException(
-          String.format("Import %s not found in JARS %s", i, jarUrls));
+          String.format("Import %s not found in JARS %s", i, jarUrls), e);
     }
   }
 }
