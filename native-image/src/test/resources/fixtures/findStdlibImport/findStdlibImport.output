@@ -1,0 +1,9 @@
+package extendExternalParent;import static java.time.Clock.system;
+
+// This will import java.time.Clock.system()
+class Test {
+  void func() {
+    var a = system;
+  }
+}
+

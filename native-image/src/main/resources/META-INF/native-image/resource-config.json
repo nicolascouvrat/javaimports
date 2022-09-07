@@ -1,6 +1,8 @@
 {
   "resources":{
-  "includes":[]},
+  "includes":[
+    {"pattern":"dogstatsd/version.properties"}
+  ]},
   "bundles":[
     {"name":"com.sun.tools.javac.resources.compiler"}, 
     {"name":"com.sun.tools.javac.resources.javac"}

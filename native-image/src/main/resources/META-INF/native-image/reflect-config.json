@@ -9,5 +9,29 @@
 {
   "name":"java.lang.Runtime$Version",
   "methods":[{"name":"major","parameterTypes":[] }]
+},
+{
+  "name" : "org.jctools.queues.MpscBlockingConsumerArrayQueueConsumerFields",
+  "fields": [
+    {"name": "consumerIndex", "allowUnsafeAccess": true}
+  ]
+},
+{
+  "name" : "org.jctools.queues.MpscBlockingConsumerArrayQueueConsumerFields",
+  "fields": [
+    {"name": "blocked", "allowUnsafeAccess": true}
+  ]
+},
+{
+  "name" : "org.jctools.queues.MpscBlockingConsumerArrayQueueProducerFields",
+  "fields": [
+    {"name": "producerIndex", "allowUnsafeAccess": true}
+  ]
+},
+{
+  "name" : "org.jctools.queues.MpscBlockingConsumerArrayQueueColdProducerFields",
+  "fields": [
+    {"name": "producerLimit", "allowUnsafeAccess": true}
+  ]
 }
 ]
