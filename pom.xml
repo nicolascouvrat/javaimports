@@ -152,6 +152,14 @@
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.0.0-M4</version>
+          <configuration>
+            <argLine>
+              --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+              --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+              --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+              --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+            </argLine>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
