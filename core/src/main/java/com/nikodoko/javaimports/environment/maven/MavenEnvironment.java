@@ -97,6 +97,14 @@ public class MavenEnvironment implements Environment {
       init();
     }
 
+    // Try to find it in project first
+    for (var file : project.allFiles()) {
+      var maybeParent = file.findClass(i);
+      if (maybeParent.isPresent()) {
+        return maybeParent;
+      }
+    }
+
     return classLoader.findClass(i);
   }
 
