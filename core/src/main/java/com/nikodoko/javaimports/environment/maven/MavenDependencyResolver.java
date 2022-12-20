@@ -44,6 +44,9 @@ class MavenDependencyResolver {
         Traces.createSpan("MavenDependencyResolver.resolve", new Tag("coordinates", coordinates));
     try (var __ = Traces.activate(span)) {
       return resolveInstrumented(coordinates);
+    } catch (Throwable t) {
+      Traces.addThrowable(span, t);
+      throw t;
     } finally {
       span.finish();
     }

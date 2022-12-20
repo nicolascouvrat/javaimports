@@ -6,6 +6,7 @@ import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.jarutil.IdentifierLoader;
+import io.opentracing.Span;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -50,7 +51,7 @@ public class MavenClassLoader {
   private void init() {
     var span = Traces.createSpan("MavenClassLoader.init");
     try (var __ = Traces.activate(span)) {
-      initInstrumented();
+      initInstrumented(span);
     } catch (Throwable t) {
       if (options.debug()) {
         log.log(Level.WARNING, "Error initializing MavenClassLoader", t);
@@ -62,7 +63,7 @@ public class MavenClassLoader {
     }
   }
 
-  private void initInstrumented() {
+  private void initInstrumented(Span span) {
     var transitiveDependencies = repository.getTransitiveDependencies(directDependencies, -1);
     var allDependencies =
         Stream.concat(transitiveDependencies.stream(), directDependencies.stream());
@@ -72,6 +73,10 @@ public class MavenClassLoader {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toList());
+    Traces.addTags(
+        span,
+        new Tag("transitive_deps_count", transitiveDependencies.size()),
+        new Tag("paths_count", paths.size()));
 
     this.loader = loaderFactory.of(paths);
   }
@@ -91,12 +96,15 @@ public class MavenClassLoader {
   public Optional<ClassEntity> findClass(Import i) {
     var span = Traces.createSpan("MavenClassLoader.findClass", new Tag("import", i));
     try (var __ = Traces.activate(span)) {
-      return findClassInstrumented(i);
+      var c = findClassInstrumented(i);
+      Traces.addTags(span, new Tag("class", c.get()));
+      return c;
     } catch (Throwable t) {
       if (options.debug()) {
         log.log(Level.WARNING, String.format("Error finding class for import %s", i), t);
       }
 
+      Traces.addThrowable(span, t);
       return Optional.empty();
     } finally {
       span.finish();

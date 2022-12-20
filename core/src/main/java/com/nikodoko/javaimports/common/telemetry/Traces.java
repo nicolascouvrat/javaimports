@@ -1,12 +1,15 @@
 package com.nikodoko.javaimports.common.telemetry;
 
 import datadog.opentracing.DDTracer;
+import datadog.trace.api.DDTags;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer.SpanBuilder;
 import io.opentracing.noop.NoopScopeManager.NoopScope;
 import io.opentracing.noop.NoopSpan;
 import io.opentracing.util.GlobalTracer;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 public class Traces {
@@ -84,5 +87,14 @@ public class Traces {
     for (var tag : tags) {
       span.setTag(tag.key, tag.value);
     }
+  }
+
+  public static void addThrowable(Span span, Throwable t) {
+    io.opentracing.tag.Tags.ERROR.set(span, true);
+    span.setTag(DDTags.ERROR_TYPE, t.getClass().getName());
+    span.setTag(DDTags.ERROR_MSG, t.getMessage());
+    StringWriter sw = new StringWriter();
+    t.printStackTrace(new PrintWriter(sw));
+    span.setTag(DDTags.ERROR_STACK, sw.toString());
   }
 }
