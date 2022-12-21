@@ -1,0 +1,7 @@
+package extendClassInOtherPackage;import extendClassInOtherPackage.other.Base;
+
+class Test extends Base {
+  void main() {
+    List();
+  }
+}
