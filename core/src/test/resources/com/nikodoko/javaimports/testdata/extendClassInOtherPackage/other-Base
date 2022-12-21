@@ -1,0 +1,6 @@
+package extendClassInOtherPackage.other;
+
+class Base {
+  void List() {}
+}
+
