@@ -163,10 +163,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
     return topScope.identifiers;
   }
 
-  public ClassHierarchy classHierarchy() {
-    return classHierarchy;
-  }
-
+  // Used only for tests
   public Stream<ClassEntity> classes() {
     return ClassHierarchies.flatView(classHierarchy);
   }
