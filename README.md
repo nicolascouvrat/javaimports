@@ -69,20 +69,27 @@ Javaimports comes with experimental support for
 speed up execution of `javaimports` (including the formatting if not using `--fix-only`), especially
 in projects with few dependencies. 
 
-This comes at the price of version support: `javaimports` built with `native-image` will _not_
-support language features of versions > 11, such as Java 14's new `switch` statement. This is
-because `javaimports` (like `google-java-format`) relies on the parser provider by the jdk, and the
-Graal JDK used for `native-image` is Java 11.
+This comes at the price of dynamic version support: `javaimports` built with `native-image` will
+only support language features of versions inferior or equal to the Graal JDK version used to build
+it. This is because `javaimports` (like `google-java-format`) relies on the parser provider by the
+jdk.
 
-To compile `javaimports` with `native-image`, make sure you are using the right java version
-(`graalvm64-11.0.10` for example), then run `mvn package -Pnative-image`. You will find the
-executable in `native-image/target/javaimports-native-image`. To run it, you need to pass it the
-path to your java home, like so:
+The current setup of `javaimports` will work well with Java 17 using `graalvm64-17.0.6`, that you
+can download [here](https://www.graalvm.org/downloads/).
 
+To compile `javaimports` with `native-image`, make sure you are using the right java version, then
+run `mvn package -Pnative-image`. You will find the executable in
+`native-image/target/javaimports-native-image`. To run it, you need to pass it the path to your java
+home, like so:
 
 ```
 ./javaimports-native-image -Djava.home=/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home [other flags] <file>"
 ```
+
+Enjoy the blazing-fast formatting! 🎉
+
+_Dev note_: You can validate that the native-image build is working correctly by running `mvn verify
+-Pnative-image` which will run the native-image specific integration test.
 
 **IMPORTANT:**
 
