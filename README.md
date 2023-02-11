@@ -71,7 +71,7 @@ in projects with few dependencies.
 
 This comes at the price of dynamic version support: `javaimports` built with `native-image` will
 only support language features of versions inferior or equal to the Graal JDK version used to build
-it. This is because `javaimports` (like `google-java-format`) relies on the parser provider by the
+it. This is because `javaimports` (like `google-java-format`) relies on the parser provided by the
 jdk.
 
 The current setup of `javaimports` will work well with Java 17 using `graalvm64-17.0.6`, that you
@@ -89,7 +89,7 @@ home, like so:
 Enjoy the blazing-fast formatting! 🎉
 
 _Dev note_: You can validate that the native-image build is working correctly by running `mvn verify
--Pnative-image` which will run the native-image specific integration test.
+-Pnative-image` which will run the native-image specific integration tests.
 
 **IMPORTANT:**
 
