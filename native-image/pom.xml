@@ -79,8 +79,15 @@
           <imageName>${project.artifactId}</imageName>
           <buildArgs>
             --no-fallback
-            <!-- TODO: understand why this is needed -->
-            --allow-incomplete-classpath
+            <!-- Required to avoid NoClassDefFoundErrors at runtime -->
+            --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+            --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+            --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
+            --add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED
+            --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+            --add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED
+            --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+            --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
             -H:+AddAllCharsets
           </buildArgs>
         </configuration>

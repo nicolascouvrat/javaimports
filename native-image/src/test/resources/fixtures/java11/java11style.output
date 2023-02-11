@@ -1,5 +1,6 @@
 package java11style;
 
+// Tests that native-image build can parse java 11 syntax
 class Test {
   static String value = "abc";
 
