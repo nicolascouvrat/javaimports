@@ -32,6 +32,8 @@ public class JarIdentifierLoaderTest {
             "aPublicMethod",
             "aPublicStaticField",
             "aPublicStaticMethod",
+            "APublicClass",
+            "AProtectedClass",
             // Its parent's
             "anotherProtectedField",
             "anotherProtectedMethod",
@@ -39,6 +41,8 @@ public class JarIdentifierLoaderTest {
             "anotherPublicMethod",
             "anotherPublicStaticField",
             "anotherPublicStaticMethod",
+            "AnotherPublicClass",
+            "AnotherProtectedClass",
             // The Object class' identifiers
             "clone",
             "equals",
