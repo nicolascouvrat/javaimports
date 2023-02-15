@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,19 +52,30 @@ public class JarIdentifierLoader implements IdentifierLoader {
     return identifiers;
   }
 
-  private static Set<Identifier> getUsableDeclaredIdentifiers(Class c) {
-    var fields = Arrays.stream(c.getDeclaredFields());
-    var methods = Arrays.stream(c.getDeclaredMethods());
+  private record IdentifierAndModifier(Identifier identifier, int modifiers) {
+    static IdentifierAndModifier fromMember(Member m) {
+      return new IdentifierAndModifier(new Identifier(m.getName()), m.getModifiers());
+    }
 
-    return Stream.concat(fields.map(Member.class::cast), methods.map(Member.class::cast))
+    static IdentifierAndModifier fromClass(Class c) {
+      return new IdentifierAndModifier(new Identifier(c.getSimpleName()), c.getModifiers());
+    }
+  }
+
+  private static Set<Identifier> getUsableDeclaredIdentifiers(Class c) {
+    var fields = Arrays.stream(c.getDeclaredFields()).map(IdentifierAndModifier::fromMember);
+    var methods = Arrays.stream(c.getDeclaredMethods()).map(IdentifierAndModifier::fromMember);
+    var classes = Arrays.stream(c.getDeclaredClasses()).map(IdentifierAndModifier::fromClass);
+
+    return Stream.of(fields, methods, classes)
+        .flatMap(Function.identity())
         .filter(JarIdentifierLoader::isUsableIdentifier)
-        .map(Member::getName)
-        .map(Identifier::new)
+        .map(IdentifierAndModifier::identifier)
         .collect(Collectors.toSet());
   }
 
-  private static boolean isUsableIdentifier(Member m) {
-    var modifiers = m.getModifiers();
+  private static boolean isUsableIdentifier(IdentifierAndModifier im) {
+    var modifiers = im.modifiers();
     return Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers);
   }
 
