@@ -20,6 +20,37 @@ public class JarIdentifierLoaderTest {
   }
 
   @Test
+  void itShouldLoadSubclass() {
+    var jar =
+        repository.resolve("com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar");
+    var expected =
+        someIdentifiers(
+            // The class' own identifiers
+            "aSubclassProtectedField",
+            "aSubclassProtectedMethod",
+            "aSubclassPublicField",
+            "aSubclassPublicMethod",
+            "aSubclassPublicStaticField",
+            "aSubclassPublicStaticMethod",
+            // The Object class' identifiers
+            "clone",
+            "equals",
+            "finalize",
+            "hashCode",
+            "notify",
+            "notifyAll",
+            "toString",
+            "wait",
+            "getClass");
+
+    var got =
+        new JarIdentifierLoader(jar)
+            .loadIdentifiers(anImport("com.mycompany.app.another.Parent$AnotherPublicClass"));
+
+    assertThat(got).containsExactlyElementsIn(expected);
+  }
+
+  @Test
   void itShouldLoadPublicAndProtectedIdentifiersOfAClassAndItsParents() {
     var jar =
         repository.resolve("com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar");
