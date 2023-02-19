@@ -66,7 +66,8 @@ public class ImporterIntegrationTest {
             .stdlib(
                 FakeStdlibProvider.of(
                     new Import("anotherPublicField", "java.fakeutil", true),
-                    new Import("AnotherPublicClass", "java.fakeutil", false),
+                    new Import("aSubclassPublicStaticField", "java.fakeutil", true),
+                    new Import("AnotherProtectedClass", "java.fakeutil", false),
                     new Import("ALocalPublicClass", "java.fakeutil", false),
                     new Import("App", "java.fakeutil", false),
                     new Import("ArrayList", "java.util", false),

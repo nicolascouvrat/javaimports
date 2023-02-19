@@ -45,7 +45,7 @@ public class JarIdentifierLoaderTest {
 
     var got =
         new JarIdentifierLoader(jar)
-            .loadIdentifiers(anImport("com.mycompany.app.another.Parent$AnotherPublicClass"));
+            .loadIdentifiers(anImport("com.mycompany.app.another.Parent.AnotherPublicClass"));
 
     assertThat(got).containsExactlyElementsIn(expected);
   }
