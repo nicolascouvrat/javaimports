@@ -1,0 +1,7 @@
+package extendClassWithSubclass.internal;
+
+import com.mycompany.app.another.Parent;
+
+class LocalParent extends Parent {
+  static class ALocalPublicClass {}
+}

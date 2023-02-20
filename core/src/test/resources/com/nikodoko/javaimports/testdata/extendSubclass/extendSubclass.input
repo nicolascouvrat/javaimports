@@ -1,0 +1,7 @@
+package extendSubclass;
+
+// Test that extending Subclass produces the correct import line,
+// and provides the expected identifiers
+class Test extends AnotherPublicClass {
+  int aField = aSubclassPublicStaticField;
+}

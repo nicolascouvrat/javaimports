@@ -65,10 +65,13 @@ public class ImporterIntegrationTest {
             .repository(Paths.get(repositoryURL.toURI()))
             .stdlib(
                 FakeStdlibProvider.of(
-                    new Import("List", "java.util", false),
                     new Import("anotherPublicField", "java.fakeutil", true),
+                    new Import("aSubclassPublicStaticField", "java.fakeutil", true),
+                    new Import("AnotherProtectedClass", "java.fakeutil", false),
+                    new Import("ALocalPublicClass", "java.fakeutil", false),
+                    new Import("App", "java.fakeutil", false),
                     new Import("ArrayList", "java.util", false),
-                    new Import("App", "java.fakeutil", false)))
+                    new Import("List", "java.util", false)))
             // speed up tests a bit
             .numThreads(Runtime.getRuntime().availableProcessors())
             .build();

@@ -156,6 +156,17 @@ imported, the other things you need to import, etc.
 When there is no such information, the only way is to manually write the import line (`javaimports`
 will *never* overwrite import lines). Fortunately, this should not happen too often.
 
+### Opinionated
+
+When there is no other way, `javaimports` will assume that the code it is being ran on follows some
+widespread good practices, such as:
+
+* Classes start with a capital letter, while package names do not contain capital letters
+* Not relying on transitive dependencies to use non-explicitly-declared dependencies
+
+Breaking the assumption won't stop `javaimports` from doing its best, but it _will_ break some
+features. You have been warned!
+
 ### Only adding import lines
 
 `javaimports` only does one thing, and that is adding missing import lines. It does not format

@@ -1,0 +1,8 @@
+package extendClassWithSubclass;import extendClassWithSubclass.internal.LocalParent;
+
+// Assert that we correctly resolve child class as provided by the parent
+// Both for classes in the project and external dependencies.
+class Test extends LocalParent {
+  AnotherProtectedClass a;
+  ALocalPublicClass b;
+}
