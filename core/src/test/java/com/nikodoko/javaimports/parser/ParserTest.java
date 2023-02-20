@@ -1,15 +1,16 @@
 package com.nikodoko.javaimports.parser;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.nikodoko.javaimports.common.CommonTestUtil.aSelector;
+import static com.nikodoko.javaimports.common.CommonTestUtil.someIdentifiers;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
-import com.nikodoko.javaimports.parser.internal.ClassEntity;
-import com.nikodoko.javaimports.parser.internal.ClassSelectors;
+import com.nikodoko.javaimports.common.ClassEntity;
+import com.nikodoko.javaimports.common.Superclass;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class ParserTest {
         "}",
       },
       {"b"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("g", "f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("g", "f")).build()},
     },
     {
       {"forLoop"},
@@ -57,7 +58,7 @@ public class ParserTest {
         "}",
       },
       {"staticFunction", "i", "b", "e", "d"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"ifBlock"},
@@ -76,7 +77,7 @@ public class ParserTest {
         "}",
       },
       {"a", "b", "c"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"whileLoop"},
@@ -92,7 +93,7 @@ public class ParserTest {
         "}",
       },
       {"a"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"synchronizedBlock"},
@@ -109,7 +110,7 @@ public class ParserTest {
       },
       // The parser does not know about "this" and sees it as an unresolved symbol
       {"this", "a"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"doWhileLoop"},
@@ -125,7 +126,7 @@ public class ParserTest {
         "}",
       },
       {"a"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"annotation"},
@@ -139,7 +140,7 @@ public class ParserTest {
         "}",
       },
       {"SomeAnnotation"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"lambda"},
@@ -154,7 +155,7 @@ public class ParserTest {
         "}",
       },
       {"b", "Integer", "BiFunction"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"switchBlock"},
@@ -176,7 +177,7 @@ public class ParserTest {
         "}",
       },
       {"c"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"java14Switch"},
@@ -200,7 +201,7 @@ public class ParserTest {
         "}",
       },
       {"c"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       // Because "The scope of an enum constant C declared in an enum type T is the body of T, and
@@ -221,7 +222,7 @@ public class ParserTest {
         "}",
       },
       {"a"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"java14SwitchIgnoreCaseLabels"},
@@ -240,7 +241,7 @@ public class ParserTest {
         "}",
       },
       {"a"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"tryCatchFinally"},
@@ -262,7 +263,7 @@ public class ParserTest {
         "}",
       },
       {"SomeException", "Exception", "a", "b", "c", "e"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"tryWithResource"},
@@ -284,7 +285,7 @@ public class ParserTest {
         "}",
       },
       {"SomeException", "Exception", "a", "b", "c", "e", "r"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"localInheritence"},
@@ -318,12 +319,20 @@ public class ParserTest {
       },
       {"b", "n"},
       {
-        ClassEntity.named("Test").members(ImmutableSet.of("OtherChild", "Child", "Parent")),
-        ClassEntity.namedAndExtending("OtherChild", ClassSelectors.of("Child"))
-            .members(ImmutableSet.of("m")),
-        ClassEntity.namedAndExtending("Child", ClassSelectors.of("Parent"))
-            .members(ImmutableSet.of("f")),
-        ClassEntity.named("Parent").members(ImmutableSet.of("a", "p", "g", "h"))
+        ClassEntity.named(aSelector("Test"))
+            .declaring(someIdentifiers("OtherChild", "Child", "Parent"))
+            .build(),
+        ClassEntity.named(aSelector("OtherChild"))
+            .extending(Superclass.unresolved(aSelector("Child")))
+            .declaring(someIdentifiers("m"))
+            .build(),
+        ClassEntity.named(aSelector("Child"))
+            .extending(Superclass.unresolved(aSelector("Parent")))
+            .declaring(someIdentifiers("f"))
+            .build(),
+        ClassEntity.named(aSelector("Parent"))
+            .declaring(someIdentifiers("a", "p", "g", "h"))
+            .build()
       },
     },
     {
@@ -339,7 +348,7 @@ public class ParserTest {
         "}",
       },
       {"Annotation", "Function"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"annotationParametersExpressionImported"},
@@ -354,7 +363,7 @@ public class ParserTest {
         "}",
       },
       {"Annotation", "Function", "b", "d"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"annotationParametersIdentifierImported"},
@@ -369,7 +378,7 @@ public class ParserTest {
         "}",
       },
       {"Annotation", "Function", "b"},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
       {"typeParameters"},
@@ -383,7 +392,7 @@ public class ParserTest {
         "}",
       },
       {},
-      {ClassEntity.named("Test").members(ImmutableSet.of("f", "R"))},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f", "R")).build()},
     },
     {
       {"realisticFile"},
@@ -1060,9 +1069,10 @@ public class ParserTest {
         "SafeVarargs",
       },
       {
-        ClassEntity.namedAndExtending("ImmutableSet", ClassSelectors.of("ImmutableCollection"))
-            .members(
-                ImmutableSet.of(
+        ClassEntity.named(aSelector("ImmutableSet"))
+            .extending(Superclass.unresolved(aSelector("ImmutableCollection")))
+            .declaring(
+                someIdentifiers(
                     "Builder",
                     "E",
                     "Indexed",
@@ -1095,23 +1105,27 @@ public class ParserTest {
                     "HASH_FLOODING_FPP",
                     "MAX_RUN_MULTIPLIER",
                     "hashFloodingDetected",
-                    "maxRunBeforeFallback")),
-        ClassEntity.namedAndExtending("Indexed", ClassSelectors.of("ImmutableSet"))
-            .members(
-                ImmutableSet.of(
+                    "maxRunBeforeFallback"))
+            .build(),
+        ClassEntity.named(aSelector("Indexed"))
+            .extending(Superclass.unresolved(aSelector("ImmutableSet")))
+            .declaring(
+                someIdentifiers(
                     "E",
                     "get",
                     "iterator",
                     "spliterator",
                     "forEach",
                     "copyIntoArray",
-                    "createAsList")),
-        ClassEntity.named("SerializedForm")
-            .members(ImmutableSet.of("<init>", "elements", "readResolve", "serialVersionUID")),
-        ClassEntity.namedAndExtending(
-                "Builder", ClassSelectors.of("ImmutableCollection", "Builder"))
-            .members(
-                ImmutableSet.of(
+                    "createAsList"))
+            .build(),
+        ClassEntity.named(aSelector("SerializedForm"))
+            .declaring(someIdentifiers("<init>", "elements", "readResolve", "serialVersionUID"))
+            .build(),
+        ClassEntity.named(aSelector("Builder"))
+            .extending(Superclass.unresolved(aSelector("ImmutableCollection.Builder")))
+            .declaring(
+                someIdentifiers(
                     "<init>",
                     "E",
                     "impl",
@@ -1122,10 +1136,11 @@ public class ParserTest {
                     "add",
                     "addAll",
                     "combine",
-                    "build")),
-        ClassEntity.named("SetBuilderImpl")
-            .members(
-                ImmutableSet.of(
+                    "build"))
+            .build(),
+        ClassEntity.named(aSelector("SetBuilderImpl"))
+            .declaring(
+                someIdentifiers(
                     "<init>",
                     "E",
                     "dedupedElements",
@@ -1136,10 +1151,12 @@ public class ParserTest {
                     "combine",
                     "copy",
                     "review",
-                    "build")),
-        ClassEntity.namedAndExtending("RegularSetBuilderImpl", ClassSelectors.of("SetBuilderImpl"))
-            .members(
-                ImmutableSet.of(
+                    "build"))
+            .build(),
+        ClassEntity.named(aSelector("RegularSetBuilderImpl"))
+            .extending(Superclass.unresolved(aSelector("SetBuilderImpl")))
+            .declaring(
+                someIdentifiers(
                     "<init>",
                     "E",
                     "hashTable",
@@ -1150,10 +1167,12 @@ public class ParserTest {
                     "add",
                     "copy",
                     "review",
-                    "build")),
-        ClassEntity.namedAndExtending(
-                "JdkBackedSetBuilderImpl", ClassSelectors.of("SetBuilderImpl"))
-            .members(ImmutableSet.of("<init>", "E", "delegate", "add", "copy", "build"))
+                    "build"))
+            .build(),
+        ClassEntity.named(aSelector("JdkBackedSetBuilderImpl"))
+            .extending(Superclass.unresolved(aSelector("SetBuilderImpl")))
+            .declaring(someIdentifiers("<init>", "E", "delegate", "add", "copy", "build"))
+            .build()
       },
     },
   };

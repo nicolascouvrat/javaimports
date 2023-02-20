@@ -2,11 +2,11 @@ package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.ImportProvider;
 import com.nikodoko.javaimports.common.Selector;
-import com.nikodoko.javaimports.parser.internal.ClassEntity;
 import com.nikodoko.javaimports.parser.internal.Scope;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -35,7 +35,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
   // The position of the end of the package clause
   int packageEndPos;
   List<Range<Integer>> duplicates;
-  Map<com.nikodoko.javaimports.common.Import, com.nikodoko.javaimports.common.ClassEntity> classes;
+  Map<com.nikodoko.javaimports.common.Import, ClassEntity> classes;
 
   /**
    * A {@code ParsedFile} constructor.
@@ -145,8 +145,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
   }
 
   @Override
-  public Optional<com.nikodoko.javaimports.common.ClassEntity> findClass(
-      com.nikodoko.javaimports.common.Import i) {
+  public Optional<ClassEntity> findClass(com.nikodoko.javaimports.common.Import i) {
     // System.out.println(String.format("Looking for %s in %s", i, byImport));
     return Optional.ofNullable(classes.get(i));
   }
@@ -165,7 +164,8 @@ public class ParsedFile implements ImportProvider, ClassProvider {
 
   // Used only for tests
   public Stream<ClassEntity> classes() {
-    return ClassHierarchies.flatView(classHierarchy);
+    return ClassHierarchies.flatView(classHierarchy)
+        .map(com.nikodoko.javaimports.parser.internal.ClassEntity::toNew);
   }
 
   // TODO: maybe have a SiblingFile with the below findImports, and make this the default
