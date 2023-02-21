@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 public class ClassTreeTest {
   // by nikodoko.com
-  static final ClassEntity ROOT = ClassEntity.named(Selector.of("Root")).build();
   static final ClassEntity A = ClassEntity.named(Selector.of("A")).build();
   static final ClassEntity B = ClassEntity.named(Selector.of("B")).build();
   static final ClassEntity C = ClassEntity.named(Selector.of("C")).build();
@@ -30,11 +29,11 @@ public class ClassTreeTest {
   //   |
   //   - functionRoot (i.e. a function declaring local classes)
   //     |
-  //     - C1
-  //     - C2
+  //     - D1
+  //     - D2
   @BeforeAll
   static void setupTree() {
-    var tree = ClassTree.root(ROOT);
+    var tree = ClassTree.root();
     root = tree;
     tree = tree.pushAndMoveDown(A);
     tree = tree.pushAndMoveDown(B);
@@ -53,7 +52,6 @@ public class ClassTreeTest {
     assertThat(root.find(Selector.of("A"))).hasValue(A);
     assertThat(root.find(Selector.of("A", "B"))).hasValue(B);
     assertThat(root.find(Selector.of("C"))).hasValue(C);
-    assertThat(root.find(Selector.of("Root"))).hasValue(ROOT);
   }
 
   @Test
@@ -79,9 +77,11 @@ public class ClassTreeTest {
     com.google.common.truth.Truth.assertThat(got)
         .isEqualTo(
             Map.of(
-                Selector.of("Root"), ROOT,
-                Selector.of("Root", "A"), A,
-                Selector.of("Root", "A", "B"), B,
-                Selector.of("Root", "C"), C));
+                Selector.of("A"), A,
+                Selector.of("A", "B"), B,
+                Selector.of("C"), C));
+
+    got = functionRoot.flatView();
+    com.google.common.truth.Truth.assertThat(got).isEmpty();
   }
 }

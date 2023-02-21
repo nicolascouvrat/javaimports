@@ -84,6 +84,8 @@ public class ImporterIntegrationTest {
         System.out.println(d);
       }
       fail();
+    } catch (Exception e) {
+      fail("Got exception for " + pkg.name + ": " + e);
     }
   }
 

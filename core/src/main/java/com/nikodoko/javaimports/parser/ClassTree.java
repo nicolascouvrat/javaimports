@@ -25,6 +25,9 @@ public class ClassTree {
   // invisible from the outside)
   private static final ClassEntity NOT_A_CLASS =
       ClassEntity.named(Selector.of("NOT_A_CLASS")).build();
+  // Used to represent the java file itself, as it is possible to declare multiple classes in the
+  // same file
+  private static final ClassEntity ROOT = ClassEntity.named(Selector.of("ROOT")).build();
 
   private ClassEntity entity;
   private final ClassTree parent;
@@ -38,8 +41,8 @@ public class ClassTree {
     this.childs = new LinkedList<>();
   }
 
-  static ClassTree root(ClassEntity entity) {
-    return new ClassTree(null, entity);
+  public static ClassTree root() {
+    return new ClassTree(null, ROOT);
   }
 
   static ClassTree notAClass(ClassTree parent) {
@@ -102,10 +105,24 @@ public class ClassTree {
    * {@code pkg}, {@code pkg.combine(selector)} gives the import path to {@code entity}.
    */
   public Map<Selector, ClassEntity> flatView() {
-    return flatten(Optional.empty());
+    if (entity != ROOT) {
+      return flatten(Optional.empty());
+    }
+
+    // If we're at the root, only look at children
+    var flattenedView = new HashMap<Selector, ClassEntity>();
+    for (var child : childs) {
+      flattenedView.putAll(child.flatten(Optional.empty()));
+    }
+
+    return flattenedView;
   }
 
   private Map<Selector, ClassEntity> flatten(Optional<Selector> maybeScope) {
+    if (entity == ROOT) {
+      throw new IllegalStateException("Found ROOT not at the top of the tree");
+    }
+
     if (entity == NOT_A_CLASS) {
       return Map.of();
     }

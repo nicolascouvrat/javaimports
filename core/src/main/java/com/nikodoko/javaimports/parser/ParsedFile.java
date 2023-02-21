@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,7 +30,6 @@ public class ParsedFile implements ImportProvider, ClassProvider {
   Map<String, Import> imports;
   // The package scope, limited to this file only
   Scope topScope = new Scope();
-  ClassHierarchy classHierarchy = ClassHierarchies.root();
   // The position of the end of the package clause
   int packageEndPos;
   List<Range<Integer>> duplicates;
@@ -129,18 +127,21 @@ public class ParsedFile implements ImportProvider, ClassProvider {
     return this;
   }
 
-  public ParsedFile classHierarchy(ClassHierarchy classHierarchy) {
-    this.classHierarchy = classHierarchy;
+  public ParsedFile classTree(ClassTree tree) {
+    if (tree == null) {
+      // Possible in some cases like package-info.java
+      this.classes = Map.of();
+      return this;
+    }
+
     this.classes =
-        ClassHierarchies.entities(classHierarchy).stream()
+        tree.flatView().entrySet().stream()
             .collect(
                 Collectors.toMap(
-                    // Classes are never imported as static
-                    c -> new com.nikodoko.javaimports.common.Import(pkg().combine(c.name), false),
-                    Function.identity(),
-                    // We should not get 2 classes with the exact same import coming from one file.
-                    // Should probably spit out a log if we do
-                    (a, b) -> a));
+                    e ->
+                        new com.nikodoko.javaimports.common.Import(
+                            pkg().combine(e.getKey()), false),
+                    e -> e.getValue()));
     return this;
   }
 
@@ -164,8 +165,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
 
   // Used only for tests
   public Stream<ClassEntity> classes() {
-    return ClassHierarchies.flatView(classHierarchy)
-        .map(com.nikodoko.javaimports.parser.internal.ClassEntity::toNew);
+    return classes.values().stream();
   }
 
   // TODO: maybe have a SiblingFile with the below findImports, and make this the default
@@ -193,7 +193,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
         .add("topScope", topScope)
         .add("packageEndPos", packageEndPos)
         .add("duplicates", duplicates)
-        .add("classHierarchy", classHierarchy)
+        .add("classes", classes)
         .toString();
   }
 }

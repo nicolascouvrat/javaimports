@@ -83,12 +83,16 @@ public class Parser {
 
     // Scan the AST
     UnresolvedIdentifierScanner scanner = new UnresolvedIdentifierScanner();
-    scanner.scan(unit, null);
+    try {
+      scanner.scan(unit, null);
+    } catch (Exception e) {
+      throw new RuntimeException("Could not parse file at " + filename, e);
+    }
 
     // Wrap the results in a ParsedFile
     ParsedFile f = ParsedFile.fromCompilationUnit(unit);
     f.topScope(scanner.topScope());
-    f.classHierarchy(scanner.topClass());
+    f.classTree(scanner.classTree());
     if (options.debug()) {
       log.info(String.format("completed parsing in %d ms: %s", clock.millis() - start, f));
     }

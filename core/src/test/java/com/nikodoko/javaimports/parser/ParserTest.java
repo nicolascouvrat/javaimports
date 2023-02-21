@@ -22,6 +22,35 @@ import org.junit.jupiter.params.provider.MethodSource;
 public class ParserTest {
   static Object[][][] CASES = {
     {
+      {"multipleTopLevelClassesInSameFile"},
+      {
+        "package com.pkg.test;",
+        "class ATest {",
+        "  public void g() {",
+        "    int c = f(b);",
+        "  }",
+        "  public int f(int a) {",
+        "    int b = 2;",
+        "    return a + b;",
+        "  }",
+        "}",
+        "class AnotherTest {",
+        "  public void g() {",
+        "    int c = f(d);",
+        "  }",
+        "  public int f(int a) {",
+        "    int b = 2;",
+        "    return a + b;",
+        "  }",
+        "}",
+      },
+      {"b", "d"},
+      {
+        ClassEntity.named(aSelector("ATest")).declaring(someIdentifiers("g", "f")).build(),
+        ClassEntity.named(aSelector("AnotherTest")).declaring(someIdentifiers("g", "f")).build()
+      },
+    },
+    {
       {"methodBodyAndArguments"},
       {
         "package com.pkg.test;",
@@ -1217,9 +1246,7 @@ public class ParserTest {
 
     assertThat(allUnresolvedIn(got)).containsExactlyElementsIn(expected);
     if (expectedClasses.length > 0) {
-      com.google.common.truth.Truth8.assertThat(got.classes())
-          .containsExactly(expectedClasses)
-          .inOrder();
+      com.google.common.truth.Truth8.assertThat(got.classes()).containsExactly(expectedClasses);
     }
   }
 }
