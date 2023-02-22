@@ -1,11 +1,8 @@
 package com.nikodoko.javaimports.stdlib;
 
+import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.ImportProvider;
-import com.nikodoko.javaimports.parser.Import;
-import java.util.Map;
 
-public interface StdlibProvider extends ImportProvider {
-  public Map<String, Import> find(Iterable<String> identifiers);
-
+public interface StdlibProvider extends ImportProvider, ClassProvider {
   public boolean isInJavaLang(String identifier);
 }

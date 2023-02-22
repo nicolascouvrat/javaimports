@@ -1,20 +1,18 @@
 package com.nikodoko.javaimports.stdlib;
 
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
-import com.nikodoko.javaimports.parser.Import;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.stdlib.internal.api.v8.Java8Stdlib;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public class StdlibProviders {
   private static class EmptyStdlibProvider implements StdlibProvider {
-    Map<String, Import> EMPTY_MAP = new HashMap<>();
-
     @Override
-    public Map<String, Import> find(Iterable<String> identifiers) {
-      return EMPTY_MAP;
+    public Optional<ClassEntity> findClass(Import i) {
+      return Optional.empty();
     }
 
     @Override
@@ -23,7 +21,7 @@ public class StdlibProviders {
     }
 
     @Override
-    public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
+    public Collection<Import> findImports(Identifier i) {
       return List.of();
     }
   }

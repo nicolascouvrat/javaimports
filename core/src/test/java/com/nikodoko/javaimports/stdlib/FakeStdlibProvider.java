@@ -1,19 +1,21 @@
 package com.nikodoko.javaimports.stdlib;
 
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
-import com.nikodoko.javaimports.parser.Import;
+import com.nikodoko.javaimports.common.Import;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class FakeStdlibProvider implements StdlibProvider {
   Map<String, Import> imports = new HashMap<>();
 
-  public static FakeStdlibProvider of(Import... imports) {
+  public static FakeStdlibProvider of(com.nikodoko.javaimports.parser.Import... imports) {
     Map<String, Import> byIdentifier = new HashMap<>();
-    for (Import i : imports) {
-      byIdentifier.put(i.name(), i);
+    for (var i : imports) {
+      byIdentifier.put(i.name(), i.toNew());
     }
 
     return new FakeStdlibProvider(byIdentifier);
@@ -24,25 +26,18 @@ public class FakeStdlibProvider implements StdlibProvider {
   }
 
   @Override
-  public Map<String, Import> find(Iterable<String> identifiers) {
-    Map<String, Import> found = new HashMap<>();
-    for (String id : identifiers) {
-      if (imports.containsKey(id)) {
-        found.put(id, imports.get(id));
-      }
-    }
-
-    return found;
+  public Optional<ClassEntity> findClass(Import i) {
+    return Optional.empty();
   }
 
   @Override
-  public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
+  public Collection<Import> findImports(Identifier i) {
     var found = imports.get(i.toString());
     if (found == null) {
       return List.of();
     }
 
-    return List.of(found.toNew());
+    return List.of(found);
   }
 
   @Override
