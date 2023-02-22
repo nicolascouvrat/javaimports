@@ -1,11 +1,9 @@
 package com.nikodoko.javaimports.fixer.internal;
 
-import com.google.common.collect.ImmutableSet;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
-import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
@@ -32,7 +30,7 @@ public class Loader {
   private Loader(ParsedFile file, Options options) {
     this.file = file;
     this.result.unresolved = file.notYetResolved();
-    this.result.orphans = file.notFullyExtendedClasses();
+    this.result.orphans = file.orphans();
     this.options = options;
   }
 
@@ -84,16 +82,6 @@ public class Loader {
     result.unresolved = difference(result.unresolved, inJavaLang);
   }
 
-  private Set<String> allStillUnresolved() {
-    ImmutableSet.Builder builder = ImmutableSet.builder().addAll(result.unresolved);
-    for (ClassExtender orphan : result.orphans) {
-      builder.addAll(orphan.notYetResolved());
-    }
-
-    Set<String> all = builder.build();
-    return all;
-  }
-
   // FIXME: this does not do anything about the situation where we import a class that we extend
   // in the file. The problem is that we would need informations on the methods provided by said
   // class so that we can decide which identifiers are still unresoled.
@@ -101,11 +89,10 @@ public class Loader {
   // likely need environment information for this...
   private void resolveUsingImports() {
     result.unresolved = difference(result.unresolved, file.imports().keySet());
-
-    for (ClassExtender e : result.orphans) {
-      e.resolveUsing(
-          file.imports().keySet().stream().map(Identifier::toString).collect(Collectors.toSet()));
-    }
+    result.orphans =
+        result.orphans.stream()
+            .map(o -> o.addDeclarations(file.imports().keySet()))
+            .collect(Collectors.toSet());
   }
 
   private void resolveUsingSiblings() {
@@ -116,13 +103,10 @@ public class Loader {
 
   private void resolveUsingSibling(ParsedFile sibling) {
     result.unresolved = difference(result.unresolved, sibling.topLevelDeclarations());
-
-    for (ClassExtender e : result.orphans) {
-      e.resolveUsing(
-          sibling.topLevelDeclarations().stream()
-              .map(Identifier::toString)
-              .collect(Collectors.toSet()));
-    }
+    result.orphans =
+        result.orphans.stream()
+            .map(o -> o.addDeclarations(sibling.topLevelDeclarations()))
+            .collect(Collectors.toSet());
   }
 
   private <T> Set<T> difference(Set<T> original, Set<T> toRemove) {

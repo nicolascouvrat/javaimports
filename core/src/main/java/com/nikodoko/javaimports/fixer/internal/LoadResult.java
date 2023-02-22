@@ -3,18 +3,16 @@ package com.nikodoko.javaimports.fixer.internal;
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.OrphanClass;
-import com.nikodoko.javaimports.parser.ClassExtender;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Contains the result of {@link Loader#load}. */
 public class LoadResult {
   public Set<Identifier> unresolved;
-  public Set<ClassExtender> orphans;
+  public Set<OrphanClass> orphans;
 
   /** TODO: Remove me and make me default */
   public Set<OrphanClass> orphans() {
-    return orphans.stream().map(ClassExtender::toOrphanClass).collect(Collectors.toSet());
+    return orphans;
   }
 
   /** TODO: Remove me and make me default */

@@ -31,7 +31,7 @@ public class OrphanClass {
 
   public OrphanClass addDeclarations(Set<Identifier> declarations) {
     var stillUnresolved =
-        unresolved.stream().filter(declarations::contains).collect(Collectors.toSet());
+        unresolved.stream().filter(u -> !declarations.contains(u)).collect(Collectors.toSet());
     return new OrphanClass(name, stillUnresolved, maybeParent);
   }
 

@@ -6,6 +6,7 @@ import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.ImportProvider;
+import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.parser.internal.Scope;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
@@ -155,8 +156,10 @@ public class ParsedFile implements ImportProvider, ClassProvider {
     return topScope.notYetResolved.stream().map(Identifier::new).collect(Collectors.toSet());
   }
 
-  public Set<ClassExtender> notFullyExtendedClasses() {
-    return topScope.notFullyExtended;
+  public Set<OrphanClass> orphans() {
+    return topScope.notFullyExtended.stream()
+        .map(ClassExtender::toOrphanClass)
+        .collect(Collectors.toSet());
   }
 
   public Set<Identifier> topLevelDeclarations() {

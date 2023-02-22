@@ -15,7 +15,6 @@ import com.nikodoko.javaimports.common.Superclass;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -1228,9 +1227,8 @@ public class ParserTest {
 
   private static Set<Identifier> allUnresolvedIn(ParsedFile file) {
     Set<Identifier> unresolved = file.notYetResolved();
-    for (ClassExtender e : file.notFullyExtendedClasses()) {
-      unresolved.addAll(
-          e.notYetResolved().stream().map(Identifier::new).collect(Collectors.toSet()));
+    for (var o : file.orphans()) {
+      unresolved.addAll(o.unresolved);
     }
 
     return unresolved;
