@@ -11,7 +11,6 @@ import com.nikodoko.javaimports.fixer.candidates.Candidate;
 import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
 import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
 import com.nikodoko.javaimports.fixer.candidates.Candidates;
-import com.nikodoko.javaimports.fixer.internal.LoadResult;
 import com.nikodoko.javaimports.fixer.internal.Loader;
 import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
@@ -159,13 +158,6 @@ public class Fixer {
     }
 
     return Result.incomplete(fixes);
-  }
-
-  private Set<String> allUnresolved(LoadResult loaded) {
-    var allUnresolved = new HashSet<String>();
-    allUnresolved.addAll(loaded.unresolved);
-    loaded.orphans.stream().forEach(o -> allUnresolved.addAll(o.notYetResolved()));
-    return allUnresolved;
   }
 
   private Set<Import> findFixes(Set<Identifier> unresolved, Collection<Import> current) {

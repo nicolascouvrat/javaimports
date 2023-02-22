@@ -10,10 +10,12 @@ import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Superclass;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -1211,7 +1213,12 @@ public class ParserTest {
     for (Object[][] inputOutput : CASES) {
       String name = (String) inputOutput[0][0];
       String input = String.join("\n", Arrays.stream(inputOutput[1]).toArray(String[]::new)) + "\n";
-      Set<String> expected = Sets.newHashSet(Arrays.stream(inputOutput[2]).toArray(String[]::new));
+      Set<Identifier> expected =
+          Sets.newHashSet(
+              Arrays.stream(inputOutput[2])
+                  .map(String.class::cast)
+                  .map(Identifier::new)
+                  .toArray(Identifier[]::new));
       ClassEntity[] expectedClasses = Arrays.stream(inputOutput[3]).toArray(ClassEntity[]::new);
       builder.add(Arguments.of(name, input, expected, expectedClasses));
     }
@@ -1219,10 +1226,11 @@ public class ParserTest {
     return builder.build().stream();
   }
 
-  private static Set<String> allUnresolvedIn(ParsedFile file) {
-    Set<String> unresolved = file.notYetResolved();
+  private static Set<Identifier> allUnresolvedIn(ParsedFile file) {
+    Set<Identifier> unresolved = file.notYetResolved();
     for (ClassExtender e : file.notFullyExtendedClasses()) {
-      unresolved.addAll(e.notYetResolved());
+      unresolved.addAll(
+          e.notYetResolved().stream().map(Identifier::new).collect(Collectors.toSet()));
     }
 
     return unresolved;
@@ -1231,7 +1239,7 @@ public class ParserTest {
   @ParameterizedTest(name = "{0}")
   @MethodSource("dataProvider")
   public void testParseFindsUnresolved(
-      String name, String input, Set<String> expected, ClassEntity[] expectedClasses)
+      String name, String input, Set<Identifier> expected, ClassEntity[] expectedClasses)
       throws Exception {
     Parser parser = new Parser(Options.defaults());
     ParsedFile got = null;

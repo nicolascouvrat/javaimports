@@ -27,7 +27,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
   // The name of the package to which this file belongs
   String packageName;
   // The imports in this file
-  Map<String, Import> imports;
+  Map<Identifier, Import> imports;
   // The package scope, limited to this file only
   Scope topScope = new Scope();
   // The position of the end of the package clause
@@ -48,7 +48,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
       String packageName,
       int packageEndPos,
       List<Range<Integer>> duplicates,
-      Map<String, Import> imports) {
+      Map<Identifier, Import> imports) {
     this.packageName = packageName;
     this.packageEndPos = packageEndPos;
     this.duplicates = duplicates;
@@ -75,15 +75,15 @@ public class ParsedFile implements ImportProvider, ClassProvider {
     String packageName = unit.getPackageName().toString();
 
     int packageEndPos = findEndOfPackageClause(unit);
-    Map<String, Import> imports = new HashMap<>();
+    Map<Identifier, Import> imports = new HashMap<>();
     List<Range<Integer>> duplicates = new ArrayList<>();
     // unit.getImports() potentially contains the same import multiple times, in which case we want
     // to
     // consider only one of them (and mark the others as duplicates)
     for (JCImport existingImport : unit.getImports()) {
       Import i = Import.fromJcImport(existingImport);
-      if (!imports.containsKey(i.name())) {
-        imports.put(i.name(), i);
+      if (!imports.containsKey(new Identifier(i.name()))) {
+        imports.put(new Identifier(i.name()), i);
         continue;
       }
 
@@ -113,7 +113,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
   }
 
   /** An identifier:import map of imports in this {@code ParsedFile} */
-  public Map<String, Import> imports() {
+  public Map<Identifier, Import> imports() {
     return imports;
   }
 
@@ -151,16 +151,16 @@ public class ParsedFile implements ImportProvider, ClassProvider {
     return Optional.ofNullable(classes.get(i));
   }
 
-  public Set<String> notYetResolved() {
-    return topScope.notYetResolved;
+  public Set<Identifier> notYetResolved() {
+    return topScope.notYetResolved.stream().map(Identifier::new).collect(Collectors.toSet());
   }
 
   public Set<ClassExtender> notFullyExtendedClasses() {
     return topScope.notFullyExtended;
   }
 
-  public Set<String> topLevelDeclarations() {
-    return topScope.identifiers;
+  public Set<Identifier> topLevelDeclarations() {
+    return topScope.identifiers.stream().map(Identifier::new).collect(Collectors.toSet());
   }
 
   // Used only for tests
@@ -178,11 +178,11 @@ public class ParsedFile implements ImportProvider, ClassProvider {
 
   // TODO: remove
   public Collection<com.nikodoko.javaimports.common.Import> findImports(Identifier i) {
-    if (!imports.containsKey(i.toString())) {
+    if (!imports.containsKey(i)) {
       return List.of();
     }
 
-    return List.of(imports.get(i.toString()).toNew());
+    return List.of(imports.get(i).toNew());
   }
 
   /** Debugging support. */

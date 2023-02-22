@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 /** Contains the result of {@link Loader#load}. */
 public class LoadResult {
-  public Set<String> unresolved;
+  public Set<Identifier> unresolved;
   public Set<ClassExtender> orphans;
 
   /** TODO: Remove me and make me default */
@@ -19,7 +19,7 @@ public class LoadResult {
 
   /** TODO: Remove me and make me default */
   public Set<Identifier> unresolved() {
-    return unresolved.stream().map(Identifier::new).collect(Collectors.toSet());
+    return unresolved;
   }
 
   public boolean isEmpty() {
