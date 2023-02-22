@@ -172,7 +172,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // The function itself is declared in the parent scope, but its parameters will be declared in
     // the function's own scope
     String name = tree.getName().toString();
-    declare(name);
+    declare(new Identifier(name));
     return withScope(this::visitMethodTypeParametersFirst).apply(tree, v);
   }
 
@@ -186,14 +186,15 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   public Void visitTypeParameter(TypeParameterTree tree, Void v) {
     // A type parameter is like a variable, but for types, so declare it
     String name = tree.getName().toString();
-    declare(name);
+    declare(new Identifier(name));
     return super.visitTypeParameter(tree, v);
   }
 
   @Override
   public Void visitClass(com.sun.source.tree.ClassTree tree, Void v) {
-    var newClass = createClassEntity(tree);
-    declare(newClass.name.toString());
+    var className = new Identifier(tree.getSimpleName().toString());
+    var newClass = createClassEntity(className, tree);
+    declare(className);
     openClassScope(newClass);
 
     // Do not scan the extends clause again, as we handle it separately and do not want to get
@@ -207,8 +208,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return r;
   }
 
-  private ClassEntity createClassEntity(com.sun.source.tree.ClassTree tree) {
-    String name = tree.getSimpleName().toString();
+  private ClassEntity createClassEntity(Identifier name, com.sun.source.tree.ClassTree tree) {
     if (tree.getExtendsClause() == null) {
       return ClassEntity.named(Selector.of(name)).build();
     }
@@ -225,13 +225,9 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   private void closeClassScope(ClassEntity classEntity) {
     var orphan =
-        new OrphanClass(
-            classEntity.name,
-            topScope.notYetResolved.stream().map(Identifier::new).collect(Collectors.toSet()),
-            classEntity.maybeParent);
+        new OrphanClass(classEntity.name, topScope.notYetResolved, classEntity.maybeParent);
     topScope.orphans.add(orphan);
-    classTree.addDeclarations(
-        topScope.identifiers.stream().map(Identifier::new).collect(Collectors.toSet()));
+    classTree.addDeclarations(topScope.identifiers);
 
     closeScope();
   }
@@ -239,7 +235,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   @Override
   public Void visitVariable(VariableTree tree, Void v) {
     String name = tree.getName().toString();
-    declare(name);
+    declare(new Identifier(name));
     return super.visitVariable(tree, v);
   }
 
@@ -247,14 +243,15 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   public Void visitIdentifier(IdentifierTree tree, Void unused) {
     // Try to resolve the identifier, if it fails add it to unresolved for the current scope
     String name = tree.getName().toString();
-    if (!resolvable(name)) {
-      topScope.notYetResolved.add(name);
+    var identifier = new Identifier(name);
+    if (!resolvable(identifier)) {
+      topScope.notYetResolved.add(identifier);
     }
 
     return null;
   }
 
-  private boolean resolvable(String identifier) {
+  private boolean resolvable(Identifier identifier) {
     Scope current = topScope;
     while (current != null) {
       if (current.identifiers.contains(identifier)) {
@@ -267,8 +264,8 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return false;
   }
 
-  private void declare(String name) {
-    topScope.identifiers.add(name);
+  private void declare(Identifier identifier) {
+    topScope.identifiers.add(identifier);
   }
 
   /**
@@ -317,17 +314,14 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   private void resolveAndExtend(OrphanClass orphan) {
-    orphan =
-        orphan.addDeclarations(
-            topScope.identifiers.stream().map(Identifier::new).collect(Collectors.toSet()));
+    orphan = orphan.addDeclarations(topScope.identifiers);
     orphan = extendAsMuchAsPossible(orphan);
     if (orphan.hasParent()) {
       topScope.parent.orphans.add(orphan);
       return;
     }
 
-    bubbleUnresolvedIdentifiers(
-        orphan.unresolved.stream().map(Identifier::toString).collect(Collectors.toSet()));
+    bubbleUnresolvedIdentifiers(orphan.unresolved);
   }
 
   private OrphanClass extendAsMuchAsPossible(OrphanClass orphan) {
@@ -351,9 +345,9 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return current;
   }
 
-  private void bubbleUnresolvedIdentifiers(Set<String> unresolved) {
-    for (String s : unresolved) {
-      topScope.parent.notYetResolved.add(s);
+  private void bubbleUnresolvedIdentifiers(Set<Identifier> unresolved) {
+    for (var i : unresolved) {
+      topScope.parent.notYetResolved.add(i);
     }
   }
 

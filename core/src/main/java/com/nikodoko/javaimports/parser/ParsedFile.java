@@ -153,7 +153,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
   }
 
   public Set<Identifier> notYetResolved() {
-    return topScope.notYetResolved.stream().map(Identifier::new).collect(Collectors.toSet());
+    return topScope.notYetResolved;
   }
 
   public Set<OrphanClass> orphans() {
@@ -161,7 +161,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
   }
 
   public Set<Identifier> topLevelDeclarations() {
-    return topScope.identifiers.stream().map(Identifier::new).collect(Collectors.toSet());
+    return topScope.identifiers;
   }
 
   // Used only for tests
