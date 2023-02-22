@@ -1,0 +1,10 @@
+package enumExtendsEnum;
+
+// Test that enum are properly considered to be extending Enum
+enum TestEnum {
+  VALUE_1, VALUE_2;
+
+  public static TestEnum get(String s) {
+    return valueOf(s.toUpperCase());
+  }
+}

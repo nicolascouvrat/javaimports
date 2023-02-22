@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.fixer;
 
+import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
@@ -11,6 +12,7 @@ import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * A {@code ParentClassFinder} uses a {@link CandidateFinder} as well as a {@link ClassLibrary} to
@@ -50,17 +52,21 @@ class ParentClassFinder {
     }
   }
 
+  private static Logger log = Logger.getLogger(ParentClassFinder.class.getName());
   private final CandidateFinder candidateFinder;
   private final ClassLibrary library;
   private final CandidateSelectionStrategy selectionStrategy;
+  private final Options options;
 
   ParentClassFinder(
       CandidateFinder candidateFinder,
       ClassLibrary library,
-      CandidateSelectionStrategy selectionStrategy) {
+      CandidateSelectionStrategy selectionStrategy,
+      Options options) {
     this.candidateFinder = candidateFinder;
     this.library = library;
     this.selectionStrategy = selectionStrategy;
+    this.options = options;
   }
 
   Result findAllParents(Set<OrphanClass> orphans) {
@@ -110,7 +116,12 @@ class ParentClassFinder {
               .map(s -> new Import(s, false));
     }
 
-    return maybeParent.flatMap(library::find);
+    var got = maybeParent.flatMap(library::find);
+    if (options.debug()) {
+      log.info(String.format("Found parent for %s: %s", orphan, got));
+    }
+
+    return got;
   }
 
   // This returns the scope from which the parent is reachable. In other words,

@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.stdlib;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.environment.jarutil.JarIdentifierLoader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,13 @@ public class FakeStdlibProvider implements StdlibProvider {
 
   @Override
   public Optional<ClassEntity> findClass(Import i) {
-    return Optional.empty();
+    if (!imports.values().contains(i)) {
+      return Optional.empty();
+    }
+
+    var loader = new JarIdentifierLoader(List.of());
+    var c = ClassEntity.named(i.selector).declaring(loader.loadIdentifiers(i)).build();
+    return Optional.of(c);
   }
 
   @Override

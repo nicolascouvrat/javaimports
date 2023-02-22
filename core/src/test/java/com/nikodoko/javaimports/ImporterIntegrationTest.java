@@ -61,23 +61,22 @@ public class ImporterIntegrationTest {
     Path main = testPkg.file(pkg.name, pkg.fileToFix).get();
     Options opts =
         Options.builder()
-            .debug(false)
+            .debug(true)
             .repository(Paths.get(repositoryURL.toURI()))
             .stdlib(
                 FakeStdlibProvider.of(
                     new Import("anotherPublicField", "java.fakeutil", true),
                     new Import("aSubclassPublicStaticField", "java.fakeutil", true),
+                    new Import("valueOf", "java.fakeutil", true),
                     new Import("AnotherProtectedClass", "java.fakeutil", false),
                     new Import("ALocalPublicClass", "java.fakeutil", false),
                     new Import("App", "java.fakeutil", false),
                     new Import("ArrayList", "java.util", false),
+                    new Import("Enum", "java.lang", false),
                     new Import("List", "java.util", false)))
             // speed up tests a bit
             .numThreads(Runtime.getRuntime().availableProcessors())
             .build();
-    if (!pkg.name.equals("importParentClass")) {
-      return;
-    }
     String input = new String(Files.readAllBytes(main), UTF_8);
     try {
       String output = new Importer(opts).addUsedImports(main, input);

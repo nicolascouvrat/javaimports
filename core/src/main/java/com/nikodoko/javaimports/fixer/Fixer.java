@@ -45,7 +45,7 @@ public class Fixer {
     this.library = new ClassLibrary();
     this.loader = Loader.of(file, options);
     this.strategy = new BasicCandidateSelectionStrategy(file.pkg());
-    this.parents = new ParentClassFinder(candidates, library, strategy);
+    this.parents = new ParentClassFinder(candidates, library, strategy, options);
     // Needed because some other files in the project might extend a class defined in the current
     // file
     library.add(file);
@@ -83,6 +83,7 @@ public class Fixer {
   public void addStdlibProvider(StdlibProvider provider) {
     loader.addStdlibProvider(provider);
     candidates.add(Candidate.Source.STDLIB, provider);
+    library.add(provider);
   }
 
   public void addEnvironment(Environment environment) {
