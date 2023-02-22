@@ -157,9 +157,7 @@ public class ParsedFile implements ImportProvider, ClassProvider {
   }
 
   public Set<OrphanClass> orphans() {
-    return topScope.notFullyExtended.stream()
-        .map(ClassExtender::toOrphanClass)
-        .collect(Collectors.toSet());
+    return topScope.orphans;
   }
 
   public Set<Identifier> topLevelDeclarations() {

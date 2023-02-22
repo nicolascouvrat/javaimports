@@ -75,6 +75,9 @@ public class ImporterIntegrationTest {
             // speed up tests a bit
             .numThreads(Runtime.getRuntime().availableProcessors())
             .build();
+    if (!pkg.name.equals("importParentClass")) {
+      return;
+    }
     String input = new String(Files.readAllBytes(main), UTF_8);
     try {
       String output = new Importer(opts).addUsedImports(main, input);

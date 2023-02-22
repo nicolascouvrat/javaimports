@@ -2,7 +2,6 @@ package com.nikodoko.javaimports.parser.internal;
 
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.common.OrphanClass;
-import com.nikodoko.javaimports.parser.ClassExtender;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +18,6 @@ public class Scope {
   public Set<String> notYetResolved = new HashSet<>();
   // Parent scope can be null if top scope
   public Scope parent = null;
-  public Set<ClassExtender> notFullyExtended = new HashSet<>();
   public Set<OrphanClass> orphans = new HashSet<>();
 
   /**
@@ -31,7 +29,7 @@ public class Scope {
     return MoreObjects.toStringHelper(this)
         .add("identifiers", identifiers)
         .add("notYetResolved", notYetResolved)
-        .add("notFullyExtended", notFullyExtended)
+        .add("orphans", orphans)
         .toString();
   }
 }
