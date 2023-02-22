@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.common;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.jqwik.api.Arbitrary;
@@ -54,6 +55,37 @@ public class SelectorTest {
 
     assertThat(aSelector).isEqualTo(Selector.of(identifiersCopy));
     assertThat(aSelectorTail).isEqualTo(Selector.of(tailCopy));
+  }
+
+  @Property
+  void rebaseLeavesOriginalSelectorsUnchanged(
+      @ForAll("identifiers") List<String> base, @ForAll("identifiers") List<String> tail) {
+    var combined = new ArrayList<>(List.copyOf(base));
+    combined.addAll(tail);
+    var combinedCopy = List.copyOf(combined);
+    var baseCopy = List.copyOf(base);
+
+    var aSelector = Selector.of(combined);
+    var aBase = Selector.of(base);
+
+    aSelector.rebase(aBase);
+
+    assertThat(aSelector).isEqualTo(Selector.of(combinedCopy));
+    assertThat(aBase).isEqualTo(Selector.of(baseCopy));
+  }
+
+  @Property
+  void rebaseTrimsTheBase(
+      @ForAll("identifiers") List<String> base, @ForAll("identifiers") List<String> tail) {
+    var combined = new ArrayList<>(List.copyOf(base));
+    combined.addAll(tail);
+
+    var aSelector = Selector.of(combined);
+    var aBase = Selector.of(base);
+
+    var got = aSelector.rebase(aBase);
+
+    assertThat(got).isEqualTo(Selector.of(tail));
   }
 
   @Example

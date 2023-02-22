@@ -166,6 +166,28 @@ public final class Selector {
     return new Selector(List.copyOf(identifiers.subList(0, cutoff)));
   }
 
+  /**
+   * Constructs a new {@code Selector} by rebasing this selector on a {@code base}.
+   *
+   * <p>This requires that this selector {@link #startsWith} {@code base}, and will trim {@code
+   * base} off this selector. It will fail if {@code base.equals(this)} is {@code true}.
+   *
+   * <p>For example, if this selector represents {@code "a.b.c.d"}, then invoking this method with a
+   * selector representing {@code a.b} will return a selector representing {@code "c.d"}.
+   *
+   * @param base the selector to rebase this selector on
+   * @return the resulting selector
+   * @exception IllegalArgumentException if this selector does not start with {@code base}, or if
+   *     {@code base} is equal to this selector
+   */
+  public Selector rebase(Selector base) {
+    if (!startsWith(base) || equals(base)) {
+      throw new IllegalArgumentException(String.format("Cannot rebase %s on %s", this, base));
+    }
+
+    return new Selector(List.copyOf(identifiers.subList(base.size(), identifiers.size())));
+  }
+
   /** Returns true if this {@code Selector} ends with {@code other}. */
   public boolean endsWith(Selector other) {
     var thisLength = identifiers.size();

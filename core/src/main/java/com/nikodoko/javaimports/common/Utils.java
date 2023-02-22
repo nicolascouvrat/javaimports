@@ -29,4 +29,8 @@ public class Utils {
   public static void checkNotNull(Object o, String errorMsg) {
     assert o != null : errorMsg;
   }
+
+  public static void checkNotNull(Object o) {
+    assert o != null;
+  }
 }
