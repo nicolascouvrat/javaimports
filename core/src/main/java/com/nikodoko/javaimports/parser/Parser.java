@@ -7,6 +7,7 @@ import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
+import com.nikodoko.javaimports.parser.internal.JCHelper;
 import com.nikodoko.javaimports.parser.internal.UnresolvedIdentifierScanner;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavacParser;
@@ -90,9 +91,11 @@ public class Parser {
     }
 
     // Wrap the results in a ParsedFile
-    ParsedFile f = ParsedFile.fromCompilationUnit(unit);
-    f.topScope(scanner.topScope());
-    f.classTree(scanner.classTree());
+    var fileBuilder = JCHelper.toParsedFileBuilder(unit).topScope(scanner.topScope());
+    for (var e : scanner.classTree().flatView().entrySet()) {
+      fileBuilder.addDeclaredClass(e.getKey(), e.getValue());
+    }
+    var f = fileBuilder.build();
     if (options.debug()) {
       log.info(String.format("completed parsing in %d ms: %s", clock.millis() - start, f));
     }

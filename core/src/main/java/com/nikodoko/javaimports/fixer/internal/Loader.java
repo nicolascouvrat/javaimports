@@ -88,10 +88,10 @@ public class Loader {
   // We should probably have shortcut here that directly goes to find that package? But we most
   // likely need environment information for this...
   private void resolveUsingImports() {
-    result.unresolved = difference(result.unresolved, file.imports().keySet());
+    result.unresolved = difference(result.unresolved, file.importedIdentifiers());
     result.orphans =
         result.orphans.stream()
-            .map(o -> o.addDeclarations(file.imports().keySet()))
+            .map(o -> o.addDeclarations(file.importedIdentifiers()))
             .collect(Collectors.toSet());
   }
 
