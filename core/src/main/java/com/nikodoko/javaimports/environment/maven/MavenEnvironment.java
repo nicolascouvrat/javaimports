@@ -105,6 +105,14 @@ public class MavenEnvironment implements Environment {
       }
     }
 
+    // We do not want to try to look for the class if the environment does not provide this import
+    // TODO: do not recompute the set each time
+    var allImports =
+        availableImports.values().stream().flatMap(List::stream).collect(Collectors.toSet());
+    if (!allImports.contains(i)) {
+      return Optional.empty();
+    }
+
     return classLoader.findClass(i);
   }
 

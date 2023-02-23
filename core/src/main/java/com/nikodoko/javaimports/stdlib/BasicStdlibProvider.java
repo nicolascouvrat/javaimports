@@ -6,6 +6,8 @@ import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
+import com.nikodoko.javaimports.environment.jarutil.IdentifierLoader;
+import com.nikodoko.javaimports.environment.jarutil.JarIdentifierLoader;
 import com.nikodoko.javaimports.stdlib.internal.Stdlib;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,9 +20,12 @@ import java.util.stream.Collectors;
 public class BasicStdlibProvider implements StdlibProvider {
   private Stdlib stdlib;
   private Map<String, Integer> usedPackages = new HashMap<>();
+  // TODO: it is not ideal to rely on a class that was made for jar parsing here, but it provides us
+  // with a temporary solution
+  private final IdentifierLoader loader = new JarIdentifierLoader(List.of());
   private static final Selector JAVA_LANG = Selector.of("java", "lang");
 
-  BasicStdlibProvider(Stdlib stdlib) {
+  public BasicStdlibProvider(Stdlib stdlib) {
     this.stdlib = stdlib;
   }
 
@@ -54,7 +59,22 @@ public class BasicStdlibProvider implements StdlibProvider {
 
   @Override
   public Optional<ClassEntity> findClass(Import i) {
-    return Optional.empty();
+    var span = Traces.createSpan("BasicStdlibProvider.findClass", new Tag("import", i));
+    try (var __ = Traces.activate(span)) {
+      var c = findClassInstrumented(i);
+      Traces.addTags(span, new Tag("class", c));
+      return c;
+    } catch (Throwable t) {
+      Traces.addThrowable(span, t);
+      return Optional.empty();
+    } finally {
+      span.finish();
+    }
+  }
+
+  private Optional<ClassEntity> findClassInstrumented(Import i) {
+    var c = ClassEntity.named(i.selector).declaring(loader.loadIdentifiers(i)).build();
+    return Optional.of(c);
   }
 
   private Collection<Import> findImportsInstrumented(Identifier i) {

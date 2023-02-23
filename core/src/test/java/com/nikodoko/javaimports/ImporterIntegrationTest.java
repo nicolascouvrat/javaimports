@@ -2,14 +2,16 @@ package com.nikodoko.javaimports;
 
 import static com.google.common.io.Files.getFileExtension;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static com.nikodoko.javaimports.common.CommonTestUtil.aStaticImport;
+import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.fail;
 
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
-import com.nikodoko.javaimports.parser.Import;
-import com.nikodoko.javaimports.stdlib.FakeStdlibProvider;
+import com.nikodoko.javaimports.stdlib.BasicStdlibProvider;
+import com.nikodoko.javaimports.stdlib.FakeStdlib;
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
@@ -64,16 +66,17 @@ public class ImporterIntegrationTest {
             .debug(true)
             .repository(Paths.get(repositoryURL.toURI()))
             .stdlib(
-                FakeStdlibProvider.of(
-                    new Import("anotherPublicField", "java.fakeutil", true),
-                    new Import("aSubclassPublicStaticField", "java.fakeutil", true),
-                    new Import("valueOf", "java.fakeutil", true),
-                    new Import("AnotherProtectedClass", "java.fakeutil", false),
-                    new Import("ALocalPublicClass", "java.fakeutil", false),
-                    new Import("App", "java.fakeutil", false),
-                    new Import("ArrayList", "java.util", false),
-                    new Import("Enum", "java.lang", false),
-                    new Import("List", "java.util", false)))
+                new BasicStdlibProvider(
+                    new FakeStdlib(
+                        aStaticImport("java.fakeutil.anotherPublicField"),
+                        aStaticImport("java.fakeutil.aSubclassPublicStaticField"),
+                        aStaticImport("java.fakeutil.valueOf"),
+                        anImport("java.fakeutil.AnotherProtectedClass"),
+                        anImport("java.fakeutil.ALocalPublicClass"),
+                        anImport("java.fakeutil.App"),
+                        anImport("java.util.ArrayList"),
+                        anImport("java.lang.Enum"),
+                        anImport("java.util.List"))))
             // speed up tests a bit
             .numThreads(Runtime.getRuntime().availableProcessors())
             .build();

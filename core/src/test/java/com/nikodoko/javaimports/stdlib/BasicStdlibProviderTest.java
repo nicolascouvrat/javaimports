@@ -8,7 +8,17 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class BasicStdlibProviderTest {
-  BasicStdlibProvider stdlib = new BasicStdlibProvider(new FakeStdlib());
+  BasicStdlibProvider stdlib =
+      new BasicStdlibProvider(
+          new FakeStdlib(
+              anImport("java.lang.Thread.State"),
+              anImport("java.lang.Object"),
+              anImport("org.omg.CORBA.Object"),
+              anImport("java.awt.List"),
+              anImport("java.util.List"),
+              anImport("java.time.Duration"),
+              anImport("javax.xml.datatype.Duration"),
+              anImport("java.awt.Component")));
 
   @Test
   void testFindImports() {

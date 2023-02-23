@@ -48,6 +48,10 @@ public class CommonTestUtil {
     return new Import(aSelector(dotSelector), false);
   }
 
+  public static Import aStaticImport(String dotSelector) {
+    return new Import(aSelector(dotSelector), true);
+  }
+
   public static Set<Identifier> someIdentifiers(String... identifiers) {
     return Arrays.stream(identifiers).map(Identifier::new).collect(Collectors.toSet());
   }
