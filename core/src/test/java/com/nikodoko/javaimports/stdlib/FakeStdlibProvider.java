@@ -48,7 +48,7 @@ public class FakeStdlibProvider implements StdlibProvider {
   }
 
   @Override
-  public boolean isInJavaLang(String identifier) {
+  public boolean isInJavaLang(Identifier identifier) {
     return false;
   }
 }

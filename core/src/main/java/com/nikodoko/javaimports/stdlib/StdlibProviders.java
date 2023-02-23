@@ -16,7 +16,7 @@ public class StdlibProviders {
     }
 
     @Override
-    public boolean isInJavaLang(String identifier) {
+    public boolean isInJavaLang(Identifier identifier) {
       return false;
     }
 

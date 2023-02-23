@@ -21,21 +21,21 @@ class BasicStdlibProviderTest {
 
   @Test
   void testIndentifierIsInJavaLang() {
-    assertThat(stdlib.isInJavaLang("Object")).isTrue();
+    assertThat(stdlib.isInJavaLang(new Identifier("Object"))).isTrue();
   }
 
   @Test
   void testNonExistingIdentifierIsNotInJavaLang() {
-    assertThat(stdlib.isInJavaLang("Derp")).isFalse();
+    assertThat(stdlib.isInJavaLang(new Identifier("Derp"))).isFalse();
   }
 
   @Test
   void testIdentifierIsNotInJavaLang() {
-    assertThat(stdlib.isInJavaLang("List")).isFalse();
+    assertThat(stdlib.isInJavaLang(new Identifier("List"))).isFalse();
   }
 
   @Test
   void testIdentifierInSubScopeOfJavaLangIsNotConsideredInJavaLang() {
-    assertThat(stdlib.isInJavaLang("State")).isFalse();
+    assertThat(stdlib.isInJavaLang(new Identifier("State"))).isFalse();
   }
 }

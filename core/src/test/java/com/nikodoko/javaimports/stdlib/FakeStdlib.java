@@ -1,39 +1,32 @@
 package com.nikodoko.javaimports.stdlib;
 
+import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
+
 import com.google.common.collect.ImmutableMap;
-import com.nikodoko.javaimports.parser.Import;
+import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.stdlib.internal.Stdlib;
 import java.util.Map;
 
 public class FakeStdlib implements Stdlib {
-  private static final Map<String, Import[]> CLASSES =
-      new ImmutableMap.Builder<String, Import[]>()
+  private static final Map<Identifier, Import[]> CLASSES =
+      new ImmutableMap.Builder<Identifier, Import[]>()
+          .put(new Identifier("State"), new Import[] {anImport("java.lang.Thread.State")})
           .put(
-              "State",
-              new Import[] {
-                new Import("State", "java.lang.Thread", false),
-              })
+              new Identifier("Object"),
+              new Import[] {anImport("java.lang.Object"), anImport("org.omg.CORBA.Object")})
           .put(
-              "Object",
-              new Import[] {
-                new Import("Object", "java.lang", false),
-                new Import("Object", "org.omg.CORBA", false)
-              })
+              new Identifier("List"),
+              new Import[] {anImport("java.awt.List"), anImport("java.util.List")})
           .put(
-              "List",
+              new Identifier("Duration"),
               new Import[] {
-                new Import("List", "java.awt", false), new Import("List", "java.util", false)
+                anImport("java.time.Duration"), anImport("javax.xml.datatype.Duration")
               })
-          .put(
-              "Duration",
-              new Import[] {
-                new Import("Duration", "java.time", false),
-                new Import("Duration", "javax.xml.datatype", false)
-              })
-          .put("Component", new Import[] {new Import("Component", "java.awt", false)})
+          .put(new Identifier("Component"), new Import[] {anImport("java.awt.Component")})
           .build();
 
-  public Import[] getClassesFor(String identifier) {
+  public Import[] getClassesFor(Identifier identifier) {
     return CLASSES.get(identifier);
   }
 }

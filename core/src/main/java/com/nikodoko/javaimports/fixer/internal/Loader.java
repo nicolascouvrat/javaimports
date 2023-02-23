@@ -74,7 +74,7 @@ public class Loader {
   private void resolveAllJavaLang() {
     Set<Identifier> inJavaLang = new HashSet<>();
     for (var unresolved : result.unresolved) {
-      if (stdlib.isInJavaLang(unresolved.toString())) {
+      if (stdlib.isInJavaLang(unresolved)) {
         inJavaLang.add(unresolved);
       }
     }
