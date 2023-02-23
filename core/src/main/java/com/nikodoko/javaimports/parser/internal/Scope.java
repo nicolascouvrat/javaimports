@@ -1,8 +1,8 @@
 package com.nikodoko.javaimports.parser.internal;
 
-import com.google.common.base.MoreObjects;
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.OrphanClass;
-import com.nikodoko.javaimports.parser.ClassExtender;
+import com.nikodoko.javaimports.common.Utils;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,11 +15,10 @@ import java.util.Set;
  * <p>The top level scope should have {@code parent==null}.
  */
 public class Scope {
-  public Set<String> identifiers = new HashSet<>();
-  public Set<String> notYetResolved = new HashSet<>();
+  public Set<Identifier> identifiers = new HashSet<>();
+  public Set<Identifier> notYetResolved = new HashSet<>();
   // Parent scope can be null if top scope
   public Scope parent = null;
-  public Set<ClassExtender> notFullyExtended = new HashSet<>();
   public Set<OrphanClass> orphans = new HashSet<>();
 
   /**
@@ -28,10 +27,10 @@ public class Scope {
    * <p>This does not output anything about the parent scopes.
    */
   public String toString() {
-    return MoreObjects.toStringHelper(this)
+    return Utils.toStringHelper(this)
         .add("identifiers", identifiers)
         .add("notYetResolved", notYetResolved)
-        .add("notFullyExtended", notFullyExtended)
+        .add("orphans", orphans)
         .toString();
   }
 }

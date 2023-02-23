@@ -1,16 +1,16 @@
 package com.nikodoko.javaimports.fixer.internal;
 
-import com.google.common.collect.ImmutableSet;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
-import com.nikodoko.javaimports.parser.ClassExtender;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Uses additional information, such as files from the same package, to determine which identifiers
@@ -30,7 +30,7 @@ public class Loader {
   private Loader(ParsedFile file, Options options) {
     this.file = file;
     this.result.unresolved = file.notYetResolved();
-    this.result.orphans = file.notFullyExtendedClasses();
+    this.result.orphans = file.orphans();
     this.options = options;
   }
 
@@ -72,24 +72,14 @@ public class Loader {
   }
 
   private void resolveAllJavaLang() {
-    Set<String> inJavaLang = new HashSet<>();
-    for (String unresolved : result.unresolved) {
-      if (stdlib.isInJavaLang(unresolved)) {
+    Set<Identifier> inJavaLang = new HashSet<>();
+    for (var unresolved : result.unresolved) {
+      if (stdlib.isInJavaLang(unresolved.toString())) {
         inJavaLang.add(unresolved);
       }
     }
 
     result.unresolved = difference(result.unresolved, inJavaLang);
-  }
-
-  private Set<String> allStillUnresolved() {
-    ImmutableSet.Builder builder = ImmutableSet.builder().addAll(result.unresolved);
-    for (ClassExtender orphan : result.orphans) {
-      builder.addAll(orphan.notYetResolved());
-    }
-
-    Set<String> all = builder.build();
-    return all;
   }
 
   // FIXME: this does not do anything about the situation where we import a class that we extend
@@ -98,11 +88,11 @@ public class Loader {
   // We should probably have shortcut here that directly goes to find that package? But we most
   // likely need environment information for this...
   private void resolveUsingImports() {
-    result.unresolved = difference(result.unresolved, file.imports().keySet());
-
-    for (ClassExtender e : result.orphans) {
-      e.resolveUsing(file.imports().keySet());
-    }
+    result.unresolved = difference(result.unresolved, file.importedIdentifiers());
+    result.orphans =
+        result.orphans.stream()
+            .map(o -> o.addDeclarations(file.importedIdentifiers()))
+            .collect(Collectors.toSet());
   }
 
   private void resolveUsingSiblings() {
@@ -113,15 +103,15 @@ public class Loader {
 
   private void resolveUsingSibling(ParsedFile sibling) {
     result.unresolved = difference(result.unresolved, sibling.topLevelDeclarations());
-
-    for (ClassExtender e : result.orphans) {
-      e.resolveUsing(sibling.topLevelDeclarations());
-    }
+    result.orphans =
+        result.orphans.stream()
+            .map(o -> o.addDeclarations(sibling.topLevelDeclarations()))
+            .collect(Collectors.toSet());
   }
 
-  private Set<String> difference(Set<String> original, Set<String> toRemove) {
-    Set<String> result = new HashSet<>();
-    for (String identifier : original) {
+  private <T> Set<T> difference(Set<T> original, Set<T> toRemove) {
+    Set<T> result = new HashSet<>();
+    for (var identifier : original) {
       if (!toRemove.contains(identifier)) {
         result.add(identifier);
       }
