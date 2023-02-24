@@ -71,10 +71,13 @@ public class ImporterIntegrationTest {
                         aStaticImport("java.fakeutil.anotherPublicField"),
                         aStaticImport("java.fakeutil.aSubclassPublicStaticField"),
                         aStaticImport("java.fakeutil.valueOf"),
+                        aStaticImport("java.fakeutil.add"),
+                        aStaticImport("java.fakeutil.T"),
                         anImport("java.fakeutil.AnotherProtectedClass"),
                         anImport("java.fakeutil.ALocalPublicClass"),
                         anImport("java.fakeutil.App"),
                         anImport("java.util.ArrayList"),
+                        anImport("java.util.AbstractList"),
                         anImport("java.lang.Enum"),
                         anImport("java.util.List"))))
             // speed up tests a bit

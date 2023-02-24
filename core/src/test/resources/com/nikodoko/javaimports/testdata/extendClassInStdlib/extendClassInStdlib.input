@@ -1,0 +1,8 @@
+package extendClassInStdlib;
+
+// Assert that we're able to extend a class from the stdlib
+class MyList<T> extends AbstractList<T> {
+  public void aMethod(T element) {
+    add(element);
+  }
+}
