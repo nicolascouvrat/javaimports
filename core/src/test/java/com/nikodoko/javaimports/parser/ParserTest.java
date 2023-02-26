@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.parser;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.nikodoko.javaimports.common.CommonTestUtil.aSelector;
+import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
 import static com.nikodoko.javaimports.common.CommonTestUtil.someIdentifiers;
 import static org.junit.Assert.fail;
 
@@ -49,6 +50,22 @@ public class ParserTest {
       {
         ClassEntity.named(aSelector("ATest")).declaring(someIdentifiers("g", "f")).build(),
         ClassEntity.named(aSelector("AnotherTest")).declaring(someIdentifiers("g", "f")).build()
+      },
+    },
+    {
+      {"enum"},
+      {
+        "package com.pkg.test;", //
+        "enum TestEnum {",
+        "  VALUE_1, VALUE_2;",
+        "}",
+      },
+      {},
+      {
+        ClassEntity.named(aSelector("TestEnum"))
+            .declaring(someIdentifiers("VALUE_1", "VALUE_2"))
+            .extending(Superclass.resolved(anImport("java.lang.Enum")))
+            .build()
       },
     },
     {

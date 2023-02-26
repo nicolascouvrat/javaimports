@@ -1,39 +1,25 @@
 package com.nikodoko.javaimports.stdlib;
 
-import com.google.common.collect.ImmutableMap;
-import com.nikodoko.javaimports.parser.Import;
+import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.stdlib.internal.Stdlib;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class FakeStdlib implements Stdlib {
-  private static final Map<String, Import[]> CLASSES =
-      new ImmutableMap.Builder<String, Import[]>()
-          .put(
-              "State",
-              new Import[] {
-                new Import("State", "java.lang.Thread", false),
-              })
-          .put(
-              "Object",
-              new Import[] {
-                new Import("Object", "java.lang", false),
-                new Import("Object", "org.omg.CORBA", false)
-              })
-          .put(
-              "List",
-              new Import[] {
-                new Import("List", "java.awt", false), new Import("List", "java.util", false)
-              })
-          .put(
-              "Duration",
-              new Import[] {
-                new Import("Duration", "java.time", false),
-                new Import("Duration", "javax.xml.datatype", false)
-              })
-          .put("Component", new Import[] {new Import("Component", "java.awt", false)})
-          .build();
+  private final Map<Identifier, List<Import>> classes;
 
-  public Import[] getClassesFor(String identifier) {
-    return CLASSES.get(identifier);
+  public FakeStdlib(Import... imports) {
+    this.classes =
+        Arrays.stream(imports).collect(Collectors.groupingBy(i -> i.selector.identifier()));
+  }
+
+  public Import[] getClassesFor(Identifier identifier) {
+    return Optional.ofNullable(classes.get(identifier))
+        .map(c -> c.stream().toArray(Import[]::new))
+        .orElse(null);
   }
 }

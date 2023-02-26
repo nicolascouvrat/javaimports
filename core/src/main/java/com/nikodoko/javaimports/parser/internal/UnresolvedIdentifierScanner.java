@@ -2,8 +2,10 @@ package com.nikodoko.javaimports.parser.internal;
 
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.parser.ClassTree;
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.BlockTree;
@@ -209,6 +211,17 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   private ClassEntity createClassEntity(Identifier name, com.sun.source.tree.ClassTree tree) {
+    var isEnum = tree.getKind() == Tree.Kind.ENUM;
+    if (isEnum && tree.getExtendsClause() != null) {
+      throw new IllegalStateException("Enum with extends clause");
+    }
+
+    if (isEnum) {
+      return ClassEntity.named(Selector.of(name))
+          .extending(Superclass.resolved(new Import(Selector.of("java", "lang", "Enum"), false)))
+          .build();
+    }
+
     if (tree.getExtendsClause() == null) {
       return ClassEntity.named(Selector.of(name)).build();
     }
