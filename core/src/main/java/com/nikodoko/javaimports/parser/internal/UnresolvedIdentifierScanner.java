@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.parser.internal;
 
+import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
@@ -27,6 +28,7 @@ import com.sun.source.util.TreePathScanner;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCCase;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -233,6 +235,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   private void openClassScope(ClassEntity entity) {
     openScope();
+    topScope.maybeClass = Optional.of(new ClassDeclaration(entity.name, entity.maybeParent));
     classTree = classTree.pushAndMoveDown(entity);
   }
 
@@ -260,6 +263,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     if (!resolvable(identifier)) {
       topScope.notYetResolved.add(identifier);
     }
+    topScope.maybeAddUnresolved(identifier);
 
     return null;
   }
@@ -279,6 +283,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   private void declare(Identifier identifier) {
     topScope.identifiers.add(identifier);
+    topScope.declare(identifier);
   }
 
   /**
@@ -305,6 +310,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private void openScope() {
     Scope newScope = new Scope();
     newScope.parent = topScope;
+    topScope.addChild(newScope);
     topScope = newScope;
   }
 

@@ -199,7 +199,12 @@ public final class Selector {
     return identifiers.subList(thisLength - otherLength, thisLength).equals(other.identifiers);
   }
 
-  /** Returns true if this {@code Selector} starts wit {@code other}. */
+  /** Returns true if this {@code Selector} starts with {@code other}. */
+  public boolean startsWith(Identifier id) {
+    return startsWith(Selector.of(id));
+  }
+
+  /** Returns true if this {@code Selector} starts with {@code other}. */
   public boolean startsWith(Selector other) {
     var thisLength = identifiers.size();
     var otherLength = other.identifiers.size();
