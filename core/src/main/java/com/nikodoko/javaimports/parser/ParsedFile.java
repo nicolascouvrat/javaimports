@@ -6,7 +6,6 @@ import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.ImportProvider;
-import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.parser.internal.Scope;
 import java.util.ArrayList;
@@ -47,8 +46,8 @@ public record ParsedFile(
     return topScope().notYetResolved;
   }
 
-  public Set<OrphanClass> orphans() {
-    return topScope().orphans;
+  public Orphans orphans() {
+    return Orphans.wrapping(topScope());
   }
 
   public Set<Identifier> topLevelDeclarations() {

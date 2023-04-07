@@ -30,6 +30,8 @@ public interface Orphans {
 
   public boolean needsParents();
 
+  public void addDeclarations(Set<Identifier> declarations);
+
   public static Orphans wrapping(Scope topScope) {
     return new OrphansImpl(topScope);
   }
@@ -91,6 +93,12 @@ public interface Orphans {
     public boolean needsParents() {
       return classes.stream().anyMatch(c -> c.maybeParent.isPresent());
     }
+
+    public void addDeclarations(Set<Identifier> declarations) {
+      var newClasses =
+          classes.stream().map(o -> o.addDeclarations(declarations)).collect(Collectors.toSet());
+      classes = newClasses;
+    }
   }
 
   public static class OrphansImpl implements Orphans {
@@ -126,6 +134,11 @@ public interface Orphans {
       }
 
       return s.childScopes.stream().anyMatch(OrphansImpl::needsParents);
+    }
+
+    /** Adds the provided declarations to all orphans. */
+    public void addDeclarations(Set<Identifier> declarations) {
+      declarations.forEach(topScope::declare);
     }
   }
 
@@ -170,6 +183,10 @@ public interface Orphans {
 
     // TODO: should we add some sort of validation to check that we're not adding a random parent?
     public void addParent(ClassEntity parent) {
+      // Should not be necessary
+      if (parent == null) {
+        return;
+      }
       enrich(current, parent);
     }
   }
@@ -195,7 +212,7 @@ public interface Orphans {
     var parentScope = scope.parent;
     Optional<ParentClassScope> maybeParentClassScope = Optional.empty();
     while (parentScope != null && maybeParentClassScope.isEmpty()) {
-      maybeParentClassScope = findClassScope(parentScope, selector, true);
+      maybeParentClassScope = findClassScope(parentScope, selector, true, scope);
       parentScope = parentScope.parent;
     }
 
@@ -228,7 +245,7 @@ public interface Orphans {
   public record ParentClassScope(Scope scope, boolean usable) {}
 
   private static Optional<ParentClassScope> findClassScope(
-      Scope scope, Selector selector, boolean usable) {
+      Scope scope, Selector selector, boolean usable, Scope from) {
     var maybeCandidate =
         scope.childScopes.stream()
             .filter(s -> s.maybeClass.map(c -> selector.startsWith(c.name())).orElse(false))
@@ -238,6 +255,10 @@ public interface Orphans {
     }
 
     var candidate = maybeCandidate.get();
+    if (candidate == from) {
+      throw new RuntimeException("Cyclic inheritence detected around " + getClass(candidate));
+    }
+
     if (selector.equals(getClass(candidate).name())) {
       return Optional.of(new ParentClassScope(candidate, usable));
     }
@@ -251,7 +272,7 @@ public interface Orphans {
     }
 
     return findClassScope(
-        candidate, selector.rebase(getClass(candidate).name()), !hasSuperclass(candidate));
+        candidate, selector.rebase(getClass(candidate).name()), !hasSuperclass(candidate), from);
   }
 
   private static boolean hasSuperclass(Scope scope) {

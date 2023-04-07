@@ -10,7 +10,6 @@ import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Uses additional information, such as files from the same package, to determine which identifiers
@@ -32,6 +31,7 @@ public class Loader {
     this.result.unresolved = file.notYetResolved();
     this.result.orphans = file.orphans();
     this.options = options;
+    result.orphans = file.orphans();
   }
 
   /** Create a {@code Loader} for the given {@code file}. */
@@ -51,8 +51,7 @@ public class Loader {
   public void addEnvironment(Environment environment) {
     this.environment = environment;
     // The environment lets us find not only the siblings in the same folder, but also the siblings
-    // in
-    // other folders of the same project
+    // in other folders of the same project
     this.siblings = environment.filesInPackage(file.packageName());
   }
 
@@ -80,6 +79,7 @@ public class Loader {
     }
 
     result.unresolved = difference(result.unresolved, inJavaLang);
+    result.orphans.addDeclarations(inJavaLang);
   }
 
   // FIXME: this does not do anything about the situation where we import a class that we extend
@@ -89,10 +89,7 @@ public class Loader {
   // likely need environment information for this...
   private void resolveUsingImports() {
     result.unresolved = difference(result.unresolved, file.importedIdentifiers());
-    result.orphans =
-        result.orphans.stream()
-            .map(o -> o.addDeclarations(file.importedIdentifiers()))
-            .collect(Collectors.toSet());
+    result.orphans.addDeclarations(file.importedIdentifiers());
   }
 
   private void resolveUsingSiblings() {
@@ -103,10 +100,7 @@ public class Loader {
 
   private void resolveUsingSibling(ParsedFile sibling) {
     result.unresolved = difference(result.unresolved, sibling.topLevelDeclarations());
-    result.orphans =
-        result.orphans.stream()
-            .map(o -> o.addDeclarations(sibling.topLevelDeclarations()))
-            .collect(Collectors.toSet());
+    result.orphans.addDeclarations(sibling.topLevelDeclarations());
   }
 
   private <T> Set<T> difference(Set<T> original, Set<T> toRemove) {

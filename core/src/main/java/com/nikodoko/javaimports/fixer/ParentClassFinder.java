@@ -72,16 +72,16 @@ class ParentClassFinder {
     this.options = options;
   }
 
-  Result findAllParents(Set<OrphanClass> orphans) {
+  Result findAllParents(Orphans orphans) {
     var span = Traces.createSpan("ParentClassFinder.findAllParents");
     try (var __ = Traces.activate(span)) {
-      return findAllParents(Orphans.wrapping(orphans));
+      return findAllParentsInstrumented(orphans);
     } finally {
       span.finish();
     }
   }
 
-  Result findAllParents(Orphans orphans) {
+  private Result findAllParentsInstrumented(Orphans orphans) {
     Set<Import> fixes = new HashSet<>();
     // Hacky, but that's to emulate the fact that we only need to import the first class in the
     // extend chain. This should be handled by the fact that extension of files should all be

@@ -2,16 +2,16 @@ package com.nikodoko.javaimports.fixer.internal;
 
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.common.Identifier;
-import com.nikodoko.javaimports.common.OrphanClass;
+import com.nikodoko.javaimports.parser.Orphans;
 import java.util.Set;
 
 /** Contains the result of {@link Loader#load}. */
 public class LoadResult {
   public Set<Identifier> unresolved;
-  public Set<OrphanClass> orphans;
+  public Orphans orphans;
 
   /** TODO: Remove me and make me default */
-  public Set<OrphanClass> orphans() {
+  public Orphans orphans() {
     return orphans;
   }
 
@@ -21,7 +21,7 @@ public class LoadResult {
   }
 
   public boolean isEmpty() {
-    return unresolved.isEmpty() && orphans.isEmpty();
+    return unresolved.isEmpty() && !orphans.needsParents();
   }
 
   public String toString() {

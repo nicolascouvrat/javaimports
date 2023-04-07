@@ -12,6 +12,7 @@ import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.fixer.candidates.Candidate;
 import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
 import com.nikodoko.javaimports.fixer.candidates.TakeFirstCandidateSelectionStrategy;
+import com.nikodoko.javaimports.parser.Orphans;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +37,7 @@ public class ParentClassFinderTest {
 
   @Test
   void itShouldReturnAnEmptyResultIfNoOrphan() {
-    var got = finder.findAllParents(Set.of());
+    var got = finder.findAllParents(Orphans.wrapping(Set.of()));
     assertThat(got.complete).isTrue();
     assertThat(got.unresolved).isEmpty();
     assertThat(got.fixes).isEmpty();
@@ -76,7 +77,7 @@ public class ParentClassFinderTest {
             identifiers("a", "b", "c"),
             Superclass.unresolved(Selector.of("FirstParent")));
 
-    var got = finder.findAllParents(Set.of(orphan));
+    var got = finder.findAllParents(Orphans.wrapping(Set.of(orphan)));
     assertThat(got.complete).isTrue();
     assertThat(got.unresolved).containsExactlyElementsIn(identifiers("c"));
     assertThat(got.fixes).containsExactly(anImport("com.app.FirstParent"));
