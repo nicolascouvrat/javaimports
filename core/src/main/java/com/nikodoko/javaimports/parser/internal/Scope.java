@@ -2,7 +2,6 @@ package com.nikodoko.javaimports.parser.internal;
 
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.Identifier;
-import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Utils;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,8 +23,9 @@ public class Scope {
 
   public Set<Identifier> declarations = new HashSet<>();
   public Set<Identifier> unresolved = new HashSet<>();
+
   public List<Scope> childScopes = new ArrayList<>();
-  private boolean classSearchDone = false;
+  public Scope parent = null;
 
   public void addChild(Scope scope) {
     childScopes.add(scope);
@@ -61,10 +61,6 @@ public class Scope {
   }
 
   public Set<Identifier> identifiers = new HashSet<>();
-  public Set<Identifier> notYetResolved = new HashSet<>();
-  // Parent scope can be null if top scope
-  public Scope parent = null;
-  public Set<OrphanClass> orphans = new HashSet<>();
 
   /**
    * Debugging support.
@@ -74,9 +70,7 @@ public class Scope {
   public String toString() {
     return Utils.toStringHelper(this)
         .add("identifiers", identifiers)
-        .add("notYetResolved", notYetResolved)
         .add("maybeClass", maybeClass)
-        .add("orphans", orphans)
         .toString();
   }
 }

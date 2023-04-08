@@ -4,9 +4,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
-import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.fixer.candidates.Candidate;
@@ -35,9 +35,67 @@ public class ParentClassFinderTest {
             candidates, library, new TakeFirstCandidateSelectionStrategy(), Options.defaults());
   }
 
+  static class SimpleOrphan implements Orphans {
+    Selector name;
+    Set<Identifier> unresolved;
+    Optional<Superclass> parent;
+
+    SimpleOrphan() {
+      this.name = null;
+      this.unresolved = Set.of();
+      this.parent = Optional.empty();
+    }
+
+    SimpleOrphan(Selector name, Set<Identifier> unresolved, Superclass parent) {
+      this.name = name;
+      this.unresolved = unresolved;
+      this.parent = Optional.of(parent);
+    }
+
+    class SimpleTraverser implements Orphans.Traverser {
+      boolean called = false;
+
+      @Override
+      public ClassDeclaration next() {
+        if (called) {
+          return null;
+        }
+
+        called = true;
+        return new ClassDeclaration(name, parent);
+      }
+
+      @Override
+      public void addParent(ClassEntity entity) {
+        entity.declarations.forEach(unresolved::remove);
+        parent = entity.maybeParent;
+      }
+    }
+
+    @Override
+    public boolean needsParents() {
+      return parent.isPresent();
+    }
+
+    @Override
+    public void addDeclarations(Set<Identifier> declarations) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<Identifier> unresolved() {
+      return unresolved;
+    }
+
+    @Override
+    public Orphans.Traverser traverse() {
+      return new SimpleTraverser();
+    }
+  }
+
   @Test
   void itShouldReturnAnEmptyResultIfNoOrphan() {
-    var got = finder.findAllParents(Orphans.wrapping(Set.of()));
+    var got = finder.findAllParents(new SimpleOrphan());
     assertThat(got.complete).isTrue();
     assertThat(got.unresolved).isEmpty();
     assertThat(got.fixes).isEmpty();
@@ -72,12 +130,12 @@ public class ParentClassFinderTest {
         Candidate.Source.SIBLING,
         i -> Optional.ofNullable(selectors.get(i)).map(Set::of).orElse(Set.of()));
     var orphan =
-        new OrphanClass(
+        new SimpleOrphan(
             Selector.of("Orphan"),
             identifiers("a", "b", "c"),
             Superclass.unresolved(Selector.of("FirstParent")));
 
-    var got = finder.findAllParents(Orphans.wrapping(Set.of(orphan)));
+    var got = finder.findAllParents(orphan);
     assertThat(got.complete).isTrue();
     assertThat(got.unresolved).containsExactlyElementsIn(identifiers("c"));
     assertThat(got.fixes).containsExactly(anImport("com.app.FirstParent"));

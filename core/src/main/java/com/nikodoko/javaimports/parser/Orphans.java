@@ -3,7 +3,6 @@ package com.nikodoko.javaimports.parser;
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
-import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.common.Utils;
@@ -11,12 +10,9 @@ import com.nikodoko.javaimports.parser.internal.Scope;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-/** NOT thread safe! */
 public interface Orphans {
   public interface Traverser {
     public ClassDeclaration next();
@@ -36,71 +32,7 @@ public interface Orphans {
     return new OrphansImpl(topScope);
   }
 
-  public static Orphans wrapping(Set<OrphanClass> classes) {
-    return new DummyOrphansImpl(classes);
-  }
-
-  public static class DummyOrphansImpl implements Orphans {
-    private Set<OrphanClass> classes;
-
-    public class DummyTraverserImpl implements Traverser {
-      private final Iterator<OrphanClass> classes;
-      private final Set<OrphanClass> finalClasses;
-      private OrphanClass current;
-
-      public DummyTraverserImpl(Set<OrphanClass> classes) {
-        this.classes = classes.iterator();
-        this.finalClasses = new HashSet<>();
-      }
-
-      public ClassDeclaration next() {
-        if (!classes.hasNext()) {
-          traversalDone(finalClasses);
-          return null;
-        }
-
-        var next = classes.next();
-        current = next;
-        return new ClassDeclaration(next.name, next.maybeParent);
-      }
-
-      public void addParent(ClassEntity parent) {
-        if (parent == null) {
-          finalClasses.add(current);
-          return;
-        }
-
-        finalClasses.add(current.addParent(parent));
-      }
-    }
-
-    public DummyOrphansImpl(Set<OrphanClass> classes) {
-      this.classes = classes;
-    }
-
-    public Traverser traverse() {
-      return new DummyTraverserImpl(classes);
-    }
-
-    public Set<Identifier> unresolved() {
-      return classes.stream().flatMap(c -> c.unresolved.stream()).collect(Collectors.toSet());
-    }
-
-    void traversalDone(Set<OrphanClass> classes) {
-      this.classes = classes;
-    }
-
-    public boolean needsParents() {
-      return classes.stream().anyMatch(c -> c.maybeParent.isPresent());
-    }
-
-    public void addDeclarations(Set<Identifier> declarations) {
-      var newClasses =
-          classes.stream().map(o -> o.addDeclarations(declarations)).collect(Collectors.toSet());
-      classes = newClasses;
-    }
-  }
-
+  /** NOT thread safe! */
   public static class OrphansImpl implements Orphans {
     private final Scope topScope;
 
@@ -183,10 +115,6 @@ public interface Orphans {
 
     // TODO: should we add some sort of validation to check that we're not adding a random parent?
     public void addParent(ClassEntity parent) {
-      // Should not be necessary
-      if (parent == null) {
-        return;
-      }
       enrich(current, parent);
     }
   }

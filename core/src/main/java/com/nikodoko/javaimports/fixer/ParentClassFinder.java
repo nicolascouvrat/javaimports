@@ -5,7 +5,6 @@ import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
-import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.common.telemetry.Traces;
@@ -20,7 +19,7 @@ import java.util.logging.Logger;
 /**
  * A {@code ParentClassFinder} uses a {@link CandidateFinder} as well as a {@link ClassLibrary} to
  * identify unresolved identifiers that are in fact declared in one of the parents of an{@link
- * OrphanClass}.
+ * Orphans}.
  */
 class ParentClassFinder {
   static class Result {
@@ -102,7 +101,6 @@ class ParentClassFinder {
     int foundCount = 0;
     while ((cd = it.next()) != null) {
       if (cd.maybeParent().isEmpty()) {
-        it.addParent(null);
         continue;
       }
 
@@ -117,7 +115,6 @@ class ParentClassFinder {
 
       var maybeParent = maybeParentClass(cd.maybeParent().get());
       if (maybeParent.isEmpty()) {
-        it.addParent(null);
         continue;
       }
 

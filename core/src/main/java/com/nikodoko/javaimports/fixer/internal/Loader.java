@@ -21,17 +21,12 @@ public class Loader {
   private Set<ParsedFile> siblings = new HashSet<>();
   private StdlibProvider stdlib = StdlibProviders.empty();
   private Environment environment = Environments.empty();
-  private ParsedFile file;
-  private Options options;
-
-  private LoadResult result = new LoadResult();
+  private final ParsedFile file;
+  private final Options options;
 
   private Loader(ParsedFile file, Options options) {
     this.file = file;
-    this.result.unresolved = file.notYetResolved();
-    this.result.orphans = file.orphans();
     this.options = options;
-    result.orphans = file.orphans();
   }
 
   /** Create a {@code Loader} for the given {@code file}. */
@@ -55,11 +50,6 @@ public class Loader {
     this.siblings = environment.filesInPackage(file.packageName());
   }
 
-  /** Returns the result of this loader */
-  public LoadResult result() {
-    return result;
-  }
-
   /**
    * Try to find which identifiers are still unresolved, using various information in addition to
    * the file itself.
@@ -72,14 +62,13 @@ public class Loader {
 
   private void resolveAllJavaLang() {
     Set<Identifier> inJavaLang = new HashSet<>();
-    for (var unresolved : result.unresolved) {
+    for (var unresolved : file.orphans().unresolved()) {
       if (stdlib.isInJavaLang(unresolved)) {
         inJavaLang.add(unresolved);
       }
     }
 
-    result.unresolved = difference(result.unresolved, inJavaLang);
-    result.orphans.addDeclarations(inJavaLang);
+    file.orphans().addDeclarations(inJavaLang);
   }
 
   // FIXME: this does not do anything about the situation where we import a class that we extend
@@ -88,8 +77,7 @@ public class Loader {
   // We should probably have shortcut here that directly goes to find that package? But we most
   // likely need environment information for this...
   private void resolveUsingImports() {
-    result.unresolved = difference(result.unresolved, file.importedIdentifiers());
-    result.orphans.addDeclarations(file.importedIdentifiers());
+    file.orphans().addDeclarations(file.importedIdentifiers());
   }
 
   private void resolveUsingSiblings() {
@@ -99,18 +87,6 @@ public class Loader {
   }
 
   private void resolveUsingSibling(ParsedFile sibling) {
-    result.unresolved = difference(result.unresolved, sibling.topLevelDeclarations());
-    result.orphans.addDeclarations(sibling.topLevelDeclarations());
-  }
-
-  private <T> Set<T> difference(Set<T> original, Set<T> toRemove) {
-    Set<T> result = new HashSet<>();
-    for (var identifier : original) {
-      if (!toRemove.contains(identifier)) {
-        result.add(identifier);
-      }
-    }
-
-    return result;
+    file.orphans().addDeclarations(sibling.topLevelDeclarations());
   }
 }

@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
-import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Superclass;
@@ -1249,16 +1248,11 @@ public class ParserTest {
   }
 
   private static Set<Identifier> allUnresolvedIn(ParsedFile file) {
-    Set<Identifier> unresolved = file.notYetResolved();
     // Do a traversal of orphans to force local resolution
     var traverser = file.orphans().traverse();
-    ClassDeclaration decl = null;
-    while ((decl = traverser.next()) != null) {
-      System.out.println(decl);
-    }
-    unresolved.addAll(file.orphans().unresolved());
+    while (traverser.next() != null) {}
 
-    return unresolved;
+    return file.orphans().unresolved();
   }
 
   @ParameterizedTest(name = "{0}")

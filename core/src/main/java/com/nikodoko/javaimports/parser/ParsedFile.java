@@ -42,10 +42,6 @@ public record ParsedFile(
     return Optional.ofNullable(classMap.get(i));
   }
 
-  public Set<Identifier> notYetResolved() {
-    return topScope().notYetResolved;
-  }
-
   public Orphans orphans() {
     return Orphans.wrapping(topScope());
   }
