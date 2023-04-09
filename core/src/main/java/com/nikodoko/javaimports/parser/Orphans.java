@@ -10,22 +10,48 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
 
+/**
+ * Wraps the top {@code Scope} of a {@link ParsedFile} and exposes its orphan classes so that
+ * external parents can be found.
+ *
+ * <p>Note that it will try to prioritise finding local parents, and that it will also hide classes
+ * that are not safe to extend now. For example, if an orphan is declared inside another orphan,
+ * traversing through this {@code Orphans} will NOT expose the inner orphan, as it is not certain at
+ * this point that the parent of the outer orphan does not provide the parent of the inner orphan as
+ * well. Once the outer orphan will have found its parent, doing a new traversal on the same {@code
+ * Orphans} will expose the inner orphan.
+ */
 public interface Orphans {
   public interface Traverser {
+    /**
+     * Returns a {@link ClassDeclaration} corresponding to the next orphan, or {@code null} if there
+     * are no more orphans currently available.
+     *
+     * <p>Note that {@code next()} returning null does not mean that there are no more orphans at
+     * all. It is possible that initiating a new traversal reveals new ones, or that some are hidden
+     * until an external parent is added. To know if there are still orphans in need or parents,
+     * call {@link Orphans#needsParents}.
+     */
     public ClassDeclaration next();
 
+    /**
+     * Adds a parent to the last orphan class returned by this {@code Traverser}.
+     *
+     * <p>It is the caller's responsibility to ensure that the provided {@code parent} is indeed a
+     * parent of that orphan.
+     */
     public void addParent(ClassEntity parent);
   }
 
+  /** Initiates an iteration of orphan classes in the underlying scope. */
   public Traverser traverse();
 
-  // TODO move me to ParsedFile
-  // public Set<Identifier> unresolved();
-
+  /**
+   * Returns {@code true} if there are still orphans in need of parents in the underlying scope.
+   *
+   * <p>Note that this will also match orphans that are currently hidden by the iteration.
+   */
   public boolean needsParents();
-
-  // TODO move me to ParsedFile
-  // public void addDeclarations(Set<Identifier> declarations);
 
   public static Orphans wrapping(Scope topScope) {
     return new OrphansImpl(topScope);
