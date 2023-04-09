@@ -62,13 +62,13 @@ public class Loader {
 
   private void resolveAllJavaLang() {
     Set<Identifier> inJavaLang = new HashSet<>();
-    for (var unresolved : file.orphans().unresolved()) {
+    for (var unresolved : file.unresolved()) {
       if (stdlib.isInJavaLang(unresolved)) {
         inJavaLang.add(unresolved);
       }
     }
 
-    file.orphans().addDeclarations(inJavaLang);
+    file.addDeclarations(inJavaLang);
   }
 
   // FIXME: this does not do anything about the situation where we import a class that we extend
@@ -77,7 +77,7 @@ public class Loader {
   // We should probably have shortcut here that directly goes to find that package? But we most
   // likely need environment information for this...
   private void resolveUsingImports() {
-    file.orphans().addDeclarations(file.importedIdentifiers());
+    file.addDeclarations(file.importedIdentifiers());
   }
 
   private void resolveUsingSiblings() {
@@ -87,6 +87,6 @@ public class Loader {
   }
 
   private void resolveUsingSibling(ParsedFile sibling) {
-    file.orphans().addDeclarations(sibling.topLevelDeclarations());
+    file.addDeclarations(sibling.topLevelDeclarations());
   }
 }

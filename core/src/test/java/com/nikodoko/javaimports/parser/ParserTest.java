@@ -1252,7 +1252,7 @@ public class ParserTest {
     var traverser = file.orphans().traverse();
     while (traverser.next() != null) {}
 
-    return file.orphans().unresolved();
+    return file.unresolved();
   }
 
   @ParameterizedTest(name = "{0}")

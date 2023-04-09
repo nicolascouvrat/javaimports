@@ -10,10 +10,14 @@ import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
+import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Superclass;
+import com.nikodoko.javaimports.parser.internal.Scope;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class OrphansTest {
@@ -252,6 +256,31 @@ public class OrphansTest {
     assertThat(orphans.needsParents()).isFalse();
   }
 
+  record OrphansAndScope(Orphans orphans, Scope topScope) implements Orphans {
+    public Set<Identifier> unresolved() {
+      Set<Identifier> collector = new HashSet<>();
+      collectUnresolved(collector, topScope);
+      return collector;
+    }
+
+    private static void collectUnresolved(Set<Identifier> collector, Scope scope) {
+      collector.addAll(scope.unresolved);
+      for (var s : scope.childScopes) {
+        collectUnresolved(collector, s);
+      }
+    }
+
+    @Override
+    public Orphans.Traverser traverse() {
+      return orphans.traverse();
+    }
+
+    @Override
+    public boolean needsParents() {
+      return orphans.needsParents();
+    }
+  }
+
   private IterableSubject assertThatOrphans(Orphans orphans) {
     var allOrphans = new ArrayList<ClassDeclaration>();
     var traverser = orphans.traverse();
@@ -264,10 +293,11 @@ public class OrphansTest {
     return assertThat(allOrphans);
   }
 
-  private Orphans getOrphans(String code) {
+  private OrphansAndScope getOrphans(String code) {
     var parser = new Parser(Options.defaults());
     try {
-      return Orphans.wrapping(parser.parse(Paths.get(""), code).get().topScope());
+      var scope = parser.parse(Paths.get(""), code).get().topScope();
+      return new OrphansAndScope(Orphans.wrapping(scope), scope);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);

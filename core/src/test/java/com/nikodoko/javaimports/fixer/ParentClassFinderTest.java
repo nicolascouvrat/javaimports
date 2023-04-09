@@ -78,16 +78,6 @@ public class ParentClassFinderTest {
     }
 
     @Override
-    public void addDeclarations(Set<Identifier> declarations) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<Identifier> unresolved() {
-      return unresolved;
-    }
-
-    @Override
     public Orphans.Traverser traverse() {
       return new SimpleTraverser();
     }
@@ -97,7 +87,6 @@ public class ParentClassFinderTest {
   void itShouldReturnAnEmptyResultIfNoOrphan() {
     var got = finder.findAllParents(new SimpleOrphan());
     assertThat(got.complete).isTrue();
-    assertThat(got.unresolved).isEmpty();
     assertThat(got.fixes).isEmpty();
   }
 
@@ -137,8 +126,8 @@ public class ParentClassFinderTest {
 
     var got = finder.findAllParents(orphan);
     assertThat(got.complete).isTrue();
-    assertThat(got.unresolved).containsExactlyElementsIn(identifiers("c"));
     assertThat(got.fixes).containsExactly(anImport("com.app.FirstParent"));
+    assertThat(orphan.unresolved).containsExactlyElementsIn(identifiers("c"));
   }
 
   Set<Identifier> identifiers(String... identifiers) {

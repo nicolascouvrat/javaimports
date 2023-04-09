@@ -2,16 +2,13 @@ package com.nikodoko.javaimports.parser;
 
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
-import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.parser.internal.Scope;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 public interface Orphans {
   public interface Traverser {
@@ -23,12 +20,12 @@ public interface Orphans {
   public Traverser traverse();
 
   // TODO move me to ParsedFile
-  public Set<Identifier> unresolved();
+  // public Set<Identifier> unresolved();
 
   public boolean needsParents();
 
   // TODO move me to ParsedFile
-  public void addDeclarations(Set<Identifier> declarations);
+  // public void addDeclarations(Set<Identifier> declarations);
 
   public static Orphans wrapping(Scope topScope) {
     return new OrphansImpl(topScope);
@@ -46,16 +43,6 @@ public interface Orphans {
     public Traverser traverse() {
       return new TraverserImpl(topScope);
     }
-    /**
-     * Snapshots the current state by returning all identifiers currently unresolved.
-     *
-     * <p>Be sure to call this after each new traversal as it might have changed!
-     */
-    public Set<Identifier> unresolved() {
-      Set<Identifier> collector = new HashSet<>();
-      collectUnresolved(collector, topScope);
-      return collector;
-    }
 
     /** Returns true if there are still any class scopes in need of parents. */
     public boolean needsParents() {
@@ -68,11 +55,6 @@ public interface Orphans {
       }
 
       return s.childScopes.stream().anyMatch(OrphansImpl::needsParents);
-    }
-
-    /** Adds the provided declarations to all orphans. */
-    public void addDeclarations(Set<Identifier> declarations) {
-      declarations.forEach(topScope::declare);
     }
   }
 
@@ -118,13 +100,6 @@ public interface Orphans {
     // TODO: should we add some sort of validation to check that we're not adding a random parent?
     public void addParent(ClassEntity parent) {
       enrich(current, parent);
-    }
-  }
-
-  private static void collectUnresolved(Set<Identifier> collector, Scope scope) {
-    collector.addAll(scope.unresolved);
-    for (var s : scope.childScopes) {
-      collectUnresolved(collector, s);
     }
   }
 

@@ -107,7 +107,7 @@ public class Fixer {
       log.info("load completed");
     }
 
-    if (!file.orphans().needsParents() && file.orphans().unresolved().isEmpty()) {
+    if (!file.orphans().needsParents() && file.unresolved().isEmpty()) {
       return Result.complete();
     }
 
@@ -131,7 +131,6 @@ public class Fixer {
   private Result fixInstrumented(boolean lastTry) {
     var allParentsFound = true;
     var fixes = new HashSet<Import>();
-    var unresolved = new HashSet<Identifier>();
     var result = parents.findAllParents(file.orphans());
     if (!result.complete && !lastTry) {
       return Result.incomplete();
@@ -142,7 +141,7 @@ public class Fixer {
             .filter(i -> !i.selector.scope().equals(file.pkg()))
             .map(Import::fromNew)
             .collect(Collectors.toSet()));
-    unresolved.addAll(result.unresolved);
+    var unresolved = file.unresolved();
 
     // We had orphan classes, but they did not have any unresolved identifiers
     if (unresolved.isEmpty()) {
