@@ -7,6 +7,7 @@ import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.ImportProvider;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.parser.internal.ClassMap;
 import com.nikodoko.javaimports.parser.internal.Scope;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -111,6 +112,7 @@ public record ParsedFile(
     }
 
     public ParsedFile build() {
+      var classes = ClassMap.of(topScope, pkg);
       return new ParsedFile(
           pkg, packageEndPos, duplicateImportPositions, imports, topScope, classes);
     }

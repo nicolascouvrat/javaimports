@@ -91,11 +91,7 @@ public class Parser {
     }
 
     // Wrap the results in a ParsedFile
-    var fileBuilder = JCHelper.toParsedFileBuilder(unit).topScope(scanner.topScope());
-    for (var e : scanner.classTree().flatView().entrySet()) {
-      fileBuilder.addDeclaredClass(e.getKey(), e.getValue());
-    }
-    var f = fileBuilder.build();
+    var f = JCHelper.toParsedFileBuilder(unit).topScope(scanner.topScope()).build();
     if (options.debug()) {
       log.info(String.format("completed parsing in %d ms: %s", clock.millis() - start, f));
     }

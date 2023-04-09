@@ -6,11 +6,11 @@ import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
-import com.nikodoko.javaimports.parser.ClassTree;
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CaseTree;
 import com.sun.source.tree.CatchTree;
+import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ForLoopTree;
@@ -59,16 +59,11 @@ import javax.lang.model.element.Modifier;
  */
 public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private Scope topScope = new Scope();
-  private ClassTree classTree = ClassTree.root();
   private boolean isRootClass = false;
 
   /** The top level scope of this scanner. */
   public Scope topScope() {
     return topScope;
-  }
-
-  public ClassTree classTree() {
-    return classTree;
   }
 
   @Override
@@ -193,7 +188,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   @Override
-  public Void visitClass(com.sun.source.tree.ClassTree tree, Void v) {
+  public Void visitClass(ClassTree tree, Void v) {
     var className = new Identifier(tree.getSimpleName().toString());
     var newClass = createClassEntity(className, tree);
     declare(className);
@@ -210,7 +205,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return r;
   }
 
-  private ClassEntity createClassEntity(Identifier name, com.sun.source.tree.ClassTree tree) {
+  private ClassEntity createClassEntity(Identifier name, ClassTree tree) {
     var isEnum = tree.getKind() == Tree.Kind.ENUM;
     if (isEnum && tree.getExtendsClause() != null) {
       throw new IllegalStateException("Enum with extends clause");
@@ -234,12 +229,9 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private void openClassScope(ClassEntity entity) {
     openScope();
     topScope.maybeClass = Optional.of(new ClassDeclaration(entity.name, entity.maybeParent));
-    classTree = classTree.pushAndMoveDown(entity);
   }
 
   private void closeClassScope(ClassEntity classEntity) {
-    classTree.addDeclarations(topScope.identifiers);
-
     closeScope();
   }
 
@@ -282,7 +274,6 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   private void openNonClassScope() {
-    classTree = classTree.moveDown();
     openScope();
   }
 
@@ -302,9 +293,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     topScope = topScope.parent;
   }
 
-  private void moveUpInHierarchy() {
-    classTree = classTree.moveUp();
-  }
+  private void moveUpInHierarchy() {}
 
   // Copied from the original class where it is private
   private Void scanAndReduce(Iterable<? extends Tree> nodes, Void p, Void r) {

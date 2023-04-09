@@ -22,10 +22,12 @@ public interface Orphans {
 
   public Traverser traverse();
 
+  // TODO move me to ParsedFile
   public Set<Identifier> unresolved();
 
   public boolean needsParents();
 
+  // TODO move me to ParsedFile
   public void addDeclarations(Set<Identifier> declarations);
 
   public static Orphans wrapping(Scope topScope) {
