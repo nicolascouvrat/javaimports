@@ -1,14 +1,15 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
-import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
-import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
 import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
+import com.nikodoko.javaimports.parser.Orphans;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -17,38 +18,33 @@ import java.util.logging.Logger;
 /**
  * A {@code ParentClassFinder} uses a {@link CandidateFinder} as well as a {@link ClassLibrary} to
  * identify unresolved identifiers that are in fact declared in one of the parents of an{@link
- * OrphanClass}.
+ * Orphans}.
  */
 class ParentClassFinder {
   static class Result {
     // Whether all parents were found
     final boolean complete;
-    // All identifiers that are not declared in parents
-    final Set<Identifier> unresolved;
     // All imports required to access the parents found
     final Set<Import> fixes;
 
-    Result(boolean complete, Set<Identifier> unresolved, Set<Import> fixes) {
+    Result(boolean complete, Set<Import> fixes) {
       this.complete = complete;
-      this.unresolved = unresolved;
       this.fixes = fixes;
     }
 
-    static Result complete(Set<Identifier> unresolved, Set<Import> fixes) {
-      return new Result(true, unresolved, fixes);
+    static Result complete(Set<Import> fixes) {
+      return new Result(true, fixes);
     }
 
-    static Result incomplete(Set<Identifier> unresolved, Set<Import> fixes) {
-      return new Result(false, unresolved, fixes);
+    static Result incomplete(Set<Import> fixes) {
+      return new Result(false, fixes);
     }
 
     static Result merge(Result a, Result b) {
       var complete = a.complete && b.complete;
-      var unresolved = new HashSet<>(a.unresolved);
-      unresolved.addAll(b.unresolved);
       var fixes = new HashSet<>(a.fixes);
       fixes.addAll(b.fixes);
-      return new Result(complete, unresolved, fixes);
+      return new Result(complete, fixes);
     }
   }
 
@@ -69,56 +65,75 @@ class ParentClassFinder {
     this.options = options;
   }
 
-  Result findAllParents(Set<OrphanClass> orphans) {
+  Result findAllParents(Orphans orphans) {
     var span = Traces.createSpan("ParentClassFinder.findAllParents");
     try (var __ = Traces.activate(span)) {
-      return orphans.stream()
-          .map(this::findParents)
-          .reduce(Result::merge)
-          .orElse(Result.complete(Set.of(), Set.of()));
+      return findAllParentsInstrumented(orphans);
     } finally {
       span.finish();
     }
   }
 
-  Result findParents(OrphanClass orphan) {
-    if (!orphan.hasParent()) {
-      return Result.complete(orphan.unresolved, Set.of());
-    }
-
+  private Result findAllParentsInstrumented(Orphans orphans) {
     Set<Import> fixes = new HashSet<>();
-    // We require a fix only if the parent is not already resolved
-    if (!orphan.parent().isResolved()) {
-      maybeParentScope(orphan).map(s -> new Import(s, false)).map(fixes::add);
+    // Hacky, but that's to emulate the fact that we only need to import the first class in the
+    // extend chain. This should be handled by the fact that extension of files should all be
+    // resolved.
+    Set<Selector> processed = new HashSet<>();
+    while (traverseOnce(orphans, fixes, processed) > 0) {}
+
+    if (orphans.needsParents()) {
+      return Result.incomplete(fixes);
     }
 
-    while (orphan.hasParent() && !orphan.unresolved.isEmpty()) {
-      var maybeParent = maybeParentClass(orphan);
-      if (maybeParent.isEmpty()) {
-        return Result.incomplete(orphan.unresolved, fixes);
-      }
-
-      orphan = orphan.addParent(maybeParent.get());
-    }
-
-    return Result.complete(orphan.unresolved, fixes);
+    return Result.complete(fixes);
   }
 
-  private Optional<ClassEntity> maybeParentClass(OrphanClass orphan) {
+  int traverseOnce(Orphans orphans, Set<Import> fixes, Set<Selector> processed) {
+    var it = orphans.traverse();
+    ClassDeclaration cd;
+    int foundCount = 0;
+    while ((cd = it.next()) != null) {
+      if (cd.maybeParent().isEmpty()) {
+        continue;
+      }
+
+      // This should be the only condition we use, but instead...
+      if (!cd.maybeParent().get().isResolved()) {
+        var maybeParentScope = maybeParentScope(cd.maybeParent().get());
+        if (maybeParentScope.isPresent() && !processed.contains(cd.name())) {
+          fixes.add(new Import(maybeParentScope.get(), false));
+          processed.add(cd.name());
+        }
+      }
+
+      var maybeParent = maybeParentClass(cd.maybeParent().get());
+      if (maybeParent.isEmpty()) {
+        continue;
+      }
+
+      it.addParent(maybeParent.get());
+      foundCount++;
+    }
+
+    return foundCount;
+  }
+
+  private Optional<ClassEntity> maybeParentClass(Superclass parent) {
     Optional<Import> maybeParent = Optional.empty();
-    if (orphan.parent().isResolved()) {
-      maybeParent = Optional.of(orphan.parent().getResolved());
+    if (parent.isResolved()) {
+      maybeParent = Optional.of(parent.getResolved());
     } else {
       maybeParent =
-          maybeParentScope(orphan)
-              .map(s -> s.join(orphan.parent().getUnresolved()))
+          maybeParentScope(parent)
+              .map(s -> s.join(parent.getUnresolved()))
               // A class import is necessarily non static
               .map(s -> new Import(s, false));
     }
 
     var got = maybeParent.flatMap(library::find);
     if (options.debug()) {
-      log.info(String.format("Found parent for %s: %s", orphan, got));
+      log.info(String.format("Found parent for %s: %s", parent, got));
     }
 
     return got;
@@ -127,8 +142,8 @@ class ParentClassFinder {
   // This returns the scope from which the parent is reachable. In other words,
   // findParentScope(orphan).join(orphan.parent().getUnresolved()) is a selector pointing to the
   // actual parent class
-  private Optional<Selector> maybeParentScope(OrphanClass orphan) {
-    var parentSelector = orphan.parent().getUnresolved();
+  private Optional<Selector> maybeParentScope(Superclass parent) {
+    var parentSelector = parent.getUnresolved();
     var candidates = candidateFinder.find(parentSelector);
     return selectionStrategy
         .selectBest(candidates)

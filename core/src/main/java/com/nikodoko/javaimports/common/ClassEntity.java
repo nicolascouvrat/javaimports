@@ -39,6 +39,11 @@ public class ClassEntity {
       return this;
     }
 
+    public Builder extending(Optional<Superclass> parent) {
+      this.maybeParent = parent;
+      return this;
+    }
+
     public ClassEntity build() {
       return new ClassEntity(name, declarations, maybeParent);
     }

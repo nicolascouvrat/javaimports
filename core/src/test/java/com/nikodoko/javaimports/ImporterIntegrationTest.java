@@ -93,7 +93,7 @@ public class ImporterIntegrationTest {
       }
       fail();
     } catch (Exception e) {
-      fail("Got exception for " + pkg.name + ": " + e);
+      throw new AssertionError("Got exception for " + pkg.name, e);
     }
   }
 

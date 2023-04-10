@@ -1,16 +1,16 @@
 package com.nikodoko.javaimports.parser.internal;
 
+import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
-import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
-import com.nikodoko.javaimports.parser.ClassTree;
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CaseTree;
 import com.sun.source.tree.CatchTree;
+import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ForLoopTree;
@@ -27,7 +27,7 @@ import com.sun.source.util.TreePathScanner;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCCase;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
-import java.util.Set;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
@@ -59,16 +59,11 @@ import javax.lang.model.element.Modifier;
  */
 public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   private Scope topScope = new Scope();
-  private ClassTree classTree = ClassTree.root();
   private boolean isRootClass = false;
 
   /** The top level scope of this scanner. */
   public Scope topScope() {
     return topScope;
-  }
-
-  public ClassTree classTree() {
-    return classTree;
   }
 
   @Override
@@ -193,7 +188,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   @Override
-  public Void visitClass(com.sun.source.tree.ClassTree tree, Void v) {
+  public Void visitClass(ClassTree tree, Void v) {
     var className = new Identifier(tree.getSimpleName().toString());
     var newClass = createClassEntity(className, tree);
     declare(className);
@@ -210,7 +205,7 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return r;
   }
 
-  private ClassEntity createClassEntity(Identifier name, com.sun.source.tree.ClassTree tree) {
+  private ClassEntity createClassEntity(Identifier name, ClassTree tree) {
     var isEnum = tree.getKind() == Tree.Kind.ENUM;
     if (isEnum && tree.getExtendsClause() != null) {
       throw new IllegalStateException("Enum with extends clause");
@@ -233,15 +228,10 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   private void openClassScope(ClassEntity entity) {
     openScope();
-    classTree = classTree.pushAndMoveDown(entity);
+    topScope.maybeClass = Optional.of(new ClassDeclaration(entity.name, entity.maybeParent));
   }
 
   private void closeClassScope(ClassEntity classEntity) {
-    var orphan =
-        new OrphanClass(classEntity.name, topScope.notYetResolved, classEntity.maybeParent);
-    topScope.orphans.add(orphan);
-    classTree.addDeclarations(topScope.identifiers);
-
     closeScope();
   }
 
@@ -257,28 +247,14 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     // Try to resolve the identifier, if it fails add it to unresolved for the current scope
     String name = tree.getName().toString();
     var identifier = new Identifier(name);
-    if (!resolvable(identifier)) {
-      topScope.notYetResolved.add(identifier);
-    }
+    topScope.maybeAddUnresolved(identifier);
 
     return null;
   }
 
-  private boolean resolvable(Identifier identifier) {
-    Scope current = topScope;
-    while (current != null) {
-      if (current.identifiers.contains(identifier)) {
-        return true;
-      }
-
-      current = current.parent;
-    }
-
-    return false;
-  }
-
   private void declare(Identifier identifier) {
     topScope.identifiers.add(identifier);
+    topScope.declare(identifier);
   }
 
   /**
@@ -298,71 +274,26 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   private void openNonClassScope() {
-    classTree = classTree.moveDown();
     openScope();
   }
 
   private void openScope() {
     Scope newScope = new Scope();
     newScope.parent = topScope;
+    topScope.addChild(newScope);
     topScope = newScope;
   }
 
   private void closeNonClassScope() {
-    bubbleUnresolvedIdentifiers(topScope.notYetResolved);
     closeScope();
   }
 
   private void closeScope() {
-    for (var o : topScope.orphans) {
-      resolveAndExtend(o);
-    }
-
     moveUpInHierarchy();
     topScope = topScope.parent;
   }
 
-  private void moveUpInHierarchy() {
-    classTree = classTree.moveUp();
-  }
-
-  private void resolveAndExtend(OrphanClass orphan) {
-    orphan = orphan.addDeclarations(topScope.identifiers);
-    orphan = extendAsMuchAsPossible(orphan);
-    if (orphan.hasParent()) {
-      topScope.parent.orphans.add(orphan);
-      return;
-    }
-
-    bubbleUnresolvedIdentifiers(orphan.unresolved);
-  }
-
-  private OrphanClass extendAsMuchAsPossible(OrphanClass orphan) {
-    var current = orphan;
-    while (current.hasParent()) {
-      var superclass = current.parent();
-      if (superclass.isResolved()) {
-        // Then we know the precise import we need, we'll handle it later
-        return current;
-      }
-
-      var maybeParent = classTree.find(superclass.getUnresolved());
-      if (maybeParent.isEmpty()) {
-        // Can't find parent for now, keep it as is
-        return current;
-      }
-
-      current = current.addParent(maybeParent.get());
-    }
-
-    return current;
-  }
-
-  private void bubbleUnresolvedIdentifiers(Set<Identifier> unresolved) {
-    for (var i : unresolved) {
-      topScope.parent.notYetResolved.add(i);
-    }
-  }
+  private void moveUpInHierarchy() {}
 
   // Copied from the original class where it is private
   private Void scanAndReduce(Iterable<? extends Tree> nodes, Void p, Void r) {

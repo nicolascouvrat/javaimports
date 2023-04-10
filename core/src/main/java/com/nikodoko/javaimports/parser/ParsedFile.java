@@ -6,12 +6,13 @@ import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.ImportProvider;
-import com.nikodoko.javaimports.common.OrphanClass;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.parser.internal.ClassMap;
 import com.nikodoko.javaimports.parser.internal.Scope;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,17 +39,37 @@ public record ParsedFile(
     return imports.keySet();
   }
 
+  /** Adds the provided declarations to the scope of this file. */
+  public void addDeclarations(Set<Identifier> declarations) {
+    declarations.forEach(topScope::declare);
+  }
+
+  /**
+   * Snapshots the current state by returning all identifiers currently unresolved.
+   *
+   * <p>Be careful, as the underlying scope is mutable. Successive calls to unresolved() are not
+   * guaranteed to return the same elements depending on other operations performed in between.
+   */
+  public Set<Identifier> unresolved() {
+    Set<Identifier> collector = new HashSet<>();
+    collectUnresolved(collector, topScope);
+    return collector;
+  }
+
+  private static void collectUnresolved(Set<Identifier> collector, Scope scope) {
+    collector.addAll(scope.unresolved);
+    for (var s : scope.childScopes) {
+      collectUnresolved(collector, s);
+    }
+  }
+
   @Override
   public Optional<ClassEntity> findClass(Import i) {
     return Optional.ofNullable(classMap.get(i));
   }
 
-  public Set<Identifier> notYetResolved() {
-    return topScope().notYetResolved;
-  }
-
-  public Set<OrphanClass> orphans() {
-    return topScope().orphans;
+  public Orphans orphans() {
+    return Orphans.wrapping(topScope());
   }
 
   public Set<Identifier> topLevelDeclarations() {
@@ -116,6 +137,7 @@ public record ParsedFile(
     }
 
     public ParsedFile build() {
+      var classes = ClassMap.of(topScope, pkg);
       return new ParsedFile(
           pkg, packageEndPos, duplicateImportPositions, imports, topScope, classes);
     }

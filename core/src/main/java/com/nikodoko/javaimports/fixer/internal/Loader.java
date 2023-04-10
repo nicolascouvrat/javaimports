@@ -10,7 +10,6 @@ import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Uses additional information, such as files from the same package, to determine which identifiers
@@ -22,15 +21,11 @@ public class Loader {
   private Set<ParsedFile> siblings = new HashSet<>();
   private StdlibProvider stdlib = StdlibProviders.empty();
   private Environment environment = Environments.empty();
-  private ParsedFile file;
-  private Options options;
-
-  private LoadResult result = new LoadResult();
+  private final ParsedFile file;
+  private final Options options;
 
   private Loader(ParsedFile file, Options options) {
     this.file = file;
-    this.result.unresolved = file.notYetResolved();
-    this.result.orphans = file.orphans();
     this.options = options;
   }
 
@@ -51,14 +46,8 @@ public class Loader {
   public void addEnvironment(Environment environment) {
     this.environment = environment;
     // The environment lets us find not only the siblings in the same folder, but also the siblings
-    // in
-    // other folders of the same project
+    // in other folders of the same project
     this.siblings = environment.filesInPackage(file.packageName());
-  }
-
-  /** Returns the result of this loader */
-  public LoadResult result() {
-    return result;
   }
 
   /**
@@ -73,13 +62,13 @@ public class Loader {
 
   private void resolveAllJavaLang() {
     Set<Identifier> inJavaLang = new HashSet<>();
-    for (var unresolved : result.unresolved) {
+    for (var unresolved : file.unresolved()) {
       if (stdlib.isInJavaLang(unresolved)) {
         inJavaLang.add(unresolved);
       }
     }
 
-    result.unresolved = difference(result.unresolved, inJavaLang);
+    file.addDeclarations(inJavaLang);
   }
 
   // FIXME: this does not do anything about the situation where we import a class that we extend
@@ -88,11 +77,7 @@ public class Loader {
   // We should probably have shortcut here that directly goes to find that package? But we most
   // likely need environment information for this...
   private void resolveUsingImports() {
-    result.unresolved = difference(result.unresolved, file.importedIdentifiers());
-    result.orphans =
-        result.orphans.stream()
-            .map(o -> o.addDeclarations(file.importedIdentifiers()))
-            .collect(Collectors.toSet());
+    file.addDeclarations(file.importedIdentifiers());
   }
 
   private void resolveUsingSiblings() {
@@ -102,21 +87,6 @@ public class Loader {
   }
 
   private void resolveUsingSibling(ParsedFile sibling) {
-    result.unresolved = difference(result.unresolved, sibling.topLevelDeclarations());
-    result.orphans =
-        result.orphans.stream()
-            .map(o -> o.addDeclarations(sibling.topLevelDeclarations()))
-            .collect(Collectors.toSet());
-  }
-
-  private <T> Set<T> difference(Set<T> original, Set<T> toRemove) {
-    Set<T> result = new HashSet<>();
-    for (var identifier : original) {
-      if (!toRemove.contains(identifier)) {
-        result.add(identifier);
-      }
-    }
-
-    return result;
+    file.addDeclarations(sibling.topLevelDeclarations());
   }
 }
