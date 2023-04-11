@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.parser;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.nikodoko.javaimports.common.CommonTestUtil.aSelector;
+import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
 import static com.nikodoko.javaimports.common.CommonTestUtil.someIdentifiers;
 import static org.junit.Assert.fail;
 
@@ -155,7 +156,7 @@ public class OrphansTest {
         .isEqualTo(
             new ClassDeclaration(aSelector("Child"), Superclass.unresolved(aSelector("Parent"))));
     var parent = ClassEntity.named(aSelector("Parent")).declaring(someIdentifiers("z")).build();
-    traverser.addParent(parent);
+    traverser.addParent(anImport("whatever.Parent"), parent);
     // Some unresolved symbols went away at this point
     assertThat(orphans.unresolved()).containsExactlyElementsIn(someIdentifiers("f", "g", "n", "m"));
 
@@ -167,6 +168,36 @@ public class OrphansTest {
     assertThatOrphans(orphans).containsExactlyElementsIn(expected);
     // Some more unresolved symbols went away at this point
     assertThat(orphans.unresolved()).containsExactlyElementsIn(someIdentifiers("f", "g", "n"));
+    assertThat(orphans.needsParents()).isTrue();
+  }
+
+  @Test
+  void itShouldResolveInnerOrphansParent() {
+    var code =
+        """
+      package pkg.com.test;
+      class Test extends Parent{
+        static class Inner extends OtherParent {
+        }
+      }
+    """;
+
+    var orphans = getOrphans(code);
+    var traverser = orphans.traverse();
+    var next = traverser.next();
+    assertThat(next)
+        .isEqualTo(
+            new ClassDeclaration(aSelector("Test"), Superclass.unresolved(aSelector("Parent"))));
+
+    var parent =
+        ClassEntity.named(aSelector("Parent")).declaring(someIdentifiers("OtherParent")).build();
+    traverser.addParent(anImport("com.mycompany.Parent"), parent);
+
+    assertThatOrphans(orphans)
+        .containsExactly(
+            new ClassDeclaration(
+                aSelector("Inner"),
+                Superclass.resolved(anImport("com.mycompany.Parent.OtherParent"))));
     assertThat(orphans.needsParents()).isTrue();
   }
 

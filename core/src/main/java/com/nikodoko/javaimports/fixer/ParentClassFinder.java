@@ -112,26 +112,29 @@ class ParentClassFinder {
         continue;
       }
 
-      it.addParent(maybeParent.get());
+      var parent = maybeParent.get();
+      it.addParent(parent.parentImport(), parent.parent());
       foundCount++;
     }
 
     return foundCount;
   }
 
-  private Optional<ClassEntity> maybeParentClass(Superclass parent) {
-    Optional<Import> maybeParent = Optional.empty();
+  record ParentAndImport(ClassEntity parent, Import parentImport) {}
+
+  private Optional<ParentAndImport> maybeParentClass(Superclass parent) {
+    Optional<Import> maybeParentImport = Optional.empty();
     if (parent.isResolved()) {
-      maybeParent = Optional.of(parent.getResolved());
+      maybeParentImport = Optional.of(parent.getResolved());
     } else {
-      maybeParent =
+      maybeParentImport =
           maybeParentScope(parent)
               .map(s -> s.join(parent.getUnresolved()))
               // A class import is necessarily non static
               .map(s -> new Import(s, false));
     }
 
-    var got = maybeParent.flatMap(library::find);
+    var got = maybeParentImport.flatMap(i -> library.find(i).map(p -> new ParentAndImport(p, i)));
     if (options.debug()) {
       log.info(String.format("Found parent for %s: %s", parent, got));
     }

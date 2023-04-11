@@ -1,0 +1,7 @@
+package nestedOrphansWithNestedParents;import com.mycompany.app.another.Parent;
+
+// Test that an inner class extending a class that is declared inside the parent of the 
+// enclosing class does not result in unecessary import lines
+class Test extends Parent {
+  class Nested extends AnotherPublicClass {} 
+}
