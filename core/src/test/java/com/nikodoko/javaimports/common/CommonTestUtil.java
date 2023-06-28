@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.common;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.jqwik.api.Arbitraries;
@@ -54,5 +55,18 @@ public class CommonTestUtil {
 
   public static Set<Identifier> someIdentifiers(String... identifiers) {
     return Arrays.stream(identifiers).map(Identifier::new).collect(Collectors.toSet());
+  }
+
+  public static ClassDeclaration aClassDecl(String classDecl) {
+    var elts = classDecl.split(" extends ");
+    if (elts.length == 1) {
+      return new ClassDeclaration(aSelector(elts[0]), Optional.empty());
+    }
+
+    if (elts.length == 2) {
+      return new ClassDeclaration(aSelector(elts[0]), Superclass.unresolved(aSelector(elts[1])));
+    }
+
+    throw new IllegalArgumentException("invalid class declaration: " + classDecl);
   }
 }

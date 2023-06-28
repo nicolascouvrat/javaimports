@@ -7,6 +7,7 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.fixer.candidates.Candidate;
@@ -66,7 +67,7 @@ public class ParentClassFinderTest {
       }
 
       @Override
-      public void addParent(ClassEntity entity) {
+      public void addParent(Import parentImport, ClassEntity entity) {
         entity.declarations.forEach(unresolved::remove);
         parent = entity.maybeParent;
       }

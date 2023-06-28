@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.parser;
 
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.common.Utils;
@@ -40,7 +41,7 @@ public interface Orphans {
      * <p>It is the caller's responsibility to ensure that the provided {@code parent} is indeed a
      * parent of that orphan.
      */
-    public void addParent(ClassEntity parent);
+    public void addParent(Import i, ClassEntity parent);
   }
 
   /** Initiates an iteration of orphan classes in the underlying scope. */
@@ -123,9 +124,9 @@ public interface Orphans {
       return next();
     }
 
-    // TODO: should we add some sort of validation to check that we're not adding a random parent?
-    public void addParent(ClassEntity parent) {
-      enrich(current, parent);
+    @Override
+    public void addParent(Import parentImport, ClassEntity parent) {
+      enrich(current, parent, parentImport);
     }
   }
 
@@ -163,9 +164,29 @@ public interface Orphans {
     return hasLocalParents;
   }
 
-  private static void enrich(Scope child, ClassEntity parent) {
+  private static void enrich(Scope child, ClassEntity parent, Import parentImport) {
     child.maybeClass = child.maybeClass.map(c -> c.addParent(parent.maybeParent));
     parent.declarations.forEach(child::declare);
+
+    for (var s : child.childScopes) {
+      resolveSuperclasses(s, parent, parentImport);
+    }
+  }
+
+  private static void resolveSuperclasses(Scope scope, ClassEntity parent, Import parentImport) {
+    for (var s : scope.childScopes) {
+      resolveSuperclasses(s, parent, parentImport);
+    }
+
+    if (hasSuperclass(scope)) {
+      var superclass = getSuperclass(scope);
+      if (!superclass.isResolved()
+          && parent.declarations.stream().anyMatch(superclass.getUnresolved()::startsWith)) {
+        var resolved = new Import(parentImport.selector.combine(superclass.getUnresolved()), false);
+        var decl = new ClassDeclaration(getClass(scope).name(), Superclass.resolved(resolved));
+        scope.maybeClass = Optional.of(decl);
+      }
+    }
   }
 
   private static void enrich(Scope child, Scope parent) {
