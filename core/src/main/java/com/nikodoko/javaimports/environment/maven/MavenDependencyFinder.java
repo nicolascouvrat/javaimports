@@ -44,12 +44,14 @@ class MavenDependencyFinder {
 
     var pom = loaded.pom;
     var errors = new ArrayList<>(loaded.errors);
+    var currentPomDir = moduleRoot;
     while (hasRelativeParentPath(pom)) {
       // We need to normalize because the relative parent path often includes the special name ..
-      var parentPath = moduleRoot.resolve(relativeParentPomPath(pom)).normalize();
+      var parentPath = currentPomDir.resolve(relativeParentPomPath(pom)).normalize();
       loaded = MavenPomLoader.load(parentPath);
       errors.addAll(loaded.errors);
       pom.merge(loaded.pom);
+      currentPomDir = parentPath.getParent();
     }
 
     // According to the maven documentation, managed dependencies with scope "import" should be
