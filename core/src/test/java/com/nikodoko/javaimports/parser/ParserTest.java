@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.google.common.truth.StreamSubject;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
@@ -333,6 +334,20 @@ public class ParserTest {
       },
       {"SomeException", "Exception", "a", "b", "c", "e", "r"},
       {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
+    },
+    {
+      {"extendsClauseStartingWithLowercaseIsConsideredResolved"},
+      {
+        "package com.pkg.test;",
+        "class Test extends com.my.pkg.Child {", //
+        "}",
+      },
+      {},
+      {
+        ClassEntity.named(aSelector("Test"))
+            .extending(Superclass.resolved(anImport("com.my.pkg.Child")))
+            .build()
+      },
     },
     {
       {"localInheritence"},
@@ -1262,9 +1277,6 @@ public class ParserTest {
       throws Exception {
     Parser parser = new Parser(Options.defaults());
     ParsedFile got = null;
-    if (!name.equals("realisticFile")) {
-      return;
-    }
     try {
       got = parser.parse(Paths.get(name), input).get();
     } catch (ImporterException e) {
@@ -1278,7 +1290,10 @@ public class ParserTest {
         .that(allUnresolvedIn(got))
         .containsExactlyElementsIn(expected);
     if (expectedClasses.length > 0) {
-      com.google.common.truth.Truth8.assertThat(got.classes()).containsExactly(expectedClasses);
+      assertWithMessage("Invalid output for " + name)
+          .about(StreamSubject.streams())
+          .that(got.classes())
+          .containsExactly(expectedClasses);
     }
   }
 }

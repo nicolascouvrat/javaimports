@@ -20,6 +20,14 @@ import java.util.List;
 public class JCHelper {
   static Superclass toSuperclass(JCExpression extendsClause) {
     var selector = toSelector(extendsClause);
+    // Hack: sometimes, the extend clause can represent a resolved superclass
+    // We cannot know it for sure at this stage, but what we can do is assume that if the selector
+    // does not start with a capital letter, then it starts with a package name and is therefore
+    // resolved
+    if (Character.isLowerCase(selector.toString().charAt(0))) {
+      return Superclass.resolved(new Import(selector, false));
+    }
+
     return Superclass.unresolved(selector);
   }
 
