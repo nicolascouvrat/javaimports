@@ -5,6 +5,7 @@ import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Traverse a {@link Scope} tree and extracts the reachable {@link ClassEntity} along with their
@@ -30,7 +31,7 @@ public class ClassMap {
     var entity =
         ClassEntity.named(decl.name())
             .extending(decl.maybeParent())
-            .declaring(scope.declarations)
+            .declaring(Set.copyOf(scope.declarations))
             .build();
     result.put(i, entity);
 
