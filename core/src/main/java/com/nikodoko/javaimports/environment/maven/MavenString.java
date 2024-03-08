@@ -11,7 +11,7 @@ public class MavenString {
   private static final Pattern MAVEN_PROPERTY_PATTERN =
       Pattern.compile("\\$\\{(?<property>[^{}]+)\\}");
   private String template;
-  private Set<String> propertyReferences = new HashSet<>();
+  private volatile Set<String> propertyReferences = new HashSet<>();
 
   public MavenString(String template) {
     this.template = template;
@@ -36,7 +36,7 @@ public class MavenString {
     return props;
   }
 
-  public void substitute(Properties props) {
+  public synchronized void substitute(Properties props) {
     var shouldContinue = false;
     do {
       shouldContinue = substituteOnce(props);
