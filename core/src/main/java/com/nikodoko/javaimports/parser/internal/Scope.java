@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.parser.internal;
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Utils;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -69,8 +70,22 @@ public class Scope {
    */
   public String toString() {
     return Utils.toStringHelper(this)
-        .add("identifiers", identifiers)
+        .add("declarations", declarations)
+        .add("unresolved", unresolved)
         .add("maybeClass", maybeClass)
         .toString();
+  }
+
+  public static void debugPrintScopeTree(Scope scope, PrintStream ps) {
+    debugPrintScopeTreeLevel(0, scope, ps);
+  }
+
+  private static void debugPrintScopeTreeLevel(int level, Scope scope, PrintStream ps) {
+    var prefix = " ".repeat(2 * level);
+    ps.print(prefix);
+    ps.println(scope);
+    for (var cs : scope.childScopes) {
+      debugPrintScopeTreeLevel(level + 1, cs, ps);
+    }
   }
 }
