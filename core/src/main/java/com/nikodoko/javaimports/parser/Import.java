@@ -2,7 +2,7 @@ package com.nikodoko.javaimports.parser;
 
 import com.google.common.base.MoreObjects;
 import com.nikodoko.javaimports.common.Selector;
-import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.nikodoko.javaimports.parser.internal.JCHelper;
 import com.sun.tools.javac.tree.JCTree.JCImport;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -37,9 +37,9 @@ public class Import {
    * @param importTree the import object
    */
   public static Import fromJcImport(JCImport importTree) {
-    String qualifier =
-        ((JCFieldAccess) importTree.getQualifiedIdentifier()).getExpression().toString();
-    String name = ((JCFieldAccess) importTree.getQualifiedIdentifier()).getIdentifier().toString();
+    var f = JCHelper.getQualifiedIdentifier(importTree);
+    var qualifier = f.getExpression().toString();
+    var name = f.getIdentifier().toString();
     return new Import(name, qualifier, importTree.isStatic());
   }
 
