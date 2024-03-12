@@ -4,12 +4,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.telemetry.Metrics;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.fixer.Fixer;
 import com.nikodoko.javaimports.fixer.Result;
-import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import java.io.IOError;
@@ -198,7 +198,7 @@ public final class Importer {
   private String buildImportStatements(Set<Import> fixes) {
     // XXX: we don't really need to order imports alphabetically here, but we do it simply because
     // it's harder to test if the order is not deterministic
-    return fixes.stream().map(Import::asStatement).sorted().collect(Collectors.joining(""));
+    return fixes.stream().map(Import::toStatement).sorted().collect(Collectors.joining(""));
   }
 
   // Add all fixes to the original source code

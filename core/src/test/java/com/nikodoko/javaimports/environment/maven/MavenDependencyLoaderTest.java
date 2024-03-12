@@ -4,7 +4,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
 
 import com.google.common.collect.ImmutableList;
-import com.nikodoko.javaimports.parser.Import;
+import com.nikodoko.javaimports.common.Import;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -18,6 +18,16 @@ import java.util.List;
 
 /** Helper methods to convert {@code JCXxxx} classes to javaimports classes. */
 public class JCHelper {
+  private static JCFieldAccess getQualifiedIdentifier(JCImport importTree) {
+    // Use reflection because the return type is JCTree in some versions and JCFieldAccess in others
+    // (Notably this changes between java 17 to 21).
+    try {
+      return (JCFieldAccess) JCImport.class.getMethod("getQualifiedIdentifier").invoke(importTree);
+    } catch (ReflectiveOperationException e) {
+      throw new LinkageError(e.getMessage(), e);
+    }
+  }
+
   static Superclass toSuperclass(JCExpression extendsClause) {
     var selector = toSelector(extendsClause);
     // Hack: sometimes, the extend clause can represent a resolved superclass
@@ -66,7 +76,7 @@ public class JCHelper {
   }
 
   public static Import toImport(JCImport importTree) {
-    var selector = toSelector((JCExpression) importTree.getQualifiedIdentifier());
+    var selector = toSelector(getQualifiedIdentifier(importTree));
     return new Import(selector, importTree.isStatic());
   }
 
