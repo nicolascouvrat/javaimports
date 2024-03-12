@@ -38,4 +38,8 @@ public final class Import {
         .add("isStatic", isStatic)
         .toString();
   }
+
+  public String toStatement() {
+    return "import%s %s;".formatted(isStatic ? " static" : "", selector);
+  }
 }

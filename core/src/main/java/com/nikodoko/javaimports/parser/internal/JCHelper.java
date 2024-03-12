@@ -18,8 +18,7 @@ import java.util.List;
 
 /** Helper methods to convert {@code JCXxxx} classes to javaimports classes. */
 public class JCHelper {
-  // TODO: make me private
-  public static JCFieldAccess getQualifiedIdentifier(JCImport importTree) {
+  private static JCFieldAccess getQualifiedIdentifier(JCImport importTree) {
     // Use reflection because the return type is JCTree in some versions and JCFieldAccess in others
     // (Notably this changes between java 17 to 21).
     try {

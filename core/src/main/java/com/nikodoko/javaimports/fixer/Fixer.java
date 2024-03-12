@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
@@ -12,7 +13,6 @@ import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
 import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
 import com.nikodoko.javaimports.fixer.candidates.Candidates;
 import com.nikodoko.javaimports.fixer.internal.Loader;
-import com.nikodoko.javaimports.parser.Import;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import java.util.Collection;
@@ -139,7 +139,6 @@ public class Fixer {
     fixes.addAll(
         result.fixes.stream()
             .filter(i -> !i.selector.scope().equals(file.pkg()))
-            .map(Import::fromNew)
             .collect(Collectors.toSet()));
     var unresolved = file.unresolved();
 
@@ -177,7 +176,6 @@ public class Fixer {
         .map(best::forSelector)
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .map(Import::fromNew)
         .collect(Collectors.toSet());
   }
 

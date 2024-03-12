@@ -1,7 +1,7 @@
 package com.nikodoko.javaimports.fixer;
 
 import com.google.common.base.MoreObjects;
-import com.nikodoko.javaimports.parser.Import;
+import com.nikodoko.javaimports.common.Import;
 import java.util.HashSet;
 import java.util.Set;
 
