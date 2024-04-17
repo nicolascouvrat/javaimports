@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.environment.jarutil;
 
 import static com.nikodoko.javaimports.common.CommonTestUtil.aStaticImport;
+import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -18,11 +19,20 @@ public class JarParserTest {
   }
 
   @Test
-  void test() {
+  void itShouldParseAChildClass() {
     var jar =
         repository.resolve("com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar");
 
     var got = new JarParser(jar);
     got.parse(aStaticImport("com.mycompany.app.another.Parent.AnotherPublicClass"));
+  }
+
+  @Test
+  void itShouldParseAParentClass() {
+    var jar =
+        repository.resolve("com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar");
+
+    var got = new JarParser(jar);
+    got.parse(anImport("com.mycompany.app.another.Parent"));
   }
 }

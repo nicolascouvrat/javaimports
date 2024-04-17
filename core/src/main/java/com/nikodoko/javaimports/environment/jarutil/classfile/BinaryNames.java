@@ -20,7 +20,6 @@ public class BinaryNames {
   private static final String SUBCLASS_SEPARATOR = "\\$";
   private static final String DOT = "\\.";
   private static final String SLASH = "\\/";
-  private static final String CLASS_EXTENSION = ".class";
 
   public static String fromSelector(Selector s) {
     var fullyQualifiedName = s.toString();
