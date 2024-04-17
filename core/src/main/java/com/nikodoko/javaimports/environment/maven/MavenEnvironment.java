@@ -12,6 +12,7 @@ import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.JavaProject;
 import com.nikodoko.javaimports.environment.jarutil.JarIdentifierLoader;
+import com.nikodoko.javaimports.environment.jarutil.LazyJar;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import io.opentracing.Span;
 import java.nio.file.Path;
@@ -240,7 +241,8 @@ public class MavenEnvironment implements Environment {
       var location = resolver.resolve(dependency);
       log.info(String.format("looking for dependency %s at %s", dependency, location));
 
-      var importables = MavenDependencyLoader.load(location.jar);
+      // var importables = MavenDependencyLoader.load(location.jar);
+      var importables = new ArrayList<>(new LazyJar(location.jar).importables());
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
       loaded = new LoadedDependency(importables, dependencies, dependency);
     } catch (Exception e) {
