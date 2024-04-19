@@ -1,8 +1,8 @@
 package com.nikodoko.javaimports.environment.maven;
 
-import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.jarutil.IdentifierLoader;
@@ -25,13 +25,12 @@ public class MavenClassLoader {
     Path resolve(MavenCoordinates coordinates) throws IOException;
   }
 
-  private static Logger log = Logger.getLogger(MavenEnvironment.class.getName());
+  private static Logger log = Logs.getLogger(MavenEnvironment.class.getName());
 
   private final MavenRepository repository;
   private final CoordinatesResolver resolver;
   private final List<MavenDependency> directDependencies;
   private final IdentifierLoader.Factory loaderFactory;
-  private final Options options;
 
   private IdentifierLoader loader = null;
 
@@ -39,13 +38,11 @@ public class MavenClassLoader {
       MavenRepository repository,
       CoordinatesResolver resolver,
       IdentifierLoader.Factory loaderFactory,
-      List<MavenDependency> directDependencies,
-      Options options) {
+      List<MavenDependency> directDependencies) {
     this.repository = repository;
     this.resolver = resolver;
     this.loaderFactory = loaderFactory;
     this.directDependencies = directDependencies;
-    this.options = options;
   }
 
   private void init() {
@@ -53,9 +50,7 @@ public class MavenClassLoader {
     try (var __ = Traces.activate(span)) {
       initInstrumented(span);
     } catch (Throwable t) {
-      if (options.debug()) {
-        log.log(Level.WARNING, "Error initializing MavenClassLoader", t);
-      }
+      log.log(Level.WARNING, "Error initializing MavenClassLoader", t);
 
       this.loader = i -> Set.of();
     } finally {
@@ -85,9 +80,7 @@ public class MavenClassLoader {
     try {
       return Optional.of(resolver.resolve(d.coordinates()));
     } catch (Throwable t) {
-      if (options.debug()) {
-        log.log(Level.WARNING, String.format("Error resolving dependency %s: %s", d, t));
-      }
+      log.log(Level.WARNING, String.format("Error resolving dependency %s: %s", d, t));
 
       return Optional.empty();
     }
@@ -100,9 +93,7 @@ public class MavenClassLoader {
       Traces.addTags(span, new Tag("class", c.get()));
       return c;
     } catch (Throwable t) {
-      if (options.debug()) {
-        log.log(Level.WARNING, String.format("Error finding class for import %s", i), t);
-      }
+      log.log(Level.WARNING, String.format("Error finding class for import %s", i), t);
 
       Traces.addThrowable(span, t);
       return Optional.empty();

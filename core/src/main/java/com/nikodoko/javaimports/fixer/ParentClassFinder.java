@@ -1,11 +1,11 @@
 package com.nikodoko.javaimports.fixer;
 
-import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
 import com.nikodoko.javaimports.fixer.candidates.CandidateSelectionStrategy;
@@ -48,21 +48,18 @@ class ParentClassFinder {
     }
   }
 
-  private static Logger log = Logger.getLogger(ParentClassFinder.class.getName());
+  private static Logger log = Logs.getLogger(ParentClassFinder.class.getName());
   private final CandidateFinder candidateFinder;
   private final ClassLibrary library;
   private final CandidateSelectionStrategy selectionStrategy;
-  private final Options options;
 
   ParentClassFinder(
       CandidateFinder candidateFinder,
       ClassLibrary library,
-      CandidateSelectionStrategy selectionStrategy,
-      Options options) {
+      CandidateSelectionStrategy selectionStrategy) {
     this.candidateFinder = candidateFinder;
     this.library = library;
     this.selectionStrategy = selectionStrategy;
-    this.options = options;
   }
 
   Result findAllParents(Orphans orphans) {
@@ -135,9 +132,7 @@ class ParentClassFinder {
     }
 
     var got = maybeParentImport.flatMap(i -> library.find(i).map(p -> new ParentAndImport(p, i)));
-    if (options.debug()) {
-      log.info(String.format("Found parent for %s: %s", parent, got));
-    }
+    log.info(String.format("Found parent for %s: %s", parent, got));
 
     return got;
   }

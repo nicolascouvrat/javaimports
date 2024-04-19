@@ -6,6 +6,7 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
@@ -34,7 +35,7 @@ import java.util.stream.Stream;
  * symbols.
  */
 public class MavenEnvironment implements Environment {
-  private static Logger log = Logger.getLogger(MavenEnvironment.class.getName());
+  private static Logger log = Logs.getLogger(MavenEnvironment.class.getName());
   private static final Path DEFAULT_REPOSITORY =
       Paths.get(System.getProperty("user.home"), ".m2/repository");
   private static final Clock clock = Clock.systemDefaultZone();
@@ -58,7 +59,7 @@ public class MavenEnvironment implements Environment {
     this.options = options;
     var repository = options.repository();
     this.resolver = MavenDependencyResolver.withRepository(repository);
-    this.repository = new LocalMavenRepository(resolver, options);
+    this.repository = new LocalMavenRepository(resolver);
   }
 
   @Override
@@ -136,11 +137,7 @@ public class MavenEnvironment implements Environment {
         imports.stream().collect(Collectors.groupingBy(i -> i.selector.identifier()));
     classLoader =
         new MavenClassLoader(
-            repository,
-            c -> resolver.resolve(c).jar,
-            JarIdentifierLoader::new,
-            directDependencies,
-            options);
+            repository, c -> resolver.resolve(c).jar, JarIdentifierLoader::new, directDependencies);
     isInitialized = true;
     log.log(Level.INFO, String.format("init completed in %d ms", clock.millis() - start));
   }
@@ -153,14 +150,12 @@ public class MavenEnvironment implements Environment {
 
     MavenProjectParser parser = new MavenProjectParser(root, options).excluding(fileBeingResolved);
     MavenProjectParser.Result parsed = parser.parseAll();
-    if (options.debug()) {
-      log.info(
-          String.format(
-              "parsed project in %d ms (total of %d files)",
-              clock.millis() - start, Iterables.size(parsed.project.allFiles())));
+    log.info(
+        String.format(
+            "parsed project in %d ms (total of %d files)",
+            clock.millis() - start, Iterables.size(parsed.project.allFiles())));
 
-      parsed.errors.forEach(e -> log.log(Level.WARNING, "error parsing project", e));
-    }
+    parsed.errors.forEach(e -> log.log(Level.WARNING, "error parsing project", e));
 
     project = parsed.project;
     projectIsParsed = true;
@@ -168,10 +163,7 @@ public class MavenEnvironment implements Environment {
 
   private List<MavenDependency> findDirectDependencies() {
     var direct = new MavenDependencyFinder(repository).findAll(root);
-    if (options.debug()) {
-      log.info(
-          String.format("found %d direct dependencies: %s", direct.dependencies.size(), direct));
-    }
+    log.info(String.format("found %d direct dependencies: %s", direct.dependencies.size(), direct));
 
     return direct.dependencies;
   }
@@ -192,12 +184,10 @@ public class MavenEnvironment implements Environment {
     var indirectDependencies = repository.getTransitiveDependencies(emptyDirectDeps, 1);
     var loadedIndirect =
         resolveAndLoad(indirectDependencies, new Tag("direct_dependencies", false));
-    if (options.debug()) {
-      log.info(
-          String.format(
-              "found %d indirect dependencies: %s",
-              indirectDependencies.size(), indirectDependencies));
-    }
+    log.info(
+        String.format(
+            "found %d indirect dependencies: %s",
+            indirectDependencies.size(), indirectDependencies));
     return Stream.concat(loadedDirect.stream(), loadedIndirect.stream())
         .flatMap(d -> d.importables.stream())
         .collect(Collectors.toList());
@@ -248,29 +238,23 @@ public class MavenEnvironment implements Environment {
     var start = clock.millis();
     try (var __ = Traces.activate(span)) {
       var location = resolver.resolve(dependency);
-      if (options.debug()) {
-        log.info(String.format("looking for dependency %s at %s", dependency, location));
-      }
+      log.info(String.format("looking for dependency %s at %s", dependency, location));
 
       var importables = MavenDependencyLoader.load(location.jar);
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
       loaded = new LoadedDependency(importables, dependencies, dependency);
     } catch (Exception e) {
       // No matter what happens, we don't want to fail the whole importing process just for that.
-      if (options.debug()) {
-        log.log(Level.WARNING, String.format("could not resolve dependency %s", dependency), e);
-      }
+      log.log(Level.WARNING, String.format("could not resolve dependency %s", dependency), e);
     } finally {
-      if (options.debug()) {
-        log.log(
-            Level.INFO,
-            String.format(
-                "loaded %d imports and %d additional dependencies in %d ms (%s)",
-                loaded.importables.size(),
-                loaded.dependencies.size(),
-                clock.millis() - start,
-                dependency));
-      }
+      log.log(
+          Level.INFO,
+          String.format(
+              "loaded %d imports and %d additional dependencies in %d ms (%s)",
+              loaded.importables.size(),
+              loaded.dependencies.size(),
+              clock.millis() - start,
+              dependency));
     }
 
     return loaded;

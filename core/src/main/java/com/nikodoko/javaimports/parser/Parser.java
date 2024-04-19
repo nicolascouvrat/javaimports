@@ -4,7 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
 import com.nikodoko.javaimports.ImporterException;
-import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.parser.internal.JCHelper;
@@ -37,21 +37,10 @@ import javax.tools.StandardLocation;
  * as classes extending another class not declared in the same file.
  */
 public class Parser {
-  private static Logger log = Logger.getLogger(Parser.class.getName());
+  private static Logger log = Logs.getLogger(Parser.class.getName());
   private static final Clock clock = Clock.systemDefaultZone();
   private static final Tag.Key PACKAGE = Tag.withKey("package");
   private static final Tag.Key<Integer> FILE_LENGTH = Tag.withKey("file_length");
-
-  private Options options;
-
-  /**
-   * A {@code Parser} constructor.
-   *
-   * @param options its options
-   */
-  public Parser(Options options) {
-    this.options = options;
-  }
 
   /**
    * Parse the given input (Java code) into a {@link ParsedFile}.
@@ -92,9 +81,7 @@ public class Parser {
 
     // Wrap the results in a ParsedFile
     var f = JCHelper.toParsedFileBuilder(unit).topScope(scanner.topScope()).build();
-    if (options.debug()) {
-      log.info(String.format("completed parsing in %d ms: %s", clock.millis() - start, f));
-    }
+    log.info(String.format("completed parsing in %d ms: %s", clock.millis() - start, f));
 
     return Optional.of(f);
   }
@@ -149,7 +136,7 @@ public class Parser {
     ParserFactory parserFactory = ParserFactory.instance(ctx);
     // It is necessary to set keepEndPos to true in order to retrieve the end position of
     // expressions like the package clause, etc.
-    JavacParser parser = parserFactory.newParser(javaCode, false, /*keepEndPos=*/ true, false);
+    JavacParser parser = parserFactory.newParser(javaCode, false, /* keepEndPos= */ true, false);
     unit = parser.parseCompilationUnit();
     unit.sourcefile = source;
 

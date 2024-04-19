@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.common.truth.StreamSubject;
 import com.nikodoko.javaimports.ImporterException;
-import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Superclass;
@@ -1275,7 +1274,7 @@ public class ParserTest {
   public void testParseFindsUnresolved(
       String name, String input, Set<Identifier> expected, ClassEntity[] expectedClasses)
       throws Exception {
-    Parser parser = new Parser(Options.defaults());
+    Parser parser = new Parser();
     ParsedFile got = null;
     try {
       got = parser.parse(Paths.get(name), input).get();

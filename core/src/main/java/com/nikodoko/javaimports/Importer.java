@@ -5,6 +5,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.Range;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Metrics;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environments;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
  * using various approaches.
  */
 public final class Importer {
-  private static final Logger log = Logger.getLogger(Importer.class.getName());
+  private static final Logger log = Logs.getLogger(Importer.class.getName());
   private static final Clock clock = Clock.systemDefaultZone();
 
   private Options options;
@@ -52,7 +53,7 @@ public final class Importer {
    */
   public Importer(Options options) {
     this.options = options;
-    this.parser = new Parser(options);
+    this.parser = new Parser();
   }
 
   /**
@@ -84,9 +85,7 @@ public final class Importer {
     try (var __ = Traces.activate(span)) {
       Optional<ParsedFile> f = parser.parse(filename, javaCode);
       if (f.isEmpty()) {
-        if (options.debug()) {
-          log.log(Level.WARNING, "file is empty");
-        }
+        log.log(Level.WARNING, "file is empty");
         return javaCode;
       }
 
@@ -96,9 +95,7 @@ public final class Importer {
       span.finish();
       var elapsed = clock.millis() - start;
       Metrics.gauge("importer.duration", elapsed);
-      if (options.debug()) {
-        log.log(Level.INFO, String.format("total time: %d ms", elapsed));
-      }
+      log.log(Level.INFO, String.format("total time: %d ms", elapsed));
     }
   }
 
@@ -112,15 +109,13 @@ public final class Importer {
   }
 
   private Result getFixesInstrumented(Path filename, ParsedFile f) throws ImporterException {
-    Fixer fixer = Fixer.init(f, options);
+    Fixer fixer = Fixer.init(f);
     // Initial run with the current file only.
     Result r = fixer.tryToFix();
     if (r.done()) {
       // We cannot add any imports at this stage, as we need the package information for that. If we
       // are done, this should mean that the file is complete
-      if (options.debug()) {
-        log.log(Level.INFO, "file is complete");
-      }
+      log.log(Level.INFO, "file is complete");
       checkArgument(r.fixes().isEmpty(), "expected no fixes but found %s", r.fixes());
       return r;
     }
