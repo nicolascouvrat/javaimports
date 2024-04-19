@@ -1,6 +1,6 @@
 package com.nikodoko.javaimports.environment.maven;
 
-import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import io.opentracing.Span;
@@ -17,17 +17,15 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class LocalMavenRepository implements MavenRepository {
-  private static Logger log = Logger.getLogger(LocalMavenRepository.class.getName());
+  private static Logger log = Logs.getLogger(LocalMavenRepository.class.getName());
   private static final Path DEFAULT_REPOSITORY =
       Paths.get(System.getProperty("user.home"), ".m2/repository");
 
   private final MavenDependencyResolver resolver;
-  private final Options options;
   private final Map<MavenDependency, FlatPom> cache = new ConcurrentHashMap<>();
 
-  LocalMavenRepository(MavenDependencyResolver resolver, Options options) {
+  LocalMavenRepository(MavenDependencyResolver resolver) {
     this.resolver = resolver;
-    this.options = options;
   }
 
   @Override
@@ -204,9 +202,7 @@ public class LocalMavenRepository implements MavenRepository {
 
       return pom;
     } catch (Exception e) {
-      if (options.debug()) {
-        log.log(Level.WARNING, "Cannot get merged pom for " + dependency, e);
-      }
+      log.log(Level.WARNING, "Cannot get merged pom for " + dependency, e);
 
       return FlatPom.builder().build();
     }

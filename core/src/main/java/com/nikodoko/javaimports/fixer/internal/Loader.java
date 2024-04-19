@@ -1,6 +1,5 @@
 package com.nikodoko.javaimports.fixer.internal;
 
-import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
@@ -9,29 +8,24 @@ import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * Uses additional information, such as files from the same package, to determine which identifiers
  * are truly unresolved, and which classes are truly not extendable.
  */
 public class Loader {
-  private static Logger log = Logger.getLogger(Loader.class.getName());
-
   private Set<ParsedFile> siblings = new HashSet<>();
   private StdlibProvider stdlib = StdlibProviders.empty();
   private Environment environment = Environments.empty();
   private final ParsedFile file;
-  private final Options options;
 
-  private Loader(ParsedFile file, Options options) {
+  private Loader(ParsedFile file) {
     this.file = file;
-    this.options = options;
   }
 
   /** Create a {@code Loader} for the given {@code file}. */
-  public static Loader of(ParsedFile file, Options options) {
-    return new Loader(file, options);
+  public static Loader of(ParsedFile file) {
+    return new Loader(file);
   }
 
   /** Add sibling files to the loader */

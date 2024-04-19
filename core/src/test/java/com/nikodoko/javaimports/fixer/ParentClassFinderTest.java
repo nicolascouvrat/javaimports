@@ -3,7 +3,6 @@ package com.nikodoko.javaimports.fixer;
 import static com.google.common.truth.Truth.assertThat;
 import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
 
-import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
@@ -31,9 +30,7 @@ public class ParentClassFinderTest {
   void setup() {
     library = new ClassLibrary();
     candidates = new CandidateFinder();
-    finder =
-        new ParentClassFinder(
-            candidates, library, new TakeFirstCandidateSelectionStrategy(), Options.defaults());
+    finder = new ParentClassFinder(candidates, library, new TakeFirstCandidateSelectionStrategy());
   }
 
   static class SimpleOrphan implements Orphans {

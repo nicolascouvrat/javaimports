@@ -120,6 +120,6 @@ class MavenProjectParser {
 
   private Optional<ParsedFile> parseFile(Path path) throws IOException, ImporterException {
     String source = new String(Files.readAllBytes(path), UTF_8);
-    return new Parser(options).parse(path, source);
+    return new Parser().parse(path, source);
   }
 }

@@ -7,6 +7,7 @@ import com.google.googlejavaformat.java.FormatterException;
 import com.nikodoko.javaimports.Importer;
 import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.Options;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Metrics;
 import com.nikodoko.javaimports.common.telemetry.MetricsConfiguration;
 import com.nikodoko.javaimports.common.telemetry.Traces;
@@ -165,6 +166,10 @@ public final class CLI {
         Options.builder().debug(params.verbose()).stdlib(StdlibProviders.java8()).numThreads(8);
     if (params.repository() != null) {
       optsBuilder.repository(Paths.get(params.repository()));
+    }
+
+    if (params.verbose()) {
+      Logs.enable();
     }
 
     String fixed;

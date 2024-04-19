@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 
 import com.google.common.truth.IterableSubject;
 import com.nikodoko.javaimports.ImporterException;
-import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
@@ -26,31 +25,31 @@ public class OrphansTest {
   void itShouldNotHideYoungerOrphanIfOlderOrphanParentFound() {
     var code =
         """
-      package pkg.com.test;
-      class Test {
-        static class Child extends Parent {
-          static class OtherChild extends AChild {
-            public void m() {
-              int c = n(f() + g(0));
+          package pkg.com.test;
+          class Test {
+            static class Child extends Parent {
+              static class OtherChild extends AChild {
+                public void m() {
+                  int c = n(f() + g(0));
+                }
+              }
+            }
+
+            static class Parent {
+              protected int a = 0;
+              public int p(int x) {
+                return x;
+              }
+              public int g(int x) {
+                int b = 5;
+                return x;
+              }
+              int h(int x) {
+                return x;
+              }
             }
           }
-        }
-
-        static class Parent {
-          protected int a = 0;
-          public int p(int x) {
-            return x;
-          }
-          public int g(int x) {
-            int b = 5;
-            return x;
-          }
-          int h(int x) {
-            return x;
-          }
-        }
-      }
-    """;
+        """;
 
     var orphans = getOrphans(code);
     // Before the first traversal, all symbols in orphan classes are unresolved
@@ -68,17 +67,17 @@ public class OrphansTest {
   void itShouldHideYoungerOrphanIfOlderOrphanParentNotFound() {
     var code =
         """
-      package pkg.com.test;
-      class Test {
-        static class Child extends Parent {
-          static class OtherChild extends AChild {
-            public void m() {
-              int c = n(f() + g(0));
+          package pkg.com.test;
+          class Test {
+            static class Child extends Parent {
+              static class OtherChild extends AChild {
+                public void m() {
+                  int c = n(f() + g(0));
+                }
+              }
             }
           }
-        }
-      }
-    """;
+        """;
 
     var orphans = getOrphans(code);
     // Before the first traversal, all symbols in orphan classes are unresolved
@@ -95,19 +94,19 @@ public class OrphansTest {
   void itShouldHideIfParentFoundIsChildOfOrphan() {
     var code =
         """
-      package pkg.com.test;
-      class Test {
-        static class Child extends Parent {
-          static class OtherChild extends External {
-            public void m() {
-              int c = n(f() + g(0));
+          package pkg.com.test;
+          class Test {
+            static class Child extends Parent {
+              static class OtherChild extends External {
+                public void m() {
+                  int c = n(f() + g(0));
+                }
+              }
             }
-          }
-        }
 
-        static class Other extends Child.OtherChild {}
-      }
-    """;
+            static class Other extends Child.OtherChild {}
+          }
+        """;
 
     var orphans = getOrphans(code);
     // Before the first traversal, all symbols in orphan classes are unresolved
@@ -124,27 +123,27 @@ public class OrphansTest {
   void itShouldRedoLocalResolutionAfterBeingSuppliedMoreInfo() {
     var code =
         """
-      package pkg.com.test;
-      class Test {
-        static class Other extends Child.OtherChild {
-          public void x() {
-            m();
-          }
-        }
+          package pkg.com.test;
+          class Test {
+            static class Other extends Child.OtherChild {
+              public void x() {
+                m();
+              }
+            }
 
-        static class Child extends Parent {
-          public void y() {
-            z();
-          }
+            static class Child extends Parent {
+              public void y() {
+                z();
+              }
 
-          static class OtherChild extends External {
-            public void m() {
-              int c = n(f() + g(0));
+              static class OtherChild extends External {
+                public void m() {
+                  int c = n(f() + g(0));
+                }
+              }
             }
           }
-        }
-      }
-    """;
+        """;
 
     var orphans = getOrphans(code);
     // Before the first traversal, all symbols in orphan classes are unresolved
@@ -175,12 +174,12 @@ public class OrphansTest {
   void itShouldResolveInnerOrphansParent() {
     var code =
         """
-      package pkg.com.test;
-      class Test extends Parent{
-        static class Inner extends OtherParent {
-        }
-      }
-    """;
+          package pkg.com.test;
+          class Test extends Parent{
+            static class Inner extends OtherParent {
+            }
+          }
+        """;
 
     var orphans = getOrphans(code);
     var traverser = orphans.traverse();
@@ -205,35 +204,35 @@ public class OrphansTest {
   void itShouldHaveOrphansIfNotAllParentsFoundLocally() {
     var code =
         """
-      package pkg.com.test;
-      class Test {
-        static class Child extends Parent {
-          void f() {
-            int c = g(a) + h(b);
-          }
-        }
+          package pkg.com.test;
+          class Test {
+            static class Child extends Parent {
+              void f() {
+                int c = g(a) + h(b);
+              }
+            }
 
-        static class OtherChild extends AChild {
-          public void m() {
-            int c = n(f() + g(0));
-          }
-        }
+            static class OtherChild extends AChild {
+              public void m() {
+                int c = n(f() + g(0));
+              }
+            }
 
-        static class Parent {
-          protected int a = 0;
-          public int p(int x) {
-            return x;
+            static class Parent {
+              protected int a = 0;
+              public int p(int x) {
+                return x;
+              }
+              public int g(int x) {
+                int b = 5;
+                return x;
+              }
+              int h(int x) {
+                return x;
+              }
+            }
           }
-          public int g(int x) {
-            int b = 5;
-            return x;
-          }
-          int h(int x) {
-            return x;
-          }
-        }
-      }
-    """;
+        """;
 
     var orphans = getOrphans(code);
     assertThat(orphans.unresolved())
@@ -249,35 +248,35 @@ public class OrphansTest {
   void itShouldHaveNoOrphansIfAllParentsFoundLocally() {
     var code =
         """
-      package pkg.com.test;
-      class Test {
-        static class Child extends Parent {
-          void f() {
-            int c = g(a) + h(b);
-          }
-        }
+          package pkg.com.test;
+          class Test {
+            static class Child extends Parent {
+              void f() {
+                int c = g(a) + h(b);
+              }
+            }
 
-        static class OtherChild extends Child {
-          public void m() {
-            int c = n(f() + g(0));
-          }
-        }
+            static class OtherChild extends Child {
+              public void m() {
+                int c = n(f() + g(0));
+              }
+            }
 
-        static class Parent {
-          protected int a = 0;
-          public int p(int x) {
-            return x;
+            static class Parent {
+              protected int a = 0;
+              public int p(int x) {
+                return x;
+              }
+              public int g(int x) {
+                int b = 5;
+                return x;
+              }
+              int h(int x) {
+                return x;
+              }
+            }
           }
-          public int g(int x) {
-            int b = 5;
-            return x;
-          }
-          int h(int x) {
-            return x;
-          }
-        }
-      }
-    """;
+        """;
 
     var orphans = getOrphans(code);
     assertThat(orphans.unresolved())
@@ -325,7 +324,7 @@ public class OrphansTest {
   }
 
   private OrphansAndScope getOrphans(String code) {
-    var parser = new Parser(Options.defaults());
+    var parser = new Parser();
     try {
       var scope = parser.parse(Paths.get(""), code).get().topScope();
       return new OrphansAndScope(Orphans.wrapping(scope), scope);

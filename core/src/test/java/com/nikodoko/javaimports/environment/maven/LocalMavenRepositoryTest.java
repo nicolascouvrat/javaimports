@@ -2,7 +2,6 @@ package com.nikodoko.javaimports.environment.maven;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.nikodoko.javaimports.Options;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -24,8 +23,7 @@ public class LocalMavenRepositoryTest {
   void setup() throws Exception {
     var repositoryPath = Paths.get(repositoryURL.toURI());
     var resolver = MavenDependencyResolver.withRepository(repositoryPath);
-    var options = Options.builder().debug(true).build();
-    repository = new LocalMavenRepository(resolver, options);
+    repository = new LocalMavenRepository(resolver);
   }
 
   @Test

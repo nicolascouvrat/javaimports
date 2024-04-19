@@ -1,9 +1,9 @@
 package com.nikodoko.javaimports.fixer;
 
-import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
@@ -29,23 +29,21 @@ import java.util.stream.Collectors;
  */
 public class Fixer {
   private ParsedFile file;
-  private Options options;
   private final CandidateFinder candidates;
   private final ClassLibrary library;
   private final ParentClassFinder parents;
   private final CandidateSelectionStrategy strategy;
-  private static Logger log = Logger.getLogger(Fixer.class.getName());
+  private static Logger log = Logs.getLogger(Fixer.class.getName());
 
   private Loader loader;
 
-  private Fixer(ParsedFile file, Options options) {
+  private Fixer(ParsedFile file) {
     this.file = file;
-    this.options = options;
     this.candidates = new CandidateFinder();
     this.library = new ClassLibrary();
-    this.loader = Loader.of(file, options);
+    this.loader = Loader.of(file);
     this.strategy = new BasicCandidateSelectionStrategy(file.pkg());
-    this.parents = new ParentClassFinder(candidates, library, strategy, options);
+    this.parents = new ParentClassFinder(candidates, library, strategy);
     // Needed because some other files in the project might extend a class defined in the current
     // file
     library.add(file);
@@ -58,8 +56,8 @@ public class Fixer {
    * @param file the source file to fix
    * @param options the fixer's options
    */
-  public static Fixer init(ParsedFile file, Options options) {
-    return new Fixer(file, options);
+  public static Fixer init(ParsedFile file) {
+    return new Fixer(file);
   }
 
   /**
@@ -103,9 +101,7 @@ public class Fixer {
 
   private Result loadAndTryToFixInstrumented(boolean lastTry) {
     loader.load();
-    if (options.debug()) {
-      log.info("load completed");
-    }
+    log.info("load completed");
 
     if (!file.orphans().needsParents() && file.unresolved().isEmpty()) {
       return Result.complete();
