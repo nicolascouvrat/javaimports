@@ -28,6 +28,16 @@ record ConstantPool(Constant[] constants) implements Iterable<Constant> {
   }
 
   @Override
+  public String toString() {
+    var sb = new StringBuilder();
+    for (var i = 0; i < constants.length; i++) {
+      sb.append("%d: %s\n".formatted(i, constants[i]));
+    }
+
+    return sb.toString();
+  }
+
+  @Override
   public Iterator<Constant> iterator() {
     return Arrays.stream(constants).iterator();
   }

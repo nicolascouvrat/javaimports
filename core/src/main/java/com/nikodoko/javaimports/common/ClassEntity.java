@@ -5,6 +5,21 @@ import java.util.Optional;
 import java.util.Set;
 
 public class ClassEntity {
+  public static final ClassEntity JAVA_LANG_OBJECT =
+      ClassEntity.named(Selector.JAVA_LANG_OBJECT)
+          .declaring(
+              Set.of(
+                  new Identifier("getClass"),
+                  new Identifier("wait"),
+                  new Identifier("equals"),
+                  new Identifier("hashCode"),
+                  new Identifier("notifyAll"),
+                  new Identifier("finalize"),
+                  new Identifier("clone"),
+                  new Identifier("toString"),
+                  new Identifier("notify")))
+          .build();
+
   public final Selector name;
   public final Set<Identifier> declarations;
   public final Optional<Superclass> maybeParent;

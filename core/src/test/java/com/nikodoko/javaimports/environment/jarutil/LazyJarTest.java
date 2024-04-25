@@ -1,10 +1,14 @@
 package com.nikodoko.javaimports.environment.jarutil;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.nikodoko.javaimports.common.CommonTestUtil.aStaticImport;
+import static com.nikodoko.javaimports.common.CommonTestUtil.aSelector;
 import static com.nikodoko.javaimports.common.CommonTestUtil.anImport;
+import static com.nikodoko.javaimports.common.CommonTestUtil.someIdentifiers;
 
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.Superclass;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,25 +26,109 @@ public class LazyJarTest {
 
   @BeforeEach
   void setup() throws Exception {
+    Logs.enable();
     repository = Paths.get(repositoryURL.toURI());
   }
 
   @Test
   void itShouldParseAChildClass() {
-    var jar =
+    var expected =
+        ClassEntity.named(aSelector("com.mycompany.app.App"))
+            .extending(Superclass.resolved(anImport("com.mycompany.app.another.Parent")))
+            .declaring(
+                someIdentifiers(
+                    "aPublicMethod",
+                    "aProtectedMethod",
+                    "aPublicStaticField",
+                    "aPublicStaticMethod",
+                    "aPublicField",
+                    "aProtectedField",
+                    "AProtectedClass",
+                    "APublicClass",
+                    "<init>"))
+            .build();
+    var path =
         repository.resolve("com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar");
+    var jar = new LazyJar(path);
 
-    var got = new LazyJar(jar);
-    got.parse(aStaticImport("com.mycompany.app.another.Parent.AnotherPublicClass"));
+    var got = jar.findClass(anImport("com.mycompany.app.App"));
+
+    assertThat(got.isPresent()).isTrue();
+    assertThat(got.get()).isEqualTo(expected);
+  }
+
+  @Test
+  void itShouldParseADeeplyNestedClass() {
+    var expected =
+        ClassEntity.named(
+                aSelector("com.mycompany.app.another.Parent.AnotherProtectedClass.Nest1.Nest2"))
+            .extending(Superclass.resolved(anImport("java.lang.Object")))
+            .declaring(someIdentifiers("<init>"))
+            .build();
+    var path =
+        repository.resolve("com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar");
+    var jar = new LazyJar(path);
+
+    var got =
+        jar.findClass(
+            anImport("com.mycompany.app.another.Parent.AnotherProtectedClass.Nest1.Nest2"));
+
+    assertThat(got.isPresent()).isTrue();
+    assertThat(got.get()).isEqualTo(expected);
+  }
+
+  @Test
+  void itShouldParseANestedClass() {
+    var expected =
+        ClassEntity.named(aSelector("com.mycompany.app.another.Parent.AnotherPublicClass"))
+            .extending(Superclass.resolved(anImport("java.lang.Object")))
+            .declaring(
+                someIdentifiers(
+                    "aSubclassProtectedField",
+                    "aSubclassPublicField",
+                    "aSubclassPublicMethod",
+                    "aSubclassProtectedMethod",
+                    "aSubclassPublicStaticMethod",
+                    "aSubclassPublicStaticField",
+                    "<init>"))
+            .build();
+    var path =
+        repository.resolve("com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar");
+    var jar = new LazyJar(path);
+
+    var got = jar.findClass(anImport("com.mycompany.app.another.Parent.AnotherPublicClass"));
+
+    assertThat(got.isPresent()).isTrue();
+    assertThat(got.get()).isEqualTo(expected);
   }
 
   @Test
   void itShouldParseAParentClass() {
-    var jar =
+    var expected =
+        ClassEntity.named(aSelector("com.mycompany.app.another.Parent"))
+            .extending(Superclass.resolved(anImport("java.lang.Object")))
+            .declaring(
+                someIdentifiers(
+                    "anotherPublicStaticField",
+                    "anotherProtectedMethod",
+                    "anotherProtectedField",
+                    "anotherPublicMethod",
+                    "anotherPublicField",
+                    "anotherPublicStaticMethod",
+                    "AnotherProtectedClass",
+                    "AnotherPublicClass",
+                    "ArrayList",
+                    "<init>"))
+            .build();
+    var path =
         repository.resolve("com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar");
 
-    var got = new LazyJar(jar);
-    got.parse(anImport("com.mycompany.app.another.Parent"));
+    var jar = new LazyJar(path);
+
+    var got = jar.findClass(anImport("com.mycompany.app.another.Parent"));
+
+    assertThat(got.isPresent()).isTrue();
+    assertThat(got.get()).isEqualTo(expected);
   }
 
   static Stream<Arguments> jarPathProvider() {

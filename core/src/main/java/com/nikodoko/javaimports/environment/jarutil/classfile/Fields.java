@@ -17,6 +17,11 @@ record Fields(Field[] fields) implements Iterable<Field> {
   }
 
   @Override
+  public String toString() {
+    return fields.length + Arrays.toString(fields);
+  }
+
+  @Override
   public Iterator<Field> iterator() {
     return Arrays.stream(fields).iterator();
   }

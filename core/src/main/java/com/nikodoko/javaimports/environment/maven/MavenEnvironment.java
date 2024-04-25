@@ -11,8 +11,8 @@ import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.JavaProject;
-import com.nikodoko.javaimports.environment.jarutil.JarIdentifierLoader;
 import com.nikodoko.javaimports.environment.jarutil.LazyJar;
+import com.nikodoko.javaimports.environment.jarutil.LazyJars;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import io.opentracing.Span;
 import java.nio.file.Path;
@@ -138,7 +138,7 @@ public class MavenEnvironment implements Environment {
         imports.stream().collect(Collectors.groupingBy(i -> i.selector.identifier()));
     classLoader =
         new MavenClassLoader(
-            repository, c -> resolver.resolve(c).jar, JarIdentifierLoader::new, directDependencies);
+            repository, c -> resolver.resolve(c).jar, LazyJars::new, directDependencies);
     isInitialized = true;
     log.log(Level.INFO, String.format("init completed in %d ms", clock.millis() - start));
   }

@@ -7,7 +7,6 @@ import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -30,19 +29,47 @@ public class Classfile {
     return new Import(parentSelector, false);
   }
 
-  private static Set<Identifier> readIdentifiers(DataInputStream dis, ConstantPool cp)
+  private static Stream<Identifier> readIdentifiers(DataInputStream dis, ConstantPool cp)
       throws IOException {
     var fields = Fields.readFrom(dis);
     var methods = Fields.readFrom(dis);
     return Stream.concat(
             StreamSupport.stream(fields.spliterator(), false),
             StreamSupport.stream(methods.spliterator(), false))
-        .filter(
-            f ->
-                f.accessFlags().visibility() == Visibility.PUBLIC
-                    || f.accessFlags().visibility() == Visibility.PROTECTED)
-        .map(f -> new Identifier(cp.getUtf8Constant(f.nameIdx())))
-        .collect(Collectors.toSet());
+        .filter(f -> isPublicOrProtected(f.accessFlags()))
+        .map(f -> new Identifier(cp.getUtf8Constant(f.nameIdx())));
+  }
+
+  private static Stream<Identifier> readInnerClasses(
+      DataInputStream dis, ConstantPool cp, int thisClassIdx) throws IOException {
+    var attributes = Attributes.readFrom(dis, cp);
+    return StreamSupport.stream(attributes.spliterator(), false)
+        .filter(Attribute.InnerClasses.class::isInstance)
+        .map(a -> (Attribute.InnerClasses) a)
+        .flatMap(a -> a.infos().stream())
+        // According to the JVM
+        // (https://docs.oracle.com/javase/specs/jvms/se22/html/jvms-4.html#jvms-4.7.6):
+        // "Every CONSTANT_Class_info entry in the constant_pool table which represents a class or
+        // interface C that is not a package member must have exactly one corresponding entry in the
+        // classes array.
+        // If a class or interface has members that are classes or interfaces, its constant_pool
+        // table (and hence its InnerClasses attribute) must refer to each such member (JLS §13.1),
+        // even if that member is not otherwise mentioned by the class.
+        // In addition, the constant_pool table of every nested class and nested interface must
+        // refer to its enclosing class, so altogether, every nested class and nested interface will
+        // have InnerClasses information for each enclosing class and for each of its own nested
+        // classes and interfaces."
+        //
+        // In other words, the inner classes can contain all enclosing classes in addition to nested
+        // classes, which is not something we want to export. We therefore filter based on the outer
+        // class to keep only the nested ones.
+        .filter(c -> c.outerClassInfoIdx() == thisClassIdx)
+        .filter(c -> isPublicOrProtected(c.innerClassAccessFlags()))
+        .map(c -> new Identifier(cp.getUtf8Constant(c.innerClassNameIdx())));
+  }
+
+  private static boolean isPublicOrProtected(AccessFlags flags) {
+    return flags.visibility() == Visibility.PUBLIC || flags.visibility() == Visibility.PROTECTED;
   }
 
   public static ClassEntity readFrom(DataInputStream s) throws IOException {
@@ -52,7 +79,8 @@ public class Classfile {
     var af = AccessFlags.from(s.readShort());
 
     // This class & parent
-    var thisClass = readClass(s, cp);
+    var thisClassIdx = s.readUnsignedShort();
+    var thisClass = BinaryNames.toSelector(cp.getClassName(thisClassIdx));
     var parentClass = readParentClass(s, cp);
 
     // Interfaces
@@ -61,12 +89,12 @@ public class Classfile {
       s.readUnsignedShort();
     }
 
-    // Fields
     var identifiers = readIdentifiers(s, cp);
+    var innerClasses = readInnerClasses(s, cp, thisClassIdx);
 
     return ClassEntity.named(thisClass)
         .extending(Superclass.resolved(parentClass))
-        .declaring(identifiers)
+        .declaring(Stream.concat(identifiers, innerClasses).collect(Collectors.toSet()))
         .build();
   }
 

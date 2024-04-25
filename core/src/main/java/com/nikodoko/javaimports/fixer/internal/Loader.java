@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.fixer.internal;
 
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
@@ -49,9 +50,26 @@ public class Loader {
    * the file itself.
    */
   public void load() {
+    resolveJavaLangObject();
     resolveAllJavaLang();
     resolveUsingImports();
     resolveUsingSiblings();
+  }
+
+  /**
+   * We could have all {@code ClassEntity} emitted by the parser extend java.lang.Object and rely on
+   * the extends machinery and the {@code ClassLibrary}, but this allows us to short-circuit that
+   * and finish faster.
+   */
+  private void resolveJavaLangObject() {
+    Set<Identifier> inJavaLangObject = new HashSet<>();
+    for (var unresolved : file.unresolved()) {
+      if (ClassEntity.JAVA_LANG_OBJECT.declarations.contains(unresolved)) {
+        inJavaLangObject.add(unresolved);
+      }
+    }
+
+    file.addDeclarations(inJavaLangObject);
   }
 
   private void resolveAllJavaLang() {

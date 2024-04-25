@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.environment.jarutil;
 
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import java.lang.reflect.Member;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.MatchResult;
@@ -22,7 +24,7 @@ import java.util.stream.Stream;
 /**
  * Loads all public and protected identifiers for a given class (identifier by its {@link Import}).
  */
-public class JarIdentifierLoader implements IdentifierLoader {
+public class JarIdentifierLoader implements JarLoader {
   ClassLoader cl = null;
   final URL[] jarUrls;
 
@@ -43,15 +45,15 @@ public class JarIdentifierLoader implements IdentifierLoader {
   }
 
   @Override
-  public Set<Identifier> loadIdentifiers(Import i) {
-    var c = loadClass(i);
+  public Optional<ClassEntity> loadClass(Import i) {
+    var c = loadClassInternal(i);
     var identifiers = new HashSet<Identifier>();
     while (c != null) {
       identifiers.addAll(getUsableDeclaredIdentifiers(c));
       c = c.getSuperclass();
     }
 
-    return identifiers;
+    return Optional.of(ClassEntity.named(i.selector).declaring(identifiers).build());
   }
 
   private record IdentifierAndModifier(Identifier identifier, int modifiers) {
@@ -81,7 +83,7 @@ public class JarIdentifierLoader implements IdentifierLoader {
     return Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers);
   }
 
-  private Class loadClass(Import i) {
+  private Class loadClassInternal(Import i) {
     if (cl == null) {
       cl = URLClassLoader.newInstance(jarUrls);
     }

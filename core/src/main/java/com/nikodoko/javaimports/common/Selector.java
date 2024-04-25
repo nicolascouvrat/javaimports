@@ -16,6 +16,8 @@ import java.util.stream.Stream;
  * separated by a dot).
  */
 public final class Selector {
+  public static final Selector JAVA_LANG_OBJECT = Selector.of("java", "lang", "Object");
+
   /**
    * Calculates the distance between two {@link Selector}.
    *

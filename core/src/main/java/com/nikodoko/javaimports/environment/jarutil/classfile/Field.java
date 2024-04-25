@@ -8,17 +8,14 @@ record Field(
     int nameIdx,
     int descriptorIdx,
     int attributesCount,
-    Attribute[] attributes) {
+    Attributes attributes) {
   static Field readFrom(DataInputStream dis) throws IOException {
     var accessFlags = AccessFlags.from(dis.readShort());
     var nameIdx = dis.readUnsignedShort();
     var descriptorIdx = dis.readUnsignedShort();
-    var attributesCount = dis.readUnsignedShort();
-    var attributes = new Attribute[attributesCount];
-    for (var i = 0; i < attributesCount; i++) {
-      attributes[i] = Attribute.readFrom(dis);
-    }
+    var attributes = Attributes.readFrom(dis);
 
-    return new Field(accessFlags, nameIdx, descriptorIdx, attributesCount, attributes);
+    return new Field(
+        accessFlags, nameIdx, descriptorIdx, attributes.attributes().length, attributes);
   }
 }
