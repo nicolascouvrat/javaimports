@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class JarIdentifierLoaderTest {
-  static final URL repositoryURL = JarIdentifierLoaderTest.class.getResource("/testrepository");
+  static final URL repositoryURL = JarIdentifierLoaderTest.class.getResource("/.m2/repository");
   Path repository;
 
   @BeforeEach

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class LocalMavenRepositoryTest {
   static final URL rootURL =
       LocalMavenRepositoryTest.class.getResource("/fixtures/unittests/javaimports-pom/core");
-  static final URL repositoryURL = MavenDependencyLoaderTest.class.getResource("/testrepository");
+  static final URL repositoryURL = MavenDependencyLoaderTest.class.getResource("/.m2/repository");
 
   LocalMavenRepository repository;
 
