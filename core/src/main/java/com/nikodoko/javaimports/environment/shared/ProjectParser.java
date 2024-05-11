@@ -6,7 +6,6 @@ import com.nikodoko.javaimports.ImporterException;
 import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.EnvironmentException;
-import com.nikodoko.javaimports.environment.JavaProject;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.parser.Parser;
 import io.opentracing.Span;
