@@ -1,6 +1,8 @@
 package com.nikodoko.javaimports.common;
 
 import com.google.common.base.MoreObjects;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Utils {
   /** A wrapper around guava that should eventually be removed and replaced by custom code */
@@ -32,5 +34,10 @@ public class Utils {
 
   public static void checkNotNull(Object o) {
     assert o != null;
+  }
+
+  public static <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> tasks) {
+    return CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0]))
+        .thenApply(__ -> tasks.stream().map(CompletableFuture::join).toList());
   }
 }

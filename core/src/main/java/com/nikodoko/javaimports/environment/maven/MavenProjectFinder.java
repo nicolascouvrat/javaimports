@@ -1,5 +1,6 @@
 package com.nikodoko.javaimports.environment.maven;
 
+import com.nikodoko.javaimports.environment.shared.SourceFiles;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 /** Finds all .java files in a project. */
 // TODO: this will find ALL java files, including in resource folder should it be more
 // restrictive?
-class MavenProjectFinder {
+class MavenProjectFinder implements SourceFiles {
   private final Path root;
   private final List<Path> excluded = new ArrayList<>();
 
@@ -24,11 +25,13 @@ class MavenProjectFinder {
     return new MavenProjectFinder(root);
   }
 
-  void exclude(Path... files) {
+  MavenProjectFinder exclude(Path... files) {
     this.excluded.addAll(Arrays.asList(files));
+    return this;
   }
 
-  List<Path> findAll() throws IOException {
+  @Override
+  public List<Path> get() throws IOException {
     return Files.find(root, 100, this::nonExcludedJavaFile).collect(Collectors.toList());
   }
 
