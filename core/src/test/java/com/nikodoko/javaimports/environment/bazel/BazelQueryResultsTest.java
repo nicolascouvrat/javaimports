@@ -1,0 +1,682 @@
+package com.nikodoko.javaimports.environment.bazel;
+
+import static com.google.common.truth.Truth.assertThat;
+
+import java.io.StringReader;
+import java.nio.file.Paths;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+
+public class BazelQueryResultsTest {
+  @Test
+  public void itShouldParseRawResults() throws Exception {
+    var raw =
+        """
+//collect:collect
+//collect:src/main/java/collect/AbstractBiMap.java
+//collect:src/main/java/collect/AbstractIndexedListIterator.java
+//collect:src/main/java/collect/AbstractIterator.java
+//collect:src/main/java/collect/AbstractListMultimap.java
+//collect:src/main/java/collect/AbstractMapBasedMultimap.java
+//collect:src/main/java/collect/AbstractMapBasedMultiset.java
+//collect:src/main/java/collect/AbstractMapEntry.java
+//collect:src/main/java/collect/AbstractMultimap.java
+//collect:src/main/java/collect/AbstractMultiset.java
+//collect:src/main/java/collect/AbstractNavigableMap.java
+//collect:src/main/java/collect/AbstractRangeSet.java
+//collect:src/main/java/collect/AbstractSequentialIterator.java
+//collect:src/main/java/collect/AbstractSetMultimap.java
+//collect:src/main/java/collect/AbstractSortedKeySortedSetMultimap.java
+//collect:src/main/java/collect/AbstractSortedMultiset.java
+//collect:src/main/java/collect/AbstractSortedSetMultimap.java
+//collect:src/main/java/collect/AbstractTable.java
+//collect:src/main/java/collect/AllEqualOrdering.java
+//collect:src/main/java/collect/ArrayListMultimap.java
+//collect:src/main/java/collect/ArrayListMultimapGwtSerializationDependencies.java
+//collect:src/main/java/collect/ArrayTable.java
+//collect:src/main/java/collect/BaseImmutableMultimap.java
+//collect:src/main/java/collect/BiMap.java
+//collect:src/main/java/collect/BoundType.java
+//collect:src/main/java/collect/ByFunctionOrdering.java
+//collect:src/main/java/collect/CartesianList.java
+//collect:src/main/java/collect/ClassToInstanceMap.java
+//collect:src/main/java/collect/CollectCollectors.java
+//collect:src/main/java/collect/CollectPreconditions.java
+//collect:src/main/java/collect/CollectSpliterators.java
+//collect:src/main/java/collect/Collections2.java
+//collect:src/main/java/collect/CompactHashMap.java
+//collect:src/main/java/collect/CompactHashSet.java
+//collect:src/main/java/collect/CompactHashing.java
+//collect:src/main/java/collect/CompactLinkedHashMap.java
+//collect:src/main/java/collect/CompactLinkedHashSet.java
+//collect:src/main/java/collect/ComparatorOrdering.java
+//collect:src/main/java/collect/Comparators.java
+//collect:src/main/java/collect/ComparisonChain.java
+//collect:src/main/java/collect/CompoundOrdering.java
+//collect:src/main/java/collect/ComputationException.java
+//collect:src/main/java/collect/ConcurrentHashMultiset.java
+//collect:src/main/java/collect/ConsumingQueueIterator.java
+//collect:src/main/java/collect/ContiguousSet.java
+//collect:src/main/java/collect/Count.java
+//collect:src/main/java/collect/Cut.java
+//collect:src/main/java/collect/DenseImmutableTable.java
+//collect:src/main/java/collect/DescendingImmutableSortedMultiset.java
+//collect:src/main/java/collect/DescendingImmutableSortedSet.java
+//collect:src/main/java/collect/DescendingMultiset.java
+//collect:src/main/java/collect/DiscreteDomain.java
+//collect:src/main/java/collect/EmptyContiguousSet.java
+//collect:src/main/java/collect/EmptyImmutableListMultimap.java
+//collect:src/main/java/collect/EmptyImmutableSetMultimap.java
+//collect:src/main/java/collect/EnumBiMap.java
+//collect:src/main/java/collect/EnumHashBiMap.java
+//collect:src/main/java/collect/EnumMultiset.java
+//collect:src/main/java/collect/EvictingQueue.java
+//collect:src/main/java/collect/ExplicitOrdering.java
+//collect:src/main/java/collect/FilteredEntryMultimap.java
+//collect:src/main/java/collect/FilteredEntrySetMultimap.java
+//collect:src/main/java/collect/FilteredKeyListMultimap.java
+//collect:src/main/java/collect/FilteredKeyMultimap.java
+//collect:src/main/java/collect/FilteredKeySetMultimap.java
+//collect:src/main/java/collect/FilteredMultimap.java
+//collect:src/main/java/collect/FilteredMultimapValues.java
+//collect:src/main/java/collect/FilteredSetMultimap.java
+//collect:src/main/java/collect/FluentIterable.java
+//collect:src/main/java/collect/ForwardingBlockingDeque.java
+//collect:src/main/java/collect/ForwardingCollection.java
+//collect:src/main/java/collect/ForwardingConcurrentMap.java
+//collect:src/main/java/collect/ForwardingDeque.java
+//collect:src/main/java/collect/ForwardingImmutableCollection.java
+//collect:src/main/java/collect/ForwardingImmutableList.java
+//collect:src/main/java/collect/ForwardingImmutableMap.java
+//collect:src/main/java/collect/ForwardingImmutableSet.java
+//collect:src/main/java/collect/ForwardingIterator.java
+//collect:src/main/java/collect/ForwardingList.java
+//collect:src/main/java/collect/ForwardingListIterator.java
+//collect:src/main/java/collect/ForwardingListMultimap.java
+//collect:src/main/java/collect/ForwardingMap.java
+//collect:src/main/java/collect/ForwardingMapEntry.java
+//collect:src/main/java/collect/ForwardingMultimap.java
+//collect:src/main/java/collect/ForwardingMultiset.java
+//collect:src/main/java/collect/ForwardingNavigableMap.java
+//collect:src/main/java/collect/ForwardingNavigableSet.java
+//collect:src/main/java/collect/ForwardingObject.java
+//collect:src/main/java/collect/ForwardingQueue.java
+//collect:src/main/java/collect/ForwardingSet.java
+//collect:src/main/java/collect/ForwardingSetMultimap.java
+//collect:src/main/java/collect/ForwardingSortedMap.java
+//collect:src/main/java/collect/ForwardingSortedMultiset.java
+//collect:src/main/java/collect/ForwardingSortedSet.java
+//collect:src/main/java/collect/ForwardingSortedSetMultimap.java
+//collect:src/main/java/collect/ForwardingTable.java
+//collect:src/main/java/collect/GeneralRange.java
+//collect:src/main/java/collect/GwtTransient.java
+//collect:src/main/java/collect/HashBasedTable.java
+//collect:src/main/java/collect/HashBiMap.java
+//collect:src/main/java/collect/HashMultimap.java
+//collect:src/main/java/collect/HashMultimapGwtSerializationDependencies.java
+//collect:src/main/java/collect/HashMultiset.java
+//collect:src/main/java/collect/Hashing.java
+//collect:src/main/java/collect/ImmutableAsList.java
+//collect:src/main/java/collect/ImmutableBiMap.java
+//collect:src/main/java/collect/ImmutableBiMapFauxverideShim.java
+//collect:src/main/java/collect/ImmutableClassToInstanceMap.java
+//collect:src/main/java/collect/ImmutableCollection.java
+//collect:src/main/java/collect/ImmutableEntry.java
+//collect:src/main/java/collect/ImmutableEnumMap.java
+//collect:src/main/java/collect/ImmutableEnumSet.java
+//collect:src/main/java/collect/ImmutableList.java
+//collect:src/main/java/collect/ImmutableListMultimap.java
+//collect:src/main/java/collect/ImmutableMap.java
+//collect:src/main/java/collect/ImmutableMapEntry.java
+//collect:src/main/java/collect/ImmutableMapEntrySet.java
+//collect:src/main/java/collect/ImmutableMapKeySet.java
+//collect:src/main/java/collect/ImmutableMapValues.java
+//collect:src/main/java/collect/ImmutableMultimap.java
+//collect:src/main/java/collect/ImmutableMultiset.java
+//collect:src/main/java/collect/ImmutableMultisetGwtSerializationDependencies.java
+//collect:src/main/java/collect/ImmutableRangeMap.java
+//collect:src/main/java/collect/ImmutableRangeSet.java
+//collect:src/main/java/collect/ImmutableSet.input.java
+//collect:src/main/java/collect/ImmutableSetMultimap.java
+//collect:src/main/java/collect/ImmutableSortedAsList.java
+//collect:src/main/java/collect/ImmutableSortedMap.java
+//collect:src/main/java/collect/ImmutableSortedMapFauxverideShim.java
+//collect:src/main/java/collect/ImmutableSortedMultiset.java
+//collect:src/main/java/collect/ImmutableSortedMultisetFauxverideShim.java
+//collect:src/main/java/collect/ImmutableSortedSet.java
+//collect:src/main/java/collect/ImmutableSortedSetFauxverideShim.java
+//collect:src/main/java/collect/ImmutableTable.java
+//collect:src/main/java/collect/IndexedImmutableSet.java
+//collect:src/main/java/collect/Interner.java
+//collect:src/main/java/collect/Interners.java
+//collect:src/main/java/collect/Iterables.java
+//collect:src/main/java/collect/Iterators.java
+//collect:src/main/java/collect/JdkBackedImmutableBiMap.java
+//collect:src/main/java/collect/JdkBackedImmutableMap.java
+//collect:src/main/java/collect/JdkBackedImmutableMultiset.java
+//collect:src/main/java/collect/JdkBackedImmutableSet.java
+//collect:src/main/java/collect/LexicographicalOrdering.java
+//collect:src/main/java/collect/LinkedHashMultimap.java
+//collect:src/main/java/collect/LinkedHashMultimapGwtSerializationDependencies.java
+//collect:src/main/java/collect/LinkedHashMultiset.java
+//collect:src/main/java/collect/LinkedListMultimap.java
+//collect:src/main/java/collect/ListMultimap.java
+//collect:src/main/java/collect/Lists.java
+//collect:src/main/java/collect/MapDifference.java
+//collect:src/main/java/collect/MapMaker.java
+//collect:src/main/java/collect/MapMakerInternalMap.java
+//collect:src/main/java/collect/Maps.java
+//collect:src/main/java/collect/MinMaxPriorityQueue.java
+//collect:src/main/java/collect/MoreCollectors.java
+//collect:src/main/java/collect/Multimap.java
+//collect:src/main/java/collect/MultimapBuilder.java
+//collect:src/main/java/collect/Multimaps.java
+//collect:src/main/java/collect/Multiset.java
+//collect:src/main/java/collect/Multisets.java
+//collect:src/main/java/collect/MutableClassToInstanceMap.java
+//collect:src/main/java/collect/NaturalOrdering.java
+//collect:src/main/java/collect/NullsFirstOrdering.java
+//collect:src/main/java/collect/NullsLastOrdering.java
+//collect:src/main/java/collect/ObjectArrays.java
+//collect:src/main/java/collect/Ordering.java
+//collect:src/main/java/collect/PeekingIterator.java
+//collect:src/main/java/collect/Platform.java
+//collect:src/main/java/collect/Queues.java
+//collect:src/main/java/collect/Range.java
+//collect:src/main/java/collect/RangeGwtSerializationDependencies.java
+//collect:src/main/java/collect/RangeMap.java
+//collect:src/main/java/collect/RangeSet.java
+//collect:src/main/java/collect/RegularContiguousSet.java
+//collect:src/main/java/collect/RegularImmutableAsList.java
+//collect:src/main/java/collect/RegularImmutableBiMap.java
+//collect:src/main/java/collect/RegularImmutableList.java
+//collect:src/main/java/collect/RegularImmutableMap.java
+//collect:src/main/java/collect/RegularImmutableMultiset.java
+//collect:src/main/java/collect/RegularImmutableSet.java
+//collect:src/main/java/collect/RegularImmutableSortedMultiset.java
+//collect:src/main/java/collect/RegularImmutableSortedSet.java
+//collect:src/main/java/collect/RegularImmutableTable.java
+//collect:src/main/java/collect/ReverseNaturalOrdering.java
+//collect:src/main/java/collect/ReverseOrdering.java
+//collect:src/main/java/collect/RowSortedTable.java
+//collect:src/main/java/collect/Serialization.java
+//collect:src/main/java/collect/SetMultimap.java
+//collect:src/main/java/collect/Sets.java
+//collect:src/main/java/collect/SingletonImmutableBiMap.java
+//collect:src/main/java/collect/SingletonImmutableList.java
+//collect:src/main/java/collect/SingletonImmutableSet.java
+//collect:src/main/java/collect/SingletonImmutableTable.java
+//collect:src/main/java/collect/SortedIterable.java
+//collect:src/main/java/collect/SortedIterables.java
+//collect:src/main/java/collect/SortedLists.java
+//collect:src/main/java/collect/SortedMapDifference.java
+//collect:src/main/java/collect/SortedMultiset.java
+//collect:src/main/java/collect/SortedMultisetBridge.java
+//collect:src/main/java/collect/SortedMultisets.java
+//collect:src/main/java/collect/SortedSetMultimap.java
+//collect:src/main/java/collect/SparseImmutableTable.java
+//collect:src/main/java/collect/StandardRowSortedTable.java
+//collect:src/main/java/collect/StandardTable.java
+//collect:src/main/java/collect/Streams.java
+//collect:src/main/java/collect/Synchronized.java
+//collect:src/main/java/collect/Table.java
+//collect:src/main/java/collect/Tables.java
+//collect:src/main/java/collect/TopKSelector.java
+//collect:src/main/java/collect/TransformedIterator.java
+//collect:src/main/java/collect/TransformedListIterator.java
+//collect:src/main/java/collect/TreeBasedTable.java
+//collect:src/main/java/collect/TreeMultimap.java
+//collect:src/main/java/collect/TreeMultiset.java
+//collect:src/main/java/collect/TreeRangeMap.java
+//collect:src/main/java/collect/TreeRangeSet.java
+//collect:src/main/java/collect/TreeTraverser.java
+//collect:src/main/java/collect/UnmodifiableIterator.java
+//collect:src/main/java/collect/UnmodifiableListIterator.java
+//collect:src/main/java/collect/UnmodifiableSortedMultiset.java
+//collect:src/main/java/collect/UsingToStringOrdering.java
+//collect:src/main/java/collect/package/info.java
+@bazel_tools//src/conditions:host_windows
+@bazel_tools//src/conditions:host_windows_arm64_constraint
+@bazel_tools//src/conditions:host_windows_x64_constraint
+@bazel_tools//src/conditions:remote
+@bazel_tools//src/conditions:windows
+@bazel_tools//src/main/cpp/util:blaze_exit_code
+@bazel_tools//src/main/cpp/util:errors
+@bazel_tools//src/main/cpp/util:errors.h
+@bazel_tools//src/main/cpp/util:errors_posix.cc
+@bazel_tools//src/main/cpp/util:errors_windows.cc
+@bazel_tools//src/main/cpp/util:exit_code.h
+@bazel_tools//src/main/cpp/util:file.cc
+@bazel_tools//src/main/cpp/util:file.h
+@bazel_tools//src/main/cpp/util:file_platform.h
+@bazel_tools//src/main/cpp/util:file_posix.cc
+@bazel_tools//src/main/cpp/util:file_windows.cc
+@bazel_tools//src/main/cpp/util:filesystem
+@bazel_tools//src/main/cpp/util:ijar
+@bazel_tools//src/main/cpp/util:logging
+@bazel_tools//src/main/cpp/util:logging.cc
+@bazel_tools//src/main/cpp/util:logging.h
+@bazel_tools//src/main/cpp/util:path.cc
+@bazel_tools//src/main/cpp/util:path.h
+@bazel_tools//src/main/cpp/util:path_platform.h
+@bazel_tools//src/main/cpp/util:path_posix.cc
+@bazel_tools//src/main/cpp/util:path_windows.cc
+@bazel_tools//src/main/cpp/util:port
+@bazel_tools//src/main/cpp/util:port.cc
+@bazel_tools//src/main/cpp/util:port.h
+@bazel_tools//src/main/cpp/util:strings
+@bazel_tools//src/main/cpp/util:strings.cc
+@bazel_tools//src/main/cpp/util:strings.h
+@bazel_tools//src/main/native/windows:file.cc
+@bazel_tools//src/main/native/windows:file.h
+@bazel_tools//src/main/native/windows:lib-file
+@bazel_tools//src/main/native/windows:lib-process
+@bazel_tools//src/main/native/windows:process.cc
+@bazel_tools//src/main/native/windows:process.h
+@bazel_tools//src/main/native/windows:util.cc
+@bazel_tools//src/main/native/windows:util.h
+@bazel_tools//src/tools/launcher:bash_launcher
+@bazel_tools//src/tools/launcher:bash_launcher.cc
+@bazel_tools//src/tools/launcher:bash_launcher.h
+@bazel_tools//src/tools/launcher:dummy.cc
+@bazel_tools//src/tools/launcher:java_launcher
+@bazel_tools//src/tools/launcher:java_launcher.cc
+@bazel_tools//src/tools/launcher:java_launcher.h
+@bazel_tools//src/tools/launcher:launcher
+@bazel_tools//src/tools/launcher:launcher.cc
+@bazel_tools//src/tools/launcher:launcher.h
+@bazel_tools//src/tools/launcher:launcher_base
+@bazel_tools//src/tools/launcher:launcher_main.cc
+@bazel_tools//src/tools/launcher:launcher_maker
+@bazel_tools//src/tools/launcher:launcher_maker.cc
+@bazel_tools//src/tools/launcher:python_launcher
+@bazel_tools//src/tools/launcher:python_launcher.cc
+@bazel_tools//src/tools/launcher:python_launcher.h
+@bazel_tools//src/tools/launcher/util:data_parser
+@bazel_tools//src/tools/launcher/util:data_parser.cc
+@bazel_tools//src/tools/launcher/util:data_parser.h
+@bazel_tools//src/tools/launcher/util:dummy.cc
+@bazel_tools//src/tools/launcher/util:launcher_util.cc
+@bazel_tools//src/tools/launcher/util:launcher_util.h
+@bazel_tools//src/tools/launcher/util:util
+@bazel_tools//third_party/def_parser:def_parser
+@bazel_tools//third_party/def_parser:def_parser.cc
+@bazel_tools//third_party/def_parser:def_parser.h
+@bazel_tools//third_party/def_parser:def_parser_lib
+@bazel_tools//third_party/def_parser:def_parser_main.cc
+@bazel_tools//tools/build_defs/build_info:cc_build_info
+@bazel_tools//tools/build_defs/build_info/templates:non_volatile_file.h.template
+@bazel_tools//tools/build_defs/build_info/templates:redacted_file.h.template
+@bazel_tools//tools/build_defs/build_info/templates:volatile_file.h.template
+@bazel_tools//tools/build_defs/cc/whitelists/parse_headers_and_layering_check:disabling_parse_headers_and_layering_check_allowed
+@bazel_tools//tools/cpp:build_interface_so
+@bazel_tools//tools/cpp:current_cc_toolchain
+@bazel_tools//tools/cpp:empty_lib
+@bazel_tools//tools/cpp:interface_library_builder
+@bazel_tools//tools/cpp:link_dynamic_library
+@bazel_tools//tools/cpp:link_dynamic_library.sh
+@bazel_tools//tools/cpp:link_extra_lib
+@bazel_tools//tools/cpp:link_extra_libs
+@bazel_tools//tools/cpp:malloc
+@bazel_tools//tools/cpp:optional_current_cc_toolchain
+@bazel_tools//tools/cpp:toolchain
+@bazel_tools//tools/cpp:toolchain_type
+@bazel_tools//tools/def_parser:def_parser
+@bazel_tools//tools/def_parser:def_parser.exe
+@bazel_tools//tools/def_parser:def_parser_windows
+@bazel_tools//tools/def_parser:no_op.bat
+@bazel_tools//tools/jdk:current_java_toolchain
+@bazel_tools//tools/jdk:java_plugins_flag_alias
+@bazel_tools//tools/jdk:java_stub_template.txt
+@bazel_tools//tools/jdk:launcher_flag_alias
+@bazel_tools//tools/jdk:toolchain_type
+@bazel_tools//tools/launcher:launcher
+@bazel_tools//tools/launcher:launcher.exe
+@bazel_tools//tools/launcher:launcher_maker
+@bazel_tools//tools/launcher:launcher_maker.exe
+@bazel_tools//tools/launcher:launcher_maker_windows
+@bazel_tools//tools/launcher:launcher_windows
+@bazel_tools//tools/objc:host_xcodes
+@@bazel_tools~cc_configure_extension~local_config_cc//:builtin_include_directory_paths
+@@bazel_tools~cc_configure_extension~local_config_cc//:cc-compiler-armeabi-v7a
+@@bazel_tools~cc_configure_extension~local_config_cc//:cc-compiler-darwin_arm64
+@@bazel_tools~cc_configure_extension~local_config_cc//:cc_wrapper
+@@bazel_tools~cc_configure_extension~local_config_cc//:cc_wrapper.sh
+@@bazel_tools~cc_configure_extension~local_config_cc//:compiler_deps
+@@bazel_tools~cc_configure_extension~local_config_cc//:empty
+@@bazel_tools~cc_configure_extension~local_config_cc//:local
+@@bazel_tools~cc_configure_extension~local_config_cc//:stub_armeabi-v7a
+@@bazel_tools~cc_configure_extension~local_config_cc//:toolchain
+@platforms//os:os
+@platforms//os:windows
+@@rules_java~//toolchains:current_java_toolchain
+@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:ByteStreams.java
+@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:Coordinates.java
+@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:Hasher.java
+@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:rules_jvm_external
+@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry
+@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry.java
+@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip:StableZipEntry.java
+@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip:zip
+@rules_jvm_external//settings:stamp_manifest
+@maven//:com_mycompany_app_a_dependency
+@maven//:com_mycompany_app_an_empty_dependency
+@maven//:com_mycompany_app_an_indirect_dependency
+@maven//:com_mycompany_app_another_dependency
+@maven//:v1/com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar
+@maven//:v1/com/mycompany/app/an-empty-dependency/1.0/an-empty-dependency-1.0.jar
+@maven//:v1/com/mycompany/app/an-indirect-dependency/1.0/an-indirect-dependency-1.0.jar
+@maven//:v1/com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar
+""";
+    var expected =
+        List.of(
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/AbstractBiMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/AbstractIndexedListIterator.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/AbstractIterator.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/AbstractListMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/AbstractMapBasedMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/AbstractMapBasedMultiset.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/AbstractMapEntry.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/AbstractMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/AbstractMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/AbstractNavigableMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/AbstractRangeSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/AbstractSequentialIterator.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/AbstractSetMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/AbstractSortedKeySortedSetMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/AbstractSortedMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/AbstractSortedSetMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/AbstractTable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/AllEqualOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ArrayListMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ArrayListMultimapGwtSerializationDependencies.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ArrayTable.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/BaseImmutableMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/BiMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/BoundType.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ByFunctionOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/CartesianList.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ClassToInstanceMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/CollectCollectors.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/CollectPreconditions.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/CollectSpliterators.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Collections2.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/CompactHashMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/CompactHashSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/CompactHashing.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/CompactLinkedHashMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/CompactLinkedHashSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ComparatorOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Comparators.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ComparisonChain.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/CompoundOrdering.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ComputationException.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ConcurrentHashMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ConsumingQueueIterator.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ContiguousSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Count.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Cut.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/DenseImmutableTable.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/DescendingImmutableSortedMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/DescendingImmutableSortedSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/DescendingMultiset.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/DiscreteDomain.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/EmptyContiguousSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/EmptyImmutableListMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/EmptyImmutableSetMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/EnumBiMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/EnumHashBiMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/EnumMultiset.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/EvictingQueue.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ExplicitOrdering.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/FilteredEntryMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/FilteredEntrySetMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/FilteredKeyListMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/FilteredKeyMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/FilteredKeySetMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/FilteredMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/FilteredMultimapValues.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/FilteredSetMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/FluentIterable.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingBlockingDeque.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingCollection.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingConcurrentMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingDeque.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingImmutableCollection.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingImmutableList.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingImmutableMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingImmutableSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingIterator.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingList.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingListIterator.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingListMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingMapEntry.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingNavigableMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingNavigableSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingObject.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingQueue.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingSetMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingSortedMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingSortedMultiset.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingSortedSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingSortedSetMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ForwardingTable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/GeneralRange.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/GwtTransient.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/HashBasedTable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/HashBiMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/HashMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/HashMultimapGwtSerializationDependencies.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/HashMultiset.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Hashing.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableAsList.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableBiMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableBiMapFauxverideShim.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableClassToInstanceMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableCollection.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableEntry.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableEnumMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableEnumSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableList.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableListMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableMapEntry.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableMapEntrySet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableMapKeySet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableMapValues.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableMultisetGwtSerializationDependencies.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableRangeMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableRangeSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableSet.input.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableSetMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableSortedAsList.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableSortedMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableSortedMapFauxverideShim.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableSortedMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableSortedMultisetFauxverideShim.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableSortedSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableSortedSetFauxverideShim.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ImmutableTable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/IndexedImmutableSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Interner.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Interners.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Iterables.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Iterators.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/JdkBackedImmutableBiMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/JdkBackedImmutableMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/JdkBackedImmutableMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/JdkBackedImmutableSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/LexicographicalOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/LinkedHashMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/LinkedHashMultimapGwtSerializationDependencies.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/LinkedHashMultiset.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/LinkedListMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ListMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Lists.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/MapDifference.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/MapMaker.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/MapMakerInternalMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Maps.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/MinMaxPriorityQueue.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/MoreCollectors.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Multimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/MultimapBuilder.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Multimaps.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Multiset.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Multisets.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/MutableClassToInstanceMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/NaturalOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/NullsFirstOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/NullsLastOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ObjectArrays.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Ordering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/PeekingIterator.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Platform.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Queues.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Range.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/RangeGwtSerializationDependencies.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/RangeMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/RangeSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/RegularContiguousSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/RegularImmutableAsList.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/RegularImmutableBiMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/RegularImmutableList.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/RegularImmutableMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/RegularImmutableMultiset.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/RegularImmutableSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/RegularImmutableSortedMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/RegularImmutableSortedSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/RegularImmutableTable.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/ReverseNaturalOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/ReverseOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/RowSortedTable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Serialization.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/SetMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Sets.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/SingletonImmutableBiMap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/SingletonImmutableList.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/SingletonImmutableSet.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/SingletonImmutableTable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/SortedIterable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/SortedIterables.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/SortedLists.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/SortedMapDifference.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/SortedMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/SortedMultisetBridge.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/SortedMultisets.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/SortedSetMultimap.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/SparseImmutableTable.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/StandardRowSortedTable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/StandardTable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Streams.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Synchronized.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Table.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/Tables.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/TopKSelector.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/TransformedIterator.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/TransformedListIterator.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/TreeBasedTable.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/TreeMultimap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/TreeMultiset.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/TreeRangeMap.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/TreeRangeSet.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/TreeTraverser.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/UnmodifiableIterator.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/UnmodifiableListIterator.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/UnmodifiableSortedMultiset.java"),
+            Paths.get(
+                "/Users/nicolas.couvrat/root/src/main/java/collect/UsingToStringOrdering.java"),
+            Paths.get("/Users/nicolas.couvrat/root/src/main/java/collect/package/info.java"));
+
+    var input = new StringReader(raw);
+    var got =
+        BazelQueryResults.parse(Paths.get("/Users/nicolas.couvrat/root"), Paths.get(""), input);
+    assertThat(got.srcs()).containsExactlyElementsIn(expected);
+  }
+}
