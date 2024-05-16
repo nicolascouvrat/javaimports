@@ -34,6 +34,7 @@ public class BazelEnvironment implements Environment {
 
   private final Path targetRoot;
   private final Path outputBase;
+  private final Path workspaceRoot;
   private final Path fileBeingResolved;
   private final Options options;
 
@@ -43,6 +44,7 @@ public class BazelEnvironment implements Environment {
   public BazelEnvironment(
       Path workspaceRoot, Path targetRoot, Path fileBeingResolved, Options options) {
     this.outputBase = outputBase(workspaceRoot);
+    this.workspaceRoot = workspaceRoot;
     this.targetRoot = targetRoot;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
@@ -146,7 +148,7 @@ public class BazelEnvironment implements Environment {
                 throw new RuntimeException(e);
               }
             });
-    var results = BazelQueryResults.parse(targetRoot, outputBase, proc.inputReader());
+    var results = BazelQueryResults.parse(workspaceRoot, outputBase, proc.inputReader());
     var exitCode = proc.waitFor();
     if (exitCode != 0) {
       log.log(Level.WARNING, "bazel query error (code %d)".formatted(exitCode));

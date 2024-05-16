@@ -12,14 +12,14 @@ import java.util.regex.Pattern;
 
 /** Parsed result of `bazel query deps(...)` */
 public record BazelQueryResults(List<Path> srcs, List<Path> deps) implements SourceFiles {
-  public static BazelQueryResults parse(Path targetRoot, Path workspaceRoot, Reader reader)
+  public static BazelQueryResults parse(Path workspaceRoot, Path outputBase, Reader reader)
       throws IOException {
     try (var r = new BufferedReader(reader)) {
       var srcs = new ArrayList<Path>();
       var deps = new ArrayList<>();
       String line;
       while ((line = r.readLine()) != null) {
-        var parsed = parse(targetRoot, workspaceRoot, line);
+        var parsed = parse(workspaceRoot, outputBase, line);
         if (parsed == null) {
           continue;
         }
@@ -40,14 +40,21 @@ public record BazelQueryResults(List<Path> srcs, List<Path> deps) implements Sou
 
   private record ParsedLine(Path srcPath, Path depPath) {}
 
-  private static final Pattern SRC_FILE_PATTERN = Pattern.compile("^//.+:(?<path>.+)\\.java$");
+  // This will match files outside of the package we're considering, but it's fine because we depend
+  // directly on their source files so it makes sense to consider as part of the package.
+  private static final Pattern SRC_FILE_PATTERN =
+      Pattern.compile("^//(?<package>.+):(?<path>.+)\\.java$");
   private static final Pattern DEPENDENCY_PATTERN =
       Pattern.compile("^@maven//:(?<coordinates>.+)\\.jar$");
 
-  private static ParsedLine parse(Path targetRoot, Path workspaceRoot, String raw) {
+  private static ParsedLine parse(Path workspaceRoot, Path outputBase, String raw) {
     var srcMatch = SRC_FILE_PATTERN.matcher(raw);
     if (srcMatch.matches()) {
-      return new ParsedLine(targetRoot.resolve(Paths.get(srcMatch.group("path") + ".java")), null);
+      return new ParsedLine(
+          workspaceRoot
+              .resolve(srcMatch.group("package"))
+              .resolve(srcMatch.group("path") + ".java"),
+          null);
     }
 
     var depMatch = DEPENDENCY_PATTERN.matcher(raw);
