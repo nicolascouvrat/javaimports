@@ -87,9 +87,6 @@ public class ImporterIntegrationTest {
             .numThreads(Runtime.getRuntime().availableProcessors())
             .build();
     String input = new String(Files.readAllBytes(main), UTF_8);
-    if (!pkg.name.equals("collect")) {
-      return;
-    }
     try {
       String output = new Importer(opts).addUsedImports(main, input);
       assertWithMessage("bad output for " + pkg.name).that(output).isEqualTo(pkg.expected);

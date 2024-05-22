@@ -10,9 +10,11 @@ import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
+import com.nikodoko.javaimports.environment.maven.MavenDependencyLoader;
 import com.nikodoko.javaimports.environment.shared.JavaProject;
 import com.nikodoko.javaimports.environment.shared.ProjectParser;
 import com.nikodoko.javaimports.parser.ParsedFile;
+import io.opentracing.Span;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,10 +23,13 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class BazelEnvironment implements Environment {
   private static final Clock clock = Clock.systemDefaultZone();
@@ -37,15 +42,23 @@ public class BazelEnvironment implements Environment {
   private final Path workspaceRoot;
   private final Path fileBeingResolved;
   private final Options options;
+  private final boolean isModule;
 
   private BazelQueryResults cache = null;
   private JavaProject project = null;
+  private BazelClassLoader classLoader = null;
+  private Map<Identifier, List<Import>> availableImports = null;
 
   public BazelEnvironment(
-      Path workspaceRoot, Path targetRoot, Path fileBeingResolved, Options options) {
+      Path workspaceRoot,
+      Path targetRoot,
+      boolean isModule,
+      Path fileBeingResolved,
+      Options options) {
     this.outputBase = outputBase(workspaceRoot);
     this.workspaceRoot = workspaceRoot;
     this.targetRoot = targetRoot;
+    this.isModule = isModule;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
   }
@@ -117,6 +130,61 @@ public class BazelEnvironment implements Environment {
     }
   }
 
+  private Map<Identifier, List<Import>> availableImports() {
+    if (availableImports == null) {
+      var span = Traces.createSpan("BazelEnvironment.initAvailableImports");
+      try (var __ = Traces.activate(span)) {
+        availableImports = initAvailableImports(span);
+      } finally {
+        span.finish();
+      }
+    }
+
+    return availableImports;
+  }
+
+  private Map<Identifier, List<Import>> initAvailableImports(Span span) {
+    var start = clock.millis();
+    var tasks =
+        cache().deps().stream()
+            .map(d -> CompletableFuture.supplyAsync(() -> loadImports(span, d), options.executor()))
+            .toList();
+    return Utils.sequence(tasks)
+        .thenApply(
+            results ->
+                results.stream()
+                    .flatMap(List::stream)
+                    .collect(Collectors.groupingBy(i -> i.selector.identifier())))
+        .join();
+  }
+
+  private List<Import> loadImports(Span span, Path dep) {
+    try (var __ = Traces.activate(span)) {
+      return MavenDependencyLoader.load(dep);
+    } catch (Exception e) {
+      // throw new RuntimeException(e);
+      log.log(Level.WARNING, String.format("could not load dependency %s", dep), e);
+      return List.of();
+    }
+  }
+
+  private BazelClassLoader classLoader() {
+    if (classLoader == null) {
+      var span = Traces.createSpan("BazelEnvironment.initClassLoader");
+      try (var __ = Traces.activate(span)) {
+        classLoader = initClassLoader();
+      } finally {
+        span.finish();
+      }
+    }
+
+    return classLoader;
+  }
+
+  private BazelClassLoader initClassLoader() {
+    return new BazelClassLoader(cache().deps());
+  }
+
   private BazelQueryResults bazelQuery() throws InterruptedException, IOException {
     log.log(
         Level.INFO, "running bazel query in %s (output_base %s)".formatted(targetRoot, outputBase));
@@ -148,7 +216,12 @@ public class BazelEnvironment implements Environment {
                 throw new RuntimeException(e);
               }
             });
-    var results = BazelQueryResults.parse(workspaceRoot, outputBase, proc.inputReader());
+    var results =
+        BazelQueryResults.parser()
+            .workspaceRoot(workspaceRoot)
+            .outputBase(outputBase)
+            .isModule(isModule)
+            .parse(proc.inputReader());
     var exitCode = proc.waitFor();
     if (exitCode != 0) {
       log.log(Level.WARNING, "bazel query error (code %d)".formatted(exitCode));
@@ -165,6 +238,7 @@ public class BazelEnvironment implements Environment {
   @Override
   public Collection<Import> findImports(Identifier i) {
     var found = new ArrayList<Import>();
+    found.addAll(availableImports().getOrDefault(i, List.of()));
     for (var file : project().allFiles()) {
       found.addAll(file.findImportables(i));
     }
@@ -174,6 +248,22 @@ public class BazelEnvironment implements Environment {
 
   @Override
   public Optional<ClassEntity> findClass(Import i) {
-    return Optional.empty();
+    for (var file : project().allFiles()) {
+      var maybeParent = file.findClass(i);
+      if (maybeParent.isPresent()) {
+        return maybeParent;
+      }
+    }
+
+    // // We do not want to try to look for the class if the environment does not provide this
+    // import
+    // // TODO: do not recompute the set each time
+    // var allImports =
+    //     availableImports.values().stream().flatMap(List::stream).collect(Collectors.toSet());
+    // if (!allImports.contains(i)) {
+    //   return Optional.empty();
+    // }
+
+    return classLoader().findClass(i);
   }
 }

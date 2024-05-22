@@ -17,14 +17,14 @@ import java.util.jar.JarInputStream;
 
 /** Loads a .jar, extracting all importable symbols. */
 // TODO: handle static imports
-class MavenDependencyLoader {
+public class MavenDependencyLoader {
   private static final String SUBCLASS_SEPARATOR = "$";
   private static final String JAVA_9_MODULE_INFO = "module-info.class";
   private static final String DOT = ".";
   private static final String SEPARATOR = File.separator;
   private static final String CLASS_EXTENSION = ".class";
 
-  static List<Import> load(Path dependency) throws IOException {
+  public static List<Import> load(Path dependency) throws IOException {
     var span =
         Traces.createSpan("MavenDependencyLoader.load", new Tag("dependency_path", dependency));
     try (var __ = Traces.activate(span)) {

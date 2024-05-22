@@ -67,11 +67,12 @@ public class Environments {
       Path potentialWorkspaceBazel = Paths.get(current.toString(), "WORKSPACE.bazel");
       Path potentialModule = Paths.get(current.toString(), "MODULE");
       Path potentialModuleBazel = Paths.get(current.toString(), "MODULE.bazel");
-      if (Files.exists(potentialWorkspace)
-          | Files.exists(potentialWorkspaceBazel)
-          | Files.exists(potentialModule)
-          | Files.exists(potentialModuleBazel)) {
-        return new BazelEnvironment(current, targetRoot, filename, options);
+      if (Files.exists(potentialWorkspace) | Files.exists(potentialWorkspaceBazel)) {
+        return new BazelEnvironment(current, targetRoot, false, filename, options);
+      }
+
+      if (Files.exists(potentialModule) | Files.exists(potentialModuleBazel)) {
+        return new BazelEnvironment(current, targetRoot, true, filename, options);
       }
 
       current = current.getParent();
