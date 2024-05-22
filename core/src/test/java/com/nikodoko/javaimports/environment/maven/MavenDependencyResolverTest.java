@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class MavenDependencyResolverTest {
-  static final URL repositoryURL = MavenDependencyLoaderTest.class.getResource("/testrepository");
+  static final URL repositoryURL = MavenDependencyLoaderTest.class.getResource("/.m2/repository");
   MavenDependencyResolver resolver;
   Path repository;
 
