@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.environment;
+package com.nikodoko.javaimports.environment.shared;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Iterables;

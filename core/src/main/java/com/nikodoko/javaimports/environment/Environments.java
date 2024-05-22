@@ -4,6 +4,7 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.environment.bazel.BazelEnvironment;
 import com.nikodoko.javaimports.environment.maven.MavenEnvironment;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import java.nio.file.Files;
@@ -40,9 +41,38 @@ public class Environments {
   public static Environment autoSelect(Path filename, String pkg, Options options) {
     Path current = filename.getParent();
     while (current != null) {
+      // Prioritize POM
       Path potentialPom = Paths.get(current.toString(), "pom.xml");
       if (Files.exists(potentialPom)) {
         return new MavenEnvironment(current, filename, pkg, options);
+      }
+
+      Path potentialBuild = Paths.get(current.toString(), "BUILD");
+      Path potentialBuildBazel = Paths.get(current.toString(), "BUILD.bazel");
+      if (Files.exists(potentialBuild) || Files.exists(potentialBuildBazel)) {
+        return initBazelEnvironment(current, filename, options);
+      }
+
+      current = current.getParent();
+    }
+
+    return new DummyEnvironment();
+  }
+
+  private static Environment initBazelEnvironment(Path targetRoot, Path filename, Options options) {
+    // Iterate further to find the workspace root | module root
+    Path current = targetRoot;
+    while (current != null) {
+      Path potentialWorkspace = Paths.get(current.toString(), "WORKSPACE");
+      Path potentialWorkspaceBazel = Paths.get(current.toString(), "WORKSPACE.bazel");
+      Path potentialModule = Paths.get(current.toString(), "MODULE");
+      Path potentialModuleBazel = Paths.get(current.toString(), "MODULE.bazel");
+      if (Files.exists(potentialWorkspace) | Files.exists(potentialWorkspaceBazel)) {
+        return new BazelEnvironment(current, targetRoot, false, filename, options);
+      }
+
+      if (Files.exists(potentialModule) | Files.exists(potentialModuleBazel)) {
+        return new BazelEnvironment(current, targetRoot, true, filename, options);
       }
 
       current = current.getParent();
