@@ -185,9 +185,16 @@ public class BazelEnvironment implements Environment {
     return new BazelClassLoader(cache().deps());
   }
 
+  private static final String DEPS_FORMAT = "deps(attr('srcs', //%s:%s, //%s:*))";
+
   private BazelQueryResults bazelQuery() throws InterruptedException, IOException {
+    var pkgPath = workspaceRoot.relativize(targetRoot);
+    var filePath = targetRoot.relativize(fileBeingResolved);
+    var deps = String.format(DEPS_FORMAT, pkgPath, filePath, pkgPath);
     log.log(
-        Level.INFO, "running bazel query in %s (output_base %s)".formatted(targetRoot, outputBase));
+        Level.INFO,
+        "running bazel query in for %s in %s (output_base %s)"
+            .formatted(deps, workspaceRoot, outputBase));
     // As per Process' documentation: "Because some native platforms only provide limited buffer
     // size for standard input and output streams, failure to promptly write the input stream or
     // read the output stream of the process may cause the process to block, or even deadlock."
@@ -197,9 +204,9 @@ public class BazelEnvironment implements Environment {
     var stderrRedirect =
         options.debug() ? ProcessBuilder.Redirect.PIPE : ProcessBuilder.Redirect.DISCARD;
     var proc =
-        new ProcessBuilder("bazel", "--output_base=%s".formatted(outputBase), "query", "deps(...)")
+        new ProcessBuilder("bazel", "--output_base=%s".formatted(outputBase), "query", deps)
             .redirectError(stderrRedirect)
-            .directory(targetRoot.toFile())
+            .directory(workspaceRoot.toFile())
             .start();
 
     options
