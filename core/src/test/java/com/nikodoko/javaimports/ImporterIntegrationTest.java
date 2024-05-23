@@ -10,6 +10,7 @@ import static org.junit.Assert.fail;
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.stdlib.BasicStdlibProvider;
 import com.nikodoko.javaimports.stdlib.FakeStdlib;
 import com.nikodoko.packagetest.BuildSystem;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -53,10 +55,14 @@ public class ImporterIntegrationTest {
 
   Exported testPkg;
 
+  @BeforeEach
+  void setup() {
+    Logs.enable();
+  }
+
   @AfterEach
   void cleanup() throws IOException {
-    // testPkg.cleanup();
-    System.out.println(testPkg.root());
+    testPkg.cleanup();
   }
 
   @ParameterizedTest(name = "{0}")
@@ -89,9 +95,9 @@ public class ImporterIntegrationTest {
             .build();
     String input = new String(Files.readAllBytes(main), UTF_8);
     try {
-      if (!pkg.name.equals("classExtendsObject")) {
-        return;
-      }
+      // if (!pkg.name.equals("withotherpackage")) {
+      //   return;
+      // }
       String output = new Importer(opts).addUsedImports(main, input);
       assertWithMessage("bad output for " + pkg.name).that(output).isEqualTo(pkg.expected);
     } catch (ImporterException e) {
