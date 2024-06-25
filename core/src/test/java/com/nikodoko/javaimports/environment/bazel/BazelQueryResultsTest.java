@@ -115,13 +115,13 @@ public class BazelQueryResultsTest {
     assertThat(got.deps())
         .containsExactly(
             Paths.get(
-                "/output/base/rules_jvm_external~~maven~maven/v1/com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar"),
+                "/output/base/external/rules_jvm_external~~maven~maven/v1/com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar"),
             Paths.get(
-                "/output/base/rules_jvm_external~~maven~maven/v1/com/mycompany/app/an-empty-dependency/1.0/an-empty-dependency-1.0.jar"),
+                "/output/base/external/rules_jvm_external~~maven~maven/v1/com/mycompany/app/an-empty-dependency/1.0/an-empty-dependency-1.0.jar"),
             Paths.get(
-                "/output/base/rules_jvm_external~~maven~maven/v1/com/mycompany/app/an-indirect-dependency/1.0/an-indirect-dependency-1.0.jar"),
+                "/output/base/external/rules_jvm_external~~maven~maven/v1/com/mycompany/app/an-indirect-dependency/1.0/an-indirect-dependency-1.0.jar"),
             Paths.get(
-                "/output/base/rules_jvm_external~~maven~maven/v1/com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar"));
+                "/output/base/external/rules_jvm_external~~maven~maven/v1/com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar"));
   }
 
   @Test
@@ -146,9 +146,9 @@ public class BazelQueryResultsTest {
     assertThat(got.deps())
         .containsExactly(
             Paths.get(
-                "/output/base/com_google_guava_guava_33_2_0_jre/file/v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar"),
+                "/output/base/external/com_google_guava_guava_33_2_0_jre/file/v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar"),
             Paths.get(
-                "/output/base/com_google_guava_failureaccess_1_0_2/file/v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar"));
+                "/output/base/external/com_google_guava_failureaccess_1_0_2/file/v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar"));
   }
 
   @Test
@@ -171,9 +171,9 @@ public class BazelQueryResultsTest {
     assertThat(got.deps())
         .containsExactly(
             Paths.get(
-                "/output/base/maven/v1/https/repo1.maven.org/maven2/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar"),
+                "/output/base/external/maven/v1/https/repo1.maven.org/maven2/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar"),
             Paths.get(
-                "/output/base/maven/v1/https/repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar"));
+                "/output/base/external/maven/v1/https/repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar"));
   }
 
   @Test
@@ -202,8 +202,8 @@ public class BazelQueryResultsTest {
     assertThat(got.deps())
         .containsExactly(
             Paths.get(
-                "/output/base/rules_jvm_external~~maven~com_google_guava_guava_33_2_0_jre/file/v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar"),
+                "/output/base/external/rules_jvm_external~~maven~com_google_guava_guava_33_2_0_jre/file/v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar"),
             Paths.get(
-                "/output/base/rules_jvm_external~~maven~com_google_guava_failureaccess_1_0_2/file/v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar"));
+                "/output/base/external/rules_jvm_external~~maven~com_google_guava_failureaccess_1_0_2/file/v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar"));
   }
 }

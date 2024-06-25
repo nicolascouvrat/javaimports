@@ -38,7 +38,6 @@ class BazelClassLoader {
   }
 
   private Optional<ClassEntity> findClassInstrumented(Import i) {
-    var c = ClassEntity.named(i.selector).declaring(loader.loadIdentifiers(i)).build();
-    return Optional.of(c);
+    return loader.loadClass(i);
   }
 }

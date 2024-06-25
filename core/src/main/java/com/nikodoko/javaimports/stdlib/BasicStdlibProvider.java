@@ -6,8 +6,8 @@ import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
-import com.nikodoko.javaimports.environment.jarutil.IdentifierLoader;
 import com.nikodoko.javaimports.environment.jarutil.JarIdentifierLoader;
+import com.nikodoko.javaimports.environment.jarutil.JarLoader;
 import com.nikodoko.javaimports.stdlib.internal.Stdlib;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,7 +22,7 @@ public class BasicStdlibProvider implements StdlibProvider {
   private Map<String, Integer> usedPackages = new HashMap<>();
   // TODO: it is not ideal to rely on a class that was made for jar parsing here, but it provides us
   // with a temporary solution
-  private final IdentifierLoader loader = new JarIdentifierLoader(List.of());
+  private final JarLoader loader = new JarIdentifierLoader(List.of());
   private static final Selector JAVA_LANG = Selector.of("java", "lang");
 
   public BasicStdlibProvider(Stdlib stdlib) {
@@ -73,8 +73,7 @@ public class BasicStdlibProvider implements StdlibProvider {
   }
 
   private Optional<ClassEntity> findClassInstrumented(Import i) {
-    var c = ClassEntity.named(i.selector).declaring(loader.loadIdentifiers(i)).build();
-    return Optional.of(c);
+    return loader.loadClass(i);
   }
 
   private Collection<Import> findImportsInstrumented(Identifier i) {

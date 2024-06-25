@@ -1,17 +1,17 @@
 package com.nikodoko.javaimports.environment.jarutil;
 
-import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Import;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Optional;
 
 @FunctionalInterface
-public interface IdentifierLoader {
+public interface JarLoader {
   @FunctionalInterface
   public interface Factory {
-    public IdentifierLoader of(Collection<Path> paths);
+    public JarLoader of(Collection<Path> paths);
   }
 
-  public Set<Identifier> loadIdentifiers(Import i);
+  public Optional<ClassEntity> loadClass(Import i);
 }

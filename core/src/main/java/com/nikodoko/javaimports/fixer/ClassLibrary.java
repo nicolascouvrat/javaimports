@@ -8,7 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 class ClassLibrary {
-  private List<ClassProvider> providers = new ArrayList<>();
+  private final List<ClassProvider> providers;
+
+  ClassLibrary() {
+    providers = new ArrayList<>();
+  }
 
   void add(ClassProvider provider) {
     providers.add(provider);

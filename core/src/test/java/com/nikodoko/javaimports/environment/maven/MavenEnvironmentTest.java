@@ -8,6 +8,7 @@ import static com.nikodoko.javaimports.common.CommonTestUtil.someIdentifiers;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.packagetest.BuildSystem;
@@ -124,17 +125,8 @@ public class MavenEnvironmentTest {
     var got = environment.findClass(anImport("com.mycompany.app.App"));
     var expected =
         ClassEntity.named(aSelector("com.mycompany.app.App"))
-            .declaring(
-                someIdentifiers(
-                    "getClass",
-                    "wait",
-                    "equals",
-                    "hashCode",
-                    "notifyAll",
-                    "finalize",
-                    "clone",
-                    "toString",
-                    "notify"))
+            .extending(Superclass.resolved(anImport("java.lang.Object")))
+            .declaring(someIdentifiers("<init>"))
             .build();
     assertThat(got.get()).isEqualTo(expected);
   }

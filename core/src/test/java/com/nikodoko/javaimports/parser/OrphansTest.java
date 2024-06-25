@@ -22,6 +22,63 @@ import org.junit.jupiter.api.Test;
 
 public class OrphansTest {
   @Test
+  void itShouldNotIgnoreLocalOrphans() {
+    var code =
+        """
+          package pkg.com.test;
+          class Test {
+            void f() {
+              class Local extends Parent {
+                public int x() {
+                  return p(2);
+                }
+              }
+
+              var l = new Local();
+            }
+          }
+        """;
+
+    var orphans = getOrphans(code);
+    // Before the first traversal, all symbols in orphan classes are unresolved
+    assertThat(orphans.unresolved()).containsExactlyElementsIn(someIdentifiers("p"));
+    var expected =
+        new ClassDeclaration(aSelector("Local"), Superclass.unresolved(aSelector("Parent")));
+    assertThatOrphans(orphans).containsExactly(expected);
+    // After traversal, we still have an orphan class, so its symbols are still unresolved
+    assertThat(orphans.unresolved()).containsExactlyElementsIn(someIdentifiers("p"));
+    assertThat(orphans.needsParents()).isTrue();
+  }
+
+  @Test
+  void itShouldNotIgnoreAnonymousClasses() {
+    var code =
+        """
+          package pkg.com.test;
+          class Test {
+            void f() {
+              var l = new Local() {
+                public int x() {
+                  return p(2);
+                }
+              };
+            }
+          }
+        """;
+
+    var orphans = getOrphans(code);
+    // Before the first traversal, all symbols in orphan classes are unresolved
+    assertThat(orphans.unresolved()).containsExactlyElementsIn(someIdentifiers("p", "Local"));
+    var expected =
+        new ClassDeclaration(
+            ClassEntity.ANONYMOUS_CLASS_NAME, Superclass.unresolved(aSelector("Local")));
+    assertThatOrphans(orphans).containsExactly(expected);
+    // After traversal, we still have an orphan class, so its symbols are still unresolved
+    assertThat(orphans.unresolved()).containsExactlyElementsIn(someIdentifiers("p", "Local"));
+    assertThat(orphans.needsParents()).isTrue();
+  }
+
+  @Test
   void itShouldNotHideYoungerOrphanIfOlderOrphanParentFound() {
     var code =
         """
