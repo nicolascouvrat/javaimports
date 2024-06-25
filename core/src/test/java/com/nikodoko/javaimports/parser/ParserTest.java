@@ -24,6 +24,54 @@ import org.junit.jupiter.params.provider.MethodSource;
 public class ParserTest {
   static Object[][][] CASES = {
     {
+      {"anonymousClass"},
+      {
+        "package com.pkg.test;",
+        "class ATest {",
+        "  static class Parent {}",
+        "  public void main() {",
+        "    var a = new Parent() {",
+        "        @Override",
+        "        void f() {}",
+        "    };",
+        "  }",
+        "}",
+      },
+      {"Override"},
+      {
+        ClassEntity.named(aSelector("ATest")).declaring(someIdentifiers("Parent", "main")).build(),
+        ClassEntity.named(aSelector("Parent")).build(),
+        ClassEntity.anonymous()
+            .declaring(someIdentifiers("f"))
+            .extending(Superclass.unresolved(aSelector("Parent")))
+            .build()
+      },
+    },
+    {
+      {"anonymousEnum"},
+      {
+        "package com.pkg.test;",
+        "enum MyEnum {",
+        "  ENUM_VALUE {",
+        "    public void func(int param) {",
+        "      return 42;",
+        "    }",
+        "  };",
+        "}",
+      },
+      {},
+      {
+        ClassEntity.named(aSelector("MyEnum"))
+            .declaring(someIdentifiers("ENUM_VALUE"))
+            .extending(Superclass.resolved(anImport("java.lang.Enum")))
+            .build(),
+        ClassEntity.anonymous()
+            .declaring(someIdentifiers("func"))
+            .extending(Superclass.unresolved(aSelector("MyEnum")))
+            .build()
+      },
+    },
+    {
       {"multipleTopLevelClassesInSameFile"},
       {
         "package com.pkg.test;",
@@ -1238,6 +1286,11 @@ public class ParserTest {
         ClassEntity.named(aSelector("JdkBackedSetBuilderImpl"))
             .extending(Superclass.unresolved(aSelector("SetBuilderImpl")))
             .declaring(someIdentifiers("<init>", "E", "delegate", "add", "copy", "build"))
+            .build(),
+        // Anonymous class
+        ClassEntity.anonymous()
+            .extending(Superclass.unresolved(aSelector("ImmutableAsList")))
+            .declaring(someIdentifiers("delegateCollection", "get"))
             .build()
       },
     },
@@ -1284,6 +1337,7 @@ public class ParserTest {
       }
       fail();
     }
+    // Scope.debugPrintScopeTree(got.topScope(), System.out);
 
     assertWithMessage("Invalid output for " + name)
         .that(allUnresolvedIn(got))
@@ -1291,7 +1345,7 @@ public class ParserTest {
     if (expectedClasses.length > 0) {
       assertWithMessage("Invalid output for " + name)
           .about(StreamSubject.streams())
-          .that(got.classes())
+          .that(got.allClasses())
           .containsExactly(expectedClasses);
     }
   }

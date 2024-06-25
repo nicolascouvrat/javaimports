@@ -1,0 +1,9 @@
+package classExtendsObject;
+
+// Test that classes are properly considered to be extending java.lang.Object
+class TestClass {
+  public String aMethod() {
+    return toString();
+  }
+}
+

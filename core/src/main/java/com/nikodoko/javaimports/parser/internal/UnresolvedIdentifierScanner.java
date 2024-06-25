@@ -18,6 +18,7 @@ import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.LambdaExpressionTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.ModifiersTree;
+import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TryTree;
@@ -188,10 +189,30 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   }
 
   @Override
+  public Void visitNewClass(NewClassTree tree, Void v) {
+    Void r = scan(tree.getEnclosingExpression(), v);
+    r = scanAndReduce(tree.getIdentifier(), v, r);
+    r = scanAndReduce(tree.getTypeArguments(), v, r);
+    r = scanAndReduce(tree.getArguments(), v, r);
+    if (tree.getClassBody() != null) {
+      // We are declaring an anonymous class that we want to treat as a class extending the class we
+      // are instanciating.
+      var c = createClassEntity(null, tree.getClassBody(), (JCExpression) tree.getIdentifier());
+      visitClass(tree.getClassBody(), v, c);
+    }
+
+    return r;
+  }
+
+  @Override
   public Void visitClass(ClassTree tree, Void v) {
     var className = new Identifier(tree.getSimpleName().toString());
-    var newClass = createClassEntity(className, tree);
     declare(className);
+    var c = createClassEntity(className, tree, (JCExpression) tree.getExtendsClause());
+    return visitClass(tree, v, c);
+  }
+
+  private Void visitClass(ClassTree tree, Void v, ClassEntity newClass) {
     openClassScope(newClass);
 
     // Do not scan the extends clause again, as we handle it separately and do not want to get
@@ -205,25 +226,21 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     return r;
   }
 
-  private ClassEntity createClassEntity(Identifier name, ClassTree tree) {
+  private ClassEntity createClassEntity(
+      Identifier name, ClassTree tree, JCExpression extendsClause) {
+    var builder = name == null ? ClassEntity.anonymous() : ClassEntity.named(Selector.of(name));
     var isEnum = tree.getKind() == Tree.Kind.ENUM;
-    if (isEnum && tree.getExtendsClause() != null) {
-      throw new IllegalStateException("Enum with extends clause");
-    }
-
-    if (isEnum) {
-      return ClassEntity.named(Selector.of(name))
+    if (isEnum && extendsClause == null) {
+      return builder
           .extending(Superclass.resolved(new Import(Selector.of("java", "lang", "Enum"), false)))
           .build();
     }
 
-    if (tree.getExtendsClause() == null) {
-      return ClassEntity.named(Selector.of(name)).build();
+    if (extendsClause == null) {
+      return builder.build();
     }
 
-    return ClassEntity.named(Selector.of(name))
-        .extending(JCHelper.toSuperclass((JCExpression) tree.getExtendsClause()))
-        .build();
+    return builder.extending(JCHelper.toSuperclass(extendsClause)).build();
   }
 
   private void openClassScope(ClassEntity entity) {

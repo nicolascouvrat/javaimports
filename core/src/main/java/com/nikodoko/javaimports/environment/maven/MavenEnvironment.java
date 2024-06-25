@@ -10,8 +10,10 @@ import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
-import com.nikodoko.javaimports.environment.JavaProject;
-import com.nikodoko.javaimports.environment.jarutil.JarIdentifierLoader;
+import com.nikodoko.javaimports.environment.jarutil.LazyJar;
+import com.nikodoko.javaimports.environment.jarutil.LazyJars;
+import com.nikodoko.javaimports.environment.shared.JavaProject;
+import com.nikodoko.javaimports.environment.shared.ProjectParser;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import io.opentracing.Span;
 import java.nio.file.Path;
@@ -137,7 +139,7 @@ public class MavenEnvironment implements Environment {
         imports.stream().collect(Collectors.groupingBy(i -> i.selector.identifier()));
     classLoader =
         new MavenClassLoader(
-            repository, c -> resolver.resolve(c).jar, JarIdentifierLoader::new, directDependencies);
+            repository, c -> resolver.resolve(c).jar, LazyJars::new, directDependencies);
     isInitialized = true;
     log.log(Level.INFO, String.format("init completed in %d ms", clock.millis() - start));
   }
@@ -148,16 +150,17 @@ public class MavenEnvironment implements Environment {
     }
     long start = clock.millis();
 
-    MavenProjectParser parser = new MavenProjectParser(root, options).excluding(fileBeingResolved);
-    MavenProjectParser.Result parsed = parser.parseAll();
+    var srcs = MavenProjectFinder.withRoot(root).exclude(fileBeingResolved);
+    var parser = new ProjectParser(srcs, options.executor());
+    var parsed = parser.parseAll();
     log.info(
         String.format(
             "parsed project in %d ms (total of %d files)",
-            clock.millis() - start, Iterables.size(parsed.project.allFiles())));
+            clock.millis() - start, Iterables.size(parsed.project().allFiles())));
 
-    parsed.errors.forEach(e -> log.log(Level.WARNING, "error parsing project", e));
+    parsed.errors().forEach(e -> log.log(Level.WARNING, "error parsing project", e));
 
-    project = parsed.project;
+    project = parsed.project();
     projectIsParsed = true;
   }
 
@@ -240,7 +243,8 @@ public class MavenEnvironment implements Environment {
       var location = resolver.resolve(dependency);
       log.info(String.format("looking for dependency %s at %s", dependency, location));
 
-      var importables = MavenDependencyLoader.load(location.jar);
+      // var importables = MavenDependencyLoader.load(location.jar);
+      var importables = new ArrayList<>(new LazyJar(location.jar).importables());
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
       loaded = new LoadedDependency(importables, dependencies, dependency);
     } catch (Exception e) {

@@ -1,14 +1,19 @@
 package com.nikodoko.javaimports.parser;
 
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.ImportProvider;
 import com.nikodoko.javaimports.common.Selector;
-import com.nikodoko.javaimports.parser.internal.ClassMap;
+import com.nikodoko.javaimports.common.Superclass;
+import com.nikodoko.javaimports.fixer.candidates.Candidate;
+import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
+import com.nikodoko.javaimports.parser.internal.Classes;
 import com.nikodoko.javaimports.parser.internal.Scope;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,7 +32,7 @@ public record ParsedFile(
     List<Range<Integer>> duplicates,
     Map<Identifier, Import> imports,
     Scope topScope,
-    Map<Import, ClassEntity> classMap)
+    Classes classes)
     implements ImportProvider, ClassProvider {
   /** The package to which this {@code ParsedFile} belongs */
   public String packageName() {
@@ -65,7 +70,7 @@ public record ParsedFile(
 
   @Override
   public Optional<ClassEntity> findClass(Import i) {
-    return Optional.ofNullable(classMap.get(i));
+    return Optional.ofNullable(classes.reachable().get(i));
   }
 
   public Orphans orphans() {
@@ -77,15 +82,16 @@ public record ParsedFile(
   }
 
   // Used only for tests
-  public Stream<ClassEntity> classes() {
-    return classMap.values().stream();
+  public Stream<ClassEntity> allClasses() {
+    return Stream.concat(classes.reachable().values().stream(), classes.unreachable().stream());
   }
 
   // TODO: maybe have a SiblingFile with the below findImports, and make this the default
   // findImports of ParsedFile
   public Collection<Import> findImportables(Identifier identifier) {
     var importables =
-        classMap().keySet().stream().collect(Collectors.groupingBy(i -> i.selector.identifier()));
+        classes.reachable().keySet().stream()
+            .collect(Collectors.groupingBy(i -> i.selector.identifier()));
     return Optional.ofNullable(importables.get(identifier)).orElse(List.of());
   }
 
@@ -137,9 +143,53 @@ public record ParsedFile(
     }
 
     public ParsedFile build() {
-      var classes = ClassMap.of(topScope, pkg);
+      traverseAndUpdate(topScope, imports);
+      var classes = Classes.of(topScope, pkg);
       return new ParsedFile(
           pkg, packageEndPos, duplicateImportPositions, imports, topScope, classes);
+    }
+
+    // Do a first round of parent class resolution at the scope of the file, to mark superclasses
+    // as resolved wherever possible
+    private static void traverseAndUpdate(Scope topScope, Map<Identifier, Import> imports) {
+      var finder = new CandidateFinder();
+      finder.add(
+          Candidate.Source.SIBLING,
+          i -> {
+            if (!imports.containsKey(i)) {
+              return List.of();
+            }
+
+            return List.of(imports.get(i));
+          });
+      var queue = new ArrayDeque<Scope>();
+      queue.add(topScope);
+
+      while (!queue.isEmpty()) {
+        var next = queue.pop();
+        queue.addAll(next.childScopes);
+        var maybeSuperclass = next.maybeClass.flatMap(ClassDeclaration::maybeParent);
+        if (maybeSuperclass.isEmpty()) {
+          continue;
+        }
+        var superClass = maybeSuperclass.get();
+        if (!superClass.isResolved()) {
+          var unresolved = superClass.getUnresolved();
+          var candidates = finder.find(unresolved);
+          var possible = candidates.getFor(unresolved);
+          if (possible.isEmpty()) {
+            continue;
+          }
+
+          if (possible.size() > 1) {
+            throw new RuntimeException("unexpected candidates size");
+          }
+
+          var i = possible.get(0).i;
+          var newDecl = new ClassDeclaration(next.maybeClass.get().name(), Superclass.resolved(i));
+          next.maybeClass = Optional.of(newDecl);
+        }
+      }
     }
   }
 }

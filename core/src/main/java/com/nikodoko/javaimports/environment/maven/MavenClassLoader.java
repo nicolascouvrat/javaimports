@@ -5,13 +5,12 @@ import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
-import com.nikodoko.javaimports.environment.jarutil.IdentifierLoader;
+import com.nikodoko.javaimports.environment.jarutil.JarLoader;
 import io.opentracing.Span;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -30,14 +29,14 @@ public class MavenClassLoader {
   private final MavenRepository repository;
   private final CoordinatesResolver resolver;
   private final List<MavenDependency> directDependencies;
-  private final IdentifierLoader.Factory loaderFactory;
+  private final JarLoader.Factory loaderFactory;
 
-  private IdentifierLoader loader = null;
+  private JarLoader loader = null;
 
   public MavenClassLoader(
       MavenRepository repository,
       CoordinatesResolver resolver,
-      IdentifierLoader.Factory loaderFactory,
+      JarLoader.Factory loaderFactory,
       List<MavenDependency> directDependencies) {
     this.repository = repository;
     this.resolver = resolver;
@@ -52,7 +51,7 @@ public class MavenClassLoader {
     } catch (Throwable t) {
       log.log(Level.WARNING, "Error initializing MavenClassLoader", t);
 
-      this.loader = i -> Set.of();
+      this.loader = i -> Optional.empty();
     } finally {
       span.finish();
     }
@@ -107,7 +106,6 @@ public class MavenClassLoader {
       init();
     }
 
-    var c = ClassEntity.named(i.selector).declaring(loader.loadIdentifiers(i)).build();
-    return Optional.of(c);
+    return loader.loadClass(i);
   }
 }
