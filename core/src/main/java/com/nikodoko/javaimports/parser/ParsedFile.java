@@ -1,14 +1,19 @@
 package com.nikodoko.javaimports.parser;
 
 import com.google.common.collect.Range;
+import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.ImportProvider;
 import com.nikodoko.javaimports.common.Selector;
+import com.nikodoko.javaimports.common.Superclass;
+import com.nikodoko.javaimports.fixer.candidates.Candidate;
+import com.nikodoko.javaimports.fixer.candidates.CandidateFinder;
 import com.nikodoko.javaimports.parser.internal.ClassMap;
 import com.nikodoko.javaimports.parser.internal.Scope;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -137,9 +142,51 @@ public record ParsedFile(
     }
 
     public ParsedFile build() {
+      traverseAndUpdate(topScope, imports);
       var classes = ClassMap.of(topScope, pkg);
       return new ParsedFile(
           pkg, packageEndPos, duplicateImportPositions, imports, topScope, classes);
+    }
+
+    private static void traverseAndUpdate(Scope topScope, Map<Identifier, Import> imports) {
+      var finder = new CandidateFinder();
+      finder.add(
+          Candidate.Source.SIBLING,
+          i -> {
+            if (!imports.containsKey(i)) {
+              return List.of();
+            }
+
+            return List.of(imports.get(i));
+          });
+      var queue = new ArrayDeque<Scope>();
+      queue.add(topScope);
+
+      while (!queue.isEmpty()) {
+        var next = queue.pop();
+        queue.addAll(next.childScopes);
+        var maybeSuperclass = next.maybeClass.flatMap(ClassDeclaration::maybeParent);
+        if (maybeSuperclass.isEmpty()) {
+          continue;
+        }
+        var superClass = maybeSuperclass.get();
+        if (!superClass.isResolved()) {
+          var unresolved = superClass.getUnresolved();
+          var candidates = finder.find(unresolved);
+          var possible = candidates.getFor(unresolved);
+          if (possible.isEmpty()) {
+            continue;
+          }
+
+          if (possible.size() > 1) {
+            throw new RuntimeException("unexpected candidates size");
+          }
+
+          var i = possible.get(0).i;
+          var newDecl = new ClassDeclaration(next.maybeClass.get().name(), Superclass.resolved(i));
+          next.maybeClass = Optional.of(newDecl);
+        }
+      }
     }
   }
 }

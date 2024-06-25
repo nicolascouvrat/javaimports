@@ -24,6 +24,52 @@ import org.junit.jupiter.params.provider.MethodSource;
 public class ParserTest {
   static Object[][][] CASES = {
     {
+      {"anonymousClass"},
+      {
+        "package com.pkg.test;",
+        "class ATest {",
+        "  static class Parent {}",
+        "  public void main() {",
+        "    var a = new Parent() {",
+        "        @Override",
+        "        void f() {}",
+        "    };",
+        "  }",
+        "}",
+      },
+      {"Override"},
+      {
+        ClassEntity.named(aSelector("ATest")).declaring(someIdentifiers("Parent", "main")).build(),
+        ClassEntity.named(aSelector("Parent")).build(),
+        ClassEntity.named(aSelector(""))
+            .declaring(someIdentifiers("f"))
+            .extending(Superclass.unresolved(aSelector("Parent")))
+            .build()
+      },
+    },
+    {
+      {"anonymousEnum"},
+      {
+        "package com.pkg.test;",
+        "enum MyEnum implements MyInterface {",
+        "  ENUM_VALUE {",
+        "    public void func(int param) {",
+        "      return 42;",
+        "    }",
+        "  };",
+        "}",
+      },
+      {"Override"},
+      {
+        ClassEntity.named(aSelector("ATest")).declaring(someIdentifiers("Parent", "main")).build(),
+        ClassEntity.named(aSelector("Parent")).build(),
+        ClassEntity.named(aSelector(""))
+            .declaring(someIdentifiers("f"))
+            .extending(Superclass.unresolved(aSelector("Parent")))
+            .build()
+      },
+    },
+    {
       {"multipleTopLevelClassesInSameFile"},
       {
         "package com.pkg.test;",

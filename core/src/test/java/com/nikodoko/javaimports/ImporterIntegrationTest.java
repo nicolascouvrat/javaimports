@@ -95,9 +95,6 @@ public class ImporterIntegrationTest {
             .build();
     String input = new String(Files.readAllBytes(main), UTF_8);
     try {
-      // if (!pkg.name.equals("withotherpackage")) {
-      //   return;
-      // }
       String output = new Importer(opts).addUsedImports(main, input);
       assertWithMessage("bad output for " + pkg.name).that(output).isEqualTo(pkg.expected);
     } catch (ImporterException e) {

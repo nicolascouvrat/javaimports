@@ -49,6 +49,21 @@ public class BazelEnvironment implements Environment {
   private BazelClassLoader classLoader = null;
   private Map<Identifier, List<Import>> availableImports = null;
 
+  // TMP
+  private static final Path BAZEL_REPOSITORY_CACHE =
+      Paths.get(System.getProperty("user.home"), ".javaimports_tmp", "bazel", "repository");
+  private static final Path BAZEL_LOCAL_CACHE =
+      Paths.get(System.getProperty("user.home"), ".javaimports_tmp", "bazel", "disk");
+
+  static {
+    try {
+      Files.createDirectories(BAZEL_REPOSITORY_CACHE);
+      Files.createDirectories(BAZEL_LOCAL_CACHE);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public BazelEnvironment(
       Path workspaceRoot,
       Path targetRoot,
@@ -204,7 +219,13 @@ public class BazelEnvironment implements Environment {
     var stderrRedirect =
         options.debug() ? ProcessBuilder.Redirect.PIPE : ProcessBuilder.Redirect.DISCARD;
     var proc =
-        new ProcessBuilder("bazel", "--output_base=%s".formatted(outputBase), "query", deps)
+        new ProcessBuilder(
+                "bazel",
+                "--output_base=%s".formatted(outputBase),
+                "query",
+                "--disk_cache=%s".formatted(BAZEL_LOCAL_CACHE),
+                "--repository_cache=%s".formatted(BAZEL_REPOSITORY_CACHE),
+                deps)
             .redirectError(stderrRedirect)
             .directory(workspaceRoot.toFile())
             .start();
