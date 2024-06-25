@@ -41,7 +41,7 @@ public class ParserTest {
       {
         ClassEntity.named(aSelector("ATest")).declaring(someIdentifiers("Parent", "main")).build(),
         ClassEntity.named(aSelector("Parent")).build(),
-        ClassEntity.named(aSelector(""))
+        ClassEntity.anonymous()
             .declaring(someIdentifiers("f"))
             .extending(Superclass.unresolved(aSelector("Parent")))
             .build()
@@ -51,7 +51,7 @@ public class ParserTest {
       {"anonymousEnum"},
       {
         "package com.pkg.test;",
-        "enum MyEnum implements MyInterface {",
+        "enum MyEnum {",
         "  ENUM_VALUE {",
         "    public void func(int param) {",
         "      return 42;",
@@ -59,13 +59,15 @@ public class ParserTest {
         "  };",
         "}",
       },
-      {"Override"},
+      {},
       {
-        ClassEntity.named(aSelector("ATest")).declaring(someIdentifiers("Parent", "main")).build(),
-        ClassEntity.named(aSelector("Parent")).build(),
-        ClassEntity.named(aSelector(""))
-            .declaring(someIdentifiers("f"))
-            .extending(Superclass.unresolved(aSelector("Parent")))
+        ClassEntity.named(aSelector("MyEnum"))
+            .declaring(someIdentifiers("ENUM_VALUE"))
+            .extending(Superclass.resolved(anImport("java.lang.Enum")))
+            .build(),
+        ClassEntity.anonymous()
+            .declaring(someIdentifiers("func"))
+            .extending(Superclass.unresolved(aSelector("MyEnum")))
             .build()
       },
     },
@@ -1284,6 +1286,11 @@ public class ParserTest {
         ClassEntity.named(aSelector("JdkBackedSetBuilderImpl"))
             .extending(Superclass.unresolved(aSelector("SetBuilderImpl")))
             .declaring(someIdentifiers("<init>", "E", "delegate", "add", "copy", "build"))
+            .build(),
+        // Anonymous class
+        ClassEntity.anonymous()
+            .extending(Superclass.unresolved(aSelector("ImmutableAsList")))
+            .declaring(someIdentifiers("delegateCollection", "get"))
             .build()
       },
     },
@@ -1330,6 +1337,7 @@ public class ParserTest {
       }
       fail();
     }
+    // Scope.debugPrintScopeTree(got.topScope(), System.out);
 
     assertWithMessage("Invalid output for " + name)
         .that(allUnresolvedIn(got))
@@ -1337,7 +1345,7 @@ public class ParserTest {
     if (expectedClasses.length > 0) {
       assertWithMessage("Invalid output for " + name)
           .about(StreamSubject.streams())
-          .that(got.classes())
+          .that(got.allClasses())
           .containsExactly(expectedClasses);
     }
   }

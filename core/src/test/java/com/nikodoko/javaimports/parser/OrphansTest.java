@@ -69,7 +69,9 @@ public class OrphansTest {
     var orphans = getOrphans(code);
     // Before the first traversal, all symbols in orphan classes are unresolved
     assertThat(orphans.unresolved()).containsExactlyElementsIn(someIdentifiers("p", "Local"));
-    var expected = new ClassDeclaration(aSelector(""), Superclass.unresolved(aSelector("Local")));
+    var expected =
+        new ClassDeclaration(
+            ClassEntity.ANONYMOUS_CLASS_NAME, Superclass.unresolved(aSelector("Local")));
     assertThatOrphans(orphans).containsExactly(expected);
     // After traversal, we still have an orphan class, so its symbols are still unresolved
     assertThat(orphans.unresolved()).containsExactlyElementsIn(someIdentifiers("p", "Local"));

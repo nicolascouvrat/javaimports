@@ -197,8 +197,8 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
     if (tree.getClassBody() != null) {
       // We are declaring an anonymous class that we want to treat as a class extending the class we
       // are instanciating.
-      // TODO: do we need proper anonymous class naming?
-      visitClass(tree.getClassBody(), v, new Identifier(""), (JCExpression) tree.getIdentifier());
+      var c = createClassEntity(null, tree.getClassBody(), (JCExpression) tree.getIdentifier());
+      visitClass(tree.getClassBody(), v, c);
     }
 
     return r;
@@ -207,13 +207,12 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   @Override
   public Void visitClass(ClassTree tree, Void v) {
     var className = new Identifier(tree.getSimpleName().toString());
-    return visitClass(tree, v, className, (JCExpression) tree.getExtendsClause());
+    declare(className);
+    var c = createClassEntity(className, tree, (JCExpression) tree.getExtendsClause());
+    return visitClass(tree, v, c);
   }
 
-  private Void visitClass(
-      ClassTree tree, Void v, Identifier className, JCExpression extendsClause) {
-    var newClass = createClassEntity(className, tree, extendsClause);
-    declare(className);
+  private Void visitClass(ClassTree tree, Void v, ClassEntity newClass) {
     openClassScope(newClass);
 
     // Do not scan the extends clause again, as we handle it separately and do not want to get
@@ -229,20 +228,19 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
 
   private ClassEntity createClassEntity(
       Identifier name, ClassTree tree, JCExpression extendsClause) {
+    var builder = name == null ? ClassEntity.anonymous() : ClassEntity.named(Selector.of(name));
     var isEnum = tree.getKind() == Tree.Kind.ENUM;
     if (isEnum && extendsClause == null) {
-      return ClassEntity.named(Selector.of(name))
+      return builder
           .extending(Superclass.resolved(new Import(Selector.of("java", "lang", "Enum"), false)))
           .build();
     }
 
     if (extendsClause == null) {
-      return ClassEntity.named(Selector.of(name)).build();
+      return builder.build();
     }
 
-    return ClassEntity.named(Selector.of(name))
-        .extending(JCHelper.toSuperclass(extendsClause))
-        .build();
+    return builder.extending(JCHelper.toSuperclass(extendsClause)).build();
   }
 
   private void openClassScope(ClassEntity entity) {

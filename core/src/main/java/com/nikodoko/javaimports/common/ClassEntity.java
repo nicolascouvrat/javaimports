@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class ClassEntity {
+  public static final Selector ANONYMOUS_CLASS_NAME = Selector.of("__ANONYMOUS_CLASS__");
   public static final ClassEntity JAVA_LANG_OBJECT =
       ClassEntity.named(Selector.JAVA_LANG_OBJECT)
           .declaring(
@@ -33,6 +34,10 @@ public class ClassEntity {
 
   public static Builder named(Selector name) {
     return new Builder(name);
+  }
+
+  public static Builder anonymous() {
+    return new Builder(ANONYMOUS_CLASS_NAME);
   }
 
   public static class Builder {
