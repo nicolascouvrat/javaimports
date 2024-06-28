@@ -44,6 +44,7 @@ public class MavenEnvironment implements Environment {
 
   private final Path root;
   private final Path fileBeingResolved;
+  private final String pkgBeingResolved;
   private final Options options;
   private final MavenDependencyResolver resolver;
   private final MavenRepository repository;
@@ -58,6 +59,7 @@ public class MavenEnvironment implements Environment {
       Path root, Path fileBeingResolved, String pkgBeingResolved, Options options) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
+    this.pkgBeingResolved = pkgBeingResolved;
     this.options = options;
     var repository = options.repository();
     this.resolver = MavenDependencyResolver.withRepository(repository);
@@ -65,9 +67,9 @@ public class MavenEnvironment implements Environment {
   }
 
   @Override
-  public Set<ParsedFile> filesInPackage(String packageName) {
+  public Set<ParsedFile> siblings() {
     parseProjectIfNeeded();
-    return Sets.newHashSet(project.filesInPackage(packageName));
+    return Sets.newHashSet(project.filesInPackage(pkgBeingResolved));
   }
 
   @Override

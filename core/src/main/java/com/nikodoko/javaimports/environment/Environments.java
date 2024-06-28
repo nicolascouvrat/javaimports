@@ -19,11 +19,6 @@ import java.util.Set;
 public class Environments {
   private static class DummyEnvironment implements Environment {
     @Override
-    public Set<ParsedFile> filesInPackage(String packageName) {
-      return new HashSet<>();
-    }
-
-    @Override
     public Collection<Import> findImports(Identifier i) {
       return List.of();
     }
@@ -31,6 +26,11 @@ public class Environments {
     @Override
     public Optional<ClassEntity> findClass(Import i) {
       return Optional.empty();
+    }
+
+    @Override
+    public Set<ParsedFile> siblings() {
+      return new HashSet<>();
     }
   }
 
@@ -50,7 +50,7 @@ public class Environments {
       Path potentialBuild = Paths.get(current.toString(), "BUILD");
       Path potentialBuildBazel = Paths.get(current.toString(), "BUILD.bazel");
       if (Files.exists(potentialBuild) || Files.exists(potentialBuildBazel)) {
-        return initBazelEnvironment(current, filename, options);
+        return initBazelEnvironment(current, filename, pkg, options);
       }
 
       current = current.getParent();
@@ -59,7 +59,8 @@ public class Environments {
     return new DummyEnvironment();
   }
 
-  private static Environment initBazelEnvironment(Path targetRoot, Path filename, Options options) {
+  private static Environment initBazelEnvironment(
+      Path targetRoot, Path filename, String pkg, Options options) {
     // Iterate further to find the workspace root | module root
     Path current = targetRoot;
     while (current != null) {
@@ -68,11 +69,11 @@ public class Environments {
       Path potentialModule = Paths.get(current.toString(), "MODULE");
       Path potentialModuleBazel = Paths.get(current.toString(), "MODULE.bazel");
       if (Files.exists(potentialWorkspace) | Files.exists(potentialWorkspaceBazel)) {
-        return new BazelEnvironment(current, targetRoot, false, filename, options);
+        return new BazelEnvironment(current, targetRoot, false, filename, pkg, options);
       }
 
       if (Files.exists(potentialModule) | Files.exists(potentialModuleBazel)) {
-        return new BazelEnvironment(current, targetRoot, true, filename, options);
+        return new BazelEnvironment(current, targetRoot, true, filename, pkg, options);
       }
 
       current = current.getParent();

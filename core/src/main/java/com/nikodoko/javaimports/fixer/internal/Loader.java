@@ -42,7 +42,7 @@ public class Loader {
     this.environment = environment;
     // The environment lets us find not only the siblings in the same folder, but also the siblings
     // in other folders of the same project
-    this.siblings = environment.filesInPackage(file.packageName());
+    this.siblings = environment.siblings();
   }
 
   /**

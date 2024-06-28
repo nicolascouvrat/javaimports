@@ -41,6 +41,7 @@ public class BazelEnvironment implements Environment {
   private final Path outputBase;
   private final Path workspaceRoot;
   private final Path fileBeingResolved;
+  private final String pkgBeingResolved;
   private final Options options;
   private final boolean isModule;
 
@@ -69,6 +70,7 @@ public class BazelEnvironment implements Environment {
       Path targetRoot,
       boolean isModule,
       Path fileBeingResolved,
+      String pkgBeingResolved,
       Options options) {
     this.outputBase = outputBase(workspaceRoot);
     this.workspaceRoot = workspaceRoot;
@@ -76,6 +78,7 @@ public class BazelEnvironment implements Environment {
     this.isModule = isModule;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
+    this.pkgBeingResolved = pkgBeingResolved;
   }
 
   private Path outputBase(Path workspaceRoot) {
@@ -259,8 +262,8 @@ public class BazelEnvironment implements Environment {
   }
 
   @Override
-  public Set<ParsedFile> filesInPackage(String packageName) {
-    return Sets.newHashSet(project().filesInPackage(packageName));
+  public Set<ParsedFile> siblings() {
+    return Sets.newHashSet(project().filesInPackage(pkgBeingResolved));
   }
 
   @Override
