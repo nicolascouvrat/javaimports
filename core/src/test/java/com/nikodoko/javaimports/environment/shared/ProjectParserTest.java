@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.environment.shared;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.nikodoko.javaimports.common.CommonTestUtil.aSelector;
 
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
@@ -30,7 +31,10 @@ public class ProjectParserTest {
     project = Export.of(BuildSystem.MAVEN, module);
 
     var parser =
-        new ProjectParser(srcs("test.module", "Main.java", "second/Second.java"), Runnable::run);
+        new ProjectParser(
+            aSelector("test.module"),
+            srcs("test.module", "Main.java", "second/Second.java"),
+            Runnable::run);
     var got = parser.parseAll();
 
     assertThat(got.errors()).isEmpty();
@@ -52,6 +56,7 @@ public class ProjectParserTest {
 
     var parser =
         new ProjectParser(
+            aSelector("test.module"),
             srcs("test.module", "Main.java", "Other.java", "Invalid.java", "second/Second.java"),
             Runnable::run);
     var got = parser.parseAll();

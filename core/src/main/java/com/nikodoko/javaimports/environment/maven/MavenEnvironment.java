@@ -6,6 +6,7 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
@@ -44,7 +45,7 @@ public class MavenEnvironment implements Environment {
 
   private final Path root;
   private final Path fileBeingResolved;
-  private final String pkgBeingResolved;
+  private final Selector pkgBeingResolved;
   private final Options options;
   private final MavenDependencyResolver resolver;
   private final MavenRepository repository;
@@ -56,7 +57,7 @@ public class MavenEnvironment implements Environment {
   private boolean isInitialized = false;
 
   public MavenEnvironment(
-      Path root, Path fileBeingResolved, String pkgBeingResolved, Options options) {
+      Path root, Path fileBeingResolved, Selector pkgBeingResolved, Options options) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
     this.pkgBeingResolved = pkgBeingResolved;
@@ -69,7 +70,7 @@ public class MavenEnvironment implements Environment {
   @Override
   public Set<ParsedFile> siblings() {
     parseProjectIfNeeded();
-    return Sets.newHashSet(project.filesInPackage(pkgBeingResolved));
+    return Sets.newHashSet(project.filesInPackage(pkgBeingResolved.toString()));
   }
 
   @Override
@@ -90,7 +91,7 @@ public class MavenEnvironment implements Environment {
     var found = new ArrayList<Import>();
     found.addAll(availableImports.getOrDefault(i, List.of()));
     for (var file : project.allFiles()) {
-      found.addAll(file.findImportables(i));
+      found.addAll(file.findImports(i));
     }
 
     return found;
@@ -153,7 +154,7 @@ public class MavenEnvironment implements Environment {
     long start = clock.millis();
 
     var srcs = MavenProjectFinder.withRoot(root).exclude(fileBeingResolved);
-    var parser = new ProjectParser(srcs, options.executor());
+    var parser = new ProjectParser(pkgBeingResolved, srcs, options.executor());
     var parsed = parser.parseAll();
     log.info(
         String.format(

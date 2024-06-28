@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /** An object representing a Java source file. */
@@ -32,7 +31,8 @@ public record ParsedFile(
     List<Range<Integer>> duplicates,
     Map<Identifier, Import> imports,
     Scope topScope,
-    Classes classes)
+    Classes classes,
+    boolean isSibling)
     implements ImportProvider, ClassProvider {
   /** The package to which this {@code ParsedFile} belongs */
   public String packageName() {
@@ -86,30 +86,29 @@ public record ParsedFile(
     return Stream.concat(classes.reachable().values().stream(), classes.unreachable().stream());
   }
 
-  // TODO: maybe have a SiblingFile with the below findImports, and make this the default
-  // findImports of ParsedFile
-  public Collection<Import> findImportables(Identifier identifier) {
-    var importables =
-        classes.reachable().keySet().stream()
-            .collect(Collectors.groupingBy(i -> i.selector.identifier()));
-    return Optional.ofNullable(importables.get(identifier)).orElse(List.of());
-  }
-
-  // TODO: remove
   @Override
   public Collection<Import> findImports(Identifier i) {
-    if (!imports().containsKey(i)) {
-      return List.of();
+    var importables =
+        classes.reachable().keySet().stream()
+            .filter(importable -> importable.selector.identifier().equals(i));
+
+    if (!isSibling) {
+      return importables.toList();
     }
 
-    return List.of(imports().get(i));
+    return Stream.concat(Stream.ofNullable(imports.get(i)), importables).toList();
   }
 
   public static Builder inPackage(Selector pkg, int pkgEndPos) {
-    return new Builder(pkg, pkgEndPos);
+    return new Builder(pkg, pkgEndPos, false);
+  }
+
+  public static Builder inSamePackage(Selector pkg, int pkgEndPos) {
+    return new Builder(pkg, pkgEndPos, true);
   }
 
   public static class Builder {
+    final boolean isSibling;
     final Selector pkg;
     final int packageEndPos;
     Map<Identifier, Import> imports = new HashMap<>();
@@ -117,9 +116,10 @@ public record ParsedFile(
     List<Range<Integer>> duplicateImportPositions = new ArrayList<>();
     Map<Import, ClassEntity> classes = new HashMap<>();
 
-    private Builder(Selector pkg, int packageEndPos) {
+    private Builder(Selector pkg, int packageEndPos, boolean isSibling) {
       this.pkg = pkg;
       this.packageEndPos = packageEndPos;
+      this.isSibling = isSibling;
     }
 
     public Builder addImport(Import i) {
@@ -146,7 +146,7 @@ public record ParsedFile(
       traverseAndUpdate(topScope, imports);
       var classes = Classes.of(topScope, pkg);
       return new ParsedFile(
-          pkg, packageEndPos, duplicateImportPositions, imports, topScope, classes);
+          pkg, packageEndPos, duplicateImportPositions, imports, topScope, classes, isSibling);
     }
 
     // Do a first round of parent class resolution at the scope of the file, to mark superclasses

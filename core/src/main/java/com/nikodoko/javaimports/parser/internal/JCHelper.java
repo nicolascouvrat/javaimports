@@ -80,10 +80,14 @@ public class JCHelper {
     return new Import(selector, importTree.isStatic());
   }
 
-  public static ParsedFile.Builder toParsedFileBuilder(JCCompilationUnit unit) {
+  public static ParsedFile.Builder toParsedFileBuilder(JCCompilationUnit unit, Selector refPkg) {
     var pkg = JCHelper.toSelector((JCExpression) unit.getPackageName());
     var packageEndPos = findEndOfPackageClause(unit);
-    var builder = ParsedFile.inPackage(pkg, packageEndPos);
+    var isSibling = refPkg != null && refPkg.equals(pkg);
+    var builder =
+        isSibling
+            ? ParsedFile.inSamePackage(pkg, packageEndPos)
+            : ParsedFile.inPackage(pkg, packageEndPos);
     // unit.getImports() potentially contains the same import multiple times, in which case we want
     // to consider only one of them (and mark the others as duplicates)
     var imports = new HashSet<Import>();

@@ -4,6 +4,7 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.environment.bazel.BazelEnvironment;
 import com.nikodoko.javaimports.environment.maven.MavenEnvironment;
 import com.nikodoko.javaimports.parser.ParsedFile;
@@ -38,7 +39,7 @@ public class Environments {
     return new DummyEnvironment();
   }
 
-  public static Environment autoSelect(Path filename, String pkg, Options options) {
+  public static Environment autoSelect(Path filename, Selector pkg, Options options) {
     Path current = filename.getParent();
     while (current != null) {
       // Prioritize POM
@@ -60,7 +61,7 @@ public class Environments {
   }
 
   private static Environment initBazelEnvironment(
-      Path targetRoot, Path filename, String pkg, Options options) {
+      Path targetRoot, Path filename, Selector pkg, Options options) {
     // Iterate further to find the workspace root | module root
     Path current = targetRoot;
     while (current != null) {

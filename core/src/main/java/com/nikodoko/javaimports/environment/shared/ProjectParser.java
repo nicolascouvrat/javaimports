@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.environment.shared;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.nikodoko.javaimports.ImporterException;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.EnvironmentException;
@@ -23,10 +24,12 @@ public class ProjectParser {
 
   private record ParseResult(Optional<ParsedFile> parsed, EnvironmentException error) {}
 
+  private final Selector refPkg;
   private final SourceFiles srcs;
   private final Executor executor;
 
-  public ProjectParser(SourceFiles srcs, Executor executor) {
+  public ProjectParser(Selector refPkg, SourceFiles srcs, Executor executor) {
+    this.refPkg = refPkg;
     this.srcs = srcs;
     this.executor = executor;
   }
@@ -83,6 +86,6 @@ public class ProjectParser {
 
   private Optional<ParsedFile> parse(Path path) throws IOException, ImporterException {
     var src = new String(Files.readAllBytes(path), UTF_8);
-    return new Parser().parse(path, src);
+    return new Parser().parse(path, src, refPkg);
   }
 }

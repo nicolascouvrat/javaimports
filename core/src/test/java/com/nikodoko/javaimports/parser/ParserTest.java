@@ -1330,7 +1330,7 @@ public class ParserTest {
     Parser parser = new Parser();
     ParsedFile got = null;
     try {
-      got = parser.parse(Paths.get(name), input).get();
+      got = parser.parse(Paths.get(name), input, null).get();
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);

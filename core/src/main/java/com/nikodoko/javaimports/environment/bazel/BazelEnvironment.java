@@ -6,6 +6,7 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Traces;
@@ -41,7 +42,7 @@ public class BazelEnvironment implements Environment {
   private final Path outputBase;
   private final Path workspaceRoot;
   private final Path fileBeingResolved;
-  private final String pkgBeingResolved;
+  private final Selector pkgBeingResolved;
   private final Options options;
   private final boolean isModule;
 
@@ -70,7 +71,7 @@ public class BazelEnvironment implements Environment {
       Path targetRoot,
       boolean isModule,
       Path fileBeingResolved,
-      String pkgBeingResolved,
+      Selector pkgBeingResolved,
       Options options) {
     this.outputBase = outputBase(workspaceRoot);
     this.workspaceRoot = workspaceRoot;
@@ -111,7 +112,7 @@ public class BazelEnvironment implements Environment {
 
   private JavaProject initProject() {
     long start = clock.millis();
-    var parser = new ProjectParser(cache(), options.executor());
+    var parser = new ProjectParser(pkgBeingResolved, cache(), options.executor());
     var parsed = parser.parseAll();
     log.info(
         String.format(
@@ -263,7 +264,7 @@ public class BazelEnvironment implements Environment {
 
   @Override
   public Set<ParsedFile> siblings() {
-    return Sets.newHashSet(project().filesInPackage(pkgBeingResolved));
+    return Sets.newHashSet(project().filesInPackage(pkgBeingResolved.toString()));
   }
 
   @Override
@@ -271,7 +272,7 @@ public class BazelEnvironment implements Environment {
     var found = new ArrayList<Import>();
     found.addAll(availableImports().getOrDefault(i, List.of()));
     for (var file : project().allFiles()) {
-      found.addAll(file.findImportables(i));
+      found.addAll(file.findImports(i));
     }
 
     return found;

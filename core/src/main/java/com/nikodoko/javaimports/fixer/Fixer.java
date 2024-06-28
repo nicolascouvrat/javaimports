@@ -47,7 +47,7 @@ public class Fixer {
     // Needed because some other files in the project might extend a class defined in the current
     // file
     library.add(file);
-    candidates.add(Candidate.Source.SIBLING, file::findImportables);
+    candidates.add(Candidate.Source.SIBLING, file);
   }
 
   /**

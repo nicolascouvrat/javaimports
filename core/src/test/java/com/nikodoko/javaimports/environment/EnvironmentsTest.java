@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.environment;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.nikodoko.javaimports.common.CommonTestUtil.aSelector;
 
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.environment.maven.MavenEnvironment;
@@ -22,7 +23,7 @@ public class EnvironmentsTest {
     Exported project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    Environment got = Environments.autoSelect(target, "test.module", Options.defaults());
+    Environment got = Environments.autoSelect(target, aSelector("test.module"), Options.defaults());
     assertThat(got).isInstanceOf(MavenEnvironment.class);
     project.cleanup();
   }
