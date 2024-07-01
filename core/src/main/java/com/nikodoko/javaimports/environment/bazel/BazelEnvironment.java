@@ -1,11 +1,11 @@
 package com.nikodoko.javaimports.environment.bazel;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.JavaSourceFile;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Logs;
@@ -14,7 +14,6 @@ import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.maven.MavenDependencyLoader;
 import com.nikodoko.javaimports.environment.shared.JavaProject;
 import com.nikodoko.javaimports.environment.shared.ProjectParser;
-import com.nikodoko.javaimports.parser.ParsedFile;
 import io.opentracing.Span;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -263,8 +261,8 @@ public class BazelEnvironment implements Environment {
   }
 
   @Override
-  public Set<ParsedFile> siblings() {
-    return Sets.newHashSet(project().filesInPackage(pkgBeingResolved.toString()));
+  public List<JavaSourceFile> siblings() {
+    return project().filesInPackage(pkgBeingResolved);
   }
 
   @Override

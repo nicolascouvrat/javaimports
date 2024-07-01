@@ -38,7 +38,7 @@ public class ProjectParserTest {
     var got = parser.parseAll();
 
     assertThat(got.errors()).isEmpty();
-    assertThat(got.project().filesInPackage("test.module")).hasSize(2);
+    assertThat(got.project().filesInPackage(aSelector("test.module"))).hasSize(2);
     assertThat(got.project().allFiles()).hasSize(2);
   }
 
@@ -62,7 +62,7 @@ public class ProjectParserTest {
     var got = parser.parseAll();
 
     assertThat(got.errors()).hasSize(1);
-    assertThat(got.project().filesInPackage("test.module")).hasSize(2);
+    assertThat(got.project().filesInPackage(aSelector("test.module"))).hasSize(2);
     assertThat(got.project().allFiles()).hasSize(3);
   }
 

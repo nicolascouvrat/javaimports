@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.JavaSourceFile;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
@@ -68,10 +69,11 @@ public class Fixer {
    * @param siblings the files to add
    */
   public void addSiblings(Set<ParsedFile> siblings) {
-    Set<ParsedFile> siblingsOfSamePackage =
+    List<JavaSourceFile> siblingsOfSamePackage =
         siblings.stream()
-            .filter(s -> s.packageName().equals(file.packageName()))
-            .collect(Collectors.toSet());
+            .filter(s -> s.pkg().equals(file.pkg()))
+            .map(f -> (JavaSourceFile) f)
+            .toList();
 
     loader.addSiblings(siblingsOfSamePackage);
     siblingsOfSamePackage.stream().forEach(f -> candidates.add(Candidate.Source.SIBLING, f));

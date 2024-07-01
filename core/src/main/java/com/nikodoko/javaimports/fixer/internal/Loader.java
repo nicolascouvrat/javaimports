@@ -2,12 +2,15 @@ package com.nikodoko.javaimports.fixer.internal;
 
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
+import com.nikodoko.javaimports.common.JavaSourceFile;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.Environments;
 import com.nikodoko.javaimports.parser.ParsedFile;
 import com.nikodoko.javaimports.stdlib.StdlibProvider;
 import com.nikodoko.javaimports.stdlib.StdlibProviders;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -15,7 +18,7 @@ import java.util.Set;
  * are truly unresolved, and which classes are truly not extendable.
  */
 public class Loader {
-  private Set<ParsedFile> siblings = new HashSet<>();
+  private List<JavaSourceFile> siblings = new ArrayList<>();
   private StdlibProvider stdlib = StdlibProviders.empty();
   private Environment environment = Environments.empty();
   private final ParsedFile file;
@@ -30,7 +33,7 @@ public class Loader {
   }
 
   /** Add sibling files to the loader */
-  public void addSiblings(Set<ParsedFile> siblings) {
+  public void addSiblings(List<JavaSourceFile> siblings) {
     this.siblings = siblings;
   }
 
@@ -93,12 +96,12 @@ public class Loader {
   }
 
   private void resolveUsingSiblings() {
-    for (ParsedFile sibling : siblings) {
+    for (var sibling : siblings) {
       resolveUsingSibling(sibling);
     }
   }
 
-  private void resolveUsingSibling(ParsedFile sibling) {
+  private void resolveUsingSibling(JavaSourceFile sibling) {
     file.addDeclarations(sibling.topLevelDeclarations());
   }
 }

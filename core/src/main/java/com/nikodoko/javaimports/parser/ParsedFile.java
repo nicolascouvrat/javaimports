@@ -3,10 +3,9 @@ package com.nikodoko.javaimports.parser;
 import com.google.common.collect.Range;
 import com.nikodoko.javaimports.common.ClassDeclaration;
 import com.nikodoko.javaimports.common.ClassEntity;
-import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
-import com.nikodoko.javaimports.common.ImportProvider;
+import com.nikodoko.javaimports.common.JavaSourceFile;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Superclass;
 import com.nikodoko.javaimports.fixer.candidates.Candidate;
@@ -33,7 +32,7 @@ public record ParsedFile(
     Scope topScope,
     Classes classes,
     boolean isSibling)
-    implements ImportProvider, ClassProvider {
+    implements JavaSourceFile {
   /** The package to which this {@code ParsedFile} belongs */
   public String packageName() {
     return pkg().toString();

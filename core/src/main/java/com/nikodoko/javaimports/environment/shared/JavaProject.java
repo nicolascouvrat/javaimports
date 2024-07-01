@@ -1,30 +1,29 @@
 package com.nikodoko.javaimports.environment.shared;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.Iterables;
-import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.common.JavaSourceFile;
+import com.nikodoko.javaimports.common.Selector;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /** Encapsulates all files in a Java project. */
 public class JavaProject {
-  private Map<String, Set<ParsedFile>> filesByPackage = new HashMap<>();
+  private Map<Selector, List<JavaSourceFile>> filesByPackage = new HashMap<>();
 
-  public void add(ParsedFile file) {
-    Set<ParsedFile> filesInPackage =
-        filesByPackage.getOrDefault(file.packageName(), new HashSet<>());
+  public void add(JavaSourceFile file) {
+    var filesInPackage = filesByPackage.getOrDefault(file.pkg(), new ArrayList<>());
     filesInPackage.add(file);
-    filesByPackage.put(file.packageName(), filesInPackage);
+    filesByPackage.put(file.pkg(), filesInPackage);
   }
 
-  public Iterable<ParsedFile> filesInPackage(String pkg) {
-    return filesByPackage.getOrDefault(pkg, new HashSet<>());
+  public List<JavaSourceFile> filesInPackage(Selector pkg) {
+    return filesByPackage.getOrDefault(pkg, List.of());
   }
 
-  public Iterable<ParsedFile> allFiles() {
-    return Iterables.concat(filesByPackage.values());
+  public List<JavaSourceFile> allFiles() {
+    return filesByPackage.values().stream().flatMap(List::stream).toList();
   }
 
   public String toString() {

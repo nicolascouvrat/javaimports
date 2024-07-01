@@ -1,11 +1,11 @@
 package com.nikodoko.javaimports.environment.maven;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.JavaSourceFile;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
@@ -15,7 +15,6 @@ import com.nikodoko.javaimports.environment.jarutil.LazyJar;
 import com.nikodoko.javaimports.environment.jarutil.LazyJars;
 import com.nikodoko.javaimports.environment.shared.JavaProject;
 import com.nikodoko.javaimports.environment.shared.ProjectParser;
-import com.nikodoko.javaimports.parser.ParsedFile;
 import io.opentracing.Span;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,9 +66,9 @@ public class MavenEnvironment implements Environment {
   }
 
   @Override
-  public Set<ParsedFile> siblings() {
+  public List<JavaSourceFile> siblings() {
     parseProjectIfNeeded();
-    return Sets.newHashSet(project.filesInPackage(pkgBeingResolved.toString()));
+    return project.filesInPackage(pkgBeingResolved);
   }
 
   @Override

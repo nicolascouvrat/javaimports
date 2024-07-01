@@ -4,18 +4,16 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.JavaSourceFile;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.environment.bazel.BazelEnvironment;
 import com.nikodoko.javaimports.environment.maven.MavenEnvironment;
-import com.nikodoko.javaimports.parser.ParsedFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public class Environments {
   private static class DummyEnvironment implements Environment {
@@ -30,8 +28,8 @@ public class Environments {
     }
 
     @Override
-    public Set<ParsedFile> siblings() {
-      return new HashSet<>();
+    public List<JavaSourceFile> siblings() {
+      return List.of();
     }
   }
 
