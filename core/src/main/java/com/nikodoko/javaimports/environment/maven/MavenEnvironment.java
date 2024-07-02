@@ -13,8 +13,8 @@ import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.jarutil.LazyJar;
 import com.nikodoko.javaimports.environment.jarutil.LazyJars;
-import com.nikodoko.javaimports.environment.shared.JavaProject;
-import com.nikodoko.javaimports.environment.shared.ProjectParser;
+import com.nikodoko.javaimports.environment.shared.LazyJavaProject;
+import com.nikodoko.javaimports.environment.shared.LazyProjectParser;
 import io.opentracing.Span;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,7 +50,7 @@ public class MavenEnvironment implements Environment {
 
   private MavenClassLoader classLoader;
   private Map<Identifier, List<Import>> availableImports = new HashMap<>();
-  private JavaProject project;
+  private LazyJavaProject project;
   private boolean projectIsParsed = false;
   private boolean isInitialized = false;
 
@@ -152,8 +152,9 @@ public class MavenEnvironment implements Environment {
     long start = clock.millis();
 
     var srcs = MavenProjectFinder.withRoot(root).exclude(fileBeingResolved);
-    var parser = new ProjectParser(pkgBeingResolved, srcs, options.executor());
-    var parsed = parser.parseAll();
+    var parser = new LazyProjectParser(pkgBeingResolved, srcs);
+    var parsed = parser.parse();
+    parsed.project().eagerlyParse(options.executor());
     log.info(
         String.format(
             "parsed project in %d ms (total of %d files)",
