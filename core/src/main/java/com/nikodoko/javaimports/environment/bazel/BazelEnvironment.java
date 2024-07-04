@@ -12,8 +12,8 @@ import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.maven.MavenDependencyLoader;
-import com.nikodoko.javaimports.environment.shared.JavaProject;
-import com.nikodoko.javaimports.environment.shared.ProjectParser;
+import com.nikodoko.javaimports.environment.shared.LazyJavaProject;
+import com.nikodoko.javaimports.environment.shared.LazyProjectParser;
 import io.opentracing.Span;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,7 +45,7 @@ public class BazelEnvironment implements Environment {
   private final boolean isModule;
 
   private BazelQueryResults cache = null;
-  private JavaProject project = null;
+  private LazyJavaProject project = null;
   private BazelClassLoader classLoader = null;
   private Map<Identifier, List<Import>> availableImports = null;
 
@@ -95,7 +95,7 @@ public class BazelEnvironment implements Environment {
     return outputBase;
   }
 
-  private JavaProject project() {
+  private LazyJavaProject project() {
     if (project == null) {
       var span = Traces.createSpan("BazelEnvironment.initProject");
       try (var __ = Traces.activate(span)) {
@@ -108,10 +108,11 @@ public class BazelEnvironment implements Environment {
     return project;
   }
 
-  private JavaProject initProject() {
+  private LazyJavaProject initProject() {
     long start = clock.millis();
-    var parser = new ProjectParser(pkgBeingResolved, cache(), options.executor());
-    var parsed = parser.parseAll();
+    var parser = new LazyProjectParser(pkgBeingResolved, cache());
+    var parsed = parser.parse();
+    parsed.project().eagerlyParse(options.executor());
     log.info(
         String.format(
             "parsed project in %d ms (total of %d files)",
