@@ -165,6 +165,7 @@ public class BazelEnvironment implements Environment {
     var start = clock.millis();
     var tasks =
         cache().deps().stream()
+            .map(BazelDependency::path)
             .map(d -> CompletableFuture.supplyAsync(() -> loadImports(span, d), options.executor()))
             .toList();
     return Utils.sequence(tasks)
@@ -200,7 +201,7 @@ public class BazelEnvironment implements Environment {
   }
 
   private BazelClassLoader initClassLoader() {
-    return new BazelClassLoader(cache().deps());
+    return new BazelClassLoader(cache().deps().stream().map(BazelDependency::path).toList());
   }
 
   private static final String DEPS_FORMAT = "deps(attr('srcs', //%s:%s, //%s:*))";

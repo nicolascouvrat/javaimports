@@ -3,6 +3,7 @@ package com.nikodoko.javaimports.environment.bazel;
 import static com.google.common.truth.Truth.assertThat;
 import static java.io.FileDescriptor.in;
 
+import com.nikodoko.javaimports.environment.shared.Dependency;
 import java.io.StringReader;
 import java.nio.file.Paths;
 import java.util.List;
@@ -13,73 +14,67 @@ public class BazelQueryResultsTest {
   public void itShouldParseRawResults() throws Exception {
     var raw =
         """
-//collect:collect
-//collect:src/main/java/collect/AbstractBiMap.java
-//collect:src/main/java/collect/BaseImmutableMultimap.java
-//collect:src/main/java/collect/CartesianList.java
-//collect:src/main/java/collect/DenseImmutableTable.java
-//collect:src/main/java/collect/EmptyContiguousSet.java
-//collect:src/main/java/collect/FilteredEntryMultimap.java
-//collect:src/main/java/collect/GeneralRange.java
-//collect:src/main/java/collect/HashBasedTable.java
-//collect:src/main/java/collect/ImmutableAsList.java
-//collect:src/main/java/collect/JdkBackedImmutableBiMap.java
-//collect:src/main/java/collect/LexicographicalOrdering.java
-//collect:src/main/java/collect/MapDifference.java
-//collect:src/main/java/collect/NaturalOrdering.java
-//collect:src/main/java/collect/package/info.java
-@bazel_tools//src/conditions:host_windows
-@bazel_tools//src/main/cpp/util:errors_posix.cc
-@@bazel_tools~cc_configure_extension~local_config_cc//:builtin_include_directory_paths
-@platforms//os:os
-@platforms//os:windows
-@@rules_java~//toolchains:current_java_toolchain
-@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:ByteStreams.java
-@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:Coordinates.java
-@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:Hasher.java
-@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:rules_jvm_external
-@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry
-@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry.java
-@rules_jvm_external//settings:stamp_manifest
-@maven//:com_mycompany_app_a_dependency
-@maven//:com_mycompany_app_an_empty_dependency
-@maven//:com_mycompany_app_an_indirect_dependency
-@maven//:com_mycompany_app_another_dependency
-@maven//:v1/com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar
-@maven//:v1/com/mycompany/app/an-empty-dependency/1.0/an-empty-dependency-1.0.jar
-@maven//:v1/com/mycompany/app/an-indirect-dependency/1.0/an-indirect-dependency-1.0.jar
-@maven//:v1/com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar
+1 //collect:collect
+2 //collect:src/main/java/collect/AbstractBiMap.java
+2 //collect:src/main/java/collect/BaseImmutableMultimap.java
+2 //collect:src/main/java/collect/CartesianList.java
+2 //collect:src/main/java/collect/DenseImmutableTable.java
+2 //collect:src/main/java/collect/EmptyContiguousSet.java
+2 //collect:src/main/java/collect/FilteredEntryMultimap.java
+2 //collect:src/main/java/collect/GeneralRange.java
+2 //collect:src/main/java/collect/HashBasedTable.java
+2 //collect:src/main/java/collect/ImmutableAsList.java
+2 //collect:src/main/java/collect/JdkBackedImmutableBiMap.java
+2 //collect:src/main/java/collect/LexicographicalOrdering.java
+2 //collect:src/main/java/collect/MapDifference.java
+2 //collect:src/main/java/collect/NaturalOrdering.java
+2 //collect:src/main/java/collect/package/info.java
+3 @bazel_tools//src/conditions:host_windows
+3 @bazel_tools//src/main/cpp/util:errors_posix.cc
+3 @@bazel_tools~cc_configure_extension~local_config_cc//:builtin_include_directory_paths
+3 @platforms//os:os
+3 @platforms//os:windows
+3 @@rules_java~//toolchains:current_java_toolchain
+3 @rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:ByteStreams.java
+3 @rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:Coordinates.java
+3 @rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:Hasher.java
+3 @rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external:rules_jvm_external
+3 @rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry
+3 @rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry.java
+3 @rules_jvm_external//settings:stamp_manifest
+4 @maven//:com_mycompany_app_a_dependency
+4 @maven//:com_mycompany_app_an_empty_dependency
+4 @maven//:com_mycompany_app_an_indirect_dependency
+4 @maven//:com_mycompany_app_another_dependency
+4 @maven//:v1/com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar
+4 @maven//:v1/com/mycompany/app/an-empty-dependency/1.0/an-empty-dependency-1.0.jar
+4 @maven//:v1/com/mycompany/app/an-indirect-dependency/1.0/an-indirect-dependency-1.0.jar
+4 @maven//:v1/com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar
 """;
     var expected =
         List.of(
-            Paths.get(
-                "/Users/nicolas.couvrat/root/collect/src/main/java/collect/AbstractBiMap.java"),
-            Paths.get(
+            direct("/Users/nicolas.couvrat/root/collect/src/main/java/collect/AbstractBiMap.java"),
+            direct(
                 "/Users/nicolas.couvrat/root/collect/src/main/java/collect/BaseImmutableMultimap.java"),
-            Paths.get(
-                "/Users/nicolas.couvrat/root/collect/src/main/java/collect/CartesianList.java"),
-            Paths.get(
+            direct("/Users/nicolas.couvrat/root/collect/src/main/java/collect/CartesianList.java"),
+            direct(
                 "/Users/nicolas.couvrat/root/collect/src/main/java/collect/DenseImmutableTable.java"),
-            Paths.get(
+            direct(
                 "/Users/nicolas.couvrat/root/collect/src/main/java/collect/EmptyContiguousSet.java"),
-            Paths.get(
+            direct(
                 "/Users/nicolas.couvrat/root/collect/src/main/java/collect/FilteredEntryMultimap.java"),
-            Paths.get(
-                "/Users/nicolas.couvrat/root/collect/src/main/java/collect/GeneralRange.java"),
-            Paths.get(
-                "/Users/nicolas.couvrat/root/collect/src/main/java/collect/HashBasedTable.java"),
-            Paths.get(
+            direct("/Users/nicolas.couvrat/root/collect/src/main/java/collect/GeneralRange.java"),
+            direct("/Users/nicolas.couvrat/root/collect/src/main/java/collect/HashBasedTable.java"),
+            direct(
                 "/Users/nicolas.couvrat/root/collect/src/main/java/collect/ImmutableAsList.java"),
-            Paths.get(
+            direct(
                 "/Users/nicolas.couvrat/root/collect/src/main/java/collect/JdkBackedImmutableBiMap.java"),
-            Paths.get(
+            direct(
                 "/Users/nicolas.couvrat/root/collect/src/main/java/collect/LexicographicalOrdering.java"),
-            Paths.get(
-                "/Users/nicolas.couvrat/root/collect/src/main/java/collect/MapDifference.java"),
-            Paths.get(
+            direct("/Users/nicolas.couvrat/root/collect/src/main/java/collect/MapDifference.java"),
+            direct(
                 "/Users/nicolas.couvrat/root/collect/src/main/java/collect/NaturalOrdering.java"),
-            Paths.get(
-                "/Users/nicolas.couvrat/root/collect/src/main/java/collect/package/info.java"));
+            direct("/Users/nicolas.couvrat/root/collect/src/main/java/collect/package/info.java"));
 
     var input = new StringReader(raw);
     var got =
@@ -95,14 +90,14 @@ public class BazelQueryResultsTest {
   void itShouldParseDependenciesForModuleNoPin() throws Exception {
     var raw =
         """
-@maven//:com_mycompany_app_a_dependency
-@maven//:com_mycompany_app_an_empty_dependency
-@maven//:com_mycompany_app_an_indirect_dependency
-@maven//:com_mycompany_app_another_dependency
-@maven//:v1/com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar
-@maven//:v1/com/mycompany/app/an-empty-dependency/1.0/an-empty-dependency-1.0.jar
-@maven//:v1/com/mycompany/app/an-indirect-dependency/1.0/an-indirect-dependency-1.0.jar
-@maven//:v1/com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar
+1 @maven//:com_mycompany_app_a_dependency
+1 @maven//:com_mycompany_app_an_empty_dependency
+3 @maven//:com_mycompany_app_an_indirect_dependency
+3 @maven//:com_mycompany_app_another_dependency
+1 @maven//:v1/com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar
+1 @maven//:v1/com/mycompany/app/an-empty-dependency/1.0/an-empty-dependency-1.0.jar
+3 @maven//:v1/com/mycompany/app/an-indirect-dependency/1.0/an-indirect-dependency-1.0.jar
+3 @maven//:v1/com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar
 """;
 
     var in = new StringReader(raw);
@@ -114,13 +109,13 @@ public class BazelQueryResultsTest {
             .parse(in);
     assertThat(got.deps())
         .containsExactly(
-            Paths.get(
+            direct(
                 "/output/base/external/rules_jvm_external~~maven~maven/v1/com/mycompany/app/a-dependency/1.0/a-dependency-1.0.jar"),
-            Paths.get(
+            direct(
                 "/output/base/external/rules_jvm_external~~maven~maven/v1/com/mycompany/app/an-empty-dependency/1.0/an-empty-dependency-1.0.jar"),
-            Paths.get(
+            transitive(
                 "/output/base/external/rules_jvm_external~~maven~maven/v1/com/mycompany/app/an-indirect-dependency/1.0/an-indirect-dependency-1.0.jar"),
-            Paths.get(
+            transitive(
                 "/output/base/external/rules_jvm_external~~maven~maven/v1/com/mycompany/app/another-dependency/1.0/another-dependency-1.0.jar"));
   }
 
@@ -128,12 +123,12 @@ public class BazelQueryResultsTest {
   void itShouldParseDependenciesForWorkspaceWithPin() throws Exception {
     var raw =
         """
-@com_google_guava_failureaccess_1_0_2//file:file
-@com_google_guava_failureaccess_1_0_2//file:v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
-@com_google_guava_guava_33_2_0_jre//file:file
-@com_google_guava_guava_33_2_0_jre//file:v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
-@maven//:com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
-@maven//:com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
+1 @com_google_guava_failureaccess_1_0_2//file:file
+1 @com_google_guava_failureaccess_1_0_2//file:v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
+2 @com_google_guava_guava_33_2_0_jre//file:file
+2 @com_google_guava_guava_33_2_0_jre//file:v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
+2 @maven//:com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
+1 @maven//:com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
 """;
 
     var in = new StringReader(raw);
@@ -145,9 +140,9 @@ public class BazelQueryResultsTest {
             .parse(in);
     assertThat(got.deps())
         .containsExactly(
-            Paths.get(
+            direct(
                 "/output/base/external/com_google_guava_guava_33_2_0_jre/file/v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar"),
-            Paths.get(
+            direct(
                 "/output/base/external/com_google_guava_failureaccess_1_0_2/file/v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar"));
   }
 
@@ -155,10 +150,10 @@ public class BazelQueryResultsTest {
   void itShouldParseDependenciesForWorkspaceNoPin() throws Exception {
     var raw =
         """
-@maven//:com_google_guava_failureaccess
-@maven//:com_google_guava_guava
-@maven//:v1/https/repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
-@maven//:v1/https/repo1.maven.org/maven2/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
+1 @maven//:com_google_guava_failureaccess
+3 @maven//:com_google_guava_guava
+1 @maven//:v1/https/repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
+3 @maven//:v1/https/repo1.maven.org/maven2/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
 """;
 
     var in = new StringReader(raw);
@@ -170,9 +165,9 @@ public class BazelQueryResultsTest {
             .parse(in);
     assertThat(got.deps())
         .containsExactly(
-            Paths.get(
+            transitive(
                 "/output/base/external/maven/v1/https/repo1.maven.org/maven2/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar"),
-            Paths.get(
+            direct(
                 "/output/base/external/maven/v1/https/repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar"));
   }
 
@@ -180,16 +175,16 @@ public class BazelQueryResultsTest {
   void itShouldParseDependenciesForModuleWithPin() throws Exception {
     var raw =
         """
-@@rules_jvm_external~~maven~com_google_guava_failureaccess_1_0_2//file:file
-@@rules_jvm_external~~maven~com_google_guava_failureaccess_1_0_2//file:v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
-@@rules_jvm_external~~maven~com_google_guava_guava_33_2_0_jre//file:file
-@@rules_jvm_external~~maven~com_google_guava_guava_33_2_0_jre//file:v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
-@maven//:com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
-@maven//:com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
-@maven//:com_google_guava_failureaccess
-@maven//:com_google_guava_failureaccess_1_0_2_extension
-@maven//:com_google_guava_guava
-@maven//:com_google_guava_guava_33_2_0_jre_extension
+1 @@rules_jvm_external~~maven~com_google_guava_failureaccess_1_0_2//file:file
+1 @@rules_jvm_external~~maven~com_google_guava_failureaccess_1_0_2//file:v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
+3 @@rules_jvm_external~~maven~com_google_guava_guava_33_2_0_jre//file:file
+3 @@rules_jvm_external~~maven~com_google_guava_guava_33_2_0_jre//file:v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
+1 @maven//:com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar
+3 @maven//:com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
+1 @maven//:com_google_guava_failureaccess
+1 @maven//:com_google_guava_failureaccess_1_0_2_extension
+3 @maven//:com_google_guava_guava
+3 @maven//:com_google_guava_guava_33_2_0_jre_extension
 """;
 
     var in = new StringReader(raw);
@@ -201,9 +196,17 @@ public class BazelQueryResultsTest {
             .parse(in);
     assertThat(got.deps())
         .containsExactly(
-            Paths.get(
+            transitive(
                 "/output/base/external/rules_jvm_external~~maven~com_google_guava_guava_33_2_0_jre/file/v1/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar"),
-            Paths.get(
+            direct(
                 "/output/base/external/rules_jvm_external~~maven~com_google_guava_failureaccess_1_0_2/file/v1/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar"));
+  }
+
+  public static BazelDependency direct(String path) {
+    return new BazelDependency(Dependency.Kind.DIRECT, Paths.get(path));
+  }
+
+  public static BazelDependency transitive(String path) {
+    return new BazelDependency(Dependency.Kind.TRANSITIVE, Paths.get(path));
   }
 }
