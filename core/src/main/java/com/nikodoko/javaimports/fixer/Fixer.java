@@ -134,19 +134,20 @@ public class Fixer {
       return Result.incomplete();
     }
 
-    fixes.addAll(
+    var parentFixes =
         result.fixes.stream()
             .filter(i -> !i.selector.scope().equals(file.pkg()))
-            .collect(Collectors.toSet()));
+            .collect(Collectors.toSet());
     var unresolved = file.unresolved();
 
     // We had orphan classes, but they did not have any unresolved identifiers
     if (unresolved.isEmpty()) {
-      return Result.incomplete(fixes);
+      return Result.complete(parentFixes);
     }
 
     fixes.addAll(findFixes(unresolved, List.of()));
     var allGood = fixes.size() == unresolved.size();
+    fixes.addAll(parentFixes);
 
     if (allGood) {
       return Result.complete(fixes);

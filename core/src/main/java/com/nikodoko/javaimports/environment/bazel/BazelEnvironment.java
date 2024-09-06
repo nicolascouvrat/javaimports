@@ -44,6 +44,9 @@ public class BazelEnvironment implements Environment {
   private final Options options;
   private final boolean isModule;
 
+  // TODO: this should be set after we do the initial bazel query
+  private Precision precision = Precision.MINIMAL;
+
   private BazelQueryResults cache = null;
   private LazyJavaProject project = null;
   private BazelClassLoader classLoader = null;
@@ -112,7 +115,6 @@ public class BazelEnvironment implements Environment {
     long start = clock.millis();
     var parser = new LazyProjectParser(pkgBeingResolved, cache());
     var parsed = parser.parse();
-    parsed.project().eagerlyParse(options.executor());
     log.info(
         String.format(
             "parsed project in %d ms (total of %d files)",
@@ -229,6 +231,7 @@ public class BazelEnvironment implements Environment {
                 "query",
                 "--disk_cache=%s".formatted(BAZEL_LOCAL_CACHE),
                 "--repository_cache=%s".formatted(BAZEL_REPOSITORY_CACHE),
+                "--output=minrank",
                 deps)
             .redirectError(stderrRedirect)
             .directory(workspaceRoot.toFile())
@@ -265,6 +268,31 @@ public class BazelEnvironment implements Environment {
   @Override
   public List<JavaSourceFile> siblings() {
     return project().filesInPackage(pkgBeingResolved);
+  }
+
+  enum Precision {
+    // Available: lazy project that parses on demand, imports are purely based on file names
+    MINIMAL,
+    // Available: lazy load all direct jars, imports based on file names inside the JARs, parse said
+    // classes on demand
+    ALL_DIRECT_JARS,
+    // Eagerly parse all direct dependencies in terms of files and jars
+    ALL_DIRECT_DEPS,
+    // Lazy load all jars
+    ALL_JARS,
+    // Eagerly parse all remaining files and JARs
+    MAXIMAL;
+  }
+
+  @Override
+  public boolean increasePrecision() {
+    if (precision == Precision.MINIMAL) {
+      project().eagerlyParse(options.executor());
+      precision = Precision.MAXIMAL;
+      return true;
+    }
+
+    return false;
   }
 
   @Override

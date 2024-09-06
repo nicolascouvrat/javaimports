@@ -66,6 +66,11 @@ public class MavenEnvironment implements Environment {
   }
 
   @Override
+  public boolean increasePrecision() {
+    return false;
+  }
+
+  @Override
   public List<JavaSourceFile> siblings() {
     parseProjectIfNeeded();
     return project.filesInPackage(pkgBeingResolved);

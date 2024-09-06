@@ -96,10 +96,19 @@ public class LazyParsedFile implements JavaSourceFile {
 
   @Override
   public Optional<ClassEntity> findClass(Import i) {
-    if (parsed == null) {
-      parse();
+    if (parsed != null) {
+      return parsed.flatMap(p -> p.findClass(i));
     }
 
+    if (inferredImport == null) {
+      return Optional.empty();
+    }
+
+    if (!i.equals(inferredImport)) {
+      return Optional.empty();
+    }
+
+    parse();
     return parsed.flatMap(p -> p.findClass(i));
   }
 

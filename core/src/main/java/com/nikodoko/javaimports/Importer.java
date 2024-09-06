@@ -135,8 +135,16 @@ public final class Importer {
     // If other files in the package contain identifiers that also are in the standard library, we
     // want to resolve them before so as to avoid adding uneeded imports, so we need to add both the
     // stdlib provider and the resolver at the same time.
+    var environment = Environments.autoSelect(filename, f.pkg(), options);
     fixer.addStdlibProvider(options.stdlib());
-    fixer.addEnvironment(Environments.autoSelect(filename, f.pkg(), options));
+    fixer.addEnvironment(environment);
+
+    do {
+      r = fixer.tryToFix();
+      if (r.done()) {
+        return r;
+      }
+    } while (environment.increasePrecision());
 
     return fixer.lastTryToFix();
   }

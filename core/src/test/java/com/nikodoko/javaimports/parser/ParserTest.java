@@ -203,8 +203,7 @@ public class ParserTest {
         "  }",
         "}",
       },
-      // The parser does not know about "this" and sees it as an unresolved symbol
-      {"this", "a"},
+      {"a"},
       {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
@@ -1169,11 +1168,9 @@ public class ParserTest {
         "Override",
         "Iterable",
         "Math",
-        "this",
         "Object",
         "SuppressWarnings",
         "System",
-        "super",
         "Integer",
         "SafeVarargs",
         // These come from classes that, while having their parents in the file, could not be

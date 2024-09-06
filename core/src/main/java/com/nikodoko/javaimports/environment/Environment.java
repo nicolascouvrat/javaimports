@@ -11,4 +11,6 @@ import java.util.List;
  */
 public interface Environment extends ImportProvider, ClassProvider {
   List<JavaSourceFile> siblings();
+
+  boolean increasePrecision();
 }

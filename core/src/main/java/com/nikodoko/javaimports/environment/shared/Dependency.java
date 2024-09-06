@@ -1,5 +1,7 @@
 package com.nikodoko.javaimports.environment.shared;
 
+import java.nio.file.Path;
+
 public interface Dependency {
   enum Kind {
     DIRECT,
@@ -7,4 +9,6 @@ public interface Dependency {
   }
 
   Kind kind();
+
+  Path path();
 }

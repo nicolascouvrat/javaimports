@@ -31,6 +31,11 @@ public class Environments {
     public List<JavaSourceFile> siblings() {
       return List.of();
     }
+
+    @Override
+    public boolean increasePrecision() {
+      return false;
+    }
   }
 
   public static Environment empty() {
@@ -40,16 +45,16 @@ public class Environments {
   public static Environment autoSelect(Path filename, Selector pkg, Options options) {
     Path current = filename.getParent();
     while (current != null) {
-      // Prioritize POM
-      Path potentialPom = Paths.get(current.toString(), "pom.xml");
-      if (Files.exists(potentialPom)) {
-        return new MavenEnvironment(current, filename, pkg, options);
-      }
-
       Path potentialBuild = Paths.get(current.toString(), "BUILD");
       Path potentialBuildBazel = Paths.get(current.toString(), "BUILD.bazel");
       if (Files.exists(potentialBuild) || Files.exists(potentialBuildBazel)) {
         return initBazelEnvironment(current, filename, pkg, options);
+      }
+
+      // Prioritize POM
+      Path potentialPom = Paths.get(current.toString(), "pom.xml");
+      if (Files.exists(potentialPom)) {
+        return new MavenEnvironment(current, filename, pkg, options);
       }
 
       current = current.getParent();
