@@ -12,6 +12,8 @@ import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.maven.MavenDependencyLoader;
+import com.nikodoko.javaimports.environment.shared.Dependency;
+import com.nikodoko.javaimports.environment.shared.LazyJars;
 import com.nikodoko.javaimports.environment.shared.LazyJavaProject;
 import com.nikodoko.javaimports.environment.shared.LazyProjectParser;
 import io.opentracing.Span;
@@ -51,6 +53,7 @@ public class BazelEnvironment implements Environment {
   private LazyJavaProject project = null;
   private BazelClassLoader classLoader = null;
   private Map<Identifier, List<Import>> availableImports = null;
+  private LazyJars jars = null;
 
   // TMP
   private static final Path BAZEL_REPOSITORY_CACHE =
@@ -96,6 +99,25 @@ public class BazelEnvironment implements Environment {
       return null;
     }
     return outputBase;
+  }
+
+  private LazyJars jars() {
+    if (jars == null) {
+      var span = Traces.createSpan("BazelEnvironment.initJars");
+      try (var __ = Traces.activate(span)) {
+        jars = initJars();
+      } finally {
+        span.finish();
+      }
+    }
+
+    return jars;
+  }
+
+  private LazyJars initJars() {
+    long start = clock.millis();
+    log.info("JARS: %s".formatted(cache().deps()));
+    return new LazyJars(options.executor(), cache().deps());
   }
 
   private LazyJavaProject project() {
@@ -287,7 +309,22 @@ public class BazelEnvironment implements Environment {
   @Override
   public boolean increasePrecision() {
     if (precision == Precision.MINIMAL) {
+      log.info("Up precision: ALL_DIRECT_JARS");
+      jars().load(Dependency.Kind.DIRECT);
+      precision = Precision.ALL_DIRECT_JARS;
+      return true;
+    }
+
+    if (precision == Precision.ALL_DIRECT_JARS) {
+      log.info("Up precision: ALL_DIRECT_DEPS");
       project().eagerlyParse(options.executor());
+      precision = Precision.ALL_DIRECT_DEPS;
+      return true;
+    }
+
+    if (precision == Precision.ALL_DIRECT_DEPS) {
+      log.info("Up precision: ALL_DIRECT_MAXIMAL");
+      jars().load(Dependency.Kind.TRANSITIVE);
       precision = Precision.MAXIMAL;
       return true;
     }
@@ -298,7 +335,7 @@ public class BazelEnvironment implements Environment {
   @Override
   public Collection<Import> findImports(Identifier i) {
     var found = new ArrayList<Import>();
-    found.addAll(availableImports().getOrDefault(i, List.of()));
+    found.addAll(jars().findImports(i));
     for (var file : project().allFiles()) {
       found.addAll(file.findImports(i));
     }
@@ -324,6 +361,6 @@ public class BazelEnvironment implements Environment {
     //   return Optional.empty();
     // }
 
-    return classLoader().findClass(i);
+    return jars().findClass(i);
   }
 }

@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.environment.jarutil;
 
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.environment.jarutil.classfile.BinaryNames;
 import com.nikodoko.javaimports.environment.jarutil.classfile.Classfile;
@@ -10,6 +11,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +31,34 @@ public class LazyJar {
 
   public LazyJar(Path path) {
     this.path = path;
+  }
+
+  public Path path() {
+    return path;
+  }
+
+  @Override
+  public String toString() {
+    return Utils.toStringHelper(this).add("path", path).toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
+
+    if (!(o instanceof LazyJar)) {
+      return false;
+    }
+
+    var that = (LazyJar) o;
+    return Objects.equals(this.path, that.path);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(path);
   }
 
   public Set<Import> importables() {

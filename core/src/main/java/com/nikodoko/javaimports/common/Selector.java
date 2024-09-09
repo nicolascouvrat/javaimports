@@ -93,6 +93,11 @@ public final class Selector {
     return identifiers.getLast();
   }
 
+  // TODO: tentative api
+  public List<Identifier> identifiers() {
+    return identifiers;
+  }
+
   /**
    * Returns a {@code Selector} representing the scope in which the rightmos identifier of this
    * {@code Selector} is.
