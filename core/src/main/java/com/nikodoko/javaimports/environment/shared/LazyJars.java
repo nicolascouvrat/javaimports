@@ -7,6 +7,7 @@ import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.ImportProvider;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Utils;
+import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.jarutil.LazyJar;
 import io.opentracing.Span;
@@ -21,9 +22,12 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class LazyJars implements ImportProvider, ClassProvider {
+  private static Logger log = Logs.getLogger(LazyJars.class.getName());
+
   private final Executor executor;
   private final Map<Dependency.Kind, List<LazyJar>> depsByKind;
   private final Map<String, LazyJar> depsByPath;

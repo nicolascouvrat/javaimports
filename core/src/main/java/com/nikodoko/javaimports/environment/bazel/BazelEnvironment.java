@@ -15,7 +15,6 @@ import com.nikodoko.javaimports.environment.maven.MavenDependencyLoader;
 import com.nikodoko.javaimports.environment.shared.Dependency;
 import com.nikodoko.javaimports.environment.shared.LazyJars;
 import com.nikodoko.javaimports.environment.shared.LazyJavaProject;
-import com.nikodoko.javaimports.environment.shared.LazyProjectParser;
 import io.opentracing.Span;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -135,16 +134,13 @@ public class BazelEnvironment implements Environment {
 
   private LazyJavaProject initProject() {
     long start = clock.millis();
-    var parser = new LazyProjectParser(pkgBeingResolved, cache());
-    var parsed = parser.parse();
+    var project = new LazyJavaProject(pkgBeingResolved, cache().srcs());
     log.info(
         String.format(
             "parsed project in %d ms (total of %d files)",
-            clock.millis() - start, Iterables.size(parsed.project().allFiles())));
+            clock.millis() - start, Iterables.size(project.allFiles())));
 
-    parsed.errors().forEach(e -> log.log(Level.WARNING, "error parsing project", e));
-
-    return parsed.project();
+    return project;
   }
 
   private BazelQueryResults cache() {
@@ -163,7 +159,9 @@ public class BazelEnvironment implements Environment {
   private BazelQueryResults initCache() {
     var start = clock.millis();
     try {
-      return bazelQuery();
+      var cache = bazelQuery();
+      log.info(cache.toString());
+      return cache;
     } catch (Exception e) {
       log.log(Level.WARNING, "init error", e);
       return new BazelQueryResults(List.of(), List.of());
@@ -323,8 +321,16 @@ public class BazelEnvironment implements Environment {
     }
 
     if (precision == Precision.ALL_DIRECT_DEPS) {
-      log.info("Up precision: ALL_DIRECT_MAXIMAL");
+      log.info("Up precision: ALL_JARS");
       jars().load(Dependency.Kind.TRANSITIVE);
+      project().includeTransitive();
+      precision = Precision.ALL_JARS;
+      return true;
+    }
+
+    if (precision == Precision.ALL_JARS) {
+      log.info("Up precision: MAXIMAL");
+      project().eagerlyParse(options.executor());
       precision = Precision.MAXIMAL;
       return true;
     }
@@ -334,11 +340,14 @@ public class BazelEnvironment implements Environment {
 
   @Override
   public Collection<Import> findImports(Identifier i) {
+    log.info("Looking for " + i);
     var found = new ArrayList<Import>();
     found.addAll(jars().findImports(i));
+    log.info("Found in jars " + found);
     for (var file : project().allFiles()) {
       found.addAll(file.findImports(i));
     }
+    log.info("Found in jars and files" + found);
 
     return found;
   }

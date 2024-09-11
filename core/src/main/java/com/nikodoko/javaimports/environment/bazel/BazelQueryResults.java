@@ -1,6 +1,7 @@
 package com.nikodoko.javaimports.environment.bazel;
 
 import com.nikodoko.javaimports.common.Utils;
+import com.nikodoko.javaimports.environment.shared.Dependency;
 import com.nikodoko.javaimports.environment.shared.SourceFiles;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +46,7 @@ record BazelQueryResults(List<BazelDependency> srcs, List<BazelDependency> deps)
       Utils.checkNotNull(outputBase, "call outputBase() before parse()");
 
       var external = outputBase.resolve("external");
+      var directJarRank = -1;
       try (var r = new BufferedReader(reader)) {
         var srcs = new ArrayList<BazelDependency>();
         var deps = new ArrayList<BazelDependency>();
@@ -63,13 +65,26 @@ record BazelQueryResults(List<BazelDependency> srcs, List<BazelDependency> deps)
                 workspaceRoot
                     .resolve(srcMatch.group("package"))
                     .resolve(srcMatch.group("path") + ".java");
-            srcs.add(new BazelDependency(rank, path));
+            // If you include a java_library, that target will be rank 1 but the sourcefiles will be
+            // rank 2, so we consider rank 2 as direct deps for source files
+            var kind = rank <= 2 ? Dependency.Kind.DIRECT : Dependency.Kind.TRANSITIVE;
+            srcs.add(new BazelDependency(kind, path));
             continue;
           }
 
           var dep = DependencyPatterns.tryMatch(external, isModule, line);
           if (dep != null) {
-            deps.add(new BazelDependency(rank, dep));
+            // Rank evaluation is a bit tricky here, because depending on whether the project uses
+            // pinning or not, the rank of the actual `.jar` can vary between 2 and 5+
+            // We leverage the fact that --output=minrank orders dependency ranks, and the fact that
+            // we iterate over lines in order to decide that the first jars we see correspond to
+            // direct deps and everything with a higher rank is a transitive dependency.
+            if (directJarRank == -1) {
+              directJarRank = rank;
+            }
+
+            var kind = rank == directJarRank ? Dependency.Kind.DIRECT : Dependency.Kind.TRANSITIVE;
+            deps.add(new BazelDependency(kind, dep));
             continue;
           }
         }
