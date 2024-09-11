@@ -142,9 +142,9 @@ public class LazyJars implements ImportProvider, ClassProvider {
     loaded.addAll(toLoad);
   }
 
-  private Set<Import> load(LazyJar jar, Span span) {
+  private Collection<Import> load(LazyJar jar, Span span) {
     try (var __ = Traces.activate(span)) {
-      return jar.importables();
+      return jar.findAllImports();
     }
   }
 }

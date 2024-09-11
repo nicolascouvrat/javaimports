@@ -103,7 +103,9 @@ public class Fixer {
 
   private Result loadAndTryToFixInstrumented(boolean lastTry) {
     loader.load();
-    log.info("load completed");
+    log.info(
+        "load completed, needParents=%s, unresolved=%s"
+            .formatted(file.orphans().needsParents(), file.unresolved()));
 
     if (!file.orphans().needsParents() && file.unresolved().isEmpty()) {
       return Result.complete();

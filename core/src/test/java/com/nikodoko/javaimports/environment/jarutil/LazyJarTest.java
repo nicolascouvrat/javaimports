@@ -153,7 +153,7 @@ public class LazyJarTest {
   @MethodSource("jarPathProvider")
   void testDependencyLoading(String name, String jarPath, List<Import> expected) throws Exception {
     var jar = new LazyJar(repository.resolve(jarPath));
-    var got = jar.importables();
+    var got = jar.findAllImports();
     assertThat(got).containsExactlyElementsIn(expected);
   }
 }

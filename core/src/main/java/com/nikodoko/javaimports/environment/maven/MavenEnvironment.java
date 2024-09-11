@@ -251,7 +251,7 @@ public class MavenEnvironment implements Environment {
       log.info(String.format("looking for dependency %s at %s", dependency, location));
 
       // var importables = MavenDependencyLoader.load(location.jar);
-      var importables = new ArrayList<>(new LazyJar(location.jar).importables());
+      var importables = new ArrayList<>(new LazyJar(location.jar).findAllImports());
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
       loaded = new LoadedDependency(importables, dependencies, dependency);
     } catch (Exception e) {
