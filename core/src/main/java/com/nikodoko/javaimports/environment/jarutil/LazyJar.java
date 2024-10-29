@@ -130,9 +130,8 @@ public class LazyJar implements JavaJar {
         return Optional.of(Classfile.readFrom(dis));
       }
     } catch (Exception e) {
-      // log.log(Level.WARNING, "could not load class " + i, e);
-      // return Optional.empty();
-      throw new RuntimeException(e);
+      log.log(Level.WARNING, "could not load class " + i, e);
+      return Optional.empty();
     }
   }
 

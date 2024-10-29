@@ -49,6 +49,8 @@ public class Parser {
    * @return an optional containing the parsed file, or nothing if the input is empty or contains
    *     only comments
    * @param javaCode the input code
+   * @param refPkg (optional) the reference to use to determine whether this file is a sibling file
+   *     or not
    * @throws ImporterException if the input cannot be parsed
    */
   public Optional<ParsedFile> parse(final Path filename, final String javaCode, Selector refPkg)

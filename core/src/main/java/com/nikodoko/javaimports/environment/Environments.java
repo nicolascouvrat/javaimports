@@ -51,7 +51,6 @@ public class Environments {
         return initBazelEnvironment(current, filename, pkg, options);
       }
 
-      // Prioritize POM
       Path potentialPom = Paths.get(current.toString(), "pom.xml");
       if (Files.exists(potentialPom)) {
         return new MavenEnvironment(current, filename, pkg, options);

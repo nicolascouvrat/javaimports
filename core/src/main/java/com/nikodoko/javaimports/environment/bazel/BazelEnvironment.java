@@ -115,7 +115,6 @@ public class BazelEnvironment implements Environment {
 
   private LazyJars initJars() {
     long start = clock.millis();
-    log.info("JARS: %s".formatted(cache().deps()));
     return new LazyJars(options.executor(), cache().deps());
   }
 
@@ -159,9 +158,7 @@ public class BazelEnvironment implements Environment {
   private BazelQueryResults initCache() {
     var start = clock.millis();
     try {
-      var cache = bazelQuery();
-      log.info(cache.toString());
-      return cache;
+      return bazelQuery();
     } catch (Exception e) {
       log.log(Level.WARNING, "init error", e);
       return new BazelQueryResults(List.of(), List.of());
@@ -291,37 +288,46 @@ public class BazelEnvironment implements Environment {
   }
 
   enum Precision {
-    // Available: lazy project that parses on demand, imports are purely based on file names
+    // We have:
+    // - Imports:
+    //    - In the project, they are derived from file names of direct dependencies exclusively
+    //    - In the JARs, we have no imports
+    // - Classes:
+    //    - In the project, we will parse a file on demand if that file name matches the requested
+    //    import
+    //    - In the JARs, we will load the jar on demand if its path contains one or multiple words
+    //    in the request import's selector. Then, if it turns out it indeed contains the requested
+    //    import, we will parse the matching class
     MINIMAL,
-    // Available: lazy load all direct jars, imports based on file names inside the JARs, parse said
-    // classes on demand
+    // In this step, we load all JARs that are direct dependencies, meaning that their imports will
+    // become available
     ALL_DIRECT_JARS,
-    // Eagerly parse all direct dependencies in terms of files and jars
+    // In this step, we eagerly parse all files from direct dependencies, which will expose all
+    // static identifiers/classes in the import list, as well as the matching classes if any
     ALL_DIRECT_DEPS,
-    // Lazy load all jars
+    // In this step, we load all JARs that are transitive dependencies, meaning their imports will
+    // become available. We also make all transitive source files available in a lazy way (i.e.
+    // based on name only)
     ALL_JARS,
-    // Eagerly parse all remaining files and JARs
+    // Finally, we eagerly parse all files from transitive dependencies.
     MAXIMAL;
   }
 
   @Override
   public boolean increasePrecision() {
     if (precision == Precision.MINIMAL) {
-      log.info("Up precision: ALL_DIRECT_JARS");
       jars().load(Dependency.Kind.DIRECT);
       precision = Precision.ALL_DIRECT_JARS;
       return true;
     }
 
     if (precision == Precision.ALL_DIRECT_JARS) {
-      log.info("Up precision: ALL_DIRECT_DEPS");
       project().eagerlyParse(options.executor());
       precision = Precision.ALL_DIRECT_DEPS;
       return true;
     }
 
     if (precision == Precision.ALL_DIRECT_DEPS) {
-      log.info("Up precision: ALL_JARS");
       jars().load(Dependency.Kind.TRANSITIVE);
       project().includeTransitive();
       precision = Precision.ALL_JARS;
@@ -329,7 +335,6 @@ public class BazelEnvironment implements Environment {
     }
 
     if (precision == Precision.ALL_JARS) {
-      log.info("Up precision: MAXIMAL");
       project().eagerlyParse(options.executor());
       precision = Precision.MAXIMAL;
       return true;
@@ -340,14 +345,11 @@ public class BazelEnvironment implements Environment {
 
   @Override
   public Collection<Import> findImports(Identifier i) {
-    log.info("Looking for " + i);
     var found = new ArrayList<Import>();
     found.addAll(jars().findImports(i));
-    log.info("Found in jars " + found);
     for (var file : project().allFiles()) {
       found.addAll(file.findImports(i));
     }
-    log.info("Found in jars and files" + found);
 
     return found;
   }
