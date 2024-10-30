@@ -18,7 +18,7 @@ import java.util.Set;
  * are truly unresolved, and which classes are truly not extendable.
  */
 public class Loader {
-  private List<JavaSourceFile> siblings = new ArrayList<>();
+  private List<? extends JavaSourceFile> siblings = new ArrayList<>();
   private StdlibProvider stdlib = StdlibProviders.empty();
   private Environment environment = Environments.empty();
   private final ParsedFile file;
@@ -33,7 +33,7 @@ public class Loader {
   }
 
   /** Add sibling files to the loader */
-  public void addSiblings(List<JavaSourceFile> siblings) {
+  public void addSiblings(List<? extends JavaSourceFile> siblings) {
     this.siblings = siblings;
   }
 

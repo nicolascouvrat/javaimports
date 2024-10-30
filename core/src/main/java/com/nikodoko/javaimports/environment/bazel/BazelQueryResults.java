@@ -2,7 +2,6 @@ package com.nikodoko.javaimports.environment.bazel;
 
 import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.environment.shared.Dependency;
-import com.nikodoko.javaimports.environment.shared.SourceFiles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -14,8 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Parsed result of `bazel query deps(...)` */
-record BazelQueryResults(List<BazelDependency> srcs, List<BazelDependency> deps)
-    implements SourceFiles {
+record BazelQueryResults(List<BazelDependency> srcs, List<BazelDependency> deps) {
   static Parser parser() {
     return new Parser();
   }
@@ -92,11 +90,6 @@ record BazelQueryResults(List<BazelDependency> srcs, List<BazelDependency> deps)
         return new BazelQueryResults(srcs, deps);
       }
     }
-  }
-
-  @Override
-  public List<Path> get() {
-    return srcs.stream().map(BazelDependency::path).toList();
   }
 
   // This will match files outside of the package we're considering, but it's fine because we depend

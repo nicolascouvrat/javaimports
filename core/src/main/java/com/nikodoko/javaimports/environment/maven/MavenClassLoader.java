@@ -5,15 +5,15 @@ import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
-import com.nikodoko.javaimports.environment.jarutil.JarLoader;
-import io.opentracing.Span;
+import com.nikodoko.javaimports.environment.shared.Dependency;
+import com.nikodoko.javaimports.environment.shared.LazyJars;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MavenClassLoader {
@@ -29,50 +29,52 @@ public class MavenClassLoader {
   private final MavenRepository repository;
   private final CoordinatesResolver resolver;
   private final List<MavenDependency> directDependencies;
-  private final JarLoader.Factory loaderFactory;
+  private final Executor executor;
 
-  private JarLoader loader = null;
+  private Optional<LazyJars> loader = null;
 
   public MavenClassLoader(
       MavenRepository repository,
       CoordinatesResolver resolver,
-      JarLoader.Factory loaderFactory,
+      Executor executor,
       List<MavenDependency> directDependencies) {
     this.repository = repository;
     this.resolver = resolver;
-    this.loaderFactory = loaderFactory;
     this.directDependencies = directDependencies;
+    this.executor = executor;
   }
 
   private void init() {
     var span = Traces.createSpan("MavenClassLoader.init");
     try (var __ = Traces.activate(span)) {
-      initInstrumented(span);
+      initInstrumented();
     } catch (Throwable t) {
       log.log(Level.WARNING, "Error initializing MavenClassLoader", t);
-
-      this.loader = i -> Optional.empty();
+      this.loader = Optional.empty();
     } finally {
       span.finish();
     }
   }
 
-  private void initInstrumented(Span span) {
-    var transitiveDependencies = repository.getTransitiveDependencies(directDependencies, -1);
-    var allDependencies =
-        Stream.concat(transitiveDependencies.stream(), directDependencies.stream());
-    var paths =
-        allDependencies
+  private record MavenJar(Dependency.Kind kind, Path path) implements Dependency {}
+
+  private void initInstrumented() {
+    var transitive =
+        repository.getTransitiveDependencies(directDependencies, -1).stream()
             .map(this::maybeFindDependency)
             .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toList());
-    Traces.addTags(
-        span,
-        new Tag("transitive_deps_count", transitiveDependencies.size()),
-        new Tag("paths_count", paths.size()));
-
-    this.loader = loaderFactory.of(paths);
+            .map(p -> new MavenJar(Dependency.Kind.TRANSITIVE, p.get()));
+    var direct =
+        directDependencies.stream()
+            .map(this::maybeFindDependency)
+            .filter(Optional::isPresent)
+            .map(p -> new MavenJar(Dependency.Kind.DIRECT, p.get()));
+    var all = Stream.concat(transitive, direct).toList();
+    var loader = new LazyJars(executor, all);
+    // TODO: handle progressive load for maven
+    loader.load(Dependency.Kind.TRANSITIVE);
+    loader.load(Dependency.Kind.DIRECT);
+    this.loader = Optional.of(loader);
   }
 
   private Optional<Path> maybeFindDependency(MavenDependency d) {
@@ -106,6 +108,6 @@ public class MavenClassLoader {
       init();
     }
 
-    return loader.loadClass(i);
+    return loader.map(l -> l.findClass(i)).orElse(Optional.empty());
   }
 }

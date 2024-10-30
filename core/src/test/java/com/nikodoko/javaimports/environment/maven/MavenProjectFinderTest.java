@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.environment.maven;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.nikodoko.javaimports.environment.shared.Dependency;
 import com.nikodoko.packagetest.BuildSystem;
 import com.nikodoko.packagetest.Export;
 import com.nikodoko.packagetest.Exported;
@@ -29,7 +30,7 @@ public class MavenProjectFinderTest {
     var target = project.file(module.name(), "Main.java").get();
 
     var finder = MavenProjectFinder.withRoot(project.root()).exclude(target);
-    var got = finder.get();
+    var got = finder.srcs().stream().map(Dependency::path).toList();
 
     assertThat(got).containsExactly(project.file("test.module", "second/Second.java").get());
   }

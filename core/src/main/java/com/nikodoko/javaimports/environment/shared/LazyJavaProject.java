@@ -16,20 +16,18 @@ public class LazyJavaProject {
   private final Map<Dependency.Kind, List<LazyParsedFile>> allFiles;
   private final Set<LazyParsedFile> available = new HashSet<>();
 
-  // TODO: remove me
-  LazyJavaProject(List<LazyParsedFile> files) {
-    this.allFiles = Map.of(Dependency.Kind.DIRECT, files);
-    makeAvailable(Dependency.Kind.DIRECT);
-  }
-
   public LazyJavaProject(Selector refPkg, List<? extends Dependency> srcs) {
-    this.allFiles =
+    this(
         srcs.stream()
             .collect(
                 Collectors.groupingBy(
                     Dependency::kind,
                     Collectors.mapping(
-                        src -> new LazyParsedFile(refPkg, src.path()), Collectors.toList())));
+                        src -> LazyParsedFile.of(refPkg, src.path()), Collectors.toList()))));
+  }
+
+  LazyJavaProject(Map<Dependency.Kind, List<LazyParsedFile>> allFiles) {
+    this.allFiles = allFiles;
     makeAvailable(Dependency.Kind.DIRECT);
   }
 
@@ -41,11 +39,8 @@ public class LazyJavaProject {
     available.addAll(allFiles.getOrDefault(kind, List.of()));
   }
 
-  public List<JavaSourceFile> filesInPackage(Selector pkg) {
-    return available.stream()
-        .filter(f -> f.pkg().equals(pkg))
-        .map(JavaSourceFile.class::cast)
-        .toList();
+  public List<? extends JavaSourceFile> filesInPackage(Selector pkg) {
+    return available.stream().filter(f -> f.pkg().equals(pkg)).toList();
   }
 
   public List<? extends JavaSourceFile> allFiles() {

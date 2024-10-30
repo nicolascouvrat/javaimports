@@ -10,7 +10,7 @@ import java.util.List;
  * get information about importable symbols.
  */
 public interface Environment extends ImportProvider, ClassProvider {
-  List<JavaSourceFile> siblings();
+  List<? extends JavaSourceFile> siblings();
 
   boolean increasePrecision();
 }

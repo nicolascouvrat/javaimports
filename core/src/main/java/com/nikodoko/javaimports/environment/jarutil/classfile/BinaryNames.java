@@ -13,6 +13,11 @@ import java.util.regex.Pattern;
  * <p>In order to convert to one from the other, we rely on the widespread convention that class
  * names start with a capital letter while packages use no capital letters, or at least do not begin
  * with a capital letter.
+ *
+ * <p>The difference between {@code byteCodeCompatible} or not is whether the separator used between
+ * identifiers should be a dot or a slash. See
+ * https://docs.oracle.com/javase/specs/jls/se8/html/jls-13.html#jls-13.1 and
+ * https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.2
  */
 public class BinaryNames {
   // Assumes that a class always starts with a capital letter
@@ -21,10 +26,14 @@ public class BinaryNames {
   private static final String DOT = "\\.";
   private static final String SLASH = "\\/";
 
-  public static String fromSelector(Selector s) {
+  public static String fromSelector(Selector s, boolean byteCodeCompatible) {
     var fullyQualifiedName = s.toString();
     var m = CLASS_START_PATTERN.matcher(fullyQualifiedName);
-    var b = new StringBuilder(fullyQualifiedName.replaceAll(DOT, SLASH));
+    if (byteCodeCompatible) {
+      fullyQualifiedName = fullyQualifiedName.replaceAll(DOT, SLASH);
+    }
+
+    var b = new StringBuilder(fullyQualifiedName);
     m.results()
         .map(MatchResult::start)
         // Skip the first match as that corresponds to the most parent class
@@ -33,7 +42,8 @@ public class BinaryNames {
     return b.toString();
   }
 
-  public static Selector toSelector(String s) {
-    return Selector.of(Arrays.asList(s.replaceAll(SUBCLASS_SEPARATOR, SLASH).split(SLASH)));
+  public static Selector toSelector(String s, boolean byteCodeCompatible) {
+    var separator = byteCodeCompatible ? SLASH : DOT;
+    return Selector.of(Arrays.asList(s.replaceAll(SUBCLASS_SEPARATOR, separator).split(separator)));
   }
 }

@@ -26,137 +26,151 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-public class LazyParsedFile implements JavaSourceFile {
-  private static final Logger log = Logs.getLogger(LazyParsedFile.class.getName());
+public interface LazyParsedFile extends JavaSourceFile {
+  CompletableFuture<Void> parseAsync(Executor e);
 
-  private final Selector refPkg;
-  private final Path filename;
-  private final Import inferredImport;
-
-  private volatile Optional<ParsedFile> parsed;
-
-  public LazyParsedFile(Selector refPkg, Path filename) {
-    this.refPkg = refPkg;
-    this.filename = filename;
-    this.inferredImport = inferImport(filename);
+  @FunctionalInterface
+  interface Factory {
+    LazyParsedFile build(Selector refPkg, Path filename);
   }
 
-  private static final Pattern SRC_FILE_PATTERN =
-      Pattern.compile("^.*src/\\w+/java/(?<selector>.+)\\.java");
+  public static LazyParsedFile of(Selector refPkg, Path filename) {
+    return new Impl(refPkg, filename);
+  }
 
-  private Import inferImport(Path filename) {
-    var matcher = SRC_FILE_PATTERN.matcher(filename.toString());
-    if (matcher.matches()) {
-      var s = Selector.of(Arrays.asList(matcher.group("selector").split("/")));
-      return new Import(s, false);
+  public static class Impl implements LazyParsedFile {
+    private static final Logger log = Logs.getLogger(LazyParsedFile.class.getName());
+
+    private final Selector refPkg;
+    private final Path filename;
+    private final Import inferredImport;
+
+    private volatile Optional<ParsedFile> parsed;
+
+    private Impl(Selector refPkg, Path filename) {
+      this.refPkg = refPkg;
+      this.filename = filename;
+      this.inferredImport = inferImport(filename);
     }
 
-    log.warning("Cannot infer import for file %s".formatted(filename));
-    return null;
-  }
+    private static final Pattern SRC_FILE_PATTERN =
+        Pattern.compile("^.*src/\\w+/java/(?<selector>.+)\\.java");
 
-  @Override
-  public Set<Identifier> topLevelDeclarations() {
-    if (parsed == null) {
+    private Import inferImport(Path filename) {
+      var matcher = SRC_FILE_PATTERN.matcher(filename.toString());
+      if (matcher.matches()) {
+        var s = Selector.of(Arrays.asList(matcher.group("selector").split("/")));
+        return new Import(s, false);
+      }
+
+      log.warning("Cannot infer import for file %s".formatted(filename));
+      return null;
+    }
+
+    @Override
+    public Set<Identifier> topLevelDeclarations() {
+      if (parsed == null) {
+        if (inferredImport == null) {
+          return Set.of();
+        }
+
+        return Set.of(inferredImport.selector.identifier());
+      }
+
+      return parsed.map(p -> p.topLevelDeclarations()).orElse(Set.of());
+    }
+
+    @Override
+    public Selector pkg() {
+      if (parsed == null) {
+        if (inferredImport == null) {
+          return Selector.of("");
+        }
+
+        return inferredImport.selector.scope();
+      }
+
+      return parsed.map(p -> p.pkg()).orElse(Selector.of(""));
+    }
+
+    @Override
+    public Collection<Import> findImports(Identifier i) {
+      if (parsed == null) {
+        if (inferredImport == null || !inferredImport.selector.identifier().equals(i)) {
+          return List.of();
+        }
+
+        return List.of(inferredImport);
+      }
+
+      return parsed.map(p -> p.findImports(i)).orElse(List.of());
+    }
+
+    @Override
+    public Optional<ClassEntity> findClass(Import i) {
+      if (parsed != null) {
+        return parsed.flatMap(p -> p.findClass(i));
+      }
+
       if (inferredImport == null) {
-        return Set.of();
+        return Optional.empty();
       }
 
-      return Set.of(inferredImport.selector.identifier());
-    }
-
-    return parsed.map(p -> p.topLevelDeclarations()).orElse(Set.of());
-  }
-
-  @Override
-  public Selector pkg() {
-    if (parsed == null) {
-      if (inferredImport == null) {
-        return Selector.of("");
+      if (!i.equals(inferredImport)) {
+        return Optional.empty();
       }
 
-      return inferredImport.selector.scope();
-    }
-
-    return parsed.map(p -> p.pkg()).orElse(Selector.of(""));
-  }
-
-  @Override
-  public Collection<Import> findImports(Identifier i) {
-    if (parsed == null) {
-      if (inferredImport == null || !inferredImport.selector.identifier().equals(i)) {
-        return List.of();
-      }
-
-      return List.of(inferredImport);
-    }
-
-    return parsed.map(p -> p.findImports(i)).orElse(List.of());
-  }
-
-  @Override
-  public Optional<ClassEntity> findClass(Import i) {
-    if (parsed != null) {
+      parse();
       return parsed.flatMap(p -> p.findClass(i));
     }
 
-    if (inferredImport == null) {
-      return Optional.empty();
-    }
-
-    if (!i.equals(inferredImport)) {
-      return Optional.empty();
-    }
-
-    parse();
-    return parsed.flatMap(p -> p.findClass(i));
-  }
-
-  public CompletableFuture<Void> parseAsync(Executor e) {
-    if (parsed != null) {
-      return CompletableFuture.completedFuture(null);
-    }
-
-    return CompletableFuture.runAsync(this::parse, e);
-  }
-
-  private synchronized void parse() {
-    synchronized (this) {
+    @Override
+    public CompletableFuture<Void> parseAsync(Executor e) {
       if (parsed != null) {
-        return;
+        return CompletableFuture.completedFuture(null);
       }
 
-      try {
-        parsed = parse(refPkg, filename);
-      } catch (IOException | ImporterException e) {
-        log.log(Level.WARNING, "Could not parse file %s".formatted(filename), e);
-        parsed = Optional.empty();
+      return CompletableFuture.runAsync(this::parse, e);
+    }
+
+    private synchronized void parse() {
+      synchronized (this) {
+        if (parsed != null) {
+          return;
+        }
+
+        try {
+          parsed = parse(refPkg, filename);
+        } catch (IOException | ImporterException e) {
+          log.log(Level.WARNING, "Could not parse file %s".formatted(filename), e);
+          parsed = Optional.empty();
+        }
       }
     }
-  }
 
-  private static Optional<ParsedFile> parse(Selector refPkg, Path filename)
-      throws IOException, ImporterException {
-    var src = new String(Files.readAllBytes(filename), UTF_8);
-    return new Parser().parse(filename, src, refPkg);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o == null) {
-      return false;
+    private static Optional<ParsedFile> parse(Selector refPkg, Path filename)
+        throws IOException, ImporterException {
+      var src = new String(Files.readAllBytes(filename), UTF_8);
+      return new Parser().parse(filename, src, refPkg);
     }
 
-    if (!(o instanceof LazyParsedFile)) {
-      return false;
+    @Override
+    public boolean equals(Object o) {
+      if (o == null) {
+        return false;
+      }
+
+      if (!(o instanceof Impl)) {
+        return false;
+      }
+
+      var that = (Impl) o;
+      return Objects.equals(this.filename, that.filename);
     }
 
-    var that = (LazyParsedFile) o;
-    return Objects.equals(this.filename, that.filename);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(filename);
+    @Override
+    public int hashCode() {
+      return Objects.hash(filename);
+    }
   }
 }

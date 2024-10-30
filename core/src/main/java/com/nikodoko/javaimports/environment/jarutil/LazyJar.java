@@ -110,7 +110,7 @@ public class LazyJar implements JavaJar {
   }
 
   private static String toPath(Import i) {
-    var binaryName = BinaryNames.fromSelector(i.selector);
+    var binaryName = BinaryNames.fromSelector(i.selector, true);
     return binaryName + CLASS_EXTENSION;
   }
 

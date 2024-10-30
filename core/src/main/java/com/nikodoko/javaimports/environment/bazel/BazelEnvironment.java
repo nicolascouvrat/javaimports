@@ -50,7 +50,6 @@ public class BazelEnvironment implements Environment {
 
   private BazelQueryResults cache = null;
   private LazyJavaProject project = null;
-  private BazelClassLoader classLoader = null;
   private Map<Identifier, List<Import>> availableImports = null;
   private LazyJars jars = null;
 
@@ -206,23 +205,6 @@ public class BazelEnvironment implements Environment {
     }
   }
 
-  private BazelClassLoader classLoader() {
-    if (classLoader == null) {
-      var span = Traces.createSpan("BazelEnvironment.initClassLoader");
-      try (var __ = Traces.activate(span)) {
-        classLoader = initClassLoader();
-      } finally {
-        span.finish();
-      }
-    }
-
-    return classLoader;
-  }
-
-  private BazelClassLoader initClassLoader() {
-    return new BazelClassLoader(cache().deps().stream().map(BazelDependency::path).toList());
-  }
-
   private static final String DEPS_FORMAT = "deps(attr('srcs', //%s:%s, //%s:*))";
 
   private BazelQueryResults bazelQuery() throws InterruptedException, IOException {
@@ -283,7 +265,7 @@ public class BazelEnvironment implements Environment {
   }
 
   @Override
-  public List<JavaSourceFile> siblings() {
+  public List<? extends JavaSourceFile> siblings() {
     return project().filesInPackage(pkgBeingResolved);
   }
 
