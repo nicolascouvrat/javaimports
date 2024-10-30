@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.environment.jarutil.classfile;
+package com.nikodoko.javaimports.environment.shared.classfile;
 
 enum Visibility {
   PUBLIC,

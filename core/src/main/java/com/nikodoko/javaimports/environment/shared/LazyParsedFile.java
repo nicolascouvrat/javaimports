@@ -34,11 +34,11 @@ public interface LazyParsedFile extends JavaSourceFile {
     LazyParsedFile build(Selector refPkg, Path filename);
   }
 
-  public static LazyParsedFile of(Selector refPkg, Path filename) {
+  static LazyParsedFile of(Selector refPkg, Path filename) {
     return new Impl(refPkg, filename);
   }
 
-  public static class Impl implements LazyParsedFile {
+  static class Impl implements LazyParsedFile {
     private static final Logger log = Logs.getLogger(LazyParsedFile.class.getName());
 
     private final Selector refPkg;

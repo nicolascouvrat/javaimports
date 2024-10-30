@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.environment.jarutil;
+package com.nikodoko.javaimports.environment.shared;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.nikodoko.javaimports.common.CommonTestUtil.aSelector;

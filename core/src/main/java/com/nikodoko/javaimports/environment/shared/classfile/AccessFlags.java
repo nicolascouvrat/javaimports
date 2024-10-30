@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.environment.jarutil.classfile;
+package com.nikodoko.javaimports.environment.shared.classfile;
 
 record AccessFlags(Visibility visibility) {
   static AccessFlags from(short raw) {

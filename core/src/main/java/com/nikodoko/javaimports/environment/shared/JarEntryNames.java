@@ -1,7 +1,7 @@
-package com.nikodoko.javaimports.environment.jarutil;
+package com.nikodoko.javaimports.environment.shared;
 
 import com.nikodoko.javaimports.common.Import;
-import com.nikodoko.javaimports.environment.jarutil.classfile.BinaryNames;
+import com.nikodoko.javaimports.environment.shared.classfile.BinaryNames;
 
 class JarEntryNames {
   private static final String CLASS_EXTENSION = ".class";

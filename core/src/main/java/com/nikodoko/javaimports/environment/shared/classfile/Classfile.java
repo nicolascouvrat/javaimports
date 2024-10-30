@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.environment.jarutil.classfile;
+package com.nikodoko.javaimports.environment.shared.classfile;
 
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;

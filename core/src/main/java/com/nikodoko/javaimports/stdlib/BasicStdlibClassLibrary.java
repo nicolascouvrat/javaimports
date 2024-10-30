@@ -5,7 +5,7 @@ import com.nikodoko.javaimports.common.ClassProvider;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.telemetry.Logs;
-import com.nikodoko.javaimports.environment.jarutil.classfile.BinaryNames;
+import com.nikodoko.javaimports.environment.shared.classfile.BinaryNames;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.net.URL;

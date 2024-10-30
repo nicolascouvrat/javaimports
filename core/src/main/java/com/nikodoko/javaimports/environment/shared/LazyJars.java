@@ -9,7 +9,6 @@ import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Traces;
-import com.nikodoko.javaimports.environment.jarutil.LazyJar;
 import io.opentracing.Span;
 import java.util.Collection;
 import java.util.Comparator;

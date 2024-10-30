@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.environment.jarutil;
+package com.nikodoko.javaimports.environment.shared;
 
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
@@ -8,8 +8,8 @@ import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
-import com.nikodoko.javaimports.environment.jarutil.classfile.BinaryNames;
-import com.nikodoko.javaimports.environment.jarutil.classfile.Classfile;
+import com.nikodoko.javaimports.environment.shared.classfile.BinaryNames;
+import com.nikodoko.javaimports.environment.shared.classfile.Classfile;
 import io.opentracing.Span;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
