@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -93,9 +94,8 @@ public final class Selector {
     return identifiers.getLast();
   }
 
-  // TODO: tentative api
   public List<Identifier> identifiers() {
-    return identifiers;
+    return Collections.unmodifiableList(identifiers);
   }
 
   /**

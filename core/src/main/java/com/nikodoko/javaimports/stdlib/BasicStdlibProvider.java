@@ -19,7 +19,6 @@ public class BasicStdlibProvider implements StdlibProvider {
   private Stdlib stdlib;
   private Map<String, Integer> usedPackages = new HashMap<>();
   private final BasicStdlibClassLibrary library = new BasicStdlibClassLibrary();
-  // private final JarLoader loader = new JarIdentifierLoader(List.of());
   private static final Selector JAVA_LANG = Selector.of("java", "lang");
 
   public BasicStdlibProvider(Stdlib stdlib) {
@@ -70,7 +69,6 @@ public class BasicStdlibProvider implements StdlibProvider {
   }
 
   private Optional<ClassEntity> findClassInstrumented(Import i) {
-    // return loader.loadClass(i);
     return library.findClass(i);
   }
 
