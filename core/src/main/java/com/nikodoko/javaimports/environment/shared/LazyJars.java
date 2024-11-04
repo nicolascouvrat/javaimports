@@ -10,6 +10,8 @@ import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import io.opentracing.Span;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,13 +25,14 @@ import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class LazyJars implements ImportProvider, ClassProvider {
   private static Logger log = Logs.getLogger(LazyJars.class.getName());
 
   private final Executor executor;
   private final Map<Dependency.Kind, List<LazyJar>> depsByKind;
-  private final Map<String, LazyJar> depsByPath;
+  private final Map<Set<String>, LazyJar> depsByPath;
 
   // Cache
   private final Map<Identifier, Set<Import>> availableImports = new HashMap<>();
@@ -46,7 +49,13 @@ public class LazyJars implements ImportProvider, ClassProvider {
     this.depsByPath =
         depsByKind.values().stream()
             .flatMap(List::stream)
-            .collect(Collectors.toMap(jar -> jar.path().toString(), Function.identity()));
+            .collect(Collectors.toMap(jar -> split(jar.path()), Function.identity()));
+  }
+
+  private static Set<String> split(Path path) {
+    return StreamSupport.stream(path.spliterator(), false)
+        .map(Path::toString)
+        .collect(Collectors.toSet());
   }
 
   public void load(Dependency.Kind kind) {
@@ -69,20 +78,19 @@ public class LazyJars implements ImportProvider, ClassProvider {
 
     // If we havent found anything, heuristically try to find the jar that _may_ contain this import
     var scoringFunction = similarityScore(i.selector);
-    var candidates = new HashMap<Integer, Set<String>>();
-    for (var candidate : depsByPath.keySet()) {
-      var score = scoringFunction.apply(candidate);
+    var candidates = new HashMap<Integer, List<LazyJar>>();
+    for (var e : depsByPath.entrySet()) {
+      var score = scoringFunction.apply(e.getKey());
       if (score == 0) {
         continue;
       }
 
-      candidates.computeIfAbsent(score, __ -> new HashSet<>()).add(candidate);
+      candidates.computeIfAbsent(score, __ -> new ArrayList<>()).add(e.getValue());
     }
 
     var scores = candidates.keySet().stream().sorted(Comparator.reverseOrder()).toList();
     for (var score : scores) {
-      var toLoad = candidates.get(score).stream().map(depsByPath::get).toList();
-      load(toLoad);
+      load(candidates.get(score));
       for (var jar : loaded) {
         var maybeClass = jar.findClass(i);
         if (maybeClass.isPresent()) {
@@ -94,12 +102,12 @@ public class LazyJars implements ImportProvider, ClassProvider {
     return Optional.empty();
   }
 
-  private Function<String, Integer> similarityScore(Selector s) {
+  private Function<Set<String>, Integer> similarityScore(Selector s) {
     var words = s.identifiers().stream().map(Identifier::toString).collect(Collectors.toSet());
-    return str -> {
+    return elts -> {
       var score = 0;
       for (var w : words) {
-        if (str.contains(w)) score += 1;
+        if (elts.contains(w)) score += 1;
       }
       return score;
     };
