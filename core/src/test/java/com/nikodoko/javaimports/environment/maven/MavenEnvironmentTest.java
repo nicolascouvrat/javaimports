@@ -49,7 +49,8 @@ public class MavenEnvironmentTest {
     project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    Environment environment = Environments.autoSelect(target, "test.module", Options.defaults());
+    Environment environment =
+        Environments.autoSelect(target, aSelector("test.module"), Options.defaults());
     var got = environment.findImports(new Identifier("Second"));
     assertThat(got).containsExactly(anImport("test.module.second.Second"));
   }
@@ -65,7 +66,8 @@ public class MavenEnvironmentTest {
     project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    Environment environment = Environments.autoSelect(target, "test.module", Options.defaults());
+    Environment environment =
+        Environments.autoSelect(target, aSelector("test.module"), Options.defaults());
     var got = environment.findImports(new Identifier("Main"));
     assertThat(got).isEmpty();
   }
@@ -84,7 +86,8 @@ public class MavenEnvironmentTest {
     project = Export.of(BuildSystem.MAVEN, module);
     Path target = project.file(module.name(), "Main.java").get();
 
-    Environment environment = Environments.autoSelect(target, "test.module", Options.defaults());
+    Environment environment =
+        Environments.autoSelect(target, aSelector("test.module"), Options.defaults());
     var got = environment.findImports(new Identifier("Second"));
     var expected =
         List.of(anImport("test.module.second.Second"), anImport("test.module.other.second.Second"));
@@ -101,7 +104,7 @@ public class MavenEnvironmentTest {
     Path target = project.file(module.name(), "Main.java").get();
     Environment environment =
         Environments.autoSelect(
-            target, "test.module", Options.builder().repository(repository).build());
+            target, aSelector("test.module"), Options.builder().repository(repository).build());
 
     var got = environment.findImports(new Identifier("App"));
     assertThat(got).containsExactly(anImport("com.mycompany.app.App"));
@@ -120,7 +123,7 @@ public class MavenEnvironmentTest {
     var target = project.file(module.name(), "Main.java").get();
     var environment =
         Environments.autoSelect(
-            target, "test.module", Options.builder().repository(repository).build());
+            target, aSelector("test.module"), Options.builder().repository(repository).build());
 
     var got = environment.findClass(anImport("com.mycompany.app.App"));
     var expected =

@@ -1,19 +1,20 @@
 package com.nikodoko.javaimports.environment.bazel;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.JavaSourceFile;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.Utils;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
 import com.nikodoko.javaimports.environment.maven.MavenDependencyLoader;
-import com.nikodoko.javaimports.environment.shared.JavaProject;
-import com.nikodoko.javaimports.environment.shared.ProjectParser;
-import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.environment.shared.Dependency;
+import com.nikodoko.javaimports.environment.shared.LazyJars;
+import com.nikodoko.javaimports.environment.shared.LazyJavaProject;
 import io.opentracing.Span;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,13 +41,17 @@ public class BazelEnvironment implements Environment {
   private final Path outputBase;
   private final Path workspaceRoot;
   private final Path fileBeingResolved;
+  private final Selector pkgBeingResolved;
   private final Options options;
   private final boolean isModule;
 
+  // TODO: this should be set after we do the initial bazel query
+  private Precision precision = Precision.MINIMAL;
+
   private BazelQueryResults cache = null;
-  private JavaProject project = null;
-  private BazelClassLoader classLoader = null;
+  private LazyJavaProject project = null;
   private Map<Identifier, List<Import>> availableImports = null;
+  private LazyJars jars = null;
 
   // TMP
   private static final Path BAZEL_REPOSITORY_CACHE =
@@ -69,6 +73,7 @@ public class BazelEnvironment implements Environment {
       Path targetRoot,
       boolean isModule,
       Path fileBeingResolved,
+      Selector pkgBeingResolved,
       Options options) {
     this.outputBase = outputBase(workspaceRoot);
     this.workspaceRoot = workspaceRoot;
@@ -76,6 +81,7 @@ public class BazelEnvironment implements Environment {
     this.isModule = isModule;
     this.fileBeingResolved = fileBeingResolved;
     this.options = options;
+    this.pkgBeingResolved = pkgBeingResolved;
   }
 
   private Path outputBase(Path workspaceRoot) {
@@ -93,7 +99,25 @@ public class BazelEnvironment implements Environment {
     return outputBase;
   }
 
-  private JavaProject project() {
+  private LazyJars jars() {
+    if (jars == null) {
+      var span = Traces.createSpan("BazelEnvironment.initJars");
+      try (var __ = Traces.activate(span)) {
+        jars = initJars();
+      } finally {
+        span.finish();
+      }
+    }
+
+    return jars;
+  }
+
+  private LazyJars initJars() {
+    long start = clock.millis();
+    return new LazyJars(options.executor(), cache().deps());
+  }
+
+  private LazyJavaProject project() {
     if (project == null) {
       var span = Traces.createSpan("BazelEnvironment.initProject");
       try (var __ = Traces.activate(span)) {
@@ -106,18 +130,15 @@ public class BazelEnvironment implements Environment {
     return project;
   }
 
-  private JavaProject initProject() {
+  private LazyJavaProject initProject() {
     long start = clock.millis();
-    var parser = new ProjectParser(cache(), options.executor());
-    var parsed = parser.parseAll();
+    var project = new LazyJavaProject(pkgBeingResolved, cache().srcs());
     log.info(
         String.format(
             "parsed project in %d ms (total of %d files)",
-            clock.millis() - start, Iterables.size(parsed.project().allFiles())));
+            clock.millis() - start, Iterables.size(project.allFiles())));
 
-    parsed.errors().forEach(e -> log.log(Level.WARNING, "error parsing project", e));
-
-    return parsed.project();
+    return project;
   }
 
   private BazelQueryResults cache() {
@@ -162,6 +183,7 @@ public class BazelEnvironment implements Environment {
     var start = clock.millis();
     var tasks =
         cache().deps().stream()
+            .map(BazelDependency::path)
             .map(d -> CompletableFuture.supplyAsync(() -> loadImports(span, d), options.executor()))
             .toList();
     return Utils.sequence(tasks)
@@ -181,23 +203,6 @@ public class BazelEnvironment implements Environment {
       log.log(Level.WARNING, String.format("could not load dependency %s", dep), e);
       return List.of();
     }
-  }
-
-  private BazelClassLoader classLoader() {
-    if (classLoader == null) {
-      var span = Traces.createSpan("BazelEnvironment.initClassLoader");
-      try (var __ = Traces.activate(span)) {
-        classLoader = initClassLoader();
-      } finally {
-        span.finish();
-      }
-    }
-
-    return classLoader;
-  }
-
-  private BazelClassLoader initClassLoader() {
-    return new BazelClassLoader(cache().deps());
   }
 
   private static final String DEPS_FORMAT = "deps(attr('srcs', //%s:%s, //%s:*))";
@@ -225,6 +230,7 @@ public class BazelEnvironment implements Environment {
                 "query",
                 "--disk_cache=%s".formatted(BAZEL_LOCAL_CACHE),
                 "--repository_cache=%s".formatted(BAZEL_REPOSITORY_CACHE),
+                "--output=minrank",
                 deps)
             .redirectError(stderrRedirect)
             .directory(workspaceRoot.toFile())
@@ -259,16 +265,72 @@ public class BazelEnvironment implements Environment {
   }
 
   @Override
-  public Set<ParsedFile> filesInPackage(String packageName) {
-    return Sets.newHashSet(project().filesInPackage(packageName));
+  public List<? extends JavaSourceFile> siblings() {
+    return project().filesInPackage(pkgBeingResolved);
+  }
+
+  enum Precision {
+    // We have:
+    // - Imports:
+    //    - In the project, they are derived from file names of direct dependencies exclusively
+    //    - In the JARs, we have no imports
+    // - Classes:
+    //    - In the project, we will parse a file on demand if that file name matches the requested
+    //    import
+    //    - In the JARs, we will load the jar on demand if its path contains one or multiple words
+    //    in the request import's selector. Then, if it turns out it indeed contains the requested
+    //    import, we will parse the matching class
+    MINIMAL,
+    // In this step, we load all JARs that are direct dependencies, meaning that their imports will
+    // become available
+    ALL_DIRECT_JARS,
+    // In this step, we eagerly parse all files from direct dependencies, which will expose all
+    // static identifiers/classes in the import list, as well as the matching classes if any
+    ALL_DIRECT_DEPS,
+    // In this step, we load all JARs that are transitive dependencies, meaning their imports will
+    // become available. We also make all transitive source files available in a lazy way (i.e.
+    // based on name only)
+    ALL_JARS,
+    // Finally, we eagerly parse all files from transitive dependencies.
+    MAXIMAL;
+  }
+
+  @Override
+  public boolean increasePrecision() {
+    if (precision == Precision.MINIMAL) {
+      jars().load(Dependency.Kind.DIRECT);
+      precision = Precision.ALL_DIRECT_JARS;
+      return true;
+    }
+
+    if (precision == Precision.ALL_DIRECT_JARS) {
+      project().eagerlyParse(options.executor());
+      precision = Precision.ALL_DIRECT_DEPS;
+      return true;
+    }
+
+    if (precision == Precision.ALL_DIRECT_DEPS) {
+      jars().load(Dependency.Kind.TRANSITIVE);
+      project().includeTransitive();
+      precision = Precision.ALL_JARS;
+      return true;
+    }
+
+    if (precision == Precision.ALL_JARS) {
+      project().eagerlyParse(options.executor());
+      precision = Precision.MAXIMAL;
+      return true;
+    }
+
+    return false;
   }
 
   @Override
   public Collection<Import> findImports(Identifier i) {
     var found = new ArrayList<Import>();
-    found.addAll(availableImports().getOrDefault(i, List.of()));
+    found.addAll(jars().findImports(i));
     for (var file : project().allFiles()) {
-      found.addAll(file.findImportables(i));
+      found.addAll(file.findImports(i));
     }
 
     return found;
@@ -292,6 +354,6 @@ public class BazelEnvironment implements Environment {
     //   return Optional.empty();
     // }
 
-    return classLoader().findClass(i);
+    return jars().findClass(i);
   }
 }

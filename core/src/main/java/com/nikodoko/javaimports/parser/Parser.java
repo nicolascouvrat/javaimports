@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
 import com.nikodoko.javaimports.ImporterException;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
@@ -48,20 +49,22 @@ public class Parser {
    * @return an optional containing the parsed file, or nothing if the input is empty or contains
    *     only comments
    * @param javaCode the input code
+   * @param refPkg (optional) the reference to use to determine whether this file is a sibling file
+   *     or not
    * @throws ImporterException if the input cannot be parsed
    */
-  public Optional<ParsedFile> parse(final Path filename, final String javaCode)
+  public Optional<ParsedFile> parse(final Path filename, final String javaCode, Selector refPkg)
       throws ImporterException {
     var span = Traces.createSpan("Parser.parse", FILE_LENGTH.is(javaCode.length()));
     try (var __ = Traces.activate(span)) {
-      return parseInstrumented(filename, javaCode);
+      return parseInstrumented(filename, javaCode, refPkg);
     } finally {
       span.finish();
     }
   }
 
-  public Optional<ParsedFile> parseInstrumented(final Path filename, final String javaCode)
-      throws ImporterException {
+  private Optional<ParsedFile> parseInstrumented(
+      final Path filename, final String javaCode, Selector refPkg) throws ImporterException {
     long start = clock.millis();
     // Parse the code into a compilation unit containing the AST
     JCCompilationUnit unit = getCompilationUnitInstrumented(filename.toString(), javaCode);
@@ -80,7 +83,7 @@ public class Parser {
     }
 
     // Wrap the results in a ParsedFile
-    var f = JCHelper.toParsedFileBuilder(unit).topScope(scanner.topScope()).build();
+    var f = JCHelper.toParsedFileBuilder(unit, refPkg).topScope(scanner.topScope()).build();
     log.info(String.format("completed parsing in %d ms: %s", clock.millis() - start, f));
 
     return Optional.of(f);

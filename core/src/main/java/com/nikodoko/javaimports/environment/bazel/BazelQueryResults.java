@@ -1,7 +1,7 @@
 package com.nikodoko.javaimports.environment.bazel;
 
 import com.nikodoko.javaimports.common.Utils;
-import com.nikodoko.javaimports.environment.shared.SourceFiles;
+import com.nikodoko.javaimports.environment.shared.Dependency;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Parsed result of `bazel query deps(...)` */
-record BazelQueryResults(List<Path> srcs, List<Path> deps) implements SourceFiles {
+record BazelQueryResults(List<BazelDependency> srcs, List<BazelDependency> deps) {
   static Parser parser() {
     return new Parser();
   }
@@ -44,23 +44,45 @@ record BazelQueryResults(List<Path> srcs, List<Path> deps) implements SourceFile
       Utils.checkNotNull(outputBase, "call outputBase() before parse()");
 
       var external = outputBase.resolve("external");
+      var directJarRank = -1;
       try (var r = new BufferedReader(reader)) {
-        var srcs = new ArrayList<Path>();
-        var deps = new ArrayList<Path>();
+        var srcs = new ArrayList<BazelDependency>();
+        var deps = new ArrayList<BazelDependency>();
         String line;
         while ((line = r.readLine()) != null) {
+          var rank = -1;
+          var rankEnd = line.indexOf(' ');
+          if (rankEnd != -1) {
+            rank = Integer.valueOf(line.substring(0, rankEnd));
+            line = line.substring(rankEnd + 1);
+          }
+
           var srcMatch = SRC_FILE_PATTERN.matcher(line);
           if (srcMatch.matches()) {
-            srcs.add(
+            var path =
                 workspaceRoot
                     .resolve(srcMatch.group("package"))
-                    .resolve(srcMatch.group("path") + ".java"));
+                    .resolve(srcMatch.group("path") + ".java");
+            // If you include a java_library, that target will be rank 1 but the sourcefiles will be
+            // rank 2, so we consider rank 2 as direct deps for source files
+            var kind = rank <= 2 ? Dependency.Kind.DIRECT : Dependency.Kind.TRANSITIVE;
+            srcs.add(new BazelDependency(kind, path));
             continue;
           }
 
           var dep = DependencyPatterns.tryMatch(external, isModule, line);
           if (dep != null) {
-            deps.add(dep);
+            // Rank evaluation is a bit tricky here, because depending on whether the project uses
+            // pinning or not, the rank of the actual `.jar` can vary between 2 and 5+
+            // We leverage the fact that --output=minrank orders dependency ranks, and the fact that
+            // we iterate over lines in order to decide that the first jars we see correspond to
+            // direct deps and everything with a higher rank is a transitive dependency.
+            if (directJarRank == -1) {
+              directJarRank = rank;
+            }
+
+            var kind = rank == directJarRank ? Dependency.Kind.DIRECT : Dependency.Kind.TRANSITIVE;
+            deps.add(new BazelDependency(kind, dep));
             continue;
           }
         }
@@ -68,11 +90,6 @@ record BazelQueryResults(List<Path> srcs, List<Path> deps) implements SourceFile
         return new BazelQueryResults(srcs, deps);
       }
     }
-  }
-
-  @Override
-  public List<Path> get() {
-    return srcs;
   }
 
   // This will match files outside of the package we're considering, but it's fine because we depend

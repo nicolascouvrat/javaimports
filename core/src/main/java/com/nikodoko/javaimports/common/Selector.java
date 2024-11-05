@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -91,6 +92,10 @@ public final class Selector {
   /** Returns the rightmost identifier of this {@code Selector}. */
   public Identifier identifier() {
     return identifiers.getLast();
+  }
+
+  public List<Identifier> identifiers() {
+    return Collections.unmodifiableList(identifiers);
   }
 
   /**

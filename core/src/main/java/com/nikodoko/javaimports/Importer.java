@@ -5,6 +5,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.Range;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Metrics;
 import com.nikodoko.javaimports.common.telemetry.Traces;
@@ -83,7 +84,7 @@ public final class Importer {
     long start = clock.millis();
     var span = Traces.createSpan("Importer.addUsedImports");
     try (var __ = Traces.activate(span)) {
-      Optional<ParsedFile> f = parser.parse(filename, javaCode);
+      Optional<ParsedFile> f = parser.parse(filename, javaCode, null);
       if (f.isEmpty()) {
         log.log(Level.WARNING, "file is empty");
         return javaCode;
@@ -121,7 +122,7 @@ public final class Importer {
     }
 
     // Add package information
-    Set<ParsedFile> siblings = parseSiblings(filename);
+    Set<ParsedFile> siblings = parseSiblings(filename, f.pkg());
     fixer.addSiblings(siblings);
     r = fixer.tryToFix();
 
@@ -134,23 +135,33 @@ public final class Importer {
     // If other files in the package contain identifiers that also are in the standard library, we
     // want to resolve them before so as to avoid adding uneeded imports, so we need to add both the
     // stdlib provider and the resolver at the same time.
+    var environment = Environments.autoSelect(filename, f.pkg(), options);
     fixer.addStdlibProvider(options.stdlib());
-    fixer.addEnvironment(Environments.autoSelect(filename, f.packageName(), options));
+    fixer.addEnvironment(environment);
+
+    do {
+      r = fixer.tryToFix();
+      if (r.done()) {
+        return r;
+      }
+    } while (environment.increasePrecision());
 
     return fixer.lastTryToFix();
   }
 
   // Find and parse all java files in the directory of filename, excepting filename itself
-  private Set<ParsedFile> parseSiblings(final Path filename) throws ImporterException {
+  private Set<ParsedFile> parseSiblings(final Path filename, Selector pkg)
+      throws ImporterException {
     var span = Traces.createSpan("Importer.parseSiblings");
     try (var __ = Traces.activate(span)) {
-      return parseSiblingsInstrumented(filename);
+      return parseSiblingsInstrumented(filename, pkg);
     } finally {
       span.finish();
     }
   }
 
-  private Set<ParsedFile> parseSiblingsInstrumented(final Path filename) throws ImporterException {
+  private Set<ParsedFile> parseSiblingsInstrumented(final Path filename, Selector pkg)
+      throws ImporterException {
     Map<Path, String> sources = new HashMap<>();
     try {
       // Retrieve all java files in the parent directory of filename, excluding filename and not
@@ -177,7 +188,7 @@ public final class Importer {
     // rerunning the tool), but fail if one is wrong.
     for (Map.Entry<Path, String> source : sources.entrySet()) {
       try {
-        parser.parse(source.getKey(), source.getValue()).ifPresent(siblings::add);
+        parser.parse(source.getKey(), source.getValue(), pkg).ifPresent(siblings::add);
       } catch (ImporterException e) {
         exceptions.add(e);
       }

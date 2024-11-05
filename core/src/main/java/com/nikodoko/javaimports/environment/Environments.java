@@ -4,25 +4,19 @@ import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.JavaSourceFile;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.environment.bazel.BazelEnvironment;
 import com.nikodoko.javaimports.environment.maven.MavenEnvironment;
-import com.nikodoko.javaimports.parser.ParsedFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public class Environments {
   private static class DummyEnvironment implements Environment {
-    @Override
-    public Set<ParsedFile> filesInPackage(String packageName) {
-      return new HashSet<>();
-    }
-
     @Override
     public Collection<Import> findImports(Identifier i) {
       return List.of();
@@ -32,25 +26,34 @@ public class Environments {
     public Optional<ClassEntity> findClass(Import i) {
       return Optional.empty();
     }
+
+    @Override
+    public List<JavaSourceFile> siblings() {
+      return List.of();
+    }
+
+    @Override
+    public boolean increasePrecision() {
+      return false;
+    }
   }
 
   public static Environment empty() {
     return new DummyEnvironment();
   }
 
-  public static Environment autoSelect(Path filename, String pkg, Options options) {
+  public static Environment autoSelect(Path filename, Selector pkg, Options options) {
     Path current = filename.getParent();
     while (current != null) {
-      // Prioritize POM
-      Path potentialPom = Paths.get(current.toString(), "pom.xml");
-      if (Files.exists(potentialPom)) {
-        return new MavenEnvironment(current, filename, pkg, options);
-      }
-
       Path potentialBuild = Paths.get(current.toString(), "BUILD");
       Path potentialBuildBazel = Paths.get(current.toString(), "BUILD.bazel");
       if (Files.exists(potentialBuild) || Files.exists(potentialBuildBazel)) {
-        return initBazelEnvironment(current, filename, options);
+        return initBazelEnvironment(current, filename, pkg, options);
+      }
+
+      Path potentialPom = Paths.get(current.toString(), "pom.xml");
+      if (Files.exists(potentialPom)) {
+        return new MavenEnvironment(current, filename, pkg, options);
       }
 
       current = current.getParent();
@@ -59,7 +62,8 @@ public class Environments {
     return new DummyEnvironment();
   }
 
-  private static Environment initBazelEnvironment(Path targetRoot, Path filename, Options options) {
+  private static Environment initBazelEnvironment(
+      Path targetRoot, Path filename, Selector pkg, Options options) {
     // Iterate further to find the workspace root | module root
     Path current = targetRoot;
     while (current != null) {
@@ -68,11 +72,11 @@ public class Environments {
       Path potentialModule = Paths.get(current.toString(), "MODULE");
       Path potentialModuleBazel = Paths.get(current.toString(), "MODULE.bazel");
       if (Files.exists(potentialWorkspace) | Files.exists(potentialWorkspaceBazel)) {
-        return new BazelEnvironment(current, targetRoot, false, filename, options);
+        return new BazelEnvironment(current, targetRoot, false, filename, pkg, options);
       }
 
       if (Files.exists(potentialModule) | Files.exists(potentialModuleBazel)) {
-        return new BazelEnvironment(current, targetRoot, true, filename, options);
+        return new BazelEnvironment(current, targetRoot, true, filename, pkg, options);
       }
 
       current = current.getParent();

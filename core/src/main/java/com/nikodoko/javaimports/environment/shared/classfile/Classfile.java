@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.environment.jarutil.classfile;
+package com.nikodoko.javaimports.environment.shared.classfile;
 
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
@@ -21,7 +21,7 @@ public class Classfile {
 
   private static Selector readClass(DataInputStream dis, ConstantPool cp) throws IOException {
     var idx = dis.readUnsignedShort();
-    return BinaryNames.toSelector(cp.getClassName(idx));
+    return BinaryNames.toSelector(cp.getClassName(idx), true);
   }
 
   private static Import readParentClass(DataInputStream dis, ConstantPool cp) throws IOException {
@@ -80,7 +80,7 @@ public class Classfile {
 
     // This class & parent
     var thisClassIdx = s.readUnsignedShort();
-    var thisClass = BinaryNames.toSelector(cp.getClassName(thisClassIdx));
+    var thisClass = BinaryNames.toSelector(cp.getClassName(thisClassIdx), true);
     var parentClass = readParentClass(s, cp);
 
     // Interfaces

@@ -2,6 +2,7 @@ package com.nikodoko.javaimports.fixer;
 
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.JavaSourceFile;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
@@ -47,7 +48,7 @@ public class Fixer {
     // Needed because some other files in the project might extend a class defined in the current
     // file
     library.add(file);
-    candidates.add(Candidate.Source.SIBLING, file::findImportables);
+    candidates.add(Candidate.Source.SIBLING, file);
   }
 
   /**
@@ -68,10 +69,11 @@ public class Fixer {
    * @param siblings the files to add
    */
   public void addSiblings(Set<ParsedFile> siblings) {
-    Set<ParsedFile> siblingsOfSamePackage =
+    List<JavaSourceFile> siblingsOfSamePackage =
         siblings.stream()
-            .filter(s -> s.packageName().equals(file.packageName()))
-            .collect(Collectors.toSet());
+            .filter(s -> s.pkg().equals(file.pkg()))
+            .map(f -> (JavaSourceFile) f)
+            .toList();
 
     loader.addSiblings(siblingsOfSamePackage);
     siblingsOfSamePackage.stream().forEach(f -> candidates.add(Candidate.Source.SIBLING, f));
@@ -101,7 +103,9 @@ public class Fixer {
 
   private Result loadAndTryToFixInstrumented(boolean lastTry) {
     loader.load();
-    log.info("load completed");
+    log.info(
+        "load completed, needParents=%s, unresolved=%s"
+            .formatted(file.orphans().needsParents(), file.unresolved()));
 
     if (!file.orphans().needsParents() && file.unresolved().isEmpty()) {
       return Result.complete();
@@ -132,19 +136,20 @@ public class Fixer {
       return Result.incomplete();
     }
 
-    fixes.addAll(
+    var parentFixes =
         result.fixes.stream()
             .filter(i -> !i.selector.scope().equals(file.pkg()))
-            .collect(Collectors.toSet()));
+            .collect(Collectors.toSet());
     var unresolved = file.unresolved();
 
     // We had orphan classes, but they did not have any unresolved identifiers
     if (unresolved.isEmpty()) {
-      return Result.incomplete(fixes);
+      return Result.complete(parentFixes);
     }
 
     fixes.addAll(findFixes(unresolved, List.of()));
     var allGood = fixes.size() == unresolved.size();
+    fixes.addAll(parentFixes);
 
     if (allGood) {
       return Result.complete(fixes);

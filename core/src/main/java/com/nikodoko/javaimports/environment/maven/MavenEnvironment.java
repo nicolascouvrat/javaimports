@@ -1,21 +1,20 @@
 package com.nikodoko.javaimports.environment.maven;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.nikodoko.javaimports.Options;
 import com.nikodoko.javaimports.common.ClassEntity;
 import com.nikodoko.javaimports.common.Identifier;
 import com.nikodoko.javaimports.common.Import;
+import com.nikodoko.javaimports.common.JavaSourceFile;
+import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.common.telemetry.Logs;
 import com.nikodoko.javaimports.common.telemetry.Tag;
 import com.nikodoko.javaimports.common.telemetry.Traces;
 import com.nikodoko.javaimports.environment.Environment;
-import com.nikodoko.javaimports.environment.jarutil.LazyJar;
-import com.nikodoko.javaimports.environment.jarutil.LazyJars;
-import com.nikodoko.javaimports.environment.shared.JavaProject;
-import com.nikodoko.javaimports.environment.shared.ProjectParser;
-import com.nikodoko.javaimports.parser.ParsedFile;
+import com.nikodoko.javaimports.environment.maven.MavenProjectFinder.MavenSourceFile;
+import com.nikodoko.javaimports.environment.shared.LazyJar;
+import com.nikodoko.javaimports.environment.shared.LazyJavaProject;
 import io.opentracing.Span;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
@@ -25,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,20 +42,22 @@ public class MavenEnvironment implements Environment {
 
   private final Path root;
   private final Path fileBeingResolved;
+  private final Selector pkgBeingResolved;
   private final Options options;
   private final MavenDependencyResolver resolver;
   private final MavenRepository repository;
 
   private MavenClassLoader classLoader;
   private Map<Identifier, List<Import>> availableImports = new HashMap<>();
-  private JavaProject project;
+  private LazyJavaProject project;
   private boolean projectIsParsed = false;
   private boolean isInitialized = false;
 
   public MavenEnvironment(
-      Path root, Path fileBeingResolved, String pkgBeingResolved, Options options) {
+      Path root, Path fileBeingResolved, Selector pkgBeingResolved, Options options) {
     this.root = root;
     this.fileBeingResolved = fileBeingResolved;
+    this.pkgBeingResolved = pkgBeingResolved;
     this.options = options;
     var repository = options.repository();
     this.resolver = MavenDependencyResolver.withRepository(repository);
@@ -65,9 +65,14 @@ public class MavenEnvironment implements Environment {
   }
 
   @Override
-  public Set<ParsedFile> filesInPackage(String packageName) {
+  public boolean increasePrecision() {
+    return false;
+  }
+
+  @Override
+  public List<? extends JavaSourceFile> siblings() {
     parseProjectIfNeeded();
-    return Sets.newHashSet(project.filesInPackage(packageName));
+    return project.filesInPackage(pkgBeingResolved);
   }
 
   @Override
@@ -88,7 +93,7 @@ public class MavenEnvironment implements Environment {
     var found = new ArrayList<Import>();
     found.addAll(availableImports.getOrDefault(i, List.of()));
     for (var file : project.allFiles()) {
-      found.addAll(file.findImportables(i));
+      found.addAll(file.findImports(i));
     }
 
     return found;
@@ -139,7 +144,7 @@ public class MavenEnvironment implements Environment {
         imports.stream().collect(Collectors.groupingBy(i -> i.selector.identifier()));
     classLoader =
         new MavenClassLoader(
-            repository, c -> resolver.resolve(c).jar, LazyJars::new, directDependencies);
+            repository, c -> resolver.resolve(c).jar, options.executor(), directDependencies);
     isInitialized = true;
     log.log(Level.INFO, String.format("init completed in %d ms", clock.millis() - start));
   }
@@ -148,19 +153,24 @@ public class MavenEnvironment implements Environment {
     if (projectIsParsed) {
       return;
     }
-    long start = clock.millis();
 
-    var srcs = MavenProjectFinder.withRoot(root).exclude(fileBeingResolved);
-    var parser = new ProjectParser(srcs, options.executor());
-    var parsed = parser.parseAll();
+    long start = clock.millis();
+    List<MavenSourceFile> srcs = List.of();
+    try {
+      srcs = MavenProjectFinder.withRoot(root).exclude(fileBeingResolved).srcs();
+    } catch (IOException e) {
+      log.log(Level.WARNING, "error retrieving source files", e);
+    }
+
+    var project = new LazyJavaProject(pkgBeingResolved, srcs);
+    // TODO: implement progressive resolution for maven
+    project.eagerlyParse(options.executor());
     log.info(
         String.format(
             "parsed project in %d ms (total of %d files)",
-            clock.millis() - start, Iterables.size(parsed.project().allFiles())));
+            clock.millis() - start, project.allFiles().size()));
 
-    parsed.errors().forEach(e -> log.log(Level.WARNING, "error parsing project", e));
-
-    project = parsed.project();
+    this.project = project;
     projectIsParsed = true;
   }
 
@@ -244,7 +254,7 @@ public class MavenEnvironment implements Environment {
       log.info(String.format("looking for dependency %s at %s", dependency, location));
 
       // var importables = MavenDependencyLoader.load(location.jar);
-      var importables = new ArrayList<>(new LazyJar(location.jar).importables());
+      var importables = new ArrayList<>(new LazyJar(location.jar).findAllImports());
       var dependencies = MavenPomLoader.load(location.pom).pom.dependencies();
       loaded = new LoadedDependency(importables, dependencies, dependency);
     } catch (Exception e) {

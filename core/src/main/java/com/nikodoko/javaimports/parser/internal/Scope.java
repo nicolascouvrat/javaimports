@@ -45,7 +45,7 @@ public class Scope {
   }
 
   public void maybeAddUnresolved(Identifier identifier) {
-    if (resolvable(identifier)) {
+    if (resolvable(identifier) || JavaKeywords.ALL.contains(identifier)) {
       return;
     }
 

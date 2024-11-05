@@ -383,7 +383,7 @@ public class OrphansTest {
   private OrphansAndScope getOrphans(String code) {
     var parser = new Parser();
     try {
-      var scope = parser.parse(Paths.get(""), code).get().topScope();
+      var scope = parser.parse(Paths.get(""), code, null).get().topScope();
       return new OrphansAndScope(Orphans.wrapping(scope), scope);
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {

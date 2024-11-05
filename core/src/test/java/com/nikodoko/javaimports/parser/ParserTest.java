@@ -203,8 +203,7 @@ public class ParserTest {
         "  }",
         "}",
       },
-      // The parser does not know about "this" and sees it as an unresolved symbol
-      {"this", "a"},
+      {"a"},
       {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
@@ -1169,11 +1168,9 @@ public class ParserTest {
         "Override",
         "Iterable",
         "Math",
-        "this",
         "Object",
         "SuppressWarnings",
         "System",
-        "super",
         "Integer",
         "SafeVarargs",
         // These come from classes that, while having their parents in the file, could not be
@@ -1330,7 +1327,7 @@ public class ParserTest {
     Parser parser = new Parser();
     ParsedFile got = null;
     try {
-      got = parser.parse(Paths.get(name), input).get();
+      got = parser.parse(Paths.get(name), input, null).get();
     } catch (ImporterException e) {
       for (ImporterException.ImporterDiagnostic d : e.diagnostics()) {
         System.out.println(d);

@@ -1,4 +1,4 @@
-package com.nikodoko.javaimports.environment.jarutil;
+package com.nikodoko.javaimports.environment.shared;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.nikodoko.javaimports.common.CommonTestUtil.aSelector;
@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class LazyJarTest {
-  static final URL repositoryURL = JarIdentifierLoaderTest.class.getResource("/.m2/repository");
+  static final URL repositoryURL = LazyJarTest.class.getResource("/.m2/repository");
   Path repository;
 
   @BeforeEach
@@ -153,7 +153,7 @@ public class LazyJarTest {
   @MethodSource("jarPathProvider")
   void testDependencyLoading(String name, String jarPath, List<Import> expected) throws Exception {
     var jar = new LazyJar(repository.resolve(jarPath));
-    var got = jar.importables();
+    var got = jar.findAllImports();
     assertThat(got).containsExactlyElementsIn(expected);
   }
 }
