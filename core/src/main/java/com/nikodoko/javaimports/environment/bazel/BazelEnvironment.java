@@ -297,6 +297,14 @@ public class BazelEnvironment implements Environment {
 
   @Override
   public boolean increasePrecision() {
+    var oldPrecision = precision;
+    var res = increasePrecisionInternal();
+    var newPrecision = precision;
+    log.log(Level.INFO, "precision increased from %s to %s ".formatted(oldPrecision, newPrecision));
+    return res;
+  }
+
+  private boolean increasePrecisionInternal() {
     if (precision == Precision.MINIMAL) {
       jars().load(Dependency.Kind.DIRECT);
       precision = Precision.ALL_DIRECT_JARS;

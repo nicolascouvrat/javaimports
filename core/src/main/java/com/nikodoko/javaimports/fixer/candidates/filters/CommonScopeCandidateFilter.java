@@ -1,23 +1,28 @@
 package com.nikodoko.javaimports.fixer.candidates.filters;
 
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.fixer.candidates.Candidate;
 import com.nikodoko.javaimports.fixer.candidates.Candidates;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class CommonScopeCandidateFilter implements CandidateFilter {
   private static class ScopeCounter {
     private Map<Selector, Integer> scopeCounter = new HashMap<>();
 
     void add(List<Candidate> candidates) {
-      candidates.stream()
-          .map(c -> scope(c))
-          .forEach(scope -> scopeCounter.put(scope, get(scope) + 1));
+      add(candidates.stream().map(c -> c.i));
+    }
+
+    void add(Stream<Import> candidates) {
+      candidates.map(c -> scope(c)).forEach(scope -> scopeCounter.put(scope, get(scope) + 1));
     }
 
     int get(Selector scope) {
@@ -26,8 +31,14 @@ class CommonScopeCandidateFilter implements CandidateFilter {
   }
 
   // Candidates that are the only choice for their selector
-  private List<Candidate> selected = new ArrayList<>();
-  private ScopeCounter scopeCounter = new ScopeCounter();
+  private final List<Candidate> selected;
+  private final ScopeCounter scopeCounter;
+
+  CommonScopeCandidateFilter(Collection<Import> existingImports) {
+    scopeCounter = new ScopeCounter();
+    scopeCounter.add(existingImports.stream());
+    selected = new ArrayList<>();
+  }
 
   @Override
   public Candidates filter(Candidates candidates) {
@@ -57,7 +68,7 @@ class CommonScopeCandidateFilter implements CandidateFilter {
     var topCount = highestCount(candidates);
     var best =
         candidates.stream()
-            .filter(c -> scopeCounter.get(scope(c)) == topCount)
+            .filter(c -> scopeCounter.get(scope(c.i)) == topCount)
             .collect(Collectors.toList());
     return Candidates.forSelector(selector).add(best).build();
   }
@@ -65,11 +76,11 @@ class CommonScopeCandidateFilter implements CandidateFilter {
   private int highestCount(List<Candidate> candidates) {
     var top =
         Collections.max(
-            candidates, (c1, c2) -> scopeCounter.get(scope(c1)) - scopeCounter.get(scope(c2)));
-    return scopeCounter.get(scope(top));
+            candidates, (c1, c2) -> scopeCounter.get(scope(c1.i)) - scopeCounter.get(scope(c2.i)));
+    return scopeCounter.get(scope(top.i));
   }
 
-  private static Selector scope(Candidate candidate) {
-    return candidate.i.selector.scope();
+  private static Selector scope(Import candidate) {
+    return candidate.selector.scope();
   }
 }

@@ -43,7 +43,7 @@ public class Fixer {
     this.candidates = new CandidateFinder();
     this.library = new ClassLibrary();
     this.loader = Loader.of(file);
-    this.strategy = new BasicCandidateSelectionStrategy(file.pkg());
+    this.strategy = new BasicCandidateSelectionStrategy(file.pkg(), file.imports().values());
     this.parents = new ParentClassFinder(candidates, library, strategy);
     // Needed because some other files in the project might extend a class defined in the current
     // file
@@ -171,7 +171,7 @@ public class Fixer {
       Set<Identifier> unresolved, Collection<Import> current) {
     var selectors = unresolved.stream().map(Selector::of).collect(Collectors.toList());
     var candidates = selectors.stream().map(this.candidates::find).reduce(Candidates::merge).get();
-    var best = new BasicCandidateSelectionStrategy(file.pkg()).selectBest(candidates);
+    var best = strategy.selectBest(candidates);
 
     return selectors.stream()
         .map(best::forSelector)

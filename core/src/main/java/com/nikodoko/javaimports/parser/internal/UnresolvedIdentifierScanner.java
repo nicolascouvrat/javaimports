@@ -125,6 +125,9 @@ public class UnresolvedIdentifierScanner extends TreePathScanner<Void, Void> {
   // hand).
   @Override
   public Void visitCase(CaseTree tree, Void v) {
+    var t = (JCCase) tree;
+    System.out.println(t.getLabels());
+    System.out.println(t.getGuard());
     return scan(((JCCase) tree).stats, v);
   }
 

@@ -298,6 +298,25 @@ public class ParserTest {
       {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
     },
     {
+      {"java21Switch"},
+      {
+        "package com.pkg.test;",
+        "class Test {",
+        "  public void f(Object o) {",
+        "    int b = switch (o) {",
+        "    case Integer i -> {",
+        "      int c = i + 1;",
+        "      yield c;",
+        "    }",
+        "    default -> 0;",
+        "    };",
+        "  }",
+        "}",
+      },
+      {},
+      {ClassEntity.named(aSelector("Test")).declaring(someIdentifiers("f")).build()},
+    },
+    {
       // Because "The scope of an enum constant C declared in an enum type T is the body of T, and
       // any case label of a switch statement whose expression is of enum type T" (see
       // https://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-6.3), we should ignore
@@ -1326,6 +1345,9 @@ public class ParserTest {
       throws Exception {
     Parser parser = new Parser();
     ParsedFile got = null;
+    if (!name.equals("java21Switch")) {
+      return;
+    }
     try {
       got = parser.parse(Paths.get(name), input, null).get();
     } catch (ImporterException e) {

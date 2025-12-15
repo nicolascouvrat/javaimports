@@ -1,8 +1,10 @@
 package com.nikodoko.javaimports.fixer.candidates.filters;
 
+import com.nikodoko.javaimports.common.Import;
 import com.nikodoko.javaimports.common.Selector;
 import com.nikodoko.javaimports.fixer.candidates.Candidate;
 import com.nikodoko.javaimports.fixer.candidates.Candidates;
+import java.util.Collection;
 import java.util.List;
 
 public class CandidateFilters {
@@ -12,8 +14,8 @@ public class CandidateFilters {
     return new SourceCandidateFilter();
   }
 
-  public static CandidateFilter mostCommonScope() {
-    return new CommonScopeCandidateFilter();
+  public static CandidateFilter mostCommonScope(Collection<Import> existingImports) {
+    return new CommonScopeCandidateFilter(existingImports);
   }
 
   // Pkg is the package for which we are trying to find imports
